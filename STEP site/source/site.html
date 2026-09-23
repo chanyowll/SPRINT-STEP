@@ -3943,56 +3943,25 @@ document.getElementById("fa-spec").innerHTML = `
     <div class="r"><dt>Sessions</dt><dd><b>${F.sessions.filter(s => !s.special).length}</b><em>in the curriculum</em></dd></div>
   </dl>`;
 
-/* ---------- the view switch ---------- */
+/* ---------- scroll to section on hash change ---------- */
 (function () {
   const note = document.getElementById("fa-note");
-  const NOTES = {
-    trainers: "Who teaches each topic, what has been delivered so far, and where the slide decks go.",
-    mentors: "Who mentors which team, when they meet this week, and the room they meet in.",
-    panel: "Who sits on each panel, and the score sheet used on Saturday.",
-  };
-  const VIEWS = ["trainers", "mentors", "panel"];
-  /* The merged site routes on the hash, so the view rides along as
-     #trainers-<view> — which its router reads as the trainers route. */
-  const readHash = () => {
-    const h = (location.hash || "").replace(/^#/, "").replace(/^trainers-?/, "");
-    return VIEWS.includes(h) ? h : "trainers";
-  };
-  const LABEL = { trainers: "Trainers", mentors: "Mentors", panel: "Panel" };
-  const bar = document.getElementById("fa-bar");
-  bar.innerHTML = VIEWS.map(v =>
-    `<button role="tab" class="vb" data-v="${v}" aria-selected="false">${LABEL[v]}</button>`).join("");
+  note.textContent = "Who teaches each topic, who mentors which team, and who sits on each panel.";
 
-  /* mode: "init" on first paint (never touch the URL — in the merged site the
-     hash belongs to the router), "push" when the reader chose a view. */
-  function show(v, mode) {
-    VIEWS.forEach(k => { document.getElementById("view-" + k).hidden = k !== v; });
-    note.textContent = NOTES[v];
-    document.getElementById("fa-title").textContent = LABEL[v];
-    bar.querySelectorAll(".vb").forEach(b =>
-      b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"));
-    document.querySelectorAll(".ddm a").forEach(a =>
-      a.setAttribute("aria-current", (a.getAttribute("href") || "").endsWith(
-        v === "trainers" ? "#trainers" : "-" + v) ? "true" : "false"));
-    if (mode === "init") return;
-    const want = "#trainers" + (v === "trainers" ? "" : "-" + v);
-    if (location.hash !== want) {
-      if (mode === "push") location.hash = want; else history.replaceState(null, "", want);
+  /* When the hash changes to #trainers-mentors or #trainers-panel,
+     scroll to that section. All views are always visible. */
+  function scrollToView() {
+    const raw = (location.hash || "").replace(/^#/, "");
+    if (!raw || !/^trainers(-|$)/.test(raw)) return;
+    const sub = raw.replace(/^trainers-?/, "");
+    if (sub === "mentors" || sub === "panel") {
+      const el = document.getElementById("view-" + sub);
+      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }
-  bar.addEventListener("click", e => {
-    const b = e.target.closest(".vb"); if (!b) return;
-    show(b.dataset.v, "push");
-  });
-  /* the Trainers tab menu drops a new hash in — follow it, but leave hashes
-     that belong to another route alone */
-  window.addEventListener("hashchange", () => {
-    const raw = (location.hash || "").replace(/^#/, "");
-    if (raw && !/^trainers(-|$)/.test(raw) && !VIEWS.includes(raw)) return;
-    const h = readHash();
-    if (document.getElementById("view-" + h).hidden) show(h, "init");
-  });
-  show(readHash(), "init");
+  window.addEventListener("hashchange", scrollToView);
+  // Initial scroll if landing on a sub-view
+  setTimeout(scrollToView, 100);
 })();
 
 /* ---------- trainers ---------- */
@@ -4451,17 +4420,6 @@ window.__renderTrainers = function() {
   } else {
     gate.hidden = true;
     content.hidden = false;
-    // Set appropriate view based on role
-    if (user.role === "mentor") {
-      const btn = document.querySelector('[data-view="mentors"]');
-      if (btn) btn.click();
-    } else if (user.role === "panel") {
-      const btn = document.querySelector('[data-view="panel"]');
-      if (btn) btn.click();
-    } else if (user.role === "trainer") {
-      const btn = document.querySelector('[data-view="trainers"]');
-      if (btn) btn.click();
-    }
   }
 };
 window.__renderTrainers();
