@@ -338,6 +338,17 @@
     </div>
   </section>
 
+  <!-- ===== Saturday panel schedule (so participants see their slot) ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Saturday feedback sessions</div>
+      <h2>Your panel schedule</h2>
+      <p class="lede">Three panels run in parallel from 9:00 AM. Each team gets thirty-five minutes — a
+         five-minute video, then questions.</p>
+    </div>
+    <div class="pgrid" id="tw-pnl-grid"></div>
+  </section>
+
   <!-- ===== Mini game ===== -->
   <section>
     <div class="game reveal" id="gm-board">
@@ -1610,7 +1621,39 @@ const daysAway = iso => {
     </li>`).join("");
 })();
 
-/* ---------- mini game: put the steps in order ---------- */
+/* ---------- Saturday panel schedule (for participants) ---------- */
+(function () {
+  const panels = window.MOCK.faculty.panels;
+  const groups = window.MOCK.groups;
+  const byTeam = Object.fromEntries(groups.map(t => [t.short, t]));
+  const grid = document.getElementById("tw-pnl-grid");
+  if (!grid || !panels) return;
+
+  function initials(n) {
+    const skip = /^(ms|mr|mrs|dr|engr|atty|prof|sir|maam)\.?$/i;
+    const parts = String(n).replace(/[""\"]/g, "").split(/\s+/).filter(x => x && !skip.test(x));
+    return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+  }
+
+  grid.innerHTML = panels.map((p, i) => `
+    <article class="pcard reveal" style="--d:${i * 70}ms">
+      <div class="ph"><span class="pl">Panel ${esc(p.letter)}</span>
+        <span class="pn2">${p.teams.length} team${p.teams.length === 1 ? "" : "s"}</span></div>
+      <div class="pmembers">
+        ${p.panelists.map(n => `<div class="pm"><span class="fav sm">${esc(initials(n))}</span>${esc(n)}</div>`).join("")}
+      </div>
+      <div class="pslots">
+        ${p.teams.map(t => {
+          const g = byTeam[t.team];
+          return `<div class="ps">
+            <span class="pst">${esc(t.at)}</span>
+            ${g ? `<span class="tlogo sm"><img src="${g.mark}" alt="" loading="lazy"></span>` : ""}
+            <span class="psn">${esc(t.team)}</span></div>`;
+        }).join("")}
+      </div>
+    </article>`).join("");
+})();
+
 (function () {
   const G = W.game;
   if (!G) return;
