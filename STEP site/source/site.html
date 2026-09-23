@@ -805,6 +805,56 @@
 
 <main class="wrap page stack" style="gap:var(--s7)">
 
+  <!-- ===== Submit this week (moved to top for immediate visibility) ===== -->
+  <section id="submit">
+    <div class="section-head">
+      <div class="eyebrow">Submission</div>
+      <h2>Hand in this week's work</h2>
+      <p class="lede">Two files each week: the five-minute video your panel will watch, and the slide deck
+         behind it.</p>
+    </div>
+
+    <div class="card reveal">
+      <div class="due" id="due-bar"></div>
+      <div class="drops">
+        <!-- 5-minute video -->
+        <div class="drop" id="drop-video" data-kind="video">
+          <input type="file" id="file-video" accept="video/mp4,video/quicktime,video/x-m4v"
+                 aria-label="Upload your five-minute video">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 11 6-3v8l-6-3z"/>
+          </svg>
+          <h4>Five-minute video</h4>
+          <p class="hint">MP4 or MOV, up to 500 MB. Drag it here or click to choose.</p>
+        </div>
+        <!-- Slide deck -->
+        <div class="drop" id="drop-slides" data-kind="slides">
+          <input type="file" id="file-slides" accept=".pdf,.pptx,.ppt,application/pdf"
+                 aria-label="Upload your slide deck">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/>
+          </svg>
+          <h4>Slide deck</h4>
+          <p class="hint">PDF or PPTX, up to 50 MB. Drag it here or click to choose.</p>
+        </div>
+      </div>
+      <div class="row mt-4" style="justify-content:space-between; flex-wrap:wrap; gap:var(--s3)">
+        <p class="mockup-note mb-0">This is a design mockup — files stay in your browser and nothing is sent anywhere.</p>
+        <button class="btn" id="btn-submit" disabled>Submit both files</button>
+      </div>
+    </div>
+
+    <div class="card mt-4 reveal">
+      <div class="card-head"><h3>What you have already handed in</h3></div>
+      <div class="att-scroll">
+        <table class="table">
+          <thead><tr><th>Week</th><th>Output</th><th>Files</th><th>Submitted</th><th>Result</th></tr></thead>
+          <tbody id="past-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
   <!-- ===== Performance dashboard ===== -->
   <section>
     <div class="section-head">
@@ -1026,55 +1076,6 @@
     </div>
   </section>
 
-  <!-- ===== Submit this week ===== -->
-  <section id="submit">
-    <div class="section-head">
-      <div class="eyebrow">Submission</div>
-      <h2>Hand in this week's work</h2>
-      <p class="lede">Two files each week: the five-minute video your panel will watch, and the slide deck
-         behind it.</p>
-    </div>
-
-    <div class="card reveal">
-      <div class="due" id="due-bar"></div>
-      <div class="drops">
-        <!-- 5-minute video -->
-        <div class="drop" id="drop-video" data-kind="video">
-          <input type="file" id="file-video" accept="video/mp4,video/quicktime,video/x-m4v"
-                 aria-label="Upload your five-minute video">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-            <rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 11 6-3v8l-6-3z"/>
-          </svg>
-          <h4>Five-minute video</h4>
-          <p class="hint">MP4 or MOV, up to 500 MB. Drag it here or click to choose.</p>
-        </div>
-        <!-- Slide deck -->
-        <div class="drop" id="drop-slides" data-kind="slides">
-          <input type="file" id="file-slides" accept=".pdf,.pptx,.ppt,application/pdf"
-                 aria-label="Upload your slide deck">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-            <rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/>
-          </svg>
-          <h4>Slide deck</h4>
-          <p class="hint">PDF or PPTX, up to 50 MB. Drag it here or click to choose.</p>
-        </div>
-      </div>
-      <div class="row mt-4" style="justify-content:space-between; flex-wrap:wrap; gap:var(--s3)">
-        <p class="mockup-note mb-0">This is a design mockup — files stay in your browser and nothing is sent anywhere.</p>
-        <button class="btn" id="btn-submit" disabled>Submit both files</button>
-      </div>
-    </div>
-
-    <div class="card mt-4 reveal">
-      <div class="card-head"><h3>What you have already handed in</h3></div>
-      <div class="att-scroll">
-        <table class="table">
-          <thead><tr><th>Week</th><th>Output</th><th>Files</th><th>Submitted</th><th>Result</th></tr></thead>
-          <tbody id="past-rows"></tbody>
-        </table>
-      </div>
-    </div>
-  </section>
 
 </main>
 </div>
@@ -1243,7 +1244,7 @@
       <div class="eyebrow" id="fa-eyebrow">The people who run the cycle</div>
       <h1 id="fa-title">Trainers</h1>
       <p class="lede" id="fa-note">—</p>
-      <div class="viewbar" id="fa-bar" role="tablist" aria-label="Trainers, Mentors and Panel"></div>
+      <!-- viewbar toggle removed — the nav dropdown handles switching -->
     </div>
     <div class="spec" id="fa-spec"></div>
   </div>
@@ -1256,24 +1257,6 @@
   <div class="fa-view" id="view-trainers">
 
     <section>
-      <div class="section-head">
-        <div class="eyebrow">Who teaches what</div>
-        <h2>The trainers</h2>
-      </div>
-      <div class="fgrid" id="tr-grid"></div>
-    </section>
-
-    <section class="mt-7">
-      <div class="section-head">
-        <div class="eyebrow">Curriculum</div>
-        <h2>Topics and what has been delivered</h2>
-        <p class="lede">The full cycle, in order. Each session carries its coverage, the output the teams owe,
-           and the slide deck once it is posted.</p>
-      </div>
-      <div class="curr" id="curr"></div>
-    </section>
-
-    <section class="mt-7">
       <div class="section-head">
         <div class="eyebrow">Materials</div>
         <h2>Post your slides</h2>
@@ -1298,10 +1281,28 @@
       </div>
     </section>
 
+    <section class="mt-7">
+      <div class="section-head">
+        <div class="eyebrow">Who teaches what</div>
+        <h2>The trainers</h2>
+      </div>
+      <div class="fgrid" id="tr-grid"></div>
+    </section>
+
+    <section class="mt-7">
+      <div class="section-head">
+        <div class="eyebrow">Curriculum</div>
+        <h2>Topics and what has been delivered</h2>
+        <p class="lede">The full cycle, in order. Each session carries its coverage, the output the teams owe,
+           and the slide deck once it is posted.</p>
+      </div>
+      <div class="curr" id="curr"></div>
+    </section>
+
   </div>
 
   <!-- ===================== MENTORS ===================== -->
-  <div class="fa-view" id="view-mentors" hidden>
+  <div class="fa-view" id="view-mentors">
 
     <section>
       <div class="section-head">
@@ -1325,7 +1326,7 @@
   </div>
 
   <!-- ===================== PANEL ===================== -->
-  <div class="fa-view" id="view-panel" hidden>
+  <div class="fa-view" id="view-panel">
 
     <section>
       <div class="section-head">
