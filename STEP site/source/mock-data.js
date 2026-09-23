@@ -342,17 +342,29 @@ window.MOCK = (function () {
     canAccess(route, user) {
       const u = user || auth.getCurrentUser();
       if (!u || u.role === "guest") {
-        // Public routes
+        // Public routes — accessible without login
         return ["home", "program", "groups"].includes(route);
       }
-      // Logged in roles
+
+      // ── Public routes — always accessible to logged-in users
       if (["home", "program", "groups"].includes(route)) return true;
-      if (route === "week") return true; // All authenticated users can see cohort this-week
-      if (route === "myteam" || route === "capstone") return true; // Accessible to all authenticated users
+
+      // ── This Week — all authenticated users
+      if (route === "week") return true;
+
+      // ── My Team's Work — all authenticated users
+      if (route === "myteam") return true;
+
+      // ── Capstone — all authenticated users
+      if (route === "capstone") return true;
+
+      // ── Trainers / Mentors / Panel — restricted to staff roles
       if (route === "trainers") {
         return ["trainer", "mentor", "panel", "admin"].includes(u.role);
       }
-      return true;
+
+      // ── Default: deny access to unknown routes
+      return ["admin"].includes(u.role);
     },
 
     getAssignedTeams(user) {

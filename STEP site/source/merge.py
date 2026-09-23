@@ -118,6 +118,13 @@ router = """
 
   function show(name, anchor) {
     if (!titles[name]) name = "home";
+    // ── RBAC: block navigation to locked routes ──
+    if (window.MOCK && window.MOCK.auth && !window.MOCK.auth.canAccess(name)) {
+      name = "home";
+      location.hash = "#home";
+      if (window.MOCK.openAuthModal) window.MOCK.openAuthModal();
+      return;
+    }
     // the Capstone form panel is docked to the page; never let it follow you elsewhere
     if (name !== "capstone" && window.__closeSheet) window.__closeSheet();
     routes.forEach(function (r) { r.hidden = (r.dataset.route !== name); });
