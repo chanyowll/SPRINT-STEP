@@ -505,22 +505,20 @@ window.__renderMyTeam = function(targetTeamId) {
   const slot = document.getElementById("team-switcher-slot");
   if (slot) {
     if (user.role === "participant") {
-      slot.innerHTML = `
-        <div class="team-switcher-bar">
-          <span style="font-weight:700;color:var(--ink-soft);font-size:0.95rem;">Assigned Team:</span>
-          <span class="badge blue" style="font-size:0.85rem;padding:4px 10px;">${esc(TEAM.name)} — ${esc(TEAM.technology_title)}</span>
-          <span class="small muted" style="margin-left:auto;">Participant access locked to your registered STEP Group</span>
-        </div>`;
+      // Participants: no banner needed — they only see their own team
+      slot.innerHTML = '';
     } else {
       const allowedTeams = (user.role === "admin") ? teams : teams.filter(t => assigned.includes(t.id));
       if (allowedTeams.length > 1) {
         slot.innerHTML = `
-          <div class="team-switcher-bar">
-            <label for="team-select-myteam" style="font-weight:700;color:var(--ink);font-size:0.95rem;">Viewing Team:</label>
-            <select id="team-select-myteam" class="form-select" style="padding:6px 12px;border-radius:var(--r1);border:1px solid var(--rim);background:var(--paper);font-weight:600;font-size:0.9rem;cursor:pointer;">
-              ${allowedTeams.map(t => `<option value="${t.id}" ${t.id === activeId ? 'selected' : ''}>${esc(t.name)} — ${esc(t.technology_title)}</option>`).join('')}
-            </select>
-            <span class="badge gold" style="text-transform:capitalize;">${user.role} View (${allowedTeams.length} teams assigned)</span>
+          <div class="team-switcher-bar admin-switcher">
+            <div class="ts-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <select id="team-select-myteam">
+                ${allowedTeams.map(t => `<option value="${t.id}" ${t.id === activeId ? 'selected' : ''}>${esc(t.short)} (${esc(t.abbr)})</option>`).join('')}
+              </select>
+            </div>
+            <span class="ts-count">${allowedTeams.length} teams</span>
           </div>`;
         const sel = document.getElementById("team-select-myteam");
         if (sel) {
@@ -531,12 +529,7 @@ window.__renderMyTeam = function(targetTeamId) {
           });
         }
       } else {
-        slot.innerHTML = `
-          <div class="team-switcher-bar">
-            <span style="font-weight:700;color:var(--ink-soft);font-size:0.95rem;">Assigned Team:</span>
-            <span class="badge blue" style="font-size:0.85rem;padding:4px 10px;">${esc(TEAM.name)} — ${esc(TEAM.technology_title)}</span>
-            <span class="badge gold" style="text-transform:capitalize;margin-left:auto;">${user.role}</span>
-          </div>`;
+        slot.innerHTML = '';
       }
     }
   }
