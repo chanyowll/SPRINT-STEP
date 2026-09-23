@@ -945,12 +945,32 @@ window.MOCK = (function () {
     closeAuthModal,
     selectUser,
     signOutUser,
+    _doSignIn,
+    _doSignOut,
     updateAuthChrome
   };
 
   /* ---------------------------------------------------------------------
      Client-side Auth UI Manager (Modal, Utility Bar, Nav Lock Indicators)
+     Now integrates with Supabase for real authentication.
      --------------------------------------------------------------------- */
+
+  /* ── Cached live user (from Supabase profile) ── */
+  let _liveUser = null;
+
+  /** Get the effective current user: Supabase live user → mock user → guest */
+  function getEffectiveUser() {
+    if (_liveUser) return _liveUser;
+    return auth.getCurrentUser();
+  }
+
+  // Patch auth.getCurrentUser to check for live user first
+  const _origGetCurrentUser = auth.getCurrentUser.bind(auth);
+  auth.getCurrentUser = function () {
+    if (_liveUser) return _liveUser;
+    return _origGetCurrentUser();
+  };
+
   function renderAuthModal() {
     let modal = document.getElementById("stephub-auth-modal");
     if (!modal) {
@@ -959,97 +979,102 @@ window.MOCK = (function () {
       modal.className = "auth-backdrop";
       document.body.appendChild(modal);
     }
-    const curr = auth.getCurrentUser();
+    const curr = getEffectiveUser();
+    const isLoggedIn = curr && curr.role !== "guest";
+    const isLiveUser = !!_liveUser;
 
     modal.innerHTML = `
       <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
         <div class="auth-modal-head">
           <h3 id="auth-modal-title">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-            Select Account to Test Access & Team
+            ${isLoggedIn ? 'Account' : 'Sign In'}
           </h3>
           <button class="auth-modal-close" aria-label="Close dialog" onclick="window.MOCK.closeAuthModal()">&times;</button>
         </div>
         <div class="auth-modal-body">
-          <p style="font-size:13.5px; color:var(--ink-soft); margin:0 0 var(--s4)">
-            Switch accounts below to immediately see how page content, team dashboards, and lock access adapt according to the logged-in role.
-          </p>
-
-          <div class="auth-section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            STEP Group Members / Participants (10 Official Teams)
-          </div>
-          <div class="auth-user-grid">
-            ${users.filter(u => u.role === "participant").map(u => `
-              <div class="auth-user-card ${curr.id === u.id ? 'active-user' : ''}" onclick="window.MOCK.selectUser('${u.id}')">
-                <span class="card-av">${u.initials}</span>
-                <span class="card-details">
-                  <span class="card-name">${u.name}</span>
-                  <span class="card-role">${u.team_name}</span>
-                  <span class="card-badge">${u.institution}</span>
-                </span>
+          ${isLoggedIn && isLiveUser ? `
+            <!-- Signed-in state -->
+            <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(46,125,50,.06);border-radius:12px;margin-bottom:var(--s4);">
+              <span class="card-av" style="background:#2e7d32;width:44px;height:44px;font-size:16px;flex-shrink:0;">${curr.initials || '??'}</span>
+              <div>
+                <div style="font-weight:600;font-size:15px;color:var(--navy);">${curr.full_name || curr.email}</div>
+                <div style="font-size:13px;color:var(--ink-soft);">${curr.role_label || curr.role} ${curr.team_id ? '· ' + (curr.team_name || curr.team_id) : ''}</div>
+                <div style="font-size:12px;color:var(--ink-soft);margin-top:2px;">${curr.email}</div>
               </div>
-            `).join("")}
-          </div>
-
-          <div class="auth-section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-            Faculty Mentors
-          </div>
-          <div class="auth-user-grid">
-            ${users.filter(u => u.role === "mentor").map(u => `
-              <div class="auth-user-card ${curr.id === u.id ? 'active-user' : ''}" onclick="window.MOCK.selectUser('${u.id}')">
-                <span class="card-av" style="background:#5e35b1">${u.initials}</span>
-                <span class="card-details">
-                  <span class="card-name">${u.name}</span>
-                  <span class="card-role">${u.role_label}</span>
-                  <span class="card-badge">${u.institution}</span>
-                </span>
-              </div>
-            `).join("")}
-          </div>
-
-          <div class="auth-section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
-            Evaluation Panelists & Trainers
-          </div>
-          <div class="auth-user-grid">
-            ${users.filter(u => u.role === "panel" || u.role === "trainer").map(u => `
-              <div class="auth-user-card ${curr.id === u.id ? 'active-user' : ''}" onclick="window.MOCK.selectUser('${u.id}')">
-                <span class="card-av" style="background:${u.role === 'panel' ? '#e65100' : '#2e7d32'}">${u.initials}</span>
-                <span class="card-details">
-                  <span class="card-name">${u.name}</span>
-                  <span class="card-role">${u.role_label}</span>
-                  <span class="card-badge">${u.institution}</span>
-                </span>
-              </div>
-            `).join("")}
-          </div>
-
-          <div class="auth-section-title">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            STEP Administration
-          </div>
-          <div class="auth-user-grid">
-            ${users.filter(u => u.role === "admin").map(u => `
-              <div class="auth-user-card ${curr.id === u.id ? 'active-user' : ''}" onclick="window.MOCK.selectUser('${u.id}')">
-                <span class="card-av" style="background:#c62828">${u.initials}</span>
-                <span class="card-details">
-                  <span class="card-name">${u.name}</span>
-                  <span class="card-role">${u.role_label}</span>
-                  <span class="card-badge">Full Access</span>
-                </span>
-              </div>
-            `).join("")}
-          </div>
-
-          <div class="auth-signout-row">
-            <span style="font-size:12.5px; color:var(--ink-soft)">Test guest access to locked tabs:</span>
-            <button class="btn secondary" style="font-size:12.5px; padding:6px 14px;" onclick="window.MOCK.signOutUser()">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px;"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-              Sign Out (Public / Guest Mode)
+            </div>
+            <button class="btn solid" style="width:100%;margin-top:4px;" onclick="window.MOCK._doSignOut()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Sign Out
             </button>
-          </div>
+          ` : isLoggedIn && !isLiveUser ? `
+            <!-- Mock signed-in state -->
+            <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(46,125,50,.06);border-radius:12px;margin-bottom:var(--s4);">
+              <span class="card-av" style="width:44px;height:44px;font-size:16px;flex-shrink:0;">${curr.initials}</span>
+              <div>
+                <div style="font-weight:600;font-size:15px;color:var(--navy);">${curr.name}</div>
+                <div style="font-size:13px;color:var(--ink-soft);">${curr.role_label} ${curr.team_name ? '· ' + curr.team_name : ''}</div>
+                <div style="font-size:12px;color:var(--ink-soft);opacity:.6;">Demo account</div>
+              </div>
+            </div>
+            <button class="btn secondary" style="width:100%;margin-top:4px;" onclick="window.MOCK.signOutUser()">Sign Out (Guest Mode)</button>
+          ` : `
+            <!-- Sign-in form -->
+            <form id="stephub-login-form" onsubmit="window.MOCK._doSignIn(event)" style="display:flex;flex-direction:column;gap:12px;">
+              <div id="login-error" style="display:none;padding:10px 14px;border-radius:8px;background:rgba(198,40,40,.08);color:#c62828;font-size:13px;"></div>
+              <label style="font-size:13px;font-weight:500;color:var(--navy);">
+                Email
+                <input type="email" id="login-email" required placeholder="you@example.com" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#d0d5dd'">
+              </label>
+              <label style="font-size:13px;font-weight:500;color:var(--navy);">
+                Password
+                <input type="password" id="login-password" required minlength="6" placeholder="••••••••" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='#d0d5dd'">
+              </label>
+              <button type="submit" class="btn solid" id="login-submit-btn" style="width:100%;margin-top:4px;">
+                Sign In
+              </button>
+            </form>
+          `}
+
+          <!-- Demo accounts (collapsible) -->
+          <details style="margin-top:var(--s5);border-top:1px solid rgba(0,0,0,.08);padding-top:var(--s4);" ${!isLoggedIn ? '' : 'open'}>
+            <summary style="font-size:12.5px;color:var(--ink-soft);cursor:pointer;user-select:none;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              Demo accounts (for testing)
+            </summary>
+            <div style="margin-top:var(--s3);">
+              <div class="auth-section-title">Participants</div>
+              <div class="auth-user-grid">
+                ${users.filter(u => u.role === "participant").map(u => `
+                  <div class="auth-user-card ${curr.id === u.id && !isLiveUser ? 'active-user' : ''}" onclick="window.MOCK.selectUser('${u.id}')">
+                    <span class="card-av">${u.initials}</span>
+                    <span class="card-details">
+                      <span class="card-name">${u.name}</span>
+                      <span class="card-role">${u.team_name}</span>
+                    </span>
+                  </div>
+                `).join("")}
+              </div>
+              <div class="auth-section-title">Admin / Faculty</div>
+              <div class="auth-user-grid">
+                ${users.filter(u => ["admin","mentor","panel","trainer"].includes(u.role)).map(u => `
+                  <div class="auth-user-card ${curr.id === u.id && !isLiveUser ? 'active-user' : ''}" onclick="window.MOCK.selectUser('${u.id}')">
+                    <span class="card-av" style="background:${u.role==='admin'?'#c62828':u.role==='mentor'?'#5e35b1':u.role==='panel'?'#e65100':'#2e7d32'}">${u.initials}</span>
+                    <span class="card-details">
+                      <span class="card-name">${u.name}</span>
+                      <span class="card-role">${u.role_label}</span>
+                    </span>
+                  </div>
+                `).join("")}
+              </div>
+              <div class="auth-signout-row" style="margin-top:var(--s3);">
+                <button class="btn secondary" style="font-size:12px;padding:5px 12px;width:100%;" onclick="window.MOCK.signOutUser()">
+                  Sign Out (Guest Mode)
+                </button>
+              </div>
+            </div>
+          </details>
+
         </div>
       </div>
     `;
@@ -1060,7 +1085,9 @@ window.MOCK = (function () {
   }
 
   function updateAuthChrome() {
-    const user = auth.getCurrentUser();
+    const user = getEffectiveUser();
+    const isLive = !!_liveUser;
+
     // 1. Update utility-bar
     const utilRight = document.querySelector(".utility-bar .util-right");
     if (utilRight) {
@@ -1074,22 +1101,23 @@ window.MOCK = (function () {
         authArea.className = "util-user-wrap";
         utilRight.appendChild(authArea);
       }
-      if (user.role === "guest") {
+      if (!user || user.role === "guest") {
         authArea.innerHTML = `
           <button type="button" class="util-login" onclick="window.MOCK.openAuthModal()" style="cursor:pointer; background:none; color:inherit; font:inherit;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;vertical-align:-1px;margin-right:4px;"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-            Sign In / Select Account
+            Sign In
           </button>
         `;
       } else {
-        const badgeLabel = user.role === "participant" ? user.team_name : user.role_label;
+        const displayName = isLive ? (user.full_name || user.email) : user.name;
+        const badgeLabel = user.role === "participant" ? (user.team_name || user.team_id || 'Participant') : (user.role_label || user.role);
+        const initials = user.initials || displayName.charAt(0).toUpperCase();
         authArea.innerHTML = `
-          <div class="util-user-pill" onclick="window.MOCK.openAuthModal()" title="Logged in as ${user.name} (${user.role_label}). Click to switch role.">
-            <span class="util-user-av">${user.initials}</span>
-            <span class="util-user-name">${user.name}</span>
+          <div class="util-user-pill" onclick="window.MOCK.openAuthModal()" title="Logged in as ${displayName} (${badgeLabel}). Click to manage account.">
+            <span class="util-user-av">${initials}</span>
+            <span class="util-user-name">${displayName}</span>
             <span class="util-user-role">${badgeLabel}</span>
           </div>
-          <button type="button" class="util-user-switch-btn" onclick="window.MOCK.openAuthModal()">Switch</button>
         `;
       }
     }
@@ -1116,21 +1144,23 @@ window.MOCK = (function () {
       qs.onclick = () => window.MOCK.openAuthModal();
       document.body.appendChild(qs);
     }
-    if (user.role === "guest") {
+    if (!user || user.role === "guest") {
       qs.innerHTML = `
         <span class="quick-switcher-av" style="background:#546e7a; color:#fff">🔒</span>
         <span class="quick-switcher-txt">Guest (Logged Out)</span>
         <span class="quick-switcher-tag">Sign In</span>
       `;
-      qs.title = "Current: Guest (public). Click to sign in or test roles.";
+      qs.title = "Current: Guest (public). Click to sign in.";
     } else {
-      const label = user.role === "participant" ? user.team_name : user.role_label;
+      const displayName = isLive ? (user.full_name || user.email) : user.name;
+      const label = user.role === "participant" ? (user.team_name || user.team_id || 'Participant') : (user.role_label || user.role);
+      const initials = user.initials || displayName.charAt(0).toUpperCase();
       qs.innerHTML = `
-        <span class="quick-switcher-av">${user.initials}</span>
-        <span class="quick-switcher-txt">${user.name}</span>
+        <span class="quick-switcher-av">${initials}</span>
+        <span class="quick-switcher-txt">${displayName}</span>
         <span class="quick-switcher-tag">${label}</span>
       `;
-      qs.title = `Current User: ${user.name} (${label}). Click to switch account.`;
+      qs.title = `Signed in: ${displayName} (${label}). Click to manage account.`;
     }
   }
 
@@ -1146,24 +1176,113 @@ window.MOCK = (function () {
   }
 
   function selectUser(userId) {
+    // If there's a live Supabase user, sign them out first
+    if (_liveUser && window.STEP_SUPABASE) {
+      window.STEP_SUPABASE.signOut();
+      _liveUser = null;
+    }
     auth.setCurrentUser(userId);
     closeAuthModal();
     updateAuthChrome();
   }
 
   function signOutUser() {
+    if (_liveUser && window.STEP_SUPABASE) {
+      window.STEP_SUPABASE.signOut();
+      _liveUser = null;
+    }
     auth.logout();
     closeAuthModal();
     updateAuthChrome();
+  }
+
+  /* ── Real Supabase sign-in handler ── */
+  async function _doSignIn(e) {
+    e.preventDefault();
+    const email = document.getElementById("login-email").value.trim();
+    const password = document.getElementById("login-password").value;
+    const errBox = document.getElementById("login-error");
+    const btn = document.getElementById("login-submit-btn");
+
+    if (!email || !password) return;
+
+    // Show loading state
+    btn.disabled = true;
+    btn.textContent = "Signing in…";
+    if (errBox) { errBox.style.display = "none"; errBox.textContent = ""; }
+
+    if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) {
+      if (errBox) { errBox.textContent = "Supabase is not configured. Use a demo account below instead."; errBox.style.display = "block"; }
+      btn.disabled = false; btn.textContent = "Sign In";
+      return;
+    }
+
+    const { data, error } = await window.STEP_SUPABASE.signIn(email, password);
+    if (error) {
+      if (errBox) { errBox.textContent = error.message || "Sign in failed. Check your email and password."; errBox.style.display = "block"; }
+      btn.disabled = false; btn.textContent = "Sign In";
+      return;
+    }
+
+    // Success — fetch profile and set as live user
+    if (data && data.user) {
+      const profile = await window.STEP_SUPABASE.fetchProfile(data.user.id);
+      if (profile) {
+        _liveUser = {
+          ...profile,
+          name: profile.full_name || profile.email,
+          team_name: profile.team_id ? (window.MOCK.groups.find(g => g.id === profile.team_id) || {}).name || profile.team_id : null
+        };
+      }
+    }
+
+    closeAuthModal();
+    updateAuthChrome();
+    window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: _liveUser } }));
+  }
+
+  /* ── Real Supabase sign-out handler ── */
+  async function _doSignOut() {
+    if (window.STEP_SUPABASE) {
+      await window.STEP_SUPABASE.signOut();
+    }
+    _liveUser = null;
+    auth.logout();
+    closeAuthModal();
+    updateAuthChrome();
+    window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: null } }));
   }
 
   // Auto-init on page load
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", () => {
       updateAuthChrome();
+      _checkExistingSession();
     });
   } else {
-    setTimeout(updateAuthChrome, 10);
+    setTimeout(() => {
+      updateAuthChrome();
+      _checkExistingSession();
+    }, 10);
+  }
+
+  /** Check if there's an existing Supabase session (e.g. page reload) */
+  async function _checkExistingSession() {
+    if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) return;
+    try {
+      const profile = await window.STEP_SUPABASE.getCurrentUser();
+      if (profile) {
+        _liveUser = {
+          ...profile,
+          name: profile.full_name || profile.email,
+          team_name: profile.team_id ? (window.MOCK.groups.find(g => g.id === profile.team_id) || {}).name || profile.team_id : null
+        };
+        updateAuthChrome();
+        window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: _liveUser } }));
+      }
+    } catch (err) {
+      console.warn("[STEP] Session check failed:", err);
+    }
   }
 
   window.addEventListener("stephub_auth_changed", () => {
