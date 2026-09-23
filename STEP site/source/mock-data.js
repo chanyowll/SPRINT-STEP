@@ -916,39 +916,7 @@ window.MOCK = (function () {
     { assignment_id: "as2", assignment_title: "Week 4 Discussion Post", assignment_type: "discussion_post", week_no: 4, due_at: "2027-07-15T23:59:00+08:00", team_id: "g1", status: "submitted", timeliness: "on_time", late_days: 0, score: null, max_points: 5 },
   ];
 
-  return {
-    cohort,
-    groups,
-    teams,
-    faculty,
-    modules,
-    sessions,
-    announcements,
-    submissions,
-    panelScores,
-    attendance,
-    thisWeek,
-    articles,
-    helpers,
-    users,
-    auth,
-    getTeamWork,
-    getCapstone,
-    // Property getters for current active team work & capstone
-    get teamWork() {
-      return getTeamWork();
-    },
-    get capstone() {
-      return getCapstone();
-    },
-    openAuthModal,
-    closeAuthModal,
-    selectUser,
-    signOutUser,
-    _doSignIn,
-    _doSignOut,
-    updateAuthChrome
-  };
+  // ── MOCK object is assembled at the end, after all functions are defined ──
 
   /* ---------------------------------------------------------------------
      Client-side Auth UI Manager (Modal, Utility Bar, Nav Lock Indicators)
@@ -1288,4 +1256,34 @@ window.MOCK = (function () {
   window.addEventListener("stephub_auth_changed", () => {
     updateAuthChrome();
   });
+
+  // ── Return the public API ──
+  return {
+    cohort,
+    groups,
+    teams,
+    faculty,
+    modules,
+    sessions,
+    announcements,
+    submissions,
+    panelScores,
+    attendance,
+    thisWeek,
+    articles,
+    helpers,
+    users,
+    auth,
+    getTeamWork,
+    getCapstone,
+    get teamWork() { return getTeamWork(); },
+    get capstone() { return getCapstone(); },
+    openAuthModal,
+    closeAuthModal,
+    selectUser,
+    signOutUser,
+    _doSignIn,
+    _doSignOut,
+    updateAuthChrome
+  };
 })();
