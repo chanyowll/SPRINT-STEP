@@ -315,8 +315,8 @@ window.MOCK = (function () {
     getCurrentUser() {
       const storedId = auth._get(auth.KEY);
       const user = users.find(u => u.id === storedId);
-      // Default to POSTE participant if first time, so user sees working participant state immediately
-      return user || users.find(u => u.id === "u_poste");
+      // Default to guest if no stored user
+      return user || users.find(u => u.id === "guest");
     },
 
     setCurrentUser(userId) {
@@ -1185,28 +1185,64 @@ window.MOCK = (function () {
       return;
     }
 
-    const { data, error } = await window.STEP_SUPABASE.signIn(email, password);
-    if (error) {
-      if (errBox) { errBox.textContent = error.message || "Sign in failed. Check your email and password."; errBox.style.display = "block"; }
-      btn.disabled = false; btn.textContent = "Sign In";
-      return;
-    }
+    try {
+      console.log('[STEP] Attempting sign-in for:', email);
+      const { data, error } = await window.STEP_SUPABASE.signIn(email, password);
+      console.log('[STEP] Sign-in result:', { data, error });
 
-    // Success — fetch profile and set as live user
-    if (data && data.user) {
-      const profile = await window.STEP_SUPABASE.fetchProfile(data.user.id);
-      if (profile) {
-        _liveUser = {
-          ...profile,
-          name: profile.full_name || profile.email,
-          team_name: profile.team_id ? (window.MOCK.groups.find(g => g.id === profile.team_id) || {}).name || profile.team_id : null
-        };
+      if (error) {
+        console.error('[STEP] Sign-in error:', error);
+        if (errBox) { errBox.textContent = error.message || "Sign in failed. Check your email and password."; errBox.style.display = "block"; }
+        btn.disabled = false; btn.textContent = "Sign In";
+        return;
       }
-    }
 
-    closeAuthModal();
-    updateAuthChrome();
-    window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: _liveUser } }));
+      // Success — fetch profile and set as live user
+      if (data && data.user) {
+        console.log('[STEP] Auth user:', data.user.id, data.user.email);
+        let profile = null;
+        try {
+          profile = await window.STEP_SUPABASE.fetchProfile(data.user.id);
+          console.log('[STEP] Profile fetched:', profile);
+        } catch (profileErr) {
+          console.warn('[STEP] Profile fetch failed:', profileErr);
+        }
+
+        if (profile) {
+          _liveUser = {
+            ...profile,
+            name: profile.full_name || profile.email || email,
+            team_name: profile.team_id ? (window.MOCK.groups.find(g => g.id === profile.team_id) || {}).name || profile.team_id : null
+          };
+        } else {
+          // Profile not found (RLS issue or not created yet) — use basic info from auth
+          _liveUser = {
+            id: data.user.id,
+            email: data.user.email,
+            full_name: data.user.email.split('@')[0],
+            name: data.user.email.split('@')[0],
+            initials: data.user.email.substring(0, 2).toUpperCase(),
+            role: 'guest',
+            role_label: 'Pending Setup',
+            team_id: null,
+            team_name: null
+          };
+          console.warn('[STEP] No profile found for user, using basic auth info.');
+        }
+
+        console.log('[STEP] Live user set:', _liveUser);
+        closeAuthModal();
+        updateAuthChrome();
+        window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: _liveUser } }));
+      } else {
+        if (errBox) { errBox.textContent = "Sign in succeeded but no user data returned. Please try again."; errBox.style.display = "block"; }
+        btn.disabled = false; btn.textContent = "Sign In";
+      }
+    } catch (err) {
+      console.error('[STEP] Sign-in exception:', err);
+      if (errBox) { errBox.textContent = "Network error: " + (err.message || "Could not reach the server."); errBox.style.display = "block"; }
+      btn.disabled = false; btn.textContent = "Sign In";
+    }
   }
 
   /* ── Real Supabase sign-out handler ── */

@@ -37,10 +37,16 @@
   async function signIn(email, password) {
     const sb = getClient();
     if (!sb) return { error: { message: 'Supabase not configured' } };
+    console.log('[STEP/SB] Calling signInWithPassword for:', email);
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    console.log('[STEP/SB] signInWithPassword result:', error ? 'ERROR: ' + error.message : 'OK, user: ' + (data?.user?.id || 'none'));
     if (!error && data.user) {
-      const profile = await fetchProfile(data.user.id);
-      window.dispatchEvent(new CustomEvent('stephub_auth_changed', { detail: { user: profile } }));
+      try {
+        const profile = await fetchProfile(data.user.id);
+        window.dispatchEvent(new CustomEvent('stephub_auth_changed', { detail: { user: profile } }));
+      } catch (profileErr) {
+        console.warn('[STEP/SB] Profile fetch in signIn failed:', profileErr);
+      }
     }
     return { data, error };
   }
