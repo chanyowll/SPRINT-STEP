@@ -856,7 +856,7 @@
     </div>
 
     <div class="card mt-4 reveal">
-      <div class="card-head"><h3>Outputs you still need to submit</h3></div>
+      <div class="card-head"><h3>Submission tracker</h3></div>
       <div class="att-scroll">
         <table class="table">
           <thead><tr><th>Week</th><th>Output</th><th>Due</th><th>Status</th></tr></thead>
@@ -2820,23 +2820,32 @@ window.__renderMyTeam = function(targetTeamId) {
     `<span><strong>Week ${openSub.week} · ${openSub.module}</strong> — due ${helpers.fmtDate(openSub.due)}, 12:00 NN</span>
      <span class="badge gold">${days} day${days === 1 ? "" : "s"} left</span>`;
 
-  const pending = TW.submissions.filter(s => s.status === "open" || s.status === "late" || s.status === "missing");
+  const allSubs = TW.submissions;
   const pendingEl = document.getElementById("pending-rows");
   const pendingMsg = document.getElementById("pending-msg");
   if (pendingEl) {
-    if (pending.length === 0) {
-      pendingEl.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:var(--s5);color:var(--ink-soft)">🎉 You're all caught up — nothing pending!</td></tr>`;
-      if (pendingMsg) pendingMsg.textContent = "";
-    } else {
-      pendingEl.innerHTML = pending.map(s => `<tr>
+    pendingEl.innerHTML = allSubs.map(s => {
+      let badge;
+      if (s.status === "open") return ""; // skip future/current open ones
+      if (s.status === "late" || s.status === "missing" || (s.files && s.files.length === 0))
+        badge = '<span class="badge red">Not submitted</span>';
+      else if (s.files && s.files.some(f => f.late))
+        badge = '<span class="badge amber">Late</span>';
+      else
+        badge = '<span class="badge green">On time</span>';
+      return `<tr>
         <td>Week ${s.week}</td>
         <td><strong>${esc(s.module)}</strong></td>
         <td>${helpers.fmtDate(s.due)}</td>
-        <td>${s.status === "late" || s.status === "missing"
-          ? '<span class="badge amber">Overdue</span>'
-          : '<span class="badge gold">Due soon</span>'}</td>
-      </tr>`).join("");
-      if (pendingMsg) pendingMsg.textContent = pending.length + " output" + (pending.length === 1 ? "" : "s") + " still to submit. Don't fall behind!";
+        <td>${badge}</td>
+      </tr>`;
+    }).join("");
+    const late = allSubs.filter(s => s.files && s.files.some(f => f.late)).length;
+    const missing = allSubs.filter(s => s.status === "late" || s.status === "missing").length;
+    if (pendingMsg) {
+      if (missing > 0) pendingMsg.textContent = missing + " output" + (missing === 1 ? "" : "s") + " not yet submitted. Don't fall behind!";
+      else if (late > 0) pendingMsg.textContent = late + " output" + (late === 1 ? " was" : "s were") + " submitted late.";
+      else pendingMsg.textContent = "🎉 All outputs submitted on time!";
     }
   }
 
