@@ -86,6 +86,20 @@
   async function fetchProfile(userId) {
     const sb = getClient();
     if (!sb) return null;
+
+    // Try RPC first (bypasses RLS via SECURITY DEFINER)
+    try {
+      const { data: rpcData, error: rpcError } = await sb.rpc('get_my_profile');
+      if (!rpcError && rpcData) {
+        console.log('[STEP] Profile via RPC:', rpcData);
+        return rpcData;
+      }
+      if (rpcError) console.warn('[STEP] RPC get_my_profile error:', rpcError);
+    } catch (e) {
+      console.warn('[STEP] RPC call failed:', e);
+    }
+
+    // Fallback to direct query
     const { data, error } = await sb
       .from('profiles')
       .select('*')
