@@ -856,13 +856,14 @@
     </div>
 
     <div class="card mt-4 reveal">
-      <div class="card-head"><h3>What you have already handed in</h3></div>
+      <div class="card-head"><h3>Outputs you still need to submit</h3></div>
       <div class="att-scroll">
         <table class="table">
-          <thead><tr><th>Week</th><th>Output</th><th>Files</th><th>Submitted</th><th>Result</th></tr></thead>
-          <tbody id="past-rows"></tbody>
+          <thead><tr><th>Week</th><th>Output</th><th>Due</th><th>Status</th></tr></thead>
+          <tbody id="pending-rows"></tbody>
         </table>
       </div>
+      <p class="small mb-0 mt-3 muted" id="pending-msg"></p>
     </div>
   </section>
 
@@ -2816,16 +2817,25 @@ window.__renderMyTeam = function(targetTeamId) {
     `<span><strong>Week ${openSub.week} · ${openSub.module}</strong> — due ${helpers.fmtDate(openSub.due)}, 12:00 NN</span>
      <span class="badge gold">${days} day${days === 1 ? "" : "s"} left</span>`;
 
-  document.getElementById("past-rows").innerHTML = TW.submissions
-    .filter(s => s.status !== "open")
-    .map(s => `<tr>
-      <td>Week ${s.week}</td>
-      <td>${s.module}</td>
-      <td>${s.files.map(f => `<div class="small">${esc(f.name)} <span class="muted">· ${f.size}</span></div>`).join("")}</td>
-      <td>${helpers.fmtDate(s.files[0].at)} ${helpers.fmtTime(s.files[0].at)}
-          ${s.files.some(f => f.late) ? '<span class="badge amber">Late</span>' : '<span class="badge green">On time</span>'}</td>
-      <td><span class="${heat(s.score)}">${fx2(s.score)}</span></td>
-    </tr>`).join("");
+  const pending = TW.submissions.filter(s => s.status === "open" || s.status === "late" || s.status === "missing");
+  const pendingEl = document.getElementById("pending-rows");
+  const pendingMsg = document.getElementById("pending-msg");
+  if (pendingEl) {
+    if (pending.length === 0) {
+      pendingEl.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:var(--s5);color:var(--ink-soft)">🎉 You're all caught up — nothing pending!</td></tr>`;
+      if (pendingMsg) pendingMsg.textContent = "";
+    } else {
+      pendingEl.innerHTML = pending.map(s => `<tr>
+        <td>Week ${s.week}</td>
+        <td><strong>${esc(s.module)}</strong></td>
+        <td>${helpers.fmtDate(s.due)}</td>
+        <td>${s.status === "late" || s.status === "missing"
+          ? '<span class="badge amber">Overdue</span>'
+          : '<span class="badge gold">Due soon</span>'}</td>
+      </tr>`).join("");
+      if (pendingMsg) pendingMsg.textContent = pending.length + " output" + (pending.length === 1 ? "" : "s") + " still to submit. Don't fall behind!";
+    }
+  }
 
   // Submissions upload zone wiring
   const picked = { video: null, slides: null };
