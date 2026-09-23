@@ -948,8 +948,8 @@ window.MOCK = (function () {
       document.body.appendChild(modal);
     }
     const curr = getEffectiveUser();
-    const isLoggedIn = curr && curr.role !== "guest";
     const isLiveUser = !!_liveUser;
+    const isLoggedIn = isLiveUser || (curr && curr.role !== "guest");
 
     modal.innerHTML = `
       <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-modal-title">
@@ -1069,7 +1069,7 @@ window.MOCK = (function () {
         authArea.className = "util-user-wrap";
         utilRight.appendChild(authArea);
       }
-      if (!user || user.role === "guest") {
+    if ((!user || user.role === "guest") && !_liveUser) {
         authArea.innerHTML = `
           <button type="button" class="util-login" onclick="window.MOCK.openAuthModal()" style="cursor:pointer; background:none; color:inherit; font:inherit;">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px;vertical-align:-1px;margin-right:4px;"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
@@ -1112,7 +1112,7 @@ window.MOCK = (function () {
       qs.onclick = () => window.MOCK.openAuthModal();
       document.body.appendChild(qs);
     }
-    if (!user || user.role === "guest") {
+    if ((!user || user.role === "guest") && !_liveUser) {
       qs.innerHTML = `
         <span class="quick-switcher-av" style="background:#546e7a; color:#fff">🔒</span>
         <span class="quick-switcher-txt">Guest (Logged Out)</span>
@@ -1222,8 +1222,8 @@ window.MOCK = (function () {
             full_name: data.user.email.split('@')[0],
             name: data.user.email.split('@')[0],
             initials: data.user.email.substring(0, 2).toUpperCase(),
-            role: 'guest',
-            role_label: 'Pending Setup',
+            role: 'authenticated',
+            role_label: 'Signed In',
             team_id: null,
             team_name: null
           };
