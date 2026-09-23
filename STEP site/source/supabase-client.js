@@ -11,8 +11,8 @@
 
   // ── Supabase credentials ──────────────────────────────────────────
   // TODO: Replace these with your actual Supabase project values
-  const SUPABASE_URL  = 'https://YOUR_PROJECT_ID.supabase.co';
-  const SUPABASE_ANON = 'YOUR_ANON_KEY_HERE';
+  const SUPABASE_URL  = 'https://roarebrfugxwdabduebt.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvYXJlYnJmdWd4d2RhYmR1ZWJ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAxMzA1MjksImV4cCI6MjEwNTcwNjUyOX0.DukLVOdBHDopVw08Ae9ZMJqD1YBHaUUTGfDP7aNt-j0';
 
   // ── Initialize client ─────────────────────────────────────────────
   let _supabase = null;
