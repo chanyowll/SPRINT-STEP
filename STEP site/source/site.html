@@ -1302,7 +1302,7 @@
   </div>
 
   <!-- ===================== MENTORS ===================== -->
-  <div class="fa-view" id="view-mentors">
+  <div class="fa-view" id="view-mentors" hidden>
 
     <section>
       <div class="section-head">
@@ -1326,7 +1326,7 @@
   </div>
 
   <!-- ===================== PANEL ===================== -->
-  <div class="fa-view" id="view-panel">
+  <div class="fa-view" id="view-panel" hidden>
 
     <section>
       <div class="section-head">
@@ -3943,25 +3943,42 @@ document.getElementById("fa-spec").innerHTML = `
     <div class="r"><dt>Sessions</dt><dd><b>${F.sessions.filter(s => !s.special).length}</b><em>in the curriculum</em></dd></div>
   </dl>`;
 
-/* ---------- scroll to section on hash change ---------- */
+/* ---------- view switch (driven by nav dropdown, no toggle bar) ---------- */
 (function () {
   const note = document.getElementById("fa-note");
-  note.textContent = "Who teaches each topic, who mentors which team, and who sits on each panel.";
+  const NOTES = {
+    trainers: "Who teaches each topic, what has been delivered so far, and where the slide decks go.",
+    mentors: "Who mentors which team, when they meet this week, and the room they meet in.",
+    panel: "Who sits on each panel, and the score sheet used on Saturday.",
+  };
+  const VIEWS = ["trainers", "mentors", "panel"];
+  const LABEL = { trainers: "Trainers", mentors: "Mentors", panel: "Panel" };
+  const readHash = () => {
+    const h = (location.hash || "").replace(/^#/, "").replace(/^trainers-?/, "");
+    return VIEWS.includes(h) ? h : "trainers";
+  };
 
-  /* When the hash changes to #trainers-mentors or #trainers-panel,
-     scroll to that section. All views are always visible. */
-  function scrollToView() {
-    const raw = (location.hash || "").replace(/^#/, "");
-    if (!raw || !/^trainers(-|$)/.test(raw)) return;
-    const sub = raw.replace(/^trainers-?/, "");
-    if (sub === "mentors" || sub === "panel") {
-      const el = document.getElementById("view-" + sub);
-      if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  function show(v, mode) {
+    VIEWS.forEach(k => { document.getElementById("view-" + k).hidden = k !== v; });
+    note.textContent = NOTES[v];
+    document.getElementById("fa-title").textContent = LABEL[v];
+    document.querySelectorAll(".ddm a").forEach(a =>
+      a.setAttribute("aria-current", (a.getAttribute("href") || "").endsWith(
+        v === "trainers" ? "#trainers" : "-" + v) ? "true" : "false"));
+    if (mode === "init") return;
+    const want = "#trainers" + (v === "trainers" ? "" : "-" + v);
+    if (location.hash !== want) {
+      if (mode === "push") location.hash = want; else history.replaceState(null, "", want);
     }
   }
-  window.addEventListener("hashchange", scrollToView);
-  // Initial scroll if landing on a sub-view
-  setTimeout(scrollToView, 100);
+
+  window.addEventListener("hashchange", () => {
+    const raw = (location.hash || "").replace(/^#/, "");
+    if (raw && !/^trainers(-|$)/.test(raw) && !VIEWS.includes(raw)) return;
+    const h = readHash();
+    if (document.getElementById("view-" + h).hidden) show(h, "init");
+  });
+  show(readHash(), "init");
 })();
 
 /* ---------- trainers ---------- */
