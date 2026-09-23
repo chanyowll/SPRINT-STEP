@@ -80,30 +80,40 @@
 </div>
 
 <div id="capstone-content-wrap">
-<!-- ===== The two artifacts ===== -->
-<section class="team-bar">
+<!-- ===== FASTRAC proposal header ===== -->
+<section class="team-bar" id="cap-head-form">
   <div class="wrap" style="display:block">
     <div id="capstone-switcher-slot" class="mb-4"></div>
     <div class="eyebrow">Capstone</div>
-    <h1 style="margin-bottom:4px">What you leave STEP with</h1>
-    <p class="tech">Every week's work goes into one of two things: your DOST FASTRAC proposal and your
-       pitch deck. Neither is written at the end — both are already being built.</p>
+    <h1 style="margin-bottom:4px">FASTRAC Proposal</h1>
+    <p class="tech">DOST Form 2, filled in item by item across the cycle. Every week's work feeds directly into your proposal.</p>
     <div class="cap-head mt-4">
-      <div class="cap-art">
-        <div class="k">FASTRAC proposal</div>
+      <div class="cap-art" style="max-width:480px">
+        <div class="k">Progress</div>
         <div class="v" id="ca-form">—<small>of 24 items</small></div>
         <div class="cap-meter"><i id="ca-form-bar"></i></div>
         <div class="s" id="ca-form-sub">—</div>
       </div>
-      <div class="cap-art">
-        <div class="k">Pitch deck</div>
+    </div>
+    <div class="chips mt-4" id="ca-chips"></div>
+  </div>
+</section>
+
+<!-- ===== Pitch deck header ===== -->
+<section class="team-bar" id="cap-head-deck" hidden>
+  <div class="wrap" style="display:block">
+    <div id="capstone-switcher-slot-deck" class="mb-4"></div>
+    <div class="eyebrow">Capstone</div>
+    <h1 style="margin-bottom:4px">Pitch Deck</h1>
+    <p class="tech">One slide per topic, assembled week by week. Your Demo Day presentation, already being built.</p>
+    <div class="cap-head mt-4">
+      <div class="cap-art" style="max-width:480px">
+        <div class="k">Progress</div>
         <div class="v" id="ca-deck">—<small>of 14 slides</small></div>
         <div class="cap-meter"><i id="ca-deck-bar"></i></div>
         <div class="s" id="ca-deck-sub">—</div>
       </div>
     </div>
-    <div class="viewbar mt-4" id="cap-bar" role="tablist" aria-label="FASTRAC proposal and Pitch deck"></div>
-    <div class="chips mt-4" id="ca-chips"></div>
   </div>
 </section>
 
@@ -344,9 +354,12 @@ function showTab(which, mode) {
   const isForm = v === "form";
   document.getElementById("ws-form").hidden = !isForm;
   document.getElementById("ws-deck").hidden = isForm;
+  // Show/hide the corresponding header
+  const headForm = document.getElementById("cap-head-form");
+  const headDeck = document.getElementById("cap-head-deck");
+  if (headForm) headForm.hidden = !isForm;
+  if (headDeck) headDeck.hidden = isForm;
   if (!isForm && sheetOpen) closeSheet();
-  document.querySelectorAll("#cap-bar .vb").forEach(b =>
-    b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"));
   document.querySelectorAll(".navdd .ddm a[href*='capstone']").forEach(a =>
     a.setAttribute("aria-current", String((a.getAttribute("href") || "").endsWith(
       isForm ? "#capstone" : "#capstone-deck"))));
@@ -359,13 +372,6 @@ function showTab(which, mode) {
     if (mode === "push") location.hash = want; else history.replaceState(null, "", want);
   }
 }
-document.getElementById("cap-bar").innerHTML = CAPVIEWS.map(v =>
-  `<button role="tab" class="vb" data-v="${v}" aria-selected="false">${CAPLABEL[v]}</button>`).join("");
-document.getElementById("cap-bar").addEventListener("click", e => {
-  const b = e.target.closest(".vb"); if (!b) return;
-  showTab(b.dataset.v, "push");
-  document.getElementById("workspaces").scrollIntoView({ behavior: "smooth", block: "start" });
-});
 /* the Capstone tab menu drops a new hash in — follow it, but leave hashes
    that belong to another route alone */
 window.addEventListener("hashchange", () => {
