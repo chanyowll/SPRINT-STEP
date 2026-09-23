@@ -90,7 +90,7 @@
       .from('profiles')
       .select('*')
       .eq('id', userId)
-      .single();
+      .maybeSingle();
     if (error) { console.error('[STEP] Profile fetch error:', error); return null; }
     return data;
   }
