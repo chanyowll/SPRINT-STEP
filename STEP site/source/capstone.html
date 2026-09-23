@@ -290,7 +290,7 @@ function hasContent(f) {
     case "personnel":   return v.some(r => String(r.position).trim());
     case "budget":      return v.rows.some(r => rowTotal(r) > 0);
     case "projects":    return v.rows.some(r => String(r.title).trim());
-    case "attachments": return f.attachments.some(a => a.have === true);
+    case "attachments": return f.attachments ? f.attachments.some(a => a.have === true) : false;
     default:            return !!(f.draft || "").trim();
   }
 }
@@ -676,8 +676,8 @@ function buildReady() {
   const revise = FORM.filter(f => f.status === "revise");
   const over = FORM.filter(f => f.limit && words(f.draft) > f.limit);
   const it9 = FORM.find(f => f.n === 9), it24 = FORM.find(f => f.n === 24);
-  const parts9 = it9.parts.filter(p => !p.done);
-  const docs = it24.attachments.filter(a => a.have === false);
+  const parts9 = (it9 && it9.parts) ? it9.parts.filter(p => !p.done) : [];
+  const docs = (it24 && it24.attachments) ? it24.attachments.filter(a => a.have === false) : [];
 
   const lockWeeks = [...new Set(locked.map(f => f.week))].sort((a, b) => a - b);
   const rows = [
@@ -1040,7 +1040,7 @@ function buildSheet() {
         g) target market and beneficiaries; h) description and size of the target market; i) ideal forecast of the demand
         and sales; j) limiting factors, and; k) marketing strategies and pricing.)</p>
       ${ans(9)}
-      <div class="hint" style="margin-top:4px">${F(9).parts.map(pt =>
+      <div class="hint" style="margin-top:4px">${(F(9).parts || []).map(pt =>
         `${tickbox(pt.done)} (${pt.k}) ${esc(pt.label)}`).join("<br>")}</div>
     </div>
   </div>`;
@@ -1095,7 +1095,7 @@ function buildSheet() {
 
     <div class="box">
       <div class="no">(24) OTHER SUPPORTING DOCUMENTS <span class="fine">(Please refer to page 2 for the additional necessary documents.)</span></div>
-      <div class="hint">${F(24).attachments.map(a =>
+      <div class="hint">${(F(24).attachments || []).map(a =>
         `${a.have === null ? '<span class="tick">&#8211;</span>' : tickbox(a.have)} ${esc(a.label)}`).join("<br>")}</div>
     </div>
   </div>
