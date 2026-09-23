@@ -1,0 +1,1154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>My Team's Work · SPRINT-STEP</title>
+<meta name="description" content="A SPRINT-STEP team's own dashboard: panel scores across the weekly outputs, qualitative insight from the panel comments, attendance, and this week's video and slide submission.">
+<link rel="icon" href="assets/step-logo.png">
+<link rel="stylesheet" href="stephub-ui.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<!-- ===== Institutional bar ===== -->
+<div class="utility-bar">
+  <div class="wrap">
+    <span>A DOST-PCIEERD program implemented by the Ateneo Intellectual Property Office</span>
+    <span class="util-right">
+      <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a>
+      <!-- Placeholder only: sign-in is not built yet -->
+      <a class="util-login" href="#">Participant login</a>
+    </span>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="site-header light">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SPRINT-STEP home">
+      <img src="assets/step-logo-mark.png" alt="SPRINT-STEP — Science and Technology Entrepreneurship Program">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"
+            onclick="const n=document.getElementById('nav');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open'))">☰</button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="this-week.html">This Week <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <a href="program.html">Program</a>
+      <a href="groups.html">STEP Groups</a>
+      <a href="my-team.html" class="active">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <span class="navdd"><a href="capstone.html" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="capstone.html#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="capstone.html#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
+      <span class="navdd"><a href="trainers.html" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="trainers.html#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="trainers.html#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="trainers.html#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
+    </nav>
+  </div>
+  <script>
+  /* The Trainers tab opens its menu — a view is only reached by picking one. */
+  (function () {
+    if (window.__navdd) return; window.__navdd = 1;
+    function shut() {
+      document.querySelectorAll(".navdd.open").forEach(function (d) {
+        d.classList.remove("open");
+        var a = d.querySelector("a"); if (a) a.setAttribute("aria-expanded", "false");
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var tab = e.target.closest && e.target.closest(".navdd > a[aria-haspopup]");
+      if (!tab) { shut(); return; }
+      /* in the stacked mobile menu the three views are already listed below */
+      if (window.matchMedia("(max-width: 900px)").matches) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dd = tab.parentNode, wasOpen = dd.classList.contains("open");
+      shut();
+      if (!wasOpen) { dd.classList.add("open"); tab.setAttribute("aria-expanded", "true"); }
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+  })();
+  </script>
+</header>
+
+<!-- ===== Team identity bar ===== -->
+<div id="myteam-locked-gate" class="wrap" hidden></div>
+<div id="myteam-content-wrap">
+<div id="team-switcher-slot" class="wrap" style="padding-top: var(--s4);"></div>
+<section class="team-bar">
+  <div class="wrap">
+    <div>
+      <div class="eyebrow">My team's work</div>
+      <h1 id="tb-name">—</h1>
+      <p class="tech" id="tb-tech">—</p>
+      <div class="chips" id="tb-chips"></div>
+    </div>
+    <div>
+      <div class="roster" id="tb-roster" aria-label="Team members"></div>
+      <div class="small" style="color:#c8d8e8; margin-top:10px" id="tb-rostercap"></div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap page stack" style="gap:var(--s7)">
+
+  <!-- ===== Performance dashboard ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Performance</div>
+      <h2>How the panel has scored your outputs</h2>
+      <p class="lede">Each point is one weekly output. Panels score every criterion from 1.00 to 4.00; the
+         point is the weighted average of that session's panel.</p>
+    </div>
+
+    <!-- The four figures that answer "how are we doing" before any chart -->
+    <div class="tw-kpis" id="tw-kpis"></div>
+
+    <!-- The radar is the main panel; the two bar charts share the column beside it.
+         Every panel here has a fixed height, so nothing moves when a chart is used. -->
+    <div class="tw-dash">
+
+      <!-- Main panel: the radar, which turns over to the weekly trend when clicked -->
+      <div class="tw-card tw-main reveal">
+
+        <div class="tw-face" id="face-radar" role="button" tabindex="0"
+             aria-label="Scores by output. Activate to see the weekly trend from Week 1 to now.">
+          <div class="tw-head">
+            <div>
+              <h3>Scores by output</h3>
+              <p class="sub">One point per weekly output, on STEP's 1.00–4.00 rubric.</p>
+            </div>
+            <span class="tw-pill" id="rd-weeks">—</span>
+          </div>
+          <div class="radar-wrap" id="radar-wrap">
+            <div class="radar-tip" id="radar-tip" role="status" aria-live="polite"></div>
+          </div>
+          <div class="radar-legend">
+            <span><b id="rd-avg">—</b>cycle average</span>
+            <span><b id="rd-best">—</b>strongest<span id="rd-best-n"></span></span>
+            <span><b id="rd-low">—</b>needs work<span id="rd-low-n"></span></span>
+          </div>
+          <span class="tw-radar-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 17l6-6 4 4 7-7"/><path d="M14 8h6v6"/></svg>
+            Click for the week-by-week trend
+          </span>
+        </div>
+
+        <div class="tw-face" id="face-trend" hidden role="button" tabindex="0"
+             aria-label="Feedback scores from Week 1 to now. Activate to go back to the radar.">
+          <div class="tw-head">
+            <div>
+              <h3>Feedback scores, Week 1 to now</h3>
+              <p class="sub">Your weighted average at every feedback session, on the same 1.00–4.00 rubric.</p>
+            </div>
+            <span class="tw-back" id="tj-back">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+              Back to the radar
+            </span>
+          </div>
+          <div class="tw-plot" id="tj-plot">
+            <div class="tw-tip" id="tj-tip" role="status" aria-live="polite"></div>
+          </div>
+          <div class="radar-legend">
+            <span><b id="tj-now">—</b>latest<span id="tj-nowk"></span></span>
+            <span><b id="tj-chg">—</b>on the week before</span>
+            <span><b id="tj-best">—</b>highest<span id="tj-bestk"></span></span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- The column beside it: attendance above, outputs handed in below -->
+      <div class="tw-side">
+
+        <div class="tw-card tw-flip reveal" style="--d:90ms">
+
+          <div class="tw-face" id="face-att" role="button" tabindex="0"
+               aria-label="Members present each session. Activate to see who was there.">
+            <div class="tw-head">
+              <div>
+                <h3>Members present, session by session</h3>
+                <p class="sub">The dashed rule is the three-member minimum.</p>
+              </div>
+              <span class="tw-pill" id="att-pill">—</span>
+            </div>
+            <div class="tw-bars" id="att-bars">
+              <div class="tw-tip" id="att-tip" role="status" aria-live="polite"></div>
+            </div>
+            <span class="tw-radar-hint sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 5h18M3 12h18M3 19h18"/></svg>
+              Click to see who was there
+            </span>
+          </div>
+
+          <div class="tw-face" id="face-grid" hidden role="button" tabindex="0"
+               aria-label="Attendance session by session. Activate to go back to the chart.">
+            <div class="tw-head">
+              <div>
+                <h3>Session by session</h3>
+                <p class="sub">Learning sessions are Tuesday mornings; feedback sessions are Saturday mornings.</p>
+              </div>
+              <span class="tw-back" id="att-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                Back
+              </span>
+            </div>
+            <div class="tw-gridwrap">
+              <table class="att-grid" id="att-table"></table>
+            </div>
+            <div class="att-foot">
+              <span class="key"><i class="mark yes"></i> Present</span>
+              <span class="key"><i class="mark no"></i> Absent</span>
+              <span class="muted" id="att-foot-n">—</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="tw-card tw-flip reveal" style="--d:150ms">
+
+          <div class="tw-face" id="face-video" role="button" tabindex="0"
+               aria-label="Video presentation hand-ins. Activate to see your FASTRAC proposal status.">
+            <div class="tw-head">
+              <div>
+                <h3>Video presentation, week by week</h3>
+                <p class="sub">How far ahead of the Friday noon deadline each five-minute video arrived.</p>
+              </div>
+              <span class="tw-pill" id="hi-pill">—</span>
+            </div>
+            <div class="tw-legend" id="hi-legend"></div>
+            <div class="tw-bars" id="hi-bars">
+              <div class="tw-tip" id="hi-tip" role="status" aria-live="polite"></div>
+            </div>
+            <span class="tw-radar-hint sm">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>
+              Click for your FASTRAC status
+            </span>
+          </div>
+
+          <div class="tw-face" id="face-fastrac" hidden role="button" tabindex="0"
+               aria-label="FASTRAC proposal status. Activate to go back to the video hand-ins.">
+            <div class="tw-head">
+              <div>
+                <h3>FASTRAC proposal status</h3>
+                <p class="sub" id="fa-sub">—</p>
+              </div>
+              <span class="tw-back" id="fa-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+                Back
+              </span>
+            </div>
+            <div class="tw-legend" id="fa-legend"></div>
+            <div class="tw-fa" id="fa-rows"></div>
+            <div class="tw-tip" id="fa-tip" role="status" aria-live="polite"></div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Score detail -->
+    <div class="card mt-5 reveal">
+      <div class="card-head"><h3>Every scored output</h3></div>
+      <div class="att-scroll">
+        <table class="table scores">
+          <thead>
+            <tr><th>Week</th><th>Output</th><th>Panel</th><th>Scored</th><th>Weighted average</th><th>Change</th></tr>
+          </thead>
+          <tbody id="score-rows"></tbody>
+        </table>
+      </div>
+      <p class="small mb-0 mt-3 muted">Scores appear here only after the STEP team releases that session's results.</p>
+    </div>
+  </section>
+
+  <!-- ===== Thematic analysis of the panel's comments ===== -->
+  <section id="themes">
+    <div class="section-head">
+      <div class="eyebrow">Thematic analysis</div>
+      <h2>What the panel keeps saying</h2>
+      <p class="lede" id="ta-method">—</p>
+    </div>
+
+    <div class="tw-ta-strip" id="ta-strip"></div>
+    <div class="tw-phases" id="ta-phases"></div>
+
+    <div class="tw-ta">
+      <div class="tw-card reveal">
+        <div class="tw-head">
+          <div>
+            <h3>The code book</h3>
+            <p class="sub">Every comment carries at least one code. Bars are coloured by the theme the code rolled into.</p>
+          </div>
+        </div>
+        <div id="ta-codes"></div>
+        <div class="tw-legend" style="margin-top:var(--s3)">
+          <span><i class="sq ok"></i>Strength</span>
+          <span><i class="sq late"></i>Gap</span>
+          <span><i class="sq" style="background:#6b4fa0"></i>Watch</span>
+        </div>
+        <div class="tw-sat">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span id="ta-sat">—</span>
+        </div>
+      </div>
+
+      <div>
+        <div class="tw-claim reveal">
+          <span class="lab">The claim these themes support</span>
+          <p id="ta-claim">—</p>
+        </div>
+        <div id="ta-themes"></div>
+
+        <div class="tw-card mt-4 reveal">
+          <h3>What this points to</h3>
+          <ul class="mb-0" id="ins-next" style="padding-left:18px; color:var(--ink-soft); font-size:14px"></ul>
+          <p class="ai-note mb-0 mt-3" id="ins-note">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex:none;margin-top:1px" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span></span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Submit this week ===== -->
+  <section id="submit">
+    <div class="section-head">
+      <div class="eyebrow">Submission</div>
+      <h2>Hand in this week's work</h2>
+      <p class="lede">Two files each week: the five-minute video your panel will watch, and the slide deck
+         behind it.</p>
+    </div>
+
+    <div class="card reveal">
+      <div class="due" id="due-bar"></div>
+      <div class="drops">
+        <!-- 5-minute video -->
+        <div class="drop" id="drop-video" data-kind="video">
+          <input type="file" id="file-video" accept="video/mp4,video/quicktime,video/x-m4v"
+                 aria-label="Upload your five-minute video">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 11 6-3v8l-6-3z"/>
+          </svg>
+          <h4>Five-minute video</h4>
+          <p class="hint">MP4 or MOV, up to 500 MB. Drag it here or click to choose.</p>
+        </div>
+        <!-- Slide deck -->
+        <div class="drop" id="drop-slides" data-kind="slides">
+          <input type="file" id="file-slides" accept=".pdf,.pptx,.ppt,application/pdf"
+                 aria-label="Upload your slide deck">
+          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/>
+          </svg>
+          <h4>Slide deck</h4>
+          <p class="hint">PDF or PPTX, up to 50 MB. Drag it here or click to choose.</p>
+        </div>
+      </div>
+      <div class="row mt-4" style="justify-content:space-between; flex-wrap:wrap; gap:var(--s3)">
+        <p class="mockup-note mb-0">This is a design mockup — files stay in your browser and nothing is sent anywhere.</p>
+        <button class="btn" id="btn-submit" disabled>Submit both files</button>
+      </div>
+    </div>
+
+    <div class="card mt-4 reveal">
+      <div class="card-head"><h3>What you have already handed in</h3></div>
+      <div class="att-scroll">
+        <table class="table">
+          <thead><tr><th>Week</th><th>Output</th><th>Files</th><th>Submitted</th><th>Result</th></tr></thead>
+          <tbody id="past-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="grid c3">
+      <div>
+        <img src="assets/step-logo-white.png" alt="SPRINT-STEP" style="height:66px; margin-bottom:var(--s3)">
+        <p class="small">A DOST-PCIEERD funded program that helps Filipino research teams turn their
+           technology into a business.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <p class="small">
+          <a href="index.html">Home</a> · <a href="program.html">Program</a> ·
+          <a href="groups.html">STEP Groups</a><br>
+          <a href="this-week.html">This Week</a> · <a href="my-team.html">My Team's Work</a> ·
+          <a href="capstone.html">Capstone</a> · <a href="trainers.html">Trainers</a>
+        </p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p class="small">Ateneo Intellectual Property Office<br>
+           Rm 213, 2/F PLDT-CTC Building, Katipunan Ave., Loyola Heights, Quezon City<br>
+           <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
+      </div>
+    </div>
+    <p class="small mb-0" style="margin-top:var(--s5)">© 2027 Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+  </div>
+</footer>
+
+<script src="mock-data.js"></script>
+<script>
+const MAXS = 4;
+const fx2 = n => Number(n).toFixed(2);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function tipAt(tip, host, x, y, html) {
+  if (!tip) return;
+  tip.innerHTML = html;
+  tip.style.left = x + "px";
+  tip.style.top  = y + "px";
+  tip.classList.add("on");
+}
+const heat = s => "heat heat-" + (s >= 3.5 ? 4 : s >= 3.0 ? 3 : s >= 2.5 ? 2 : 1);
+
+function fitChart(host, draw) {
+  if (!host) return;
+  host._draw = draw;
+  function paint() {
+    const W = Math.round(host.clientWidth), H = Math.round(host.clientHeight);
+    if (W < 40 || H < 40) return;
+    const old = host.querySelector("svg"); if (old) old.remove();
+    host.insertAdjacentHTML("afterbegin", host._draw(W, H));
+  }
+  host._paint = paint;
+  paint();
+  if (!host._roAttached) {
+    host._roAttached = true;
+    if ("ResizeObserver" in window) {
+      new ResizeObserver(() => {
+        if (!host._queued) {
+          host._queued = true;
+          requestAnimationFrame(() => { host._queued = false; if (host._paint) host._paint(); });
+        }
+      }).observe(host);
+    } else {
+      window.addEventListener("resize", () => {
+        if (!host._queued) {
+          host._queued = true;
+          requestAnimationFrame(() => { host._queued = false; if (host._paint) host._paint(); });
+        }
+      });
+    }
+  }
+  return paint;
+}
+
+const HSTATE = {
+  on_time: { label: "On time",       cls: "ok" },
+  late:    { label: "Late",          cls: "late" },
+  missed:  { label: "Not submitted", cls: "miss" },
+  open:    { label: "Not due yet",   cls: "open" },
+};
+
+function pair(frontId, backId, onShow) {
+  const front = document.getElementById(frontId), back = document.getElementById(backId);
+  if (!front || !back) return;
+  if (!front._paired) {
+    front._paired = true;
+    function face(el) {
+      [front, back].forEach(f => { f.hidden = f !== el; f.classList.remove("enter"); });
+      void el.offsetWidth; el.classList.add("enter"); el.focus();
+      if (el === back && onShow) requestAnimationFrame(onShow);
+    }
+    [[front, back], [back, front]].forEach(([from, to]) => {
+      from.addEventListener("click", () => face(to));
+      from.addEventListener("keydown", e => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); face(to); }
+      });
+    });
+  }
+}
+
+window.__renderMyTeam = function(targetTeamId) {
+  const gate = document.getElementById("myteam-locked-gate");
+  const content = document.getElementById("myteam-content-wrap");
+  if (!gate || !content) return;
+
+  const auth = window.MOCK && window.MOCK.auth;
+  if (!auth || !auth.canAccess("myteam")) {
+    gate.hidden = false;
+    content.hidden = true;
+    const slot = document.getElementById("team-switcher-slot");
+    if (slot) slot.innerHTML = "";
+    return;
+  }
+
+  gate.hidden = true;
+  content.hidden = false;
+
+  const user = auth.getCurrentUser();
+  const assigned = auth.getAssignedTeams();
+  let activeId;
+  if (user.role === "participant") {
+    activeId = user.team_id || "g1";
+  } else {
+    if (targetTeamId && (assigned.includes(targetTeamId) || user.role === "admin")) {
+      activeId = targetTeamId;
+    } else if (window.__selectedTeamId && (assigned.includes(window.__selectedTeamId) || user.role === "admin")) {
+      activeId = window.__selectedTeamId;
+    } else {
+      activeId = assigned[0] || "g1";
+    }
+  }
+  window.__selectedTeamId = activeId;
+
+  const teams = window.MOCK.teams;
+  const TEAM = teams.find(t => t.id === activeId) || teams[0];
+  const TW = window.MOCK.getTeamWork(activeId);
+  const CAP = window.MOCK.getCapstone(activeId);
+  const helpers = window.MOCK.helpers;
+
+  // Render team switcher
+  const slot = document.getElementById("team-switcher-slot");
+  if (slot) {
+    if (user.role === "participant") {
+      slot.innerHTML = `
+        <div class="team-switcher-bar">
+          <span style="font-weight:700;color:var(--ink-soft);font-size:0.95rem;">Assigned Team:</span>
+          <span class="badge blue" style="font-size:0.85rem;padding:4px 10px;">${esc(TEAM.name)} — ${esc(TEAM.technology_title)}</span>
+          <span class="small muted" style="margin-left:auto;">Participant access locked to your registered STEP Group</span>
+        </div>`;
+    } else {
+      const allowedTeams = (user.role === "admin") ? teams : teams.filter(t => assigned.includes(t.id));
+      if (allowedTeams.length > 1) {
+        slot.innerHTML = `
+          <div class="team-switcher-bar">
+            <label for="team-select-myteam" style="font-weight:700;color:var(--ink);font-size:0.95rem;">Viewing Team:</label>
+            <select id="team-select-myteam" class="form-select" style="padding:6px 12px;border-radius:var(--r1);border:1px solid var(--rim);background:var(--paper);font-weight:600;font-size:0.9rem;cursor:pointer;">
+              ${allowedTeams.map(t => `<option value="${t.id}" ${t.id === activeId ? 'selected' : ''}>${esc(t.name)} — ${esc(t.technology_title)}</option>`).join('')}
+            </select>
+            <span class="badge gold" style="text-transform:capitalize;">${user.role} View (${allowedTeams.length} teams assigned)</span>
+          </div>`;
+        const sel = document.getElementById("team-select-myteam");
+        if (sel) {
+          sel.addEventListener("change", (e) => {
+            window.__selectedTeamId = e.target.value;
+            window.__renderMyTeam(e.target.value);
+            document.dispatchEvent(new CustomEvent("stephub_team_changed", { detail: e.target.value }));
+          });
+        }
+      } else {
+        slot.innerHTML = `
+          <div class="team-switcher-bar">
+            <span style="font-weight:700;color:var(--ink-soft);font-size:0.95rem;">Assigned Team:</span>
+            <span class="badge blue" style="font-size:0.85rem;padding:4px 10px;">${esc(TEAM.name)} — ${esc(TEAM.technology_title)}</span>
+            <span class="badge gold" style="text-transform:capitalize;margin-left:auto;">${user.role}</span>
+          </div>`;
+      }
+    }
+  }
+
+  // Team bar
+  const tbName = document.getElementById("tb-name"); if (tbName) tbName.textContent = TEAM.name;
+  const tbTech = document.getElementById("tb-tech"); if (tbTech) tbTech.textContent = TEAM.technology_title;
+  const tbChips = document.getElementById("tb-chips");
+  if (tbChips) {
+    tbChips.innerHTML = [
+      TEAM.implementing_agency, TEAM.region,
+      "Week " + TW.week_no + " of " + TW.weeks_total,
+    ].map(c => `<span class="chip">${esc(c)}</span>`).join("");
+  }
+  const tbRoster = document.getElementById("tb-roster");
+  if (tbRoster) {
+    tbRoster.innerHTML = TW.members.map(m => `<span class="avatar" title="${esc(m.name)} · ${esc(m.role)}">${esc(m.initials)}</span>`).join("");
+  }
+  const tbRosterCap = document.getElementById("tb-rostercap");
+  if (tbRosterCap) tbRosterCap.textContent = TW.members.length + " members";
+
+  /* Radar Chart */
+  const O = TW.outputs, N = O.length;
+  const rWrap = document.getElementById("radar-wrap");
+  const rTip = document.getElementById("radar-tip");
+  let rGeo = null;
+
+  fitChart(rWrap, (W, H) => {
+    const tight = W < 520;
+    const mx = tight ? 48 : 112, my = tight ? 50 : 74, LAB = tight ? 18 : 30;
+    const R = Math.max(70, Math.min((W - mx * 2) / 2, (H - my * 2) / 2));
+    const C = W / 2, CY = H / 2;
+    const ang = i => (Math.PI * 2 * i) / N - Math.PI / 2;
+    const pt  = (i, r) => [C + Math.cos(ang(i)) * r, CY + Math.sin(ang(i)) * r];
+    const rOf = v => ((v - 1) / (MAXS - 1)) * R;
+    rGeo = { pt, rOf, R };
+
+    const poly = (r) => O.map((_, i) => pt(i, r).map(n => n.toFixed(1)).join(",")).join(" ");
+    const avg = O.reduce((a, o) => a + o.score, 0) / N;
+    const hi = Math.max(...O.map(o => o.score)), lo = Math.min(...O.map(o => o.score));
+
+    let g = `<defs>
+      <radialGradient id="rdFill" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#1f6fb2" stop-opacity=".07"/>
+        <stop offset="62%"  stop-color="#1f6fb2" stop-opacity=".17"/>
+        <stop offset="100%" stop-color="#1f6fb2" stop-opacity=".30"/>
+      </radialGradient>
+      <filter id="rdLift" x="-25%" y="-25%" width="150%" height="150%">
+        <feDropShadow dx="0" dy="3" stdDeviation="5" flood-color="#0b3c6b" flood-opacity=".18"/>
+      </filter>
+    </defs>`;
+
+    [4, 3, 2, 1].forEach((v, k) => {
+      g += `<polygon class="radar-band" points="${poly(rOf(v))}" style="opacity:${(.2 + k * .17).toFixed(2)}"/>`;
+    });
+    [1, 2, 3, 4].forEach(v => {
+      g += `<polygon class="radar-grid${v === MAXS ? " outer" : ""}" points="${poly(rOf(v))}"/>`;
+      if (v > 1) g += `<text class="radar-ring-label" x="${C + 5}" y="${(CY - rOf(v) + 4).toFixed(1)}">${fx2(v)}</text>`;
+    });
+    O.forEach((_, i) => {
+      const [x, y] = pt(i, R);
+      g += `<line class="radar-spoke" x1="${C}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
+    });
+    g += `<polygon class="radar-avg" points="${poly(rOf(avg))}"/>`;
+    if (!tight) g += `<text class="radar-avg-lab" x="${(C - 22).toFixed(1)}" y="${(CY - rOf(avg) - 5).toFixed(1)}" text-anchor="end">avg ${fx2(avg)}</text>`;
+    g += `<polygon class="radar-shape" filter="url(#rdLift)" points="${
+      O.map((o, i) => pt(i, rOf(o.score)).map(n => n.toFixed(1)).join(",")).join(" ")}"/>`;
+    g += `<circle class="radar-hub" cx="${C}" cy="${CY}" r="3"/>`;
+    O.forEach((o, i) => {
+      const [lx, ly] = pt(i, R + LAB);
+      const anchor = Math.abs(lx - C) < 14 ? "middle" : (lx > C ? "start" : "end");
+      const em = o.score === hi ? " hi" : o.score === lo ? " lo" : "";
+      const lines = tight ? [o.code] : o.axis.split("\n");
+      const dy0 = -((lines.length - 1) * 7) - 6;
+      g += `<text class="radar-axis-label${em}" x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="${anchor}">` +
+           lines.map((ln, k) => `<tspan x="${lx.toFixed(1)}" dy="${k === 0 ? dy0 : 14}">${esc(ln)}</tspan>`).join("") +
+           `<tspan x="${lx.toFixed(1)}" dy="16" class="radar-axis-score${em}">${fx2(o.score)}</tspan></text>`;
+    });
+    O.forEach((o, i) => {
+      const [x, y] = pt(i, rOf(o.score));
+      const mark = o.score === hi ? "hi" : o.score === lo ? "lo" : "";
+      if (mark) g += `<circle class="radar-halo ${mark}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="11" style="--i:${i}"/>`;
+      g += `<circle class="radar-pt ${mark}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="6" style="--i:${i}" data-i="${i}" aria-label="${esc(o.full)}, ${fx2(o.score)} out of 4.00${mark === "hi" ? ", the strongest" : mark === "lo" ? ", the weakest" : ""}"/>`;
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" role="img" aria-label="Radar chart of panel scores across ${N} weekly outputs">${g}</svg>`;
+  });
+
+  if (rWrap && !rWrap._tipWired) {
+    rWrap._tipWired = true;
+    rWrap.addEventListener("mouseover", e => {
+      const el = e.target.closest(".radar-pt"); if (!el || !rGeo) return;
+      const o = O[+el.dataset.i], [x, y] = rGeo.pt(+el.dataset.i, rGeo.rOf(o.score));
+      const box = rWrap.getBoundingClientRect(), svg = rWrap.querySelector("svg").getBoundingClientRect();
+      tipAt(rTip, rWrap, svg.left - box.left + x, svg.top - box.top + y,
+        `<b>Week ${o.week} · ${o.code}</b>${esc(o.full)}<br>
+         <span class="sc">${fx2(o.score)} / 4.00</span> · Panel ${o.panel}`);
+    });
+    rWrap.addEventListener("mouseout", e => {
+      if (!e.relatedTarget || !rWrap.contains(e.relatedTarget)) rTip.classList.remove("on");
+    });
+  }
+
+  const scores = O.map(o => o.score);
+  const avg = scores.reduce((a, b) => a + b, 0) / N;
+  const best = O[scores.indexOf(Math.max(...scores))];
+  const low  = O[scores.indexOf(Math.min(...scores))];
+  document.getElementById("rd-avg").textContent  = fx2(avg);
+  document.getElementById("rd-best").textContent = fx2(best.score);
+  document.getElementById("rd-low").textContent  = fx2(low.score);
+  document.getElementById("rd-best-n").textContent = " · " + best.axis.replace("\n", " ");
+  document.getElementById("rd-low-n").textContent  = " · " + low.axis.replace("\n", " ");
+  document.getElementById("rd-weeks").textContent = N + " scored outputs";
+
+  document.getElementById("score-rows").innerHTML = O.map((o, i) => {
+    const d = i === 0 ? null : o.score - O[i - 1].score;
+    const cls = d === null ? "flat" : d > 0.04 ? "up" : d < -0.04 ? "down" : "flat";
+    const txt = d === null ? "—" : (d > 0 ? "▲ +" : d < 0 ? "▼ " : "– ") + Math.abs(d).toFixed(2);
+    return `<tr>
+      <td>Week ${o.week}</td>
+      <td><strong>${o.code}</strong> · ${esc(o.full)}</td>
+      <td>Panel ${o.panel}</td>
+      <td>${helpers.fmtDate(o.scored_on + "T09:00:00+08:00")}</td>
+      <td><span class="${heat(o.score)}">${fx2(o.score)}</span></td>
+      <td><span class="trend ${cls}">${txt}</span></td>
+    </tr>`;
+  }).join("");
+
+  /* Video handins bar chart */
+  const H = TW.handins;
+  const hoursEarly = h => (new Date(h.due) - new Date(h.video.at)) / 3600000;
+  const rows = H.map(h => ({
+    week: h.week, code: h.code, state: h.video.state,
+    at: h.video.at, hrs: h.video.at ? hoursEarly(h) : 0,
+  }));
+  const done = rows.filter(r => r.state !== "open");
+  const onTime = done.filter(r => r.state === "on_time").length;
+
+  document.getElementById("hi-pill").textContent = onTime + " of " + done.length + " on time";
+  const present = ["on_time", "late", "missed", "open"].filter(st => rows.some(r => r.state === st));
+  document.getElementById("hi-legend").innerHTML = present.map(st =>
+    `<span><i class="sq ${HSTATE[st].cls}"></i>${HSTATE[st].label} · <b>${
+      rows.filter(r => r.state === st).length}</b></span>`).join("");
+
+  const hiHost = document.getElementById("hi-bars"), hiTip = document.getElementById("hi-tip");
+  const hiMax = Math.max(1, ...rows.map(r => r.hrs)), loMin = Math.min(-0.5, ...rows.map(r => r.hrs));
+  const top = Math.ceil(hiMax * 2) / 2, bot = Math.floor(loMin * 2) / 2;
+  let hiGeo = null;
+
+  fitChart(hiHost, (W, Ht) => {
+    const padL = 34, padR = 8, padT = 14, padB = 36, n = rows.length;
+    const slot = (W - padL - padR) / n, bw = Math.min(30, slot * 0.58);
+    const y = v => padT + ((top - v) / (top - bot)) * (Ht - padT - padB);
+    const bx = i => padL + slot * i + (slot - bw) / 2;
+    hiGeo = { y, bx, bw, padT };
+    let g = "";
+    for (let v = Math.ceil(bot); v <= top; v++) {
+      if (v === 0) continue;
+      g += `<line class="tw-grid" x1="${padL}" y1="${y(v)}" x2="${W - padR}" y2="${y(v)}"/>
+            <text class="tw-axis" x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${v}h</text>`;
+    }
+    rows.forEach((r, i) => {
+      const x0 = bx(i);
+      if (r.state === "open") {
+        g += `<rect class="tw-open-bar" x="${x0}" y="${y(0) - 16}" width="${bw}" height="16" rx="4"/>`;
+      } else if (r.state === "missed") {
+        g += `<rect class="tw-bar short" x="${x0}" y="${y(0)}" width="${bw}" height="${y(bot) - y(0)}" rx="4"/>`;
+      } else {
+        const up = r.hrs >= 0, y0 = up ? y(r.hrs) : y(0), h = Math.abs(y(r.hrs) - y(0));
+        g += `<rect class="tw-vbar ${HSTATE[r.state].cls}" x="${x0}" y="${y0}" width="${bw}" height="${Math.max(3, h)}" rx="4"/>`;
+        g += `<text class="tw-blab" x="${x0 + bw / 2}" y="${(up ? y0 : y(0)) - 6}" text-anchor="middle" style="font-weight:800${up ? "" : ";fill:#9a690c"}">${up ? "" : "−"}${Math.abs(r.hrs).toFixed(1)}h</text>`;
+      }
+      g += `<text class="tw-blab" x="${x0 + bw / 2}" y="${Ht - padB + 15}" text-anchor="middle">W${r.week}</text>`;
+      g += `<rect class="tw-bar-hit" data-i="${i}" x="${padL + slot * i}" y="${padT}" width="${slot}" height="${Ht - padT - padB}"/>`;
+    });
+    g += `<line class="tw-thr" style="stroke:var(--ink-soft)" x1="${padL}" y1="${y(0)}" x2="${W - padR}" y2="${y(0)}"/>
+          <text class="tw-axis" x="${padL - 6}" y="${y(0) + 4}" text-anchor="end">due</text>`;
+    return `<svg viewBox="0 0 ${W} ${Ht}" width="100%" height="100%" role="img" aria-label="Bar chart of how many hours before the deadline each week's five-minute video was handed in">${g}</svg>`;
+  });
+
+  if (hiHost && !hiHost._tipWired) {
+    hiHost._tipWired = true;
+    hiHost.addEventListener("mousemove", e => {
+      const hit = e.target.closest(".tw-bar-hit"); if (!hit || !hiGeo) return;
+      const r = rows[+hit.dataset.i];
+      const mins = Math.round(Math.abs(r.hrs) * 60);
+      tipAt(hiTip, hiHost, hiGeo.bx(+hit.dataset.i) + hiGeo.bw / 2,
+        r.state === "open" ? hiGeo.y(0) - 16 : hiGeo.y(Math.max(0, r.hrs)),
+        `<b>Week ${r.week} · ${r.code}</b><span class="big">${HSTATE[r.state].label}</span>` +
+        (r.at ? `<br>${helpers.fmtDate(r.at)} ${helpers.fmtTime(r.at)}<br>${
+          mins >= 60 ? (mins / 60).toFixed(1) + " hours" : mins + " minutes"} ${
+          r.hrs >= 0 ? "before the deadline" : "past the deadline"}` : "<br>Due Friday, 12:00 NN"));
+    });
+    hiHost.addEventListener("mouseleave", () => hiTip.classList.remove("on"));
+  }
+
+  /* FASTRAC proposal status */
+  const F = CAP.form;
+  const BAND = {
+    ready:  { label: "Reviewed",      cls: "ok",   of: ["reviewed"] },
+    review: { label: "With STEP",     cls: "wait", of: ["submitted"] },
+    doing:  { label: "Being written", cls: "late", of: ["draft", "revise", "open"] },
+    later:  { label: "Opens later",   cls: "none", of: ["locked"] },
+  };
+  const bandOf = st => Object.keys(BAND).find(k => BAND[k].of.includes(st)) || "later";
+  const groups = [];
+  F.forEach(it => {
+    let g = groups.find(x => x.name === it.group);
+    if (!g) groups.push(g = { name: it.group, n: 0, ready: 0, review: 0, doing: 0, later: 0 });
+    g.n++; g[bandOf(it.status)]++;
+  });
+  const tot = { ready: 0, review: 0, doing: 0, later: 0 };
+  groups.forEach(g => Object.keys(tot).forEach(k => tot[k] += g[k]));
+
+  document.getElementById("fa-sub").textContent =
+    `The ${F.length} items of DOST Form 2 · Demo day ${helpers.fmtDate(CAP.demo_day + "T09:00:00+08:00")}`;
+  document.getElementById("fa-legend").innerHTML = Object.keys(BAND)
+    .filter(k => tot[k])
+    .map(k => `<span><i class="sq ${BAND[k].cls}"></i>${BAND[k].label} · <b>${tot[k]}</b></span>`).join("");
+
+  document.getElementById("fa-rows").innerHTML = groups.map(g => `
+    <div class="tw-fa-row" title="${esc(g.name)}">
+      <span class="nm">${esc(g.name)}</span>
+      <span class="bar">${Object.keys(BAND).filter(k => g[k])
+        .map(k => `<i class="${BAND[k].cls}" style="flex:${g[k]}" title="${g[k]} ${BAND[k].label.toLowerCase()}"></i>`).join("")}</span>
+      <span class="ct">${g.ready + g.review}/${g.n}</span>
+    </div>`).join("");
+
+  /* Trajectory */
+  const T = TW.trajectory, NOW = TW.week_no;
+  const lastWk = Math.max(NOW, T[T.length - 1].week), lastT = T[T.length - 1];
+  const tjHost = document.getElementById("tj-plot"), tjTip = document.getElementById("tj-tip");
+  let tjGeo = null;
+
+  const repaintTrajectory = fitChart(tjHost, (W, H) => {
+    const padL = 36, padR = 30, padT = 14, padB = 40;
+    const x = wk => padL + ((wk - 1) / (lastWk - 1)) * (W - padL - padR);
+    const y = v  => padT + ((MAXS - v) / (MAXS - 1)) * (H - padT - padB);
+    const p = (wk, v) => x(wk).toFixed(1) + "," + y(v).toFixed(1);
+    tjGeo = { x, y };
+
+    let g = "";
+    [1, 2, 3, 4].forEach(v => {
+      g += `<line class="tw-grid" x1="${padL}" y1="${y(v)}" x2="${W - padR}" y2="${y(v)}"/>
+            <text class="tw-axis" x="${padL - 7}" y="${y(v) + 4}" text-anchor="end">${fx2(v)}</text>`;
+    });
+    g += `<polygon class="tw-under" points="${x(1).toFixed(1)},${y(1)} ${
+      T.map(r => p(r.week, r.score)).join(" ")} ${x(lastT.week).toFixed(1)},${y(1)}"/>`;
+    g += `<polyline class="tw-line" points="${T.map(r => p(r.week, r.score)).join(" ")}"/>`;
+    if (lastWk > lastT.week) g += `<line class="tw-med" x1="${x(lastWk)}" y1="${padT}" x2="${x(lastWk)}" y2="${H - padB}"/>`;
+    g += `<line class="tw-cross" id="tj-cross" x1="0" y1="${padT}" x2="0" y2="${H - padB}"/>`;
+    for (let wk = 1; wk <= lastWk; wk++) {
+      const r = T.find(t => t.week === wk);
+      g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 18}" text-anchor="middle" ${r ? "" : 'style="fill:#96a2ad"'}>W${wk}</text>`;
+      if (!r) g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 31}" text-anchor="middle" style="fill:#96a2ad;font-weight:700">now</text>`;
+    }
+    T.forEach(r => {
+      g += `<circle class="tw-dot" cx="${x(r.week)}" cy="${y(r.score)}" r="4.5"/>`;
+      g += `<text class="tw-ptlab" x="${x(r.week)}" y="${y(r.score) - 12}" text-anchor="middle">${fx2(r.score)}</text>`;
+    });
+    const half = (W - padL - padR) / (lastWk - 1) / 2;
+    T.forEach(r => {
+      g += `<rect class="tw-hit" data-w="${r.week}" x="${x(r.week) - half}" y="${padT}" width="${half * 2}" height="${H - padT - padB}"/>`;
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" role="img" aria-label="Line chart of this team's weighted average from Week 1 to Week ${lastT.week}">${g}</svg>`;
+  });
+
+  if (tjHost && !tjHost._tipWired) {
+    tjHost._tipWired = true;
+    tjHost.addEventListener("mousemove", e => {
+      const hit = e.target.closest(".tw-hit"); if (!hit || !tjGeo) return;
+      const i = T.findIndex(t => t.week === +hit.dataset.w), r = T[i];
+      const cross = tjHost.querySelector("#tj-cross");
+      if (cross) { cross.setAttribute("x1", tjGeo.x(r.week)); cross.setAttribute("x2", tjGeo.x(r.week)); }
+      tjHost.classList.add("on");
+      const d = i ? r.score - T[i - 1].score : null;
+      tipAt(tjTip, tjHost, tjGeo.x(r.week), tjGeo.y(r.score),
+        `<b>Week ${r.week} · ${r.code}</b><span class="big">${fx2(r.score)}</span> / 4.00` +
+        (d === null ? "<br>your first scored output" : `<br>${d >= 0 ? "+" : ""}${d.toFixed(2)} on the week before`));
+    });
+    tjHost.addEventListener("mouseleave", () => { tjTip.classList.remove("on"); tjHost.classList.remove("on"); });
+  }
+
+  const chg = lastT.score - (T[T.length - 2] ? T[T.length - 2].score : lastT.score);
+  const bestT = T.reduce((a, b) => (b.score > a.score ? b : a));
+  document.getElementById("tj-now").textContent   = fx2(lastT.score);
+  document.getElementById("tj-nowk").textContent  = " · Week " + lastT.week;
+  document.getElementById("tj-chg").textContent   = (chg >= 0 ? "+" : "") + chg.toFixed(2);
+  document.getElementById("tj-best").textContent  = fx2(bestT.score);
+  document.getElementById("tj-bestk").textContent = " · Week " + bestT.week;
+
+  pair("face-radar", "face-trend", repaintTrajectory);
+  pair("face-video", "face-fastrac");
+  pair("face-att", "face-grid");
+
+  /* KPIs */
+  const G = TW.attendance_grid, SES = TW.sessions_held;
+  const tScores = T.map(r => r.score);
+  const tAvg = tScores.reduce((a, b) => a + b, 0) / tScores.length;
+  const lastScore = T[T.length - 1], prevScore = T[T.length - 2] || lastScore;
+  const kpiChg = lastScore.score - prevScore.score;
+  const out = TW.outputs.find(o => o.week === lastScore.week) || {};
+
+  const count = { on_time: 0, late: 0, missed: 0, open: 0 };
+  TW.handins.forEach(h => TW.handin_kinds.forEach(k => count[h[k.key].state]++));
+  const dueTotal = count.on_time + count.late + count.missed;
+
+  const perSession = SES.map((_, i) => TW.members.reduce((s, m) => s + G[m.initials][i], 0));
+  const presentTot = perSession.reduce((a, b) => a + b, 0);
+  const seats = perSession.length * TW.members.length;
+  const met = perSession.filter(c => c >= 3).length;
+
+  const spark = (vals) => {
+    const w = 120, h = 34, lo = 1, hi = 4;
+    const px = i => (i / (vals.length - 1)) * w;
+    const py = v => h - ((v - lo) / (hi - lo)) * h;
+    const pts = vals.map((v, i) => `${px(i).toFixed(1)},${py(v).toFixed(1)}`).join(" ");
+    return `<svg class="tw-spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" aria-hidden="true">
+              <path class="fl" d="M0,${h} L${pts.replace(/ /g, " L")} L${w},${h} Z"/>
+              <path class="ln" d="M${pts.replace(/ /g, " L")}"/>
+            </svg>`;
+  };
+
+  document.getElementById("tw-kpis").innerHTML = `
+    <div class="tw-kpi hero reveal">
+      <div class="k-lab">Cycle average</div>
+      <div class="k-val">${fx2(tAvg)}<small>/ 4.00</small></div>
+      <p class="k-note">Across <b>${tScores.length}</b> scored outputs, Weeks 1 to ${lastScore.week}.</p>
+      ${spark(tScores)}
+    </div>
+    <div class="tw-kpi reveal" style="--d:60ms">
+      <div class="k-lab">Latest score</div>
+      <div class="k-val">${fx2(lastScore.score)}<small>/ 4.00</small></div>
+      <p class="k-note"><span class="tw-delta ${kpiChg >= 0 ? "up" : "down"}">${kpiChg >= 0 ? "▲ +" : "▼ "}${Math.abs(kpiChg).toFixed(2)}</span>
+         on Week ${prevScore.week} · ${esc((out.axis || "").replace("\n", " "))}</p>
+    </div>
+    <div class="tw-kpi reveal" style="--d:120ms">
+      <div class="k-lab">Handed in on time</div>
+      <div class="k-val">${dueTotal > 0 ? Math.round(count.on_time / dueTotal * 100) : 100}<small>%</small></div>
+      <p class="k-note"><b>${count.on_time} of ${dueTotal}</b> deliverables due so far${
+        count.late ? ` · ${count.late} late` : ""}${count.missed ? ` · ${count.missed} missed` : ""}</p>
+    </div>
+    <div class="tw-kpi reveal" style="--d:180ms">
+      <div class="k-lab">Seats filled</div>
+      <div class="k-val">${seats > 0 ? Math.round(presentTot / seats * 100) : 100}<small>%</small></div>
+      <p class="k-note"><b>${met} of ${perSession.length}</b> sessions met the three-member minimum${
+        met < perSession.length ? ` · short in ${perSession.length - met}` : ""}</p>
+    </div>`;
+
+  /* Insights / Thematic Analysis */
+  const I = TW.insight || {};
+  const C = I.corpus || { comments: 0, panelists: 0, sessions: 0, codes: 0, themes: 0 };
+  const methodEl = document.getElementById("ta-method");
+  if (methodEl) {
+    methodEl.textContent =
+      (I.method || "Reflexive thematic analysis") + ". " + C.comments + " comments from " + C.panelists + " panelists across " +
+      C.sessions + " feedback sessions became " + C.codes + " codes and " + C.themes + " themes.";
+  }
+
+  const stripEl = document.getElementById("ta-strip");
+  if (stripEl) {
+    stripEl.innerHTML = [
+      [C.comments, "Comments coded"], [C.panelists, "Panelists"], [C.sessions, "Sessions"],
+      [C.codes, "Codes"], [C.themes, "Themes"],
+    ].map(([n, l]) => `<div><b>${n}</b><span>${l}</span></div>`).join("");
+  }
+
+  const phasesEl = document.getElementById("ta-phases");
+  if (phasesEl) {
+    phasesEl.innerHTML = (I.phases || []).map((p, i) =>
+      `<div class="tw-ph reveal" style="--i:${i}; --d:${i * 50}ms">
+         <b>Phase ${p.n}</b><span class="nm">${esc(p.name)}</span><span class="nt">${esc(p.note)}</span>
+       </div>`).join("");
+  }
+
+  const themes = I.themes || [];
+  const codes = themes.flatMap(t => (t.codes || []).map(c => ({ ...c, pol: t.polarity, theme: t.name })))
+                      .sort((a, b) => b.n - a.n);
+  const topCode = Math.max(1, ...(codes.length ? codes.map(c => c.n) : [1]));
+  const codesEl = document.getElementById("ta-codes");
+  if (codesEl) {
+    codesEl.innerHTML = codes.map(c => `
+      <div class="tw-code" title="${esc(c.theme)}">
+        <span class="cl">${esc(c.label)}</span>
+        <span class="cn">${c.n}</span>
+        <span class="cb"><i class="${c.pol}" data-w="${(c.n / topCode * 100).toFixed(1)}"></i></span>
+      </div>`).join("");
+  }
+
+  (function () {
+    const bars = document.querySelectorAll("#ta-codes .cb i");
+    const grow = () => bars.forEach(b => { b.style.width = b.dataset.w + "%"; });
+    grow();
+  })();
+
+  const satEl = document.getElementById("ta-sat");
+  if (satEl) satEl.textContent = I.saturation || "";
+  const claimEl = document.getElementById("ta-claim");
+  if (claimEl) claimEl.textContent = I.claim || "";
+
+  const POL = { strength: "Strength", gap: "Gap", watch: "Watch" };
+  const themesEl = document.getElementById("ta-themes");
+  if (themesEl) {
+    themesEl.innerHTML = themes.map((t, i) => `
+      <div class="tw-theme reveal${i === 0 ? " open" : ""}" style="--d:${i * 60}ms">
+        <button class="tw-theme-h" type="button" aria-expanded="${i === 0}">
+          <span class="pol ${t.polarity}"></span>
+          <span class="nm">${esc(t.name)}</span>
+          <span class="ct">${POL[t.polarity] || ""} · ${t.mentions || 0} of ${C.comments}</span>
+          <svg class="cv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="tw-theme-b"><div class="tw-theme-in"><div>
+          <p class="det">${esc(t.detail || "")}</p>
+          <div class="tw-chips">${(t.codes || []).map(c => `<span>${esc(c.label)} · ${c.n}</span>`).join("")}</div>
+          ${(t.extracts || []).map(x => `<blockquote class="tw-ex"><q>${esc(x.text)}</q>
+              <span class="src">${esc(x.who)} · Week ${x.week}</span></blockquote>`).join("")}
+        </div></div></div>
+      </div>`).join("");
+  }
+
+  const taThemesWrap = document.getElementById("ta-themes");
+  if (taThemesWrap && !taThemesWrap._clickWired) {
+    taThemesWrap._clickWired = true;
+    taThemesWrap.addEventListener("click", e => {
+      const b = e.target.closest(".tw-theme-h"); if (!b) return;
+      const card = b.closest(".tw-theme"), open = !card.classList.contains("open");
+      card.classList.toggle("open", open);
+      b.setAttribute("aria-expanded", String(open));
+    });
+  }
+
+  document.getElementById("ins-next").innerHTML = I.next.map(n => `<li>${esc(n)}</li>`).join("");
+  const insNote = document.querySelector("#ins-note span");
+  if (insNote) {
+    insNote.textContent =
+      `Coded by the STEP AI assistant from ${I.based_on} panel comments (${I.weeks}), then checked and released by ` +
+      `${I.reviewed_by} on ${helpers.fmtDate(I.reviewed_on + "T09:00:00+08:00")}. Advisory only — it does not affect your grade.`;
+  }
+
+  /* Attendance */
+  const nSes = SES.length;
+  const avgPresent = perSession.reduce((a, b) => a + b, 0) / nSes;
+  const maxM = TW.members.length;
+  const attHost = document.getElementById("att-bars"), attTip = document.getElementById("att-tip");
+  let attGeo = null;
+
+  const barPath = (x0, y0, w, h, r) => {
+    r = Math.min(r, h, w / 2);
+    return `M${x0},${y0 + h} L${x0},${y0 + r} Q${x0},${y0} ${x0 + r},${y0}
+            L${x0 + w - r},${y0} Q${x0 + w},${y0} ${x0 + w},${y0 + r} L${x0 + w},${y0 + h} Z`;
+  };
+
+  fitChart(attHost, (W, H) => {
+    const padL = 24, padR = 8, padT = 12, padB = 38;
+    const slot = (W - padL - padR) / nSes, bw = Math.min(30, slot * 0.64);
+    const y = v => padT + ((maxM - v) / maxM) * (H - padT - padB);
+    const bx = i => padL + slot * i + (slot - bw) / 2;
+    attGeo = { y, bx, bw, padT, padB, H };
+    let g = "";
+    for (let v = 0; v <= maxM; v++) {
+      g += `<line class="tw-grid" x1="${padL}" y1="${y(v)}" x2="${W - padR}" y2="${y(v)}"/>`;
+      if (v) g += `<text class="tw-axis" x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${v}</text>`;
+    }
+    perSession.forEach((v, i) => {
+      const short = v < 3, h = (H - padT - padB) - (y(v) - padT);
+      g += `<path class="tw-bar${short ? " short" : ""}" d="${barPath(bx(i), y(v), bw, h, 4)}"/>`;
+      g += h > 17
+        ? `<text class="tw-bval" x="${bx(i) + bw / 2}" y="${y(v) + 13}" text-anchor="middle">${v}</text>`
+        : `<text class="tw-blab" x="${bx(i) + bw / 2}" y="${y(v) - 4}" text-anchor="middle" style="font-weight:800;fill:var(--tw-miss)">${v}</text>`;
+      g += `<text class="tw-blab" x="${bx(i) + bw / 2}" y="${H - padB + 14}" text-anchor="middle">${SES[i].label.split(" ")[1][0]}</text>`;
+      if (i % 2 === 0) g += `<text class="tw-blab" x="${bx(i) + bw / 2 + slot / 2}" y="${H - padB + 28}" text-anchor="middle" style="font-weight:750">${SES[i].label.split(" ")[0]}</text>`;
+      g += `<rect class="tw-bar-hit" data-i="${i}" x="${padL + slot * i}" y="${padT}" width="${slot}" height="${H - padT - padB}"/>`;
+    });
+    g += `<line class="tw-thr" x1="${padL}" y1="${y(3)}" x2="${W - padR}" y2="${y(3)}"/>`;
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" role="img" aria-label="Bar chart of members present in each of the ${nSes} sessions held so far">${g}</svg>`;
+  });
+
+  if (attHost && !attHost._tipWired) {
+    attHost._tipWired = true;
+    attHost.addEventListener("mousemove", e => {
+      const hit = e.target.closest(".tw-bar-hit"); if (!hit || !attGeo) return;
+      const i = +hit.dataset.i, v = perSession[i];
+      const away = TW.members.filter(m => !G[m.initials][i]).map(m => m.name.split(" ").slice(-1)[0]);
+      tipAt(attTip, attHost, attGeo.bx(i) + attGeo.bw / 2, attGeo.y(v),
+        `<b>${SES[i].label}</b><span class="big">${v} of ${maxM}</span> present<br>` +
+        (away.length ? "Away: " + away.join(", ") : "Everyone attended") +
+        (v < 3 ? "<br>Below the minimum" : ""));
+    });
+    attHost.addEventListener("mouseleave", () => attTip.classList.remove("on"));
+  }
+
+  document.getElementById("att-pill").textContent =
+    met === nSes ? "Every session compliant" : (nSes - met) + " session" + (nSes - met > 1 ? "s" : "") + " short";
+
+  const attHead = `<thead><tr><th class="who">Member</th>${
+    SES.map(s => `<th title="${s.label}">${s.label.split(" ")[0].replace("W", "")}<br>${s.label.split(" ")[1][0]}</th>`).join("")
+  }<th>Total</th></tr></thead>`;
+  const attBody = `<tbody>${TW.members.map(m => {
+    const row = G[m.initials], surname = m.name.split(" ").slice(-1)[0];
+    return `<tr><td class="who" title="${esc(m.name)} · ${esc(m.role)}">${esc(surname)}</td>${
+      row.map((v, i) => `<td><i class="mark ${v ? "yes" : "no"}" title="${SES[i].label}: ${v ? "present" : "absent"}"></i></td>`).join("")
+    }<td><strong>${row.reduce((a, b) => a + b, 0)}/${nSes}</strong></td></tr>`;
+  }).join("")}</tbody>`;
+  document.getElementById("att-table").innerHTML = attHead + attBody;
+  document.getElementById("att-foot-n").textContent =
+    `${nSes} sessions so far · ${avgPresent.toFixed(1)} members present on average`;
+
+  /* Submissions */
+  const openSub = TW.submissions.find(s => s.status === "open") || TW.submissions[0];
+  const due = new Date(openSub.due);
+  const days = Math.max(0, Math.ceil((due - new Date("2027-08-12T09:00:00+08:00")) / 86400000));
+  document.getElementById("due-bar").innerHTML =
+    `<span><strong>Week ${openSub.week} · ${openSub.module}</strong> — due ${helpers.fmtDate(openSub.due)}, 12:00 NN</span>
+     <span class="badge gold">${days} day${days === 1 ? "" : "s"} left</span>`;
+
+  document.getElementById("past-rows").innerHTML = TW.submissions
+    .filter(s => s.status !== "open")
+    .map(s => `<tr>
+      <td>Week ${s.week}</td>
+      <td>${s.module}</td>
+      <td>${s.files.map(f => `<div class="small">${esc(f.name)} <span class="muted">· ${f.size}</span></div>`).join("")}</td>
+      <td>${helpers.fmtDate(s.files[0].at)} ${helpers.fmtTime(s.files[0].at)}
+          ${s.files.some(f => f.late) ? '<span class="badge amber">Late</span>' : '<span class="badge green">On time</span>'}</td>
+      <td><span class="${heat(s.score)}">${fx2(s.score)}</span></td>
+    </tr>`).join("");
+
+  // Submissions upload zone wiring
+  const picked = { video: null, slides: null };
+  const subBtn = document.getElementById("btn-submit");
+  const KB = 1024, sizeOf = b => b > KB * KB * KB ? (b / (KB * KB * KB)).toFixed(1) + " GB"
+                                : b > KB * KB     ? (b / (KB * KB)).toFixed(1) + " MB"
+                                                  : Math.max(1, Math.round(b / KB)) + " KB";
+  const LABEL = {
+    video:  { h: "Five-minute video", hint: "MP4 or MOV, up to 500 MB. Drag it here or click to choose.",
+              ico: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 11 6-3v8l-6-3z"/>' },
+    slides: { h: "Slide deck", hint: "PDF or PPTX, up to 50 MB. Drag it here or click to choose.",
+              ico: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/>' },
+  };
+
+  function renderDrop(kind) {
+    const zone = document.getElementById("drop-" + kind), f = picked[kind], L = LABEL[kind];
+    if (!zone) return;
+    const input = zone.querySelector("input");
+    if (!f) {
+      zone.classList.remove("filled");
+      zone.innerHTML = `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">${L.ico}</svg>
+        <h4>${L.h}</h4><p class="hint">${L.hint}</p>`;
+      if (input) { zone.prepend(input); input.value = ""; }
+    } else {
+      zone.classList.add("filled");
+      zone.innerHTML = `<div class="filerow">
+          <span class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg></span>
+          <span><span class="nm">${esc(f.name)}</span><span class="mt">${sizeOf(f.size)} · ready to submit</span></span>
+          <button class="rm" type="button" aria-label="Remove ${esc(f.name)}">×</button>
+        </div><div class="bar"><i></i></div>`;
+      if (input) zone.prepend(input);
+      requestAnimationFrame(() => { const barI = zone.querySelector(".bar i"); if (barI) barI.style.width = "100%"; });
+      const rmBtn = zone.querySelector(".rm");
+      if (rmBtn) {
+        rmBtn.addEventListener("click", e => {
+          e.preventDefault(); e.stopPropagation(); picked[kind] = null; renderDrop(kind); syncSubBtn();
+        });
+      }
+    }
+    syncSubBtn();
+  }
+  function syncSubBtn() {
+    if (!subBtn) return;
+    subBtn.disabled = !(picked.video && picked.slides);
+  }
+
+  if (subBtn && !subBtn._wired) {
+    subBtn._wired = true;
+    ["video", "slides"].forEach(kind => {
+      const zone = document.getElementById("drop-" + kind);
+      if (!zone) return;
+      zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("over"); });
+      zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+      zone.addEventListener("drop", e => {
+        e.preventDefault(); zone.classList.remove("over");
+        if (e.dataTransfer.files[0]) { picked[kind] = e.dataTransfer.files[0]; renderDrop(kind); }
+      });
+      zone.addEventListener("change", e => {
+        if (e.target.files && e.target.files[0]) { picked[kind] = e.target.files[0]; renderDrop(kind); }
+      });
+    });
+
+    subBtn.addEventListener("click", () => {
+      subBtn.disabled = true;
+      subBtn.textContent = "Submitted — the panel can see it now";
+      document.getElementById("due-bar").innerHTML =
+        `<span><strong>Week ${openSub.week} · ${openSub.module}</strong> — submitted, nothing further to do.</span>
+         <span class="badge green">On time</span>`;
+    });
+  }
+
+  // Trigger intersection observer for newly rendered reveals
+  if (window.__stepObserve) window.__stepObserve(document.getElementById("route-myteam") || document);
+};
+
+/* Listen for global auth or team change */
+window.addEventListener("stephub_auth_changed", () => {
+  if (typeof window.__renderMyTeam === "function") window.__renderMyTeam();
+});
+
+/* Initial render */
+window.__renderMyTeam();
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>

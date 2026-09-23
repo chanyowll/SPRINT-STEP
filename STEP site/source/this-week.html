@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>This Week · SPRINT-STEP</title>
+<meta name="description" content="What is happening in SPRINT-STEP this week: the topic and its materials, the seven days, announcements from the STEP team, and the help desk.">
+<link rel="icon" href="assets/step-logo.png">
+<link rel="stylesheet" href="stephub-ui.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<!-- ===== Institutional bar ===== -->
+<div class="utility-bar">
+  <div class="wrap">
+    <span>A DOST-PCIEERD program implemented by the Ateneo Intellectual Property Office</span>
+    <span class="util-right">
+      <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a>
+      <!-- Placeholder only: sign-in is not built yet -->
+      <a class="util-login" href="#">Participant login</a>
+    </span>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="site-header light">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SPRINT-STEP home">
+      <img src="assets/step-logo-mark.png" alt="SPRINT-STEP — Science and Technology Entrepreneurship Program">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"
+            onclick="const n=document.getElementById('nav');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open'))">☰</button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="this-week.html" class="active">This Week <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <a href="program.html">Program</a>
+      <a href="groups.html">STEP Groups</a>
+      <a href="my-team.html">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <span class="navdd"><a href="capstone.html" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="capstone.html#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="capstone.html#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
+      <span class="navdd"><a href="trainers.html" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="trainers.html#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="trainers.html#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="trainers.html#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
+    </nav>
+  </div>
+  <script>
+  /* The Trainers tab opens its menu — a view is only reached by picking one. */
+  (function () {
+    if (window.__navdd) return; window.__navdd = 1;
+    function shut() {
+      document.querySelectorAll(".navdd.open").forEach(function (d) {
+        d.classList.remove("open");
+        var a = d.querySelector("a"); if (a) a.setAttribute("aria-expanded", "false");
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var tab = e.target.closest && e.target.closest(".navdd > a[aria-haspopup]");
+      if (!tab) { shut(); return; }
+      /* in the stacked mobile menu the three views are already listed below */
+      if (window.matchMedia("(max-width: 900px)").matches) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dd = tab.parentNode, wasOpen = dd.classList.contains("open");
+      shut();
+      if (!wasOpen) { dd.classList.add("open"); tab.setAttribute("aria-expanded", "true"); }
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+  })();
+  </script>
+</header>
+
+<!-- ===== Week bar ===== -->
+<div id="week-locked-gate" class="wrap" hidden></div>
+<div id="week-content-wrap">
+<section class="wk-bar">
+  <div class="wrap wk-split" id="wk-split" data-code="">
+    <div class="wk-left">
+      <div class="eyebrow">This week</div>
+      <h1 id="wk-title">—</h1>
+      <p class="tag" id="wk-tag">—</p>
+      <div class="wk-due" id="wk-due" hidden></div>
+      <div class="daydots" id="wk-dots" aria-label="The seven days of this week"></div>
+    </div>
+    <div class="wk-topic">
+      <h2 id="wk-tp-title">—</h2>
+      <p id="wk-tp-tagline">—</p>
+    </div>
+  </div>
+</section>
+
+<main class="wrap page stack" style="gap:var(--s7)">
+
+  <!-- ===== Announcements — what to anticipate, straight under the week bar ===== -->
+  <section>
+    <div class="ann-top">
+      <div class="section-head mb-0">
+        <div class="eyebrow">From the STEP team</div>
+        <h2>Announcements</h2>
+      </div>
+      <span class="newcount" id="ann-new" hidden></span>
+    </div>
+    <div class="anngrid" id="ann"></div>
+  </section>
+
+  <!-- ===== The topic — the point of the week ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow" id="tp-eyebrow">—</div>
+      <h2 id="tp-title">—</h2>
+    </div>
+    <div class="topic reveal">
+      <div class="tb">
+        <div>
+          <p class="lead" id="tp-brief">—</p>
+          <h4 class="mt-5">By Saturday you should be able to</h4>
+          <ul class="able" id="tp-able"></ul>
+          <div class="outbox mt-4" id="tp-output"></div>
+        </div>
+        <div>
+          <h4 class="mb-0">Materials</h4>
+          <p class="small muted">Posted by the trainer. Everything stays available for the rest of the cycle.</p>
+          <ul class="mats" id="tp-mats"></ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Mini game ===== -->
+  <section>
+    <div class="game reveal" id="gm-board">
+      <div class="game-top">
+        <span class="gpill">Two-minute practice</span>
+        <span class="gmeta">
+          <span>Round <b id="gm-round">1</b></span>
+          <span>Best <b id="gm-best">—</b></span>
+        </span>
+      </div>
+      <h2 class="gh" id="gm-title">—</h2>
+      <p class="gp" id="gm-prompt">—</p>
+      <ol class="steps-list" id="gm-list"></ol>
+      <div class="gamebar">
+        <span class="msg" id="gm-msg">Drag the cards, then check your order.</span>
+        <span class="row" style="gap:var(--s3)">
+          <button class="btn secondary" id="gm-reset">Shuffle again</button>
+          <button class="btn" id="gm-check">Check my order</button>
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== The seven days ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">What happens when</div>
+      <h2>The week, day by day</h2>
+      <p class="lede">The same for everyone in the cohort. Your own mentoring slot is arranged with your mentor.</p>
+    </div>
+    <div class="week-rail" id="rail"></div>
+  </section>
+
+  <!-- ===== Help desk + housekeeping ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Help desk</div>
+      <h2>Ask the STEP team</h2>
+      <p class="lede">Everyone in the cohort can see the answer, so it helps the next team too — and you can
+         ask without your name showing.</p>
+    </div>
+    <div class="hd-wrap">
+      <div class="card reveal">
+        <p class="anon-note">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+          <span>Questions post as <strong>Anonymous participant</strong> unless you turn that off. Your team
+          and your name are never shown to other participants.</span>
+        </p>
+        <div class="thread" id="thread"></div>
+        <form class="composer-wrap" id="composer">
+          <div class="composer">
+            <input type="text" id="msg" placeholder="Type your question for the STEP team…" aria-label="Your question">
+            <button class="btn" type="submit">Send</button>
+          </div>
+          <label class="anon-switch">
+            <input type="checkbox" id="anon" checked>
+            <span class="track" aria-hidden="true"></span>
+            <span><b>Ask anonymously</b> — posts as Anonymous participant</span>
+          </label>
+        </form>
+        <p class="small muted mt-3 mb-0">This is a design mockup — messages stay in your browser.</p>
+      </div>
+      <div class="card reveal" style="--d:100ms">
+        <div class="card-head"><h3>Good to know</h3></div>
+        <ul class="hk" id="hk"></ul>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="grid c3">
+      <div>
+        <img src="assets/step-logo-white.png" alt="SPRINT-STEP" style="height:66px; margin-bottom:var(--s3)">
+        <p class="small">A DOST-PCIEERD funded program that helps Filipino research teams turn their
+           technology into a business.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <p class="small">
+          <a href="index.html">Home</a> · <a href="program.html">Program</a> ·
+          <a href="groups.html">STEP Groups</a><br>
+          <a href="this-week.html">This Week</a> · <a href="my-team.html">My Team's Work</a> ·
+          <a href="capstone.html">Capstone</a> · <a href="trainers.html">Trainers</a>
+        </p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p class="small">Ateneo Intellectual Property Office<br>
+           Rm 213, 2/F PLDT-CTC Building, Katipunan Ave., Loyola Heights, Quezon City<br>
+           <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
+      </div>
+    </div>
+    <p class="small mb-0" style="margin-top:var(--s5)">© 2027 Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+  </div>
+</footer>
+
+<script src="mock-data.js"></script>
+<script>
+const W = window.MOCK.thisWeek;
+const NOW = new Date(W.today);                       // demo clock: Thursday afternoon
+const esc = t => String(t == null ? "" : t)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/* Compare Manila calendar days as plain YYYY-MM-DD strings — comparing Date
+   objects breaks whenever the browser's own zone is behind Asia/Manila. */
+const manilaDay = d => d.toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
+const TODAY = manilaDay(NOW);
+const fmtD = (iso, o) => new Date(iso).toLocaleDateString("en-PH",
+  Object.assign({ timeZone: "Asia/Manila", day: "numeric", month: "short" }, o || {}));
+const fmtT = iso => new Date(iso).toLocaleTimeString("en-PH",
+  { timeZone: "Asia/Manila", hour: "numeric", minute: "2-digit" });
+const isToday = iso => iso === TODAY;
+const isPast  = iso => iso < TODAY;
+const dayNum  = iso => Number(iso.slice(8, 10));
+const utcOf   = iso => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10));
+const daysAway = iso => {
+  const n = Math.round((utcOf(iso) - utcOf(TODAY)) / 86400000);
+  return n === 1 ? "Tomorrow" : "In " + n + " days";
+};
+
+/* ---------- week bar ---------- */
+(function () {
+  document.getElementById("wk-title").textContent =
+    "Week " + W.week_no + " of " + W.weeks_total;
+  document.getElementById("wk-tag").textContent =
+    fmtD(W.starts + "T00:00:00+08:00", { weekday: "long" }) + " to " +
+    fmtD(W.ends + "T00:00:00+08:00", { weekday: "long", year: "numeric" });   // the topic sits beside it
+  document.getElementById("wk-dots").innerHTML = W.days.map(d =>
+    `<span class="${isToday(d.d) ? "now" : isPast(d.d) ? "done" : ""}"
+       title="${esc(d.label)} · ${esc(d.title)}">${d.label.slice(0, 3)}<br>${dayNum(d.d)}</span>`).join("");
+})();
+
+/* ---------- the one deadline that matters, carried in the week bar ---------- */
+(function () {
+  const deadline = W.days.find(d => d.kind === "deadline");
+  if (!deadline) return;
+  const h = Math.round((new Date(deadline.d + "T12:00:00+08:00") - NOW) / 3600000);
+  if (h < 0) return;                                        // already passed — the day rail shows it as done
+  const left = h < 24 ? h + (h === 1 ? " hour" : " hours") + " left"
+                      : Math.round(h / 24) + (Math.round(h / 24) === 1 ? " day" : " days") + " left";
+  const el = document.getElementById("wk-due");
+  el.innerHTML = `Team output due ${esc(deadline.label)}, 12:00 NN — <b>${left}</b>`;
+  el.hidden = false;
+})();
+
+/* ---------- the topic ---------- */
+(function () {
+  const T = W.topic;
+  /* the headline pair lives in the week banner; the section below just carries a quiet label */
+  document.getElementById("wk-tp-title").textContent = T.title;
+  document.getElementById("wk-tp-tagline").textContent = T.tagline;
+  document.getElementById("wk-split").setAttribute("data-code", T.code);
+  document.getElementById("tp-eyebrow").textContent = "What this week is about";
+  document.getElementById("tp-title").textContent = T.title;
+  document.getElementById("tp-brief").textContent = T.brief;
+  document.getElementById("tp-able").innerHTML = T.able.map((a, i) =>
+    `<li><span class="n">${i + 1}</span><span>${esc(a)}</span></li>`).join("");
+  document.getElementById("tp-output").innerHTML =
+    `<b>What to produce by Friday</b>${esc(T.output)}`;
+  document.getElementById("tp-mats").innerHTML = T.materials.map(m => `
+    <li>
+      <span class="ft ${m.pending ? "pend" : ""}">${esc(m.type)}</span>
+      <span>
+        <span class="mn">${esc(m.name)}</span>
+        <span class="mm">${m.pending ? esc(m.pending)
+          : esc(m.size) + " · " + esc(m.by) + " · " + fmtD(m.at, { weekday: "short" })}</span>
+      </span>
+      ${m.pending ? `<span class="badge">Not yet posted</span>`
+                  : `<a class="btn secondary" href="#">${m.type === "Video" ? "Watch" : "Download"}</a>`}
+    </li>`).join("");
+})();
+
+/* ---------- mini game: put the steps in order ---------- */
+(function () {
+  const G = W.game;
+  if (!G) return;
+  const gmTitle = document.getElementById("gm-title");
+  if (gmTitle) gmTitle.textContent = G.title;
+  const gmPrompt = document.getElementById("gm-prompt");
+  if (gmPrompt) gmPrompt.textContent = G.prompt;
+  const list = document.getElementById("gm-list");
+  const msg = document.getElementById("gm-msg");
+  const board = document.getElementById("gm-board");
+  const roundEl = document.getElementById("gm-round");
+  const bestEl = document.getElementById("gm-best");
+  let order = [], locked = false, round = 1, best = null;
+
+  const shuffle = a => { const b = a.slice();
+    for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; }
+    return b; };
+
+  function deal() {
+    locked = false;
+    board.classList.remove("win");
+    do { order = shuffle(G.steps); } while (order.every((s, i) => s.order === i + 1));   // never deal it solved
+    draw();
+    msg.textContent = "Drag the cards, then check your order.";
+    msg.className = "msg";
+    roundEl.textContent = round;
+    document.getElementById("gm-check").disabled = false;
+    document.getElementById("gm-reset").textContent = "Shuffle again";
+  }
+
+  function draw(marks) {
+    list.innerHTML = order.map((s, i) => `
+      <li class="step-card ${locked ? "locked " : ""}${marks ? (marks[i] ? "right" : "wrong") : ""}"
+          data-i="${i}" tabindex="0" role="button"${marks ? ` style="animation-delay:${i * 80}ms"` : ""}
+          aria-label="${esc(s.label)}, position ${i + 1} of ${order.length}. Use the arrow keys to move it.">
+        <span class="grip" aria-hidden="true">⣿</span>
+        <span class="pos">${i + 1}</span>
+        <span class="lb">${esc(s.label)}${marks ? `<span class="wy">${esc(s.why)}</span>` : ""}</span>
+      </li>`).join("");
+  }
+
+  /* a small burst when the whole board comes out right */
+  function celebrate() {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const colors = ["#c99a2e", "#9ccbf4", "#ffffff", "#6fdaa9", "#f0a1a1"];
+    for (let i = 0; i < 36; i++) {
+      const p = document.createElement("i");
+      p.className = "cfti";
+      p.style.left = (6 + Math.random() * 88) + "%";
+      p.style.background = colors[i % colors.length];
+      p.style.animationDelay = Math.round(Math.random() * 280) + "ms";
+      p.style.height = (9 + Math.round(Math.random() * 7)) + "px";
+      board.appendChild(p);
+      setTimeout(() => p.remove(), 2400);
+    }
+  }
+
+  /* pointer-based reordering — works with a mouse and with a finger */
+  let drag = null;
+  list.addEventListener("pointerdown", e => {
+    if (locked) return;
+    const card = e.target.closest(".step-card"); if (!card) return;
+    const rect = card.getBoundingClientRect();
+    drag = { from: +card.dataset.i, dx: e.clientX - rect.left, dy: e.clientY - rect.top, w: rect.width };
+    const ghost = card.cloneNode(true);
+    ghost.classList.add("ghost");
+    ghost.style.width = rect.width + "px";
+    ghost.style.left = rect.left + "px";
+    ghost.style.top = rect.top + "px";
+    document.body.appendChild(ghost);
+    drag.ghost = ghost;
+    card.classList.add("dragging");
+    list.setPointerCapture(e.pointerId);
+  });
+  list.addEventListener("pointermove", e => {
+    if (!drag) return;
+    e.preventDefault();
+    drag.ghost.style.left = (e.clientX - drag.dx) + "px";
+    drag.ghost.style.top = (e.clientY - drag.dy) + "px";
+    const cards = [...list.querySelectorAll(".step-card")];
+    const over = cards.find(c => {
+      const r = c.getBoundingClientRect();
+      return e.clientY >= r.top && e.clientY <= r.bottom;
+    });
+    if (over && +over.dataset.i !== drag.from) {
+      const to = +over.dataset.i;
+      order.splice(to, 0, order.splice(drag.from, 1)[0]);
+      drag.from = to;
+      draw();
+      list.querySelectorAll(".step-card")[to].classList.add("dragging");
+    }
+  });
+  const endDrag = () => {
+    if (!drag) return;
+    drag.ghost.remove();
+    drag = null;
+    draw();
+  };
+  list.addEventListener("pointerup", endDrag);
+  list.addEventListener("pointercancel", endDrag);
+
+  /* keyboard: move a focused card with the arrow keys */
+  list.addEventListener("keydown", e => {
+    if (locked) return;
+    const card = e.target.closest(".step-card"); if (!card) return;
+    const i = +card.dataset.i;
+    let to = null;
+    if (e.key === "ArrowUp" && i > 0) to = i - 1;
+    if (e.key === "ArrowDown" && i < order.length - 1) to = i + 1;
+    if (to === null) return;
+    e.preventDefault();
+    order.splice(to, 0, order.splice(i, 1)[0]);
+    draw();
+    list.querySelectorAll(".step-card")[to].focus();
+  });
+
+  document.getElementById("gm-check").addEventListener("click", () => {
+    const marks = order.map((s, i) => s.order === i + 1);
+    const got = marks.filter(Boolean).length;
+    locked = true;
+    draw(marks);
+    document.getElementById("gm-check").disabled = true;
+    document.getElementById("gm-reset").textContent = "Play again";
+    if (best === null || got > best) best = got;
+    bestEl.textContent = best + "/" + order.length;
+    round++;
+    if (got === order.length) {
+      msg.textContent = "Clean sweep — that is the conversation you will run on Saturday.";
+      msg.className = "msg ok";
+      board.classList.add("win");
+      celebrate();
+    } else {
+      msg.textContent = got + " of " + order.length + " in place. Read the notes, then play again.";
+      msg.className = "msg no";
+    }
+  });
+  document.getElementById("gm-reset").addEventListener("click", deal);
+  deal();
+})();
+
+/* ---------- the seven days ---------- */
+document.getElementById("rail").innerHTML = W.days.map(d => {
+  const past = isPast(d.d), today = isToday(d.d);
+  let act = "", gate = "";
+  if (d.action === "join") {
+    act = `<button class="btn" disabled>Join</button>`;
+    gate = `<div class="gate">Opens 15 minutes before</div>`;
+  } else if (d.action === "recording") {
+    act = `<a class="btn secondary" href="#">Watch the recording</a>`;
+  } else if (d.action === "submit") {
+    act = `<a class="btn" href="my-team.html#submit">Hand it in</a>`;
+  }
+  const state = past ? "past" : today ? "today" : "ahead";
+  const tag = past  ? `<span class="st done">Done</span>`
+            : today ? `<span class="st now">Today</span>`
+                    : `<span class="st next">${daysAway(d.d)}</span>`;
+  return `<div class="dayrow ${d.kind} ${state} reveal">
+    <div class="dy">
+      <span class="wd">${esc(d.label)}</span>
+      <span class="dt">${fmtD(d.d + "T00:00:00+08:00")}</span>
+      ${tag}
+    </div>
+    <div>
+      <div class="ti">${past ? `<span class="tick" aria-hidden="true">✓</span>` : ""}${esc(d.title)}</div>
+      <div class="nt">${d.time ? esc(d.time) + (d.where ? " · " + esc(d.where) : "") + " — " : ""}${esc(d.note || "")}</div>
+    </div>
+    <div>${act}${gate}</div>
+  </div>`;
+}).join("");
+
+/* ---------- announcements ---------- */
+(function () {
+  const S = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"';
+  const ICON = {
+    alert: `<svg ${S}><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>`,
+    file:  `<svg ${S}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>`,
+    cert:  `<svg ${S}><circle cx="12" cy="9" r="5"/><path d="M8.5 13.2 7 22l5-2.6L17 22l-1.5-8.8"/></svg>`,
+    chart: `<svg ${S}><path d="M3 21h18"/><rect x="5" y="11" width="4" height="7" rx="1"/><rect x="11" y="6" width="4" height="12" rx="1"/><rect x="17" y="14" width="4" height="4" rx="1"/></svg>`,
+  };
+  const list = W.announcements.slice()
+    .sort((a, b) => (b.pinned - a.pinned) || (new Date(b.at) - new Date(a.at)));
+
+  document.getElementById("ann").innerHTML = list.map((a, i) => `
+    <article class="note ${a.pinned ? "pinned" : ""} ${a.priority} ${a.read ? "" : "unread"} reveal"
+             style="--d:${i * 60}ms">
+      <span class="ic" aria-hidden="true">${ICON[a.icon] || ICON.file}</span>
+      <div class="nb">
+        ${a.pinned ? '<span class="ntag">Pinned by the STEP team</span>' : ""}
+        <h4>${esc(a.title)}</h4>
+        <p>${esc(a.body)}</p>
+        <div class="mt">${esc(a.by)} · ${fmtD(a.at, { weekday: "long" })}, ${fmtT(a.at)}</div>
+      </div>
+      ${a.read ? "" : '<span class="dot" title="New since you last looked"></span>'}
+    </article>`).join("");
+
+  const unread = list.filter(a => !a.read).length;
+  const badge = document.getElementById("ann-new");
+  if (unread) { badge.innerHTML = `<b>${unread}</b> new this week`; badge.hidden = false; }
+})();
+
+/* ---------- help desk ---------- */
+(function () {
+  const thread = document.getElementById("thread");
+  const HONOURIFIC = /^(ms|mr|mrs|dr|engr|atty|prof|sir|maam)$/i;
+  const initials = n => {
+    const parts = n.replace(/[^A-Za-z ]/g, "").split(/\s+/).filter(x => x && !HONOURIFIC.test(x));
+    if (!parts.length) return "?";
+    return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+  };
+  /* an anonymous asker gets a neutral mark, never initials */
+  const ANON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>`;
+  const render = () => {
+    thread.innerHTML = W.helpdesk.map(m => {
+      const meta = [m.anon ? "" : esc(m.role), fmtT(m.at)].filter(Boolean).join(" · ");
+      return `<div class="msg-row">
+        <span class="av ${m.anon ? "anon" : ""}" aria-hidden="true">${m.anon ? ANON : esc(initials(m.who))}</span>
+        <div class="bubble">
+          <div class="who">${esc(m.who)}${m.me ? ' <span class="tagme">you</span>' : ""}
+            <span>${meta ? "· " + meta : ""}</span></div>
+          <div class="bd">${esc(m.body)}</div>
+        </div>
+      </div>`;
+    }).join("");
+    thread.scrollTop = thread.scrollHeight;
+  };
+  render();
+  document.getElementById("composer").addEventListener("submit", e => {
+    e.preventDefault();
+    const box = document.getElementById("msg");
+    const text = box.value.trim(); if (!text) return;
+    const anon = document.getElementById("anon").checked;
+    W.helpdesk.push({
+      who: anon ? "Anonymous participant" : "Dr. Liza Ramos",
+      role: anon ? "" : "AgriSense",
+      anon: anon, me: true, at: new Date().toISOString(), body: text,
+    });
+    box.value = ""; render();
+  });
+})();
+
+document.getElementById("hk").innerHTML = W.housekeeping.map(h =>
+  `<li><b>${esc(h.title)}</b><span>${esc(h.note)}</span></li>`).join("");
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* ---------- RBAC Access Guard ---------- */
+window.__renderThisWeek = function() {
+  const user = window.MOCK ? window.MOCK.auth.getCurrentUser() : null;
+  const gate = document.getElementById("week-locked-gate");
+  const content = document.getElementById("week-content-wrap");
+  if (!gate || !content) return;
+  if (!user || user.role === "guest") {
+    gate.hidden = false;
+    gate.innerHTML = `
+      <div class="access-restricted-card">
+        <div class="shield-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        </div>
+        <h2>Sign In Required</h2>
+        <p>This Week's schedule, materials, and panel assignments are private to enrolled SPRINT-STEP participants, mentors, trainers, and panelists. Please sign in to view this week's sessions.</p>
+        <button class="btn solid" onclick="window.MOCK.openAuthModal()">Sign In / Select Demo Account</button>
+      </div>
+    `;
+    content.hidden = true;
+  } else {
+    gate.hidden = true;
+    content.hidden = false;
+  }
+};
+window.__renderThisWeek();
+window.addEventListener("stephub_auth_changed", () => {
+  if (typeof window.__renderThisWeek === "function") window.__renderThisWeek();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Trainers · SPRINT-STEP</title>
+<meta name="description" content="The trainers, mentors and panelists who run SPRINT-STEP: the curriculum they deliver, the weekly mentoring schedule, and the panel score sheet used at Saturday feedback sessions.">
+<link rel="icon" href="assets/step-logo.png">
+<link rel="stylesheet" href="stephub-ui.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<!-- ===== Institutional bar ===== -->
+<div class="utility-bar">
+  <div class="wrap">
+    <span>A DOST-PCIEERD program implemented by the Ateneo Intellectual Property Office</span>
+    <span class="util-right">
+      <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a>
+      <!-- Placeholder only: sign-in is not built yet -->
+      <a class="util-login" href="#">Participant login</a>
+    </span>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="site-header light">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SPRINT-STEP home">
+      <img src="assets/step-logo-mark.png" alt="SPRINT-STEP — Science and Technology Entrepreneurship Program">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"
+            onclick="const n=document.getElementById('nav');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open'))">☰</button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="this-week.html">This Week <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <a href="program.html">Program</a>
+      <a href="groups.html">STEP Groups</a>
+      <a href="my-team.html">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <span class="navdd"><a href="capstone.html" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="capstone.html#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="capstone.html#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
+      <span class="navdd"><a href="trainers.html" class="active" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="trainers.html#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="trainers.html#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="trainers.html#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
+    </nav>
+  </div>
+  <script>
+  /* The Trainers tab opens its menu — a view is only reached by picking one. */
+  (function () {
+    if (window.__navdd) return; window.__navdd = 1;
+    function shut() {
+      document.querySelectorAll(".navdd.open").forEach(function (d) {
+        d.classList.remove("open");
+        var a = d.querySelector("a"); if (a) a.setAttribute("aria-expanded", "false");
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var tab = e.target.closest && e.target.closest(".navdd > a[aria-haspopup]");
+      if (!tab) { shut(); return; }
+      /* in the stacked mobile menu the three views are already listed below */
+      if (window.matchMedia("(max-width: 900px)").matches) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dd = tab.parentNode, wasOpen = dd.classList.contains("open");
+      shut();
+      if (!wasOpen) { dd.classList.add("open"); tab.setAttribute("aria-expanded", "true"); }
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+  })();
+  </script>
+</header>
+
+<!-- ===== Page hero ===== -->
+<div id="trainers-locked-gate" class="wrap" hidden></div>
+<div id="trainers-content-wrap">
+<section class="page-hero plain">
+  <div class="wrap hero-split">
+    <div>
+      <div class="eyebrow" id="fa-eyebrow">The people who run the cycle</div>
+      <h1 id="fa-title">Trainers</h1>
+      <p class="lede" id="fa-note">—</p>
+      <div class="viewbar" id="fa-bar" role="tablist" aria-label="Trainers, Mentors and Panel"></div>
+    </div>
+    <div class="spec" id="fa-spec"></div>
+  </div>
+</section>
+
+<main class="wrap page stack" style="gap:var(--s7)">
+
+
+  <!-- ===================== TRAINERS ===================== -->
+  <div class="fa-view" id="view-trainers">
+
+    <section>
+      <div class="section-head">
+        <div class="eyebrow">Who teaches what</div>
+        <h2>The trainers</h2>
+      </div>
+      <div class="fgrid" id="tr-grid"></div>
+    </section>
+
+    <section class="mt-7">
+      <div class="section-head">
+        <div class="eyebrow">Curriculum</div>
+        <h2>Topics and what has been delivered</h2>
+        <p class="lede">The full cycle, in order. Each session carries its coverage, the output the teams owe,
+           and the slide deck once it is posted.</p>
+      </div>
+      <div class="curr" id="curr"></div>
+    </section>
+
+    <section class="mt-7">
+      <div class="section-head">
+        <div class="eyebrow">Materials</div>
+        <h2>Post your slides</h2>
+        <p class="lede">Drop a deck for any session you are running. Participants see it on This Week and on
+           the Program page from the moment it is posted.</p>
+      </div>
+      <div class="upl">
+        <label class="drop" id="sl-drop">
+          <input type="file" id="sl-file" accept=".pdf,.ppt,.pptx,.key" hidden>
+          <span class="dz-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+          </span>
+          <strong>Drop a slide deck here, or choose a file</strong>
+          <span class="small muted">PDF, PPTX or Keynote · up to 50 MB</span>
+        </label>
+        <div class="upl-side">
+          <label class="fld"><span>Session</span>
+            <select id="sl-session"></select>
+          </label>
+          <div class="posted" id="sl-posted"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ===================== MENTORS ===================== -->
+  <div class="fa-view" id="view-mentors" hidden>
+
+    <section>
+      <div class="section-head">
+        <div class="eyebrow">One hour a week, one team each</div>
+        <h2>The mentors</h2>
+        <p class="lede" id="mn-note">—</p>
+      </div>
+      <div class="fgrid" id="mn-grid"></div>
+    </section>
+
+    <section class="mt-7">
+      <div class="section-head">
+        <div class="eyebrow">This week</div>
+        <h2>Mentoring schedule</h2>
+        <p class="lede">Wednesday to Friday. The Join button opens fifteen minutes before the slot and stays
+           open until it ends.</p>
+      </div>
+      <div class="sched" id="sched"></div>
+    </section>
+
+  </div>
+
+  <!-- ===================== PANEL ===================== -->
+  <div class="fa-view" id="view-panel" hidden>
+
+    <section>
+      <div class="section-head">
+        <div class="eyebrow">Saturday feedback sessions</div>
+        <h2>The panels</h2>
+        <p class="lede">Three panels run in parallel from 9:00 AM. Each team gets thirty-five minutes — a
+           five-minute video, then questions.</p>
+      </div>
+      <div class="pgrid" id="pnl-grid"></div>
+    </section>
+
+    <section class="mt-7">
+      <div class="section-head">
+        <div class="eyebrow">Scoring</div>
+        <h2>Panel score sheet</h2>
+      </div>
+
+      <div class="sheet2">
+        <div class="sh-top">
+          <div class="sh-tx">
+            <div class="sh-code" id="sc-code">—</div>
+            <h3 id="sc-title">—</h3>
+            <div class="sh-meta" id="sc-meta">—</div>
+          </div>
+          <div class="sh-picks">
+            <label class="fld"><span>Session</span><select id="sc-session"></select></label>
+            <label class="fld"><span>Panel</span><select id="sc-panel"></select></label>
+            <label class="fld"><span>Panelist</span><select id="sc-panelist"></select></label>
+          </div>
+        </div>
+
+        <div class="tm-tabs" role="tablist" aria-label="Teams in this panel" id="sc-tabs"></div>
+        <div class="tm-panel" id="sc-body"></div>
+
+        <div class="sh-foot">
+          <span class="msg" id="sc-msg">Nothing scored yet.</span>
+          <span class="row" style="gap:var(--s3)">
+            <button class="btn secondary" id="sc-clear">Clear sheet</button>
+            <button class="btn" id="sc-submit">Submit scores</button>
+          </span>
+        </div>
+      </div>
+
+      <p class="small muted mt-4">Scale, weighting and the thirty-five-minute slots follow the STEP 2 panel
+         score sheet. Each panelist scores on their own sheet; the team's mark for the week is the average
+         across the panel.</p>
+    </section>
+
+  </div>
+
+</main>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="grid c3">
+      <div>
+        <img src="assets/step-logo-white.png" alt="SPRINT-STEP" style="height:66px; margin-bottom:var(--s3)">
+        <p class="small">A DOST-PCIEERD funded program that helps Filipino research teams turn their
+           technology into a business.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <p class="small">
+          <a href="index.html">Home</a> · <a href="program.html">Program</a> ·
+          <a href="groups.html">STEP Groups</a><br>
+          <a href="this-week.html">This Week</a> · <a href="my-team.html">My Team's Work</a> ·
+          <a href="capstone.html">Capstone</a> · <a href="trainers.html">Trainers</a>
+        </p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p class="small">Ateneo Intellectual Property Office<br>
+           Rm 213, 2/F PLDT-CTC Building, Katipunan Ave., Loyola Heights, Quezon City<br>
+           <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
+      </div>
+    </div>
+    <p class="small mb-0" style="margin-top:var(--s5)">© 2027 Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+  </div>
+</footer>
+
+<script src="mock-data.js"></script>
+<script>
+const F = window.MOCK.faculty;
+const G = window.MOCK.groups;
+const CUR = window.MOCK.cohort.current_week;
+const esc = t => String(t == null ? "" : t)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const byTeam = Object.fromEntries(G.map(t => [t.short, t]));
+const NOW = new Date(window.MOCK.thisWeek.today);
+
+/* ---------- the plate in the hero ---------- */
+document.getElementById("fa-spec").innerHTML = `
+  <div class="cap">This cycle</div>
+  <dl>
+    <div class="r"><dt>Trainers</dt><dd><b>${F.trainers.length}</b><em>across the tracks</em></dd></div>
+    <div class="r"><dt>Mentors</dt><dd><b>${F.mentors.length}</b><em>one per team</em></dd></div>
+    <div class="r"><dt>Panels</dt><dd><b>${F.panels.length}</b><em>running in parallel</em></dd></div>
+    <div class="r"><dt>Sessions</dt><dd><b>${F.sessions.filter(s => !s.special).length}</b><em>in the curriculum</em></dd></div>
+  </dl>`;
+
+/* ---------- the view switch ---------- */
+(function () {
+  const note = document.getElementById("fa-note");
+  const NOTES = {
+    trainers: "Who teaches each topic, what has been delivered so far, and where the slide decks go.",
+    mentors: "Who mentors which team, when they meet this week, and the room they meet in.",
+    panel: "Who sits on each panel, and the score sheet used on Saturday.",
+  };
+  const VIEWS = ["trainers", "mentors", "panel"];
+  /* The merged site routes on the hash, so the view rides along as
+     #trainers-<view> — which its router reads as the trainers route. */
+  const readHash = () => {
+    const h = (location.hash || "").replace(/^#/, "").replace(/^trainers-?/, "");
+    return VIEWS.includes(h) ? h : "trainers";
+  };
+  const LABEL = { trainers: "Trainers", mentors: "Mentors", panel: "Panel" };
+  const bar = document.getElementById("fa-bar");
+  bar.innerHTML = VIEWS.map(v =>
+    `<button role="tab" class="vb" data-v="${v}" aria-selected="false">${LABEL[v]}</button>`).join("");
+
+  /* mode: "init" on first paint (never touch the URL — in the merged site the
+     hash belongs to the router), "push" when the reader chose a view. */
+  function show(v, mode) {
+    VIEWS.forEach(k => { document.getElementById("view-" + k).hidden = k !== v; });
+    note.textContent = NOTES[v];
+    document.getElementById("fa-title").textContent = LABEL[v];
+    bar.querySelectorAll(".vb").forEach(b =>
+      b.setAttribute("aria-selected", b.dataset.v === v ? "true" : "false"));
+    document.querySelectorAll(".ddm a").forEach(a =>
+      a.setAttribute("aria-current", (a.getAttribute("href") || "").endsWith(
+        v === "trainers" ? "#trainers" : "-" + v) ? "true" : "false"));
+    if (mode === "init") return;
+    const want = "#trainers" + (v === "trainers" ? "" : "-" + v);
+    if (location.hash !== want) {
+      if (mode === "push") location.hash = want; else history.replaceState(null, "", want);
+    }
+  }
+  bar.addEventListener("click", e => {
+    const b = e.target.closest(".vb"); if (!b) return;
+    show(b.dataset.v, "push");
+  });
+  /* the Trainers tab menu drops a new hash in — follow it, but leave hashes
+     that belong to another route alone */
+  window.addEventListener("hashchange", () => {
+    const raw = (location.hash || "").replace(/^#/, "");
+    if (raw && !/^trainers(-|$)/.test(raw) && !VIEWS.includes(raw)) return;
+    const h = readHash();
+    if (document.getElementById("view-" + h).hidden) show(h, "init");
+  });
+  show(readHash(), "init");
+})();
+
+/* ---------- trainers ---------- */
+(function () {
+  const titleOf = c => (F.sessions.find(s => s.code === c) || {}).title || c;
+  document.getElementById("tr-grid").innerHTML = F.trainers.map((t, i) => `
+    <article class="fcard reveal" style="--d:${i * 50}ms">
+      <div class="fh">
+        <span class="fav">${esc(t.initials)}</span>
+        <span class="fhx">
+          <h4>${esc(t.name)}</h4>
+          <span class="fo">${esc(t.org)}</span>
+        </span>
+      </div>
+      <p class="ffocus">${esc(t.focus)}</p>
+      <div class="fmods">
+        ${t.modules.map(c => `<span class="mod" title="${esc(titleOf(c))}">${esc(c)}</span>`).join("")}
+        <span class="fmn">${t.modules.length} session${t.modules.length === 1 ? "" : "s"}</span>
+      </div>
+    </article>`).join("");
+})();
+
+/* ---------- the curriculum, with what is done ---------- */
+(function () {
+  const rows = F.sessions.slice().sort((a, b) => a.week - b.week || (a.special ? 1 : -1));
+  document.getElementById("curr").innerHTML = rows.map(s => {
+    const state = s.week < CUR ? "done" : s.week === CUR ? "now" : "next";
+    const tag = state === "done" ? "Delivered" : state === "now" ? "This week" : "Upcoming";
+    return `
+    <div class="crow ${state} reveal">
+      <div class="cwk"><b>${s.special ? "—" : "Week " + s.week}</b><span class="code">${esc(s.code)}</span></div>
+      <div class="cbody">
+        <div class="ctitle">${esc(s.title)}</div>
+        <div class="cmeta">${esc(s.trainer)} · ${esc(s.mode)}</div>
+        <div class="ccov">${esc(s.coverage)}</div>
+        ${s.deliverable && s.deliverable !== "—"
+          ? `<div class="cdel"><span>Output</span>${esc(s.deliverable)}</div>` : ""}
+        ${s.assess.length
+          ? `<details class="cass"><summary>Panel criteria (${s.assess.filter(a => a.weight).length})</summary>
+               <ul>${s.assess.map(a => a.group
+                    ? `<li class="grp">${esc(a.group)}</li>`
+                    : `<li><b>${a.weight}%</b> ${esc(a.label)}</li>`).join("")}</ul>
+             </details>` : ""}
+      </div>
+      <div class="cside"><span class="cstat ${state}">${tag}</span>
+        <span class="cslides" data-code="${esc(s.code)}">${state === "done" ? "Slides posted" : "No slides yet"}</span>
+      </div>
+    </div>`;
+  }).join("");
+})();
+
+/* ---------- posting a deck ---------- */
+(function () {
+  const sel = document.getElementById("sl-session");
+  sel.innerHTML = F.sessions.map(s => `<option value="${esc(s.code)}">${esc(s.code)} · ${esc(s.title)}</option>`).join("");
+  sel.value = (F.sessions.find(s => s.week === CUR) || F.sessions[0]).code;
+
+  const drop = document.getElementById("sl-drop");
+  const input = document.getElementById("sl-file");
+  const posted = document.getElementById("sl-posted");
+  const list = [];
+
+  const kb = n => n < 1024 * 1024 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
+  function draw() {
+    posted.innerHTML = list.length
+      ? `<div class="pl-h">Posted in this session</div>` + list.map((f, i) => `
+          <div class="pl">
+            <span class="ft">${esc(f.ext)}</span>
+            <span class="pn"><b>${esc(f.name)}</b><span>${esc(f.code)} · ${esc(f.size)}</span></span>
+            <button class="lnk" data-i="${i}" aria-label="Remove ${esc(f.name)}">Remove</button>
+          </div>`).join("")
+      : `<div class="pl-h">Nothing posted yet</div>
+         <p class="small muted mb-0">Decks you post here appear against the session in the curriculum above.</p>`;
+  }
+  function take(file) {
+    if (!file) return;
+    const ext = (file.name.split(".").pop() || "file").toUpperCase().slice(0, 4);
+    list.unshift({ name: file.name, size: kb(file.size), ext, code: sel.value });
+    const mark = document.querySelector(`.cslides[data-code="${sel.value}"]`);
+    if (mark) { mark.textContent = "Slides posted"; mark.closest(".crow").classList.add("has-slides"); }
+    draw();
+  }
+  input.addEventListener("change", e => take(e.target.files[0]));
+  ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.add("over");
+  }));
+  ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => {
+    e.preventDefault(); drop.classList.remove("over");
+  }));
+  drop.addEventListener("drop", e => take(e.dataTransfer.files[0]));
+  posted.addEventListener("click", e => {
+    const b = e.target.closest(".lnk"); if (!b) return;
+    list.splice(+b.dataset.i, 1); draw();
+  });
+  draw();
+})();
+
+/* ---------- mentors ---------- */
+(function () {
+  document.getElementById("mn-note").textContent = F.mentorNote;
+  document.getElementById("mn-grid").innerHTML = F.mentors.map((m, i) => {
+    const t = byTeam[m.team];
+    return `
+    <article class="fcard reveal" style="--d:${i * 40}ms">
+      <div class="fh">
+        <span class="fav">${esc(m.initials)}</span>
+        <span class="fhx">
+          <h4>${esc(m.name)}</h4>
+          <span class="fo">${t ? esc(t.institution) : ""}</span>
+        </span>
+      </div>
+      <div class="fteam">
+        ${t ? `<span class="tlogo"><img src="${t.mark}" alt="" loading="lazy"></span>` : ""}
+        <span class="ftx"><b>${esc(m.team)}</b><span>${esc(m.day)} · ${esc(m.time)}</span></span>
+      </div>
+    </article>`;
+  }).join("");
+})();
+
+/* ---------- the week's mentoring slots ---------- */
+(function () {
+  const W = window.MOCK.thisWeek;
+  const DAY = { Wed: 1, Thu: 2, Fri: 3 };
+  const dayDate = d => W.days.find(x => x.label.slice(0, 3) === d);
+  const manilaDay = dt => dt.toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
+  const TODAY = manilaDay(NOW);
+
+  const groups = ["Wed", "Thu", "Fri"].map(d => ({
+    day: d, date: dayDate(d),
+    rows: F.mentors.filter(m => m.day === d).sort((a, b) => a.time.localeCompare(b.time)),
+  }));
+
+  document.getElementById("sched").innerHTML = groups.map(g => {
+    if (!g.rows.length) return "";
+    const iso = g.date ? g.date.d : "";
+    const past = iso && iso < TODAY, today = iso === TODAY;
+    return `
+    <div class="sday ${past ? "past" : ""} ${today ? "today" : ""} reveal">
+      <div class="sdh">
+        <b>${g.date ? esc(g.date.label) : g.day}</b>
+        <span>${iso ? new Date(iso + "T00:00:00+08:00").toLocaleDateString("en-PH",
+          { timeZone: "Asia/Manila", day: "numeric", month: "long" }) : ""}${today ? " · today" : ""}</span>
+      </div>
+      <div class="sbody">
+        ${g.rows.map(m => {
+          const t = byTeam[m.team];
+          const start = iso ? new Date(iso + "T" + m.time + ":00+08:00") : null;
+          const open = start && (NOW >= new Date(start - 15 * 60000)) && (NOW <= new Date(+start + 60 * 60000));
+          const done = start && NOW > new Date(+start + 60 * 60000);
+          return `
+          <div class="srow">
+            <span class="stime">${esc(m.time)}<small>1 hour</small></span>
+            <span class="steam">
+              ${t ? `<span class="tlogo sm"><img src="${t.mark}" alt="" loading="lazy"></span>` : ""}
+              <span><b>${esc(m.team)}</b><span class="smn">${esc(m.name)}</span></span>
+            </span>
+            ${done
+              ? `<span class="sdone">Done</span>`
+              : open
+                ? `<a class="btn sm" href="${esc(m.zoom)}" target="_blank" rel="noopener">Join now</a>`
+                : `<button class="btn secondary sm" disabled title="Opens 15 minutes before the slot">Join</button>`}
+          </div>`;
+        }).join("")}
+      </div>
+    </div>`;
+  }).join("");
+})();
+
+/* ---------- the panels ---------- */
+(function () {
+  document.getElementById("pnl-grid").innerHTML = F.panels.map((p, i) => `
+    <article class="pcard reveal" style="--d:${i * 70}ms">
+      <div class="ph"><span class="pl">Panel ${esc(p.letter)}</span>
+        <span class="pn2">${p.teams.length} team${p.teams.length === 1 ? "" : "s"}</span></div>
+      <div class="pmembers">
+        ${p.panelists.map(n => `<div class="pm"><span class="fav sm">${esc(initials(n))}</span>${esc(n)}</div>`).join("")}
+      </div>
+      <div class="pslots">
+        ${p.teams.map(t => {
+          const g = byTeam[t.team];
+          return `<div class="ps">
+            <span class="pst">${esc(t.at)}</span>
+            ${g ? `<span class="tlogo sm"><img src="${g.mark}" alt="" loading="lazy"></span>` : ""}
+            <span class="psn">${esc(t.team)}</span></div>`;
+        }).join("")}
+      </div>
+    </article>`).join("");
+})();
+
+function initials(n) {
+  const skip = /^(ms|mr|mrs|dr|engr|atty|prof|sir|maam)\.?$/i;
+  const parts = String(n).replace(/[“”"]/g, "").split(/\s+/).filter(x => x && !skip.test(x));
+  return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
+}
+
+/* ---------- the score sheet: one team at a time ---------- */
+(function () {
+  const scored = F.sessions.filter(s => s.assess.length);
+  const selS = document.getElementById("sc-session");
+  const selP = document.getElementById("sc-panel");
+  const selN = document.getElementById("sc-panelist");
+  const tabs = document.getElementById("sc-tabs");
+  const body = document.getElementById("sc-body");
+  const msg = document.getElementById("sc-msg");
+  let S, P, cur = 0, marks = {}, notes = {}, pnotes = {}, openRow = -1;
+
+  selS.innerHTML = scored.map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}</option>`).join("");
+  const topic = window.MOCK.thisWeek.topic.code;      // keep it in step with This Week
+  selS.value = (scored.find(s => s.code === topic) || scored.find(s => s.week === CUR)
+                || scored[scored.length - 1]).code;
+  selP.innerHTML = F.panels.map(p => `<option value="${esc(p.letter)}">Panel ${esc(p.letter)}</option>`).join("");
+
+
+  const crit = () => S.assess.filter(a => !a.group);
+  const band = v => v >= 3.5 ? "hi" : v >= 3.0 ? "ok" : v >= 2.5 ? "mid" : "lo";
+
+  function totals(team) {
+    let sum = 0, filled = 0;
+    crit().forEach((a, i) => {
+      const v = marks[team] && marks[team][i];
+      if (v) { sum += v * (a.weight / 100); filled++; }
+    });
+    return { sum, filled, all: filled === crit().length };
+  }
+
+  /* the team strip — the one being scored is unmistakable */
+  function drawTabs() {
+    tabs.innerHTML = P.teams.map((t, i) => {
+      const g = byTeam[t.team], r = totals(t.team), on = i === cur;
+      const state = r.all ? "done" : r.filled ? "part" : "empty";
+      return `<button class="tmb ${state}" role="tab" data-i="${i}" aria-selected="${on}"
+                 tabindex="${on ? 0 : -1}">
+        <span class="tmb-slot">${esc(t.at)}</span>
+        ${g ? `<span class="tlogo sm"><img src="${g.mark}" alt="" loading="lazy"></span>` : ""}
+        <span class="tmb-tx"><b>${esc(t.team)}</b>
+          <span class="tmb-st">${r.all ? "Scored " + r.sum.toFixed(2)
+                                : r.filled ? r.filled + " of " + crit().length
+                                : "Not started"}</span></span>
+        <span class="tmb-dot" aria-hidden="true">${r.all ? "✓" : ""}</span>
+      </button>`;
+    }).join("");
+  }
+
+  /* the sheet for that one team: criteria on the left, the running mark and
+     the comment box on the right, so the whole thing sits in one screen */
+  function drawBody() {
+    const t = P.teams[cur], g = byTeam[t.team], r = totals(t.team);
+    let n = -1;
+    const rows = S.assess.map(a => {
+      if (a.group) return `<li class="cgrp">${esc(a.group)}</li>`;
+      n++; const i = n;
+      const v = (marks[t.team] || {})[i] || "";
+      const note = (pnotes[t.team] || {})[i] || "";
+      const open = openRow === i;
+      return `<li class="crow2${v ? " set" : ""}${note ? " noted" : ""}${open ? " open" : ""}">
+        <span class="wt">${a.weight}%</span>
+        <button type="button" class="cdef" data-row="${i}" aria-expanded="${open}"
+                aria-controls="cnote-${i}">
+          <span class="cdef-t">${esc(a.label)}</span>
+          <span class="cdef-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </span>
+        </button>
+        <span class="inwrap">
+          <input class="scin" type="number" min="1" max="4" step="0.05" value="${v}"
+                 data-i="${i}" placeholder="—" aria-label="Score out of 4, ${esc(a.label)}">
+          <span class="outof">/&thinsp;4</span>
+        </span>
+        <div class="cnote" id="cnote-${i}"><div class="cnote-in">
+          <textarea class="pnote" data-i="${i}" rows="2"
+            placeholder="Comment on this point — what the panel saw, and what would raise it">${esc(note)}</textarea>
+        </div></div>
+      </li>`;
+    }).join("");
+
+    body.innerHTML = `
+      <ol class="crit">${rows}</ol>
+      <aside class="tmside">
+        <div class="tmh">
+          <span class="tmh-slot">${esc(t.at)}</span>
+          ${g ? `<span class="tlogo lg"><img src="${g.mark}" alt="" loading="lazy"></span>` : ""}
+          <span class="tmh-tx">
+            <h4>${esc(t.team)}</h4>
+            <span>${g ? esc(g.institution) : ""}</span>
+          </span>
+        </div>
+        <div class="tmh-tot ${r.all ? band(r.sum) : ""}" id="sc-tot">
+          <b>${r.filled ? r.sum.toFixed(2) : "—"}</b>
+          <span>${r.all ? "weighted total, out of 4.00" : r.filled + " of " + crit().length + " scored"}</span>
+        </div>
+        <div class="scalewrap">
+          <dl class="scalekey">
+            ${F.scale.map(x => `<div><dt>${esc(x.value)}</dt><dd>${esc(x.grade)}</dd></div>`).join("")}
+          </dl>
+          <p class="scalenote">${esc(F.scaleNote)}</p>
+        </div>
+        <div class="cmt-box">
+          <label for="sc-note">General comment</label>
+          <textarea id="sc-note"
+            placeholder="What they did well, and the one thing to fix before next week">${esc(notes[t.team] || "")}</textarea>
+        </div>
+      </aside>`;
+    lockPanel();
+    tally();
+  }
+
+  /* Measure the panel once with every note closed, then pin that height.
+     Opening a note scrolls inside the criteria column instead of making the
+     whole sheet grow and shift under the panelist. */
+  function lockPanel() {
+    body.style.height = "";
+    requestAnimationFrame(() => {
+      if (body.offsetParent === null) return;          // hidden view: measure it once it shows
+      body.style.height = Math.ceil(body.getBoundingClientRect().height) + "px";
+    });
+  }
+  /* In the merged site the Panel view is built while it is still hidden, so the
+     first honest measurement happens the moment it comes on screen. */
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(es => {
+      if (es.some(e => e.isIntersecting) && S && !body.style.height) lockPanel();
+    }).observe(body);
+  }
+  window.addEventListener("resize", () => { if (S) lockPanel(); });
+
+  function refreshTotal() {
+    const t = P.teams[cur], r = totals(t.team);
+    const el = document.getElementById("sc-tot");
+    el.className = "tmh-tot " + (r.all ? band(r.sum) : "");
+    el.innerHTML = `<b>${r.filled ? r.sum.toFixed(2) : "—"}</b>
+      <span>${r.all ? "weighted total, out of 4.00" : r.filled + " of " + crit().length + " scored"}</span>`;
+  }
+
+  function tally() {
+    const done = P.teams.filter(t => totals(t.team).all).length;
+    msg.textContent = done === 0 ? "Nothing scored yet."
+      : done === P.teams.length ? "All " + done + " teams scored. Submit when you are ready."
+      : done + " of " + P.teams.length + " teams fully scored.";
+    msg.className = "msg" + (done === P.teams.length ? " ok" : "");
+  }
+
+  function pick(i) {
+    cur = (i + P.teams.length) % P.teams.length;
+    openRow = -1;                                   // start each team with the notes closed
+    drawTabs(); drawBody();
+    const b = tabs.querySelector('[aria-selected="true"]');
+    if (b) b.scrollIntoView({ block: "nearest", inline: "nearest" });
+  }
+
+  tabs.addEventListener("click", e => {
+    const b = e.target.closest(".tmb"); if (!b) return;
+    pick(+b.dataset.i);
+    tabs.querySelector('[aria-selected="true"]').focus();
+  });
+  tabs.addEventListener("keydown", e => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    pick(cur + (e.key === "ArrowRight" ? 1 : -1));
+    tabs.querySelector('[aria-selected="true"]').focus();
+  });
+
+  body.addEventListener("click", e => {
+    const b = e.target.closest(".cdef"); if (!b) return;
+    const i = +b.dataset.row;
+    openRow = openRow === i ? -1 : i;
+    body.querySelectorAll(".crow2").forEach((row, n) => {
+      const on = n === openRow;                       // n counts rows, not criteria
+      row.classList.toggle("open", row.querySelector(".cdef") &&
+        +row.querySelector(".cdef").dataset.row === openRow);
+      const btn = row.querySelector(".cdef");
+      if (btn) btn.setAttribute("aria-expanded", +btn.dataset.row === openRow);
+    });
+    if (openRow === i) {
+      const ta = body.querySelector(`.pnote[data-i="${i}"]`);
+      if (ta) setTimeout(() => ta.focus(), 180);
+    }
+  });
+
+  body.addEventListener("input", e => {
+    const el = e.target, team = P.teams[cur].team;
+    if (el.classList.contains("scin")) {
+      let v = parseFloat(el.value);
+      if (isNaN(v)) { if (marks[team]) delete marks[team][el.dataset.i]; el.closest(".crow2").classList.remove("set"); }
+      else {
+        v = Math.min(4, Math.max(1, v));
+        (marks[team] = marks[team] || {})[el.dataset.i] = v;
+        el.closest(".crow2").classList.add("set");
+      }
+      refreshTotal(); drawTabs(); tally();
+    }
+    if (el.id === "sc-note") notes[team] = el.value;
+    if (el.classList.contains("pnote")) {
+      (pnotes[team] = pnotes[team] || {})[el.dataset.i] = el.value;
+      el.closest(".crow2").classList.toggle("noted", !!el.value.trim());
+    }
+  });
+
+  function load() {
+    S = scored.find(s => s.code === selS.value);
+    P = F.panels.find(p => p.letter === selP.value);
+    selN.innerHTML = P.panelists.map(n => `<option>${esc(n)}</option>`).join("");
+    document.getElementById("sc-code").textContent = S.code + " · Week " + S.week;
+    document.getElementById("sc-title").textContent = S.title;
+    document.getElementById("sc-meta").textContent =
+      "Saturday panel · " + P.teams.length + " teams · 35 min each";
+    marks = {}; notes = {}; pnotes = {}; openRow = -1; cur = 0;
+    drawTabs(); drawBody();
+  }
+
+  selS.addEventListener("change", load);
+  selP.addEventListener("change", load);
+  document.getElementById("sc-clear").addEventListener("click", () => {
+    marks = {}; notes = {}; pnotes = {}; openRow = -1; drawTabs(); drawBody();
+  });
+  document.getElementById("sc-submit").addEventListener("click", () => {
+    const missing = P.teams.filter(t => !totals(t.team).all);
+    if (!missing.length) {
+      msg.textContent = "Submitted. In the built site this would go to each team's My Team's Work page.";
+      msg.className = "msg ok";
+    } else {
+      pick(P.teams.indexOf(missing[0]));          // jump to the first one still open
+      msg.textContent = "Still to finish: " + missing.map(t => t.team).join(", ") + ".";
+      msg.className = "msg no";
+    }
+  });
+  load();
+})();
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* ---------- RBAC Access Guard for Faculty Portal ---------- */
+window.__renderTrainers = function() {
+  const user = window.MOCK ? window.MOCK.auth.getCurrentUser() : null;
+  const gate = document.getElementById("trainers-locked-gate");
+  const content = document.getElementById("trainers-content-wrap");
+  if (!gate || !content) return;
+
+  if (!user || user.role === "guest" || user.role === "participant") {
+    gate.hidden = false;
+    gate.innerHTML = `
+      <div class="access-restricted-card">
+        <div class="shield-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        </div>
+        <h2>Faculty &amp; Staff Access Only</h2>
+        <p>The Trainers, Mentors, and Panel evaluation portal is restricted to program instructors, mentors, and panelists. Participants can access their team dashboard under <b>My Team's Work</b> and <b>Capstone</b>.</p>
+        <div class="role-badge-row">
+          <span>Current Account: <b>${user ? (user.name + ' (' + user.role_label + ')') : 'Guest / Visitor'}</b></span>
+        </div>
+        <div>
+          <button class="btn solid" onclick="window.MOCK.openAuthModal()">Switch to Faculty or Admin Account</button>
+        </div>
+      </div>
+    `;
+    content.hidden = true;
+  } else {
+    gate.hidden = true;
+    content.hidden = false;
+    // Set appropriate view based on role
+    if (user.role === "mentor") {
+      const btn = document.querySelector('[data-view="mentors"]');
+      if (btn) btn.click();
+    } else if (user.role === "panel") {
+      const btn = document.querySelector('[data-view="panel"]');
+      if (btn) btn.click();
+    } else if (user.role === "trainer") {
+      const btn = document.querySelector('[data-view="trainers"]');
+      if (btn) btn.click();
+    }
+  }
+};
+window.__renderTrainers();
+window.addEventListener("stephub_auth_changed", () => window.__renderTrainers());
+</script>
+</body>
+</html>
