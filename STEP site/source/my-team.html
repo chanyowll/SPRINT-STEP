@@ -75,7 +75,6 @@
     <div>
       <div class="eyebrow">My team's work</div>
       <h1 id="tb-name">—</h1>
-      <p class="tech" id="tb-tech">—</p>
       <div class="chips" id="tb-chips"></div>
     </div>
     <div>
@@ -90,14 +89,17 @@
   <!-- ===== Submit this week (moved to top for immediate visibility) ===== -->
   <section id="submit">
     <div class="section-head">
-      <div class="eyebrow">Submission</div>
-      <h2>Hand in this week's work</h2>
+      <div class="eyebrow">Assignment</div>
+      <h2>Submit this week's output</h2>
       <p class="lede">Two files each week: the five-minute video your panel will watch, and the slide deck
          behind it.</p>
     </div>
 
     <div class="card reveal">
       <div class="due" id="due-bar"></div>
+      <div id="upload-view">
+      <p class="drops-lead">Two files, then one button. Drag each file onto its box, or click the box to
+         pick it from your computer.</p>
       <div class="drops">
         <!-- 5-minute video -->
         <div class="drop" id="drop-video" data-kind="video">
@@ -107,7 +109,8 @@
             <rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 11 6-3v8l-6-3z"/>
           </svg>
           <h4>Five-minute video</h4>
-          <p class="hint">MP4 or MOV, up to 500 MB. Drag it here or click to choose.</p>
+          <p class="hint">MP4 or MOV</p>
+          <span class="pick">Choose a file or drag it here</span>
         </div>
         <!-- Slide deck -->
         <div class="drop" id="drop-slides" data-kind="slides">
@@ -117,17 +120,57 @@
             <rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/>
           </svg>
           <h4>Slide deck</h4>
-          <p class="hint">PDF or PPTX, up to 50 MB. Drag it here or click to choose.</p>
+          <p class="hint">PDF or PPTX</p>
+          <span class="pick">Choose a file or drag it here</span>
         </div>
       </div>
-      <div class="row mt-4" style="justify-content:space-between; flex-wrap:wrap; gap:var(--s3)">
-        <p class="mockup-note mb-0">This is a design mockup — files stay in your browser and nothing is sent anywhere.</p>
-        <button class="btn" id="btn-submit" disabled>Submit both files</button>
+      <div class="upbar" id="up-bar" hidden>
+        <div class="up-track"><i id="up-fill"></i></div>
+        <span class="up-txt" id="up-txt">Uploading…</span>
+      </div>
+      <p class="up-err" id="up-err" hidden></p>
+      <div class="subrow">
+        <span class="subcount" id="sub-count">No files chosen yet</span>
+        <button class="btn solid lg" id="btn-submit" disabled>Submit both files</button>
+      </div>
+      <p class="mockup-note mb-0 mt-3">This is a design mockup — files stay in your browser and nothing is sent anywhere.</p>
+      </div>
+
+      <!-- once both files are in, the card becomes the team's own screening room -->
+      <div id="out-view" hidden>
+        <div class="outhead">
+          <span class="okchip" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
+          </span>
+          <div class="oh-t">
+            <h3 id="out-title">Your output is in</h3>
+            <p id="out-when">—</p>
+          </div>
+          <button class="btn secondary" id="btn-redo" type="button">Replace the files</button>
+        </div>
+        <div class="outgrid">
+          <figure class="outvid">
+            <video id="out-video" controls playsinline preload="metadata"></video>
+            <figcaption id="out-vcap">—</figcaption>
+          </figure>
+          <aside class="outdeck">
+            <div class="od-head">
+              <span class="od-ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/></svg>
+              </span>
+              <div><h4>Slide deck</h4><p id="out-dcap">—</p></div>
+            </div>
+            <div class="od-prev" id="out-deck"></div>
+            <a class="btn secondary w-full" id="out-dl" download>Open the deck</a>
+          </aside>
+        </div>
+        <p class="small muted mb-0 mt-4">Your mentor and your Saturday panel watch it from here. You can
+           replace either file until the deadline — the newest version is the one they see.</p>
       </div>
     </div>
 
     <div class="card mt-4 reveal">
-      <div class="card-head"><h3>Submission tracker</h3></div>
+      <div class="card-head"><h3>Unsubmitted</h3></div>
       <div class="att-scroll">
         <table class="table">
           <thead><tr><th>Week</th><th>Output</th><th>Due</th><th>Status</th></tr></thead>
@@ -158,10 +201,10 @@
       <div class="tw-card tw-main reveal">
 
         <div class="tw-face" id="face-radar" role="button" tabindex="0"
-             aria-label="Scores by output. Activate to see the weekly trend from Week 1 to now.">
+             aria-label="Output web-chart. Activate to see the weekly trend from Week 1 to now.">
           <div class="tw-head">
             <div>
-              <h3>Scores by output</h3>
+              <h3>Output web-chart</h3>
               <p class="sub">One point per weekly output, on STEP's 1.00–4.00 rubric.</p>
             </div>
             <span class="tw-pill" id="rd-weeks">—</span>
@@ -184,7 +227,7 @@
              aria-label="Feedback scores from Week 1 to now. Activate to go back to the radar.">
           <div class="tw-head">
             <div>
-              <h3>Feedback scores, Week 1 to now</h3>
+              <h3>Feedback scores</h3>
               <p class="sub">Your weighted average at every feedback session, on the same 1.00–4.00 rubric.</p>
             </div>
             <span class="tw-back" id="tj-back">
@@ -213,10 +256,15 @@
                aria-label="Members present each session. Activate to see who was there.">
             <div class="tw-head">
               <div>
-                <h3>Members present, session by session</h3>
+                <h3>Attendance</h3>
                 <p class="sub">The dashed rule is the three-member minimum.</p>
               </div>
               <span class="tw-pill" id="att-pill">—</span>
+            </div>
+            <div class="tw-legend att-legend">
+              <span><i class="sq ln"></i>Learning</span>
+              <span><i class="sq fb"></i>Feedback</span>
+              <span><i class="sq miss"></i>Below the minimum</span>
             </div>
             <div class="tw-bars" id="att-bars">
               <div class="tw-tip" id="att-tip" role="status" aria-live="polite"></div>
@@ -231,7 +279,7 @@
                aria-label="Attendance session by session. Activate to go back to the chart.">
             <div class="tw-head">
               <div>
-                <h3>Session by session</h3>
+                <h3>Team attendance</h3>
                 <p class="sub">Learning sessions are Tuesday mornings; feedback sessions are Saturday mornings.</p>
               </div>
               <span class="tw-back" id="att-back">
@@ -257,8 +305,8 @@
                aria-label="Video presentation hand-ins. Activate to see your FASTRAC proposal status.">
             <div class="tw-head">
               <div>
-                <h3>Video presentation, week by week</h3>
-                <p class="sub">How far ahead of the Friday noon deadline each five-minute video arrived.</p>
+                <h3>Submissions</h3>
+                <p class="sub">Whether each week's output was submitted on time, late, or not at all.</p>
               </div>
               <span class="tw-pill" id="hi-pill">—</span>
             </div>
@@ -276,7 +324,7 @@
                aria-label="FASTRAC proposal status. Activate to go back to the video hand-ins.">
             <div class="tw-head">
               <div>
-                <h3>FASTRAC proposal status</h3>
+                <h3>FASTRAC proposal</h3>
                 <p class="sub" id="fa-sub">—</p>
               </div>
               <span class="tw-back" id="fa-back">
@@ -355,6 +403,10 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="myteam-data.js"></script>
+<script src="submissions-data.js"></script>
 <script src="mock-data.js"></script>
 <script>
 const MAXS = 4;
@@ -500,8 +552,10 @@ window.__renderMyTeam = function(targetTeamId) {
   }
 
   // Team bar
-  const tbName = document.getElementById("tb-name"); if (tbName) tbName.textContent = TEAM.name;
-  const tbTech = document.getElementById("tb-tech"); if (tbTech) tbTech.textContent = TEAM.technology_title;
+  /* the team's own name, large and alone — the institution is already a chip
+     below it, so the parenthetical after the name is dropped here */
+  const tbName = document.getElementById("tb-name");
+  if (tbName) tbName.textContent = String(TEAM.name || "").replace(/\s*\([^)]*\)\s*$/, "").trim();
   const tbChips = document.getElementById("tb-chips");
   if (tbChips) {
     tbChips.innerHTML = [
@@ -625,90 +679,97 @@ window.__renderMyTeam = function(targetTeamId) {
     }).join("");
   }
 
-  /* Video handins bar chart */
+  /* Submission status — one block per week, on time / late / not submitted.
+     No quantity is being shown, so no axis and nothing below a baseline:
+     every block is the same size and only its colour and glyph differ.
+     A week the submission tracker counts as missing shows as missing here
+     too, so the strip and the table below can never disagree. */
   const H = TW.handins;
-  const hoursEarly = h => (new Date(h.due) - new Date(h.video.at)) / 3600000;
-  const rows = H.map(h => ({
-    week: h.week, code: h.code, state: h.video.state,
-    at: h.video.at, hrs: h.video.at ? hoursEarly(h) : 0,
-  }));
+  const missingWeeks = (TW.submissions || [])
+    .filter(s => s.status === "missing").map(s => s.week);
+  const rows = H.map(h => {
+    const missing = missingWeeks.includes(h.week);
+    // a week the tracker counts as missing has no hand-in time to show
+    return { week: h.week, code: h.code, at: missing ? null : h.video.at,
+             state: missing ? "missed" : h.video.state };
+  });
   const done = rows.filter(r => r.state !== "open");
   const onTime = done.filter(r => r.state === "on_time").length;
 
   document.getElementById("hi-pill").textContent = onTime + " of " + done.length + " on time";
-  const present = ["on_time", "late", "missed", "open"].filter(st => rows.some(r => r.state === st));
+  /* "Not due yet" is left out of the key: an empty dashed block says it,
+     and naming it invites a team to read a week that has not arrived as a
+     state of their own work. */
+  const present = ["on_time", "late", "missed"].filter(st => rows.some(r => r.state === st));
   document.getElementById("hi-legend").innerHTML = present.map(st =>
     `<span><i class="sq ${HSTATE[st].cls}"></i>${HSTATE[st].label} · <b>${
       rows.filter(r => r.state === st).length}</b></span>`).join("");
 
+  /* Drawn the same way as the attendance chart beside it: one SVG sized to
+     the panel, rounded bars sitting on a baseline, week labels underneath
+     and the shared tooltip. Every bar is the same height because there is
+     no quantity here — the depth of the blue carries the state, and the
+     tooltip names it in words for anyone the colour does not reach. */
+  const sBarPath = (x0, y0, w, h, r) => {
+    r = Math.min(r, h, w / 2);
+    return `M${x0},${y0 + h} L${x0},${y0 + r} Q${x0},${y0} ${x0 + r},${y0}
+            L${x0 + w - r},${y0} Q${x0 + w},${y0} ${x0 + w},${y0 + r} L${x0 + w},${y0 + h} Z`;
+  };
   const hiHost = document.getElementById("hi-bars"), hiTip = document.getElementById("hi-tip");
-  const hiMax = Math.max(1, ...rows.map(r => r.hrs)), loMin = Math.min(-0.5, ...rows.map(r => r.hrs));
-  const top = Math.ceil(hiMax * 2) / 2, bot = Math.floor(loMin * 2) / 2;
   let hiGeo = null;
 
-  fitChart(hiHost, (W, Ht) => {
-    const padL = 34, padR = 8, padT = 14, padB = 36, n = rows.length;
-    const slot = (W - padL - padR) / n, bw = Math.min(30, slot * 0.58);
-    const y = v => padT + ((top - v) / (top - bot)) * (Ht - padT - padB);
+  if (hiHost) fitChart(hiHost, (W, H) => {
+    const padL = 24, padR = 8, padT = 12, padB = 38;
+    const slot = (W - padL - padR) / rows.length, bw = Math.min(30, slot * 0.64);
+    const top = padT, base = H - padB, bh = base - top;
     const bx = i => padL + slot * i + (slot - bw) / 2;
-    hiGeo = { y, bx, bw, padT };
-    let g = "";
-    for (let v = Math.ceil(bot); v <= top; v++) {
-      if (v === 0) continue;
-      g += `<line class="tw-grid" x1="${padL}" y1="${y(v)}" x2="${W - padR}" y2="${y(v)}"/>
-            <text class="tw-axis" x="${padL - 6}" y="${y(v) + 4}" text-anchor="end">${v}h</text>`;
-    }
+    hiGeo = hiHost._geo = { bx, bw, top, rows };
+    let g = `<line class="tw-grid" x1="${padL}" y1="${base}" x2="${W - padR}" y2="${base}"/>`;
     rows.forEach((r, i) => {
-      const x0 = bx(i);
-      if (r.state === "open") {
-        g += `<rect class="tw-open-bar" x="${x0}" y="${y(0) - 16}" width="${bw}" height="16" rx="4"/>`;
-      } else if (r.state === "missed") {
-        g += `<rect class="tw-bar short" x="${x0}" y="${y(0)}" width="${bw}" height="${y(bot) - y(0)}" rx="4"/>`;
-      } else {
-        const up = r.hrs >= 0, y0 = up ? y(r.hrs) : y(0), h = Math.abs(y(r.hrs) - y(0));
-        g += `<rect class="tw-vbar ${HSTATE[r.state].cls}" x="${x0}" y="${y0}" width="${bw}" height="${Math.max(3, h)}" rx="4"/>`;
-        g += `<text class="tw-blab" x="${x0 + bw / 2}" y="${(up ? y0 : y(0)) - 6}" text-anchor="middle" style="font-weight:800${up ? "" : ";fill:#9a690c"}">${up ? "" : "−"}${Math.abs(r.hrs).toFixed(1)}h</text>`;
-      }
-      g += `<text class="tw-blab" x="${x0 + bw / 2}" y="${Ht - padB + 15}" text-anchor="middle">W${r.week}</text>`;
-      g += `<rect class="tw-bar-hit" data-i="${i}" x="${padL + slot * i}" y="${padT}" width="${slot}" height="${Ht - padT - padB}"/>`;
+      const st = HSTATE[r.state] || HSTATE.open;
+      const cx = bx(i) + bw / 2;
+      g += `<path class="tw-sbar ${st.cls}" d="${sBarPath(bx(i), top, bw, bh, 4)}"/>`;
+      g += `<text class="tw-blab" x="${cx}" y="${H - padB + 16}" text-anchor="middle">W${r.week}</text>`;
+      g += `<rect class="tw-bar-hit" data-i="${i}" x="${padL + slot * i}" y="${top}"
+               width="${slot}" height="${bh}"/>`;
     });
-    g += `<line class="tw-thr" style="stroke:var(--ink-soft)" x1="${padL}" y1="${y(0)}" x2="${W - padR}" y2="${y(0)}"/>
-          <text class="tw-axis" x="${padL - 6}" y="${y(0) + 4}" text-anchor="end">due</text>`;
-    return `<svg viewBox="0 0 ${W} ${Ht}" width="100%" height="100%" role="img" aria-label="Bar chart of how many hours before the deadline each week's five-minute video was handed in">${g}</svg>`;
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="100%" role="img"
+              aria-label="One block per week showing whether that week's output was submitted on time, late or not at all">${g}</svg>`;
   });
 
   if (hiHost && !hiHost._tipWired) {
     hiHost._tipWired = true;
     hiHost.addEventListener("mousemove", e => {
-      const hit = e.target.closest(".tw-bar-hit"); if (!hit || !hiGeo) return;
-      const r = rows[+hit.dataset.i];
-      const mins = Math.round(Math.abs(r.hrs) * 60);
-      tipAt(hiTip, hiHost, hiGeo.bx(+hit.dataset.i) + hiGeo.bw / 2,
-        r.state === "open" ? hiGeo.y(0) - 16 : hiGeo.y(Math.max(0, r.hrs)),
-        `<b>Week ${r.week} · ${r.code}</b><span class="big">${HSTATE[r.state].label}</span>` +
-        (r.at ? `<br>${helpers.fmtDate(r.at)} ${helpers.fmtTime(r.at)}<br>${
-          mins >= 60 ? (mins / 60).toFixed(1) + " hours" : mins + " minutes"} ${
-          r.hrs >= 0 ? "before the deadline" : "past the deadline"}` : "<br>Due Friday, 12:00 NN"));
+      const hit = e.target.closest(".tw-bar-hit"), geo = hiHost._geo; if (!hit || !geo) return;
+      const r = geo.rows[+hit.dataset.i], st = HSTATE[r.state] || HSTATE.open;
+      tipAt(hiTip, hiHost, geo.bx(+hit.dataset.i) + geo.bw / 2, geo.top,
+        `<b>Week ${r.week} · ${esc(r.code)}</b><span class="big">${st.label}</span>` +
+        (r.at ? `<br>${helpers.fmtDate(r.at)} ${helpers.fmtTime(r.at)}`
+              : r.state === "open" ? "<br>Due Friday, 12:00 NN" : "<br>Nothing handed in"));
     });
     hiHost.addEventListener("mouseleave", () => hiTip.classList.remove("on"));
   }
 
   /* FASTRAC proposal status */
   const F = CAP.form;
+  /* The same three states the proposal workspace uses, in the same blues as
+     the submissions chart on the other face of this panel: submitted, in
+     draft, not started. Nothing here is reviewed or gated — the team owns
+     all three. */
   const BAND = {
-    ready:  { label: "Reviewed",      cls: "ok",   of: ["reviewed"] },
-    review: { label: "With STEP",     cls: "wait", of: ["submitted"] },
-    doing:  { label: "Being written", cls: "late", of: ["draft", "revise", "open"] },
-    later:  { label: "Opens later",   cls: "none", of: ["locked"] },
+    sent:  { label: "Submitted",   cls: "sent",  of: ["reviewed", "submitted"] },
+    draft: { label: "Draft",       cls: "draft", of: ["draft", "revise"] },
+    none:  { label: "Not started", cls: "none",  of: ["open", "locked"] },
   };
-  const bandOf = st => Object.keys(BAND).find(k => BAND[k].of.includes(st)) || "later";
+  const bandOf = it => it.submitted === true ? "sent"
+    : (Object.keys(BAND).find(k => BAND[k].of.includes(it.status)) || "none");
   const groups = [];
   F.forEach(it => {
     let g = groups.find(x => x.name === it.group);
-    if (!g) groups.push(g = { name: it.group, n: 0, ready: 0, review: 0, doing: 0, later: 0 });
-    g.n++; g[bandOf(it.status)]++;
+    if (!g) groups.push(g = { name: it.group, n: 0, sent: 0, draft: 0, none: 0 });
+    g.n++; g[bandOf(it)]++;
   });
-  const tot = { ready: 0, review: 0, doing: 0, later: 0 };
+  const tot = { sent: 0, draft: 0, none: 0 };
   groups.forEach(g => Object.keys(tot).forEach(k => tot[k] += g[k]));
 
   document.getElementById("fa-sub").textContent =
@@ -722,7 +783,7 @@ window.__renderMyTeam = function(targetTeamId) {
       <span class="nm">${esc(g.name)}</span>
       <span class="bar">${Object.keys(BAND).filter(k => g[k])
         .map(k => `<i class="${BAND[k].cls}" style="flex:${g[k]}" title="${g[k]} ${BAND[k].label.toLowerCase()}"></i>`).join("")}</span>
-      <span class="ct">${g.ready + g.review}/${g.n}</span>
+      <span class="ct">${g.sent}/${g.n}</span>
     </div>`).join("");
 
   /* Trajectory */
@@ -822,7 +883,7 @@ window.__renderMyTeam = function(targetTeamId) {
 
   document.getElementById("tw-kpis").innerHTML = `
     <div class="tw-kpi hero reveal">
-      <div class="k-lab">Cycle average</div>
+      <div class="k-lab">Average</div>
       <div class="k-val">${fx2(tAvg)}<small>/ 4.00</small></div>
       <p class="k-note">Across <b>${tScores.length}</b> scored outputs, Weeks 1 to ${lastScore.week}.</p>
       ${spark(tScores)}
@@ -834,13 +895,13 @@ window.__renderMyTeam = function(targetTeamId) {
          on Week ${prevScore.week} · ${esc((out.axis || "").replace("\n", " "))}</p>
     </div>
     <div class="tw-kpi reveal" style="--d:120ms">
-      <div class="k-lab">Handed in on time</div>
+      <div class="k-lab">Submission</div>
       <div class="k-val">${dueTotal > 0 ? Math.round(count.on_time / dueTotal * 100) : 100}<small>%</small></div>
       <p class="k-note"><b>${count.on_time} of ${dueTotal}</b> deliverables due so far${
         count.late ? ` · ${count.late} late` : ""}${count.missed ? ` · ${count.missed} missed` : ""}</p>
     </div>
     <div class="tw-kpi reveal" style="--d:180ms">
-      <div class="k-lab">Seats filled</div>
+      <div class="k-lab">Attendance %</div>
       <div class="k-val">${seats > 0 ? Math.round(presentTot / seats * 100) : 100}<small>%</small></div>
       <p class="k-note"><b>${met} of ${perSession.length}</b> sessions met the three-member minimum${
         met < perSession.length ? ` · short in ${perSession.length - met}` : ""}</p>
@@ -954,7 +1015,7 @@ window.__renderMyTeam = function(targetTeamId) {
     const slot = (W - padL - padR) / nSes, bw = Math.min(30, slot * 0.64);
     const y = v => padT + ((maxM - v) / maxM) * (H - padT - padB);
     const bx = i => padL + slot * i + (slot - bw) / 2;
-    attGeo = { y, bx, bw, padT, padB, H };
+    attGeo = attHost._geo = { y, bx, bw, padT, padB, H, perSession, SES, G, members: TW.members, maxM };
     let g = "";
     for (let v = 0; v <= maxM; v++) {
       g += `<line class="tw-grid" x1="${padL}" y1="${y(v)}" x2="${W - padR}" y2="${y(v)}"/>`;
@@ -962,9 +1023,10 @@ window.__renderMyTeam = function(targetTeamId) {
     }
     perSession.forEach((v, i) => {
       const short = v < 3, h = (H - padT - padB) - (y(v) - padT);
-      g += `<path class="tw-bar${short ? " short" : ""}" d="${barPath(bx(i), y(v), bw, h, 4)}"/>`;
+      const isFb = /Feedback/.test(SES[i].label);
+      g += `<path class="tw-bar${isFb ? " fb" : ""}${short ? " short" : ""}" d="${barPath(bx(i), y(v), bw, h, 4)}"/>`;
       g += h > 17
-        ? `<text class="tw-bval" x="${bx(i) + bw / 2}" y="${y(v) + 13}" text-anchor="middle">${v}</text>`
+        ? `<text class="tw-bval${isFb && !short ? " fb" : ""}" x="${bx(i) + bw / 2}" y="${y(v) + 13}" text-anchor="middle">${v}</text>`
         : `<text class="tw-blab" x="${bx(i) + bw / 2}" y="${y(v) - 4}" text-anchor="middle" style="font-weight:800;fill:var(--tw-miss)">${v}</text>`;
       g += `<text class="tw-blab" x="${bx(i) + bw / 2}" y="${H - padB + 14}" text-anchor="middle">${SES[i].label.split(" ")[1][0]}</text>`;
       if (i % 2 === 0) g += `<text class="tw-blab" x="${bx(i) + bw / 2 + slot / 2}" y="${H - padB + 28}" text-anchor="middle" style="font-weight:750">${SES[i].label.split(" ")[0]}</text>`;
@@ -977,11 +1039,11 @@ window.__renderMyTeam = function(targetTeamId) {
   if (attHost && !attHost._tipWired) {
     attHost._tipWired = true;
     attHost.addEventListener("mousemove", e => {
-      const hit = e.target.closest(".tw-bar-hit"); if (!hit || !attGeo) return;
-      const i = +hit.dataset.i, v = perSession[i];
-      const away = TW.members.filter(m => !G[m.initials][i]).map(m => m.name.split(" ").slice(-1)[0]);
-      tipAt(attTip, attHost, attGeo.bx(i) + attGeo.bw / 2, attGeo.y(v),
-        `<b>${SES[i].label}</b><span class="big">${v} of ${maxM}</span> present<br>` +
+      const hit = e.target.closest(".tw-bar-hit"), geo = attHost._geo; if (!hit || !geo) return;
+      const i = +hit.dataset.i, v = geo.perSession[i];
+      const away = geo.members.filter(m => !geo.G[m.initials][i]).map(m => m.name.split(" ").slice(-1)[0]);
+      tipAt(attTip, attHost, geo.bx(i) + geo.bw / 2, geo.y(v),
+        `<b>${geo.SES[i].label}</b><span class="big">${v} of ${geo.maxM}</span> present<br>` +
         (away.length ? "Away: " + away.join(", ") : "Everyone attended") +
         (v < 3 ? "<br>Below the minimum" : ""));
     });
@@ -1008,36 +1070,29 @@ window.__renderMyTeam = function(targetTeamId) {
   const openSub = TW.submissions.find(s => s.status === "open") || TW.submissions[0];
   const due = new Date(openSub.due);
   const days = Math.max(0, Math.ceil((due - new Date("2027-08-12T09:00:00+08:00")) / 86400000));
-  document.getElementById("due-bar").innerHTML =
+  const dueBarHtml =
     `<span><strong>Week ${openSub.week} · ${openSub.module}</strong> — due ${helpers.fmtDate(openSub.due)}, 12:00 NN</span>
      <span class="badge gold">${days} day${days === 1 ? "" : "s"} left</span>`;
+  document.getElementById("due-bar").innerHTML = dueBarHtml;
 
-  const allSubs = TW.submissions;
+  const notSubmitted = TW.submissions.filter(s => s.status === "open" || s.status === "missing");
   const pendingEl = document.getElementById("pending-rows");
   const pendingMsg = document.getElementById("pending-msg");
+  const pendingCard = pendingEl ? pendingEl.closest(".card") : null;
   if (pendingEl) {
-    pendingEl.innerHTML = allSubs.map(s => {
-      let badge;
-      if (s.status === "open") return ""; // skip future/current open ones
-      if (s.status === "late" || s.status === "missing" || (s.files && s.files.length === 0))
-        badge = '<span class="badge red">Not submitted</span>';
-      else if (s.files && s.files.some(f => f.late))
-        badge = '<span class="badge amber">Late</span>';
-      else
-        badge = '<span class="badge green">On time</span>';
-      return `<tr>
+    if (notSubmitted.length === 0) {
+      if (pendingCard) pendingCard.style.display = "none";
+    } else {
+      if (pendingCard) pendingCard.style.display = "";
+      pendingEl.innerHTML = notSubmitted.map(s => `<tr>
         <td>Week ${s.week}</td>
         <td><strong>${esc(s.module)}</strong></td>
         <td>${helpers.fmtDate(s.due)}</td>
-        <td>${badge}</td>
-      </tr>`;
-    }).join("");
-    const late = allSubs.filter(s => s.files && s.files.some(f => f.late)).length;
-    const missing = allSubs.filter(s => s.status === "late" || s.status === "missing").length;
-    if (pendingMsg) {
-      if (missing > 0) pendingMsg.textContent = missing + " output" + (missing === 1 ? "" : "s") + " not yet submitted. Don't fall behind!";
-      else if (late > 0) pendingMsg.textContent = late + " output" + (late === 1 ? " was" : "s were") + " submitted late.";
-      else pendingMsg.textContent = "🎉 All outputs submitted on time!";
+        <td>${s.status === "missing"
+          ? '<span class="badge red">Overdue</span>'
+          : '<span class="badge gold">Due soon</span>'}</td>
+      </tr>`).join("");
+      if (pendingMsg) pendingMsg.textContent = notSubmitted.length + " output" + (notSubmitted.length === 1 ? "" : "s") + " still to submit.";
     }
   }
 
@@ -1047,10 +1102,12 @@ window.__renderMyTeam = function(targetTeamId) {
   const KB = 1024, sizeOf = b => b > KB * KB * KB ? (b / (KB * KB * KB)).toFixed(1) + " GB"
                                 : b > KB * KB     ? (b / (KB * KB)).toFixed(1) + " MB"
                                                   : Math.max(1, Math.round(b / KB)) + " KB";
+  /* No size cap is quoted: what a file may weigh is a back-end matter, and a
+     number here only worries a team whose video is a few minutes long. */
   const LABEL = {
-    video:  { h: "Five-minute video", hint: "MP4 or MOV, up to 500 MB. Drag it here or click to choose.",
+    video:  { h: "Five-minute video", hint: "MP4 or MOV",
               ico: '<rect x="2" y="6" width="14" height="12" rx="2"/><path d="m16 11 6-3v8l-6-3z"/>' },
-    slides: { h: "Slide deck", hint: "PDF or PPTX, up to 50 MB. Drag it here or click to choose.",
+    slides: { h: "Slide deck", hint: "PDF or PPTX",
               ico: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/>' },
   };
 
@@ -1061,7 +1118,8 @@ window.__renderMyTeam = function(targetTeamId) {
     if (!f) {
       zone.classList.remove("filled");
       zone.innerHTML = `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">${L.ico}</svg>
-        <h4>${L.h}</h4><p class="hint">${L.hint}</p>`;
+        <h4>${L.h}</h4><p class="hint">${L.hint}</p>
+        <span class="pick">Choose a file or drag it here</span>`;
       if (input) { zone.prepend(input); input.value = ""; }
     } else {
       zone.classList.add("filled");
@@ -1083,8 +1141,26 @@ window.__renderMyTeam = function(targetTeamId) {
   }
   function syncSubBtn() {
     if (!subBtn) return;
-    subBtn.disabled = !(picked.video && picked.slides);
+    const n = (picked.video ? 1 : 0) + (picked.slides ? 1 : 0);
+    subBtn.disabled = n < 2;
+    const cnt = document.getElementById("sub-count");
+    if (cnt) {
+      cnt.textContent = n === 0 ? "No files chosen yet"
+                      : n === 1 ? "1 of 2 files ready — one more to go"
+                                : "Both files ready";
+      cnt.classList.toggle("ready", n === 2);
+    }
   }
+
+  /* Who is looking, and which team, changes on every render — a mentor may
+     open this same card for another team a second later. The handlers are
+     wired once, so the current context lives on the button where they can
+     always read it. */
+  if (subBtn) subBtn._ctx = {
+    teamId: activeId, teamShort: TEAM.short, sub: openSub, dueBar: dueBarHtml,
+    canSubmit: user.role === "admin" ||
+      (user.role === "participant" && (user.team_id || "g1") === activeId),
+  };
 
   if (subBtn && !subBtn._wired) {
     subBtn._wired = true;
@@ -1102,14 +1178,160 @@ window.__renderMyTeam = function(targetTeamId) {
       });
     });
 
-    subBtn.addEventListener("click", () => {
-      subBtn.disabled = true;
-      subBtn.textContent = "Submitted — the panel can see it now";
+    /* ---------------------------------------------------------------
+       Handing in turns this card into the team's own screening room.
+
+       Live (signed in to Supabase): the two files go into the private
+       "submissions" bucket under this team's folder, a row is recorded,
+       and the player reads them back through short-lived signed URLs —
+       which is why a mentor, a panelist or an admin opening this team
+       sees and plays the same files from their own account.
+
+       Offline (the design mockup, no Supabase): the player falls back to
+       the files in this browser, so the flow can still be demonstrated.
+       --------------------------------------------------------------- */
+    let blobUrls = [];
+    const freeUrls = () => { blobUrls.forEach(u => URL.revokeObjectURL(u)); blobUrls = []; };
+    const mkUrl = f => { const u = URL.createObjectURL(f); blobUrls.push(u); return u; };
+    const uploadView = document.getElementById("upload-view");
+    const outView = document.getElementById("out-view");
+    const upBar = document.getElementById("up-bar");
+    const upFill = document.getElementById("up-fill");
+    const upTxt = document.getElementById("up-txt");
+    const upErr = document.getElementById("up-err");
+    const SUB = () => window.STEP_SUBMISSIONS;
+
+
+    const showErr = m => { if (!upErr) return; upErr.textContent = m; upErr.hidden = !m; };
+    const setProg = (frac, label) => {
+      if (!upBar) return;
+      upBar.hidden = false;
+      upFill.style.width = Math.round(frac * 100) + "%";
+      upTxt.textContent = label;
+    };
+
+    /* Paint the player from whatever we have: live signed URLs, or the
+       files sitting in this browser. */
+    function paintOutput(v, d, when, live) {
+      const C = subBtn._ctx;
+      const vid = document.getElementById("out-video");
+      vid.src = v.url;
+      document.getElementById("out-vcap").textContent =
+        v.name + (v.size ? " · " + sizeOf(v.size) : "");
+      document.getElementById("out-dcap").textContent =
+        d.name + (d.size ? " · " + sizeOf(d.size) : "");
+      const dl = document.getElementById("out-dl");
+      dl.href = d.url; dl.setAttribute("download", d.name);
+      const prev = document.getElementById("out-deck");
+      const isPdf = /\.pdf$/i.test(d.name || "") || d.type === "application/pdf";
+      prev.innerHTML = isPdf
+        ? `<iframe src="${d.url}#toolbar=0&view=FitH" title="The team's slide deck"></iframe>`
+        : `<div class="od-none">
+             <b>${esc(((d.name || "file").split(".").pop() || "file").toUpperCase())}</b>
+             <span>Preview opens in your slides app</span>
+           </div>`;
+      document.getElementById("out-title").textContent =
+        C.canSubmit ? "Your output is in" : C.teamShort + " handed this in";
+      document.getElementById("out-when").textContent =
+        "Week " + C.sub.week + " · " + C.sub.module + " — " + when;
+      const redoBtn = document.getElementById("btn-redo");
+      if (redoBtn) redoBtn.hidden = !C.canSubmit;
+      const foot = outView.querySelector("p.small.muted");
+      if (foot) foot.textContent = C.canSubmit
+        ? "Your mentor and your Saturday panel watch it from here. You can replace either file until the deadline — the newest version is the one they see."
+        : "Uploaded by the team" + (live ? "" : " in this browser") + ". Only this team, its mentor, its panel and the STEP team can open it.";
+      uploadView.hidden = true;
+      outView.hidden = false;
       document.getElementById("due-bar").innerHTML =
-        `<span><strong>Week ${openSub.week} · ${openSub.module}</strong> — submitted, nothing further to do.</span>
+        `<span><strong>Week ${C.sub.week} · ${C.sub.module}</strong> — submitted, nothing further to do.</span>
          <span class="badge green">On time</span>`;
+    }
+
+    /* Already handed in? Then the card opens as the player — for the team
+       and for anyone allowed to watch it. */
+    async function loadExisting() {
+      const C = subBtn._ctx;
+      if (!SUB()) return;
+      let live = false;
+      try { live = await SUB().isLive(); } catch (e) { live = false; }
+      const nothingYet = () => {
+        outView.hidden = true;
+        document.getElementById("due-bar").innerHTML = C.canSubmit ? C.dueBar :
+          `<span><strong>Week ${C.sub.week} · ${C.sub.module}</strong> — nothing handed in yet.</span>`;
+        uploadView.hidden = !C.canSubmit;
+      };
+      if (!live) { nothingYet(); return; }
+      let week = null;
+      try { week = await SUB().getWeek(C.teamId, C.sub.week); } catch (e) { nothingYet(); return; }
+      if (!week || !week.video || !week.slide) { nothingYet(); return; }
+      const at = week.video.submitted_at ? new Date(week.video.submitted_at)
+        .toLocaleString("en-PH", { timeZone: "Asia/Manila", weekday: "short", hour: "numeric", minute: "2-digit" })
+        : "handed in";
+      paintOutput(week.video, week.slide, "handed in " + at, true);
+    }
+    subBtn._loadExisting = loadExisting;
+
+    /* Handing in */
+    async function doSubmit() {
+      const C = subBtn._ctx;
+      const v = picked.video, d = picked.slides;
+      if (!v || !d) return;
+      showErr("");
+      let live = false;
+      try { live = SUB() ? await SUB().isLive() : false; } catch (e) { live = false; }
+
+      if (!live) {                                  /* mockup path */
+        freeUrls();
+        const now = new Date().toLocaleString("en-PH",
+          { timeZone: "Asia/Manila", weekday: "short", hour: "numeric", minute: "2-digit" });
+        paintOutput({ url: mkUrl(v), name: v.name, size: v.size, type: v.type },
+                    { url: mkUrl(d), name: d.name, size: d.size, type: d.type },
+                    "handed in " + now, false);
+        return;
+      }
+
+      subBtn.disabled = true;
+      const meta = { teamId: C.teamId, week: C.sub.week, moduleCode: C.sub.code || "",
+                     moduleTitle: C.sub.module || "", deadline: C.sub.due };
+      try {
+        setProg(0, "Uploading the video…");
+        await SUB().putFile(Object.assign({}, meta, { kind: "video", file: v,
+          onProgress: f => setProg(f * 0.9, "Uploading the video… " + Math.round(f * 100) + "%") }));
+        setProg(0.92, "Uploading the deck…");
+        await SUB().putFile(Object.assign({}, meta, { kind: "slide", file: d,
+          onProgress: f => setProg(0.9 + f * 0.1, "Uploading the deck… " + Math.round(f * 100) + "%") }));
+        setProg(1, "Done");
+        upBar.hidden = true;
+        await loadExisting();
+      } catch (err) {
+        subBtn.disabled = false;
+        upBar.hidden = true;
+        showErr(err && err.message ? err.message : "Upload failed. Please try again.");
+      }
+    }
+    subBtn.addEventListener("click", doSubmit);
+
+    const redo = document.getElementById("btn-redo");
+    if (redo) redo.addEventListener("click", async () => {
+      const C = subBtn._ctx;
+      const vid = document.getElementById("out-video");
+      vid.pause(); vid.removeAttribute("src"); vid.load();
+      document.getElementById("out-deck").innerHTML = "";
+      freeUrls();
+      try { if (SUB() && await SUB().isLive()) await SUB().clearWeek(C.teamId, C.sub.week); } catch (e) {}
+      picked.video = null; picked.slides = null;
+      renderDrop("video"); renderDrop("slides");
+      subBtn.disabled = true;
+      showErr("");
+      outView.hidden = true;
+      uploadView.hidden = false;
+      document.getElementById("due-bar").innerHTML = C.dueBar;
     });
   }
+
+  /* every render — including a different account or a different team —
+     asks the database what this team has handed in for this week */
+  if (subBtn && typeof subBtn._loadExisting === "function") subBtn._loadExisting();
 
   // Trigger intersection observer for newly rendered reveals
   if (window.__stepObserve) window.__stepObserve(document.getElementById("route-myteam") || document);

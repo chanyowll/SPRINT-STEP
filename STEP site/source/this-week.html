@@ -87,6 +87,32 @@
 
 <main class="wrap page stack" style="gap:var(--s7)">
 
+  <!-- ===== Materials and replay — the first thing a participant comes here for ===== -->
+  <section id="materials">
+    <div class="section-head">
+      <div class="eyebrow">Learning session</div>
+      <h2>Materials and session replay</h2>
+      <p class="lede">Everything from this week's Tuesday session in one place: the trainer's slides and
+         worksheets to keep, and the recording to watch if you missed it or want a second look.</p>
+    </div>
+    <div class="matwrap reveal">
+      <article class="replay" id="tp-replay"></article>
+      <article class="matcard">
+        <div class="mathead">
+          <span class="mh-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+          </span>
+          <div class="mh-t">
+            <h3>Materials to download</h3>
+            <p>Posted by the trainer · stays available all cycle</p>
+          </div>
+          <span class="matcount" id="tp-matcount">—</span>
+        </div>
+        <ul class="mats" id="tp-mats"></ul>
+      </article>
+    </div>
+  </section>
+
   <!-- ===== Announcements — what to anticipate, straight under the week bar ===== -->
   <section>
     <div class="ann-top">
@@ -113,11 +139,6 @@
           <ul class="able" id="tp-able"></ul>
           <div class="outbox mt-4" id="tp-output"></div>
         </div>
-        <div>
-          <h4 class="mb-0">Materials</h4>
-          <p class="small muted">Posted by the trainer. Everything stays available for the rest of the cycle.</p>
-          <ul class="mats" id="tp-mats"></ul>
-        </div>
       </div>
     </div>
   </section>
@@ -133,11 +154,11 @@
     <div class="pgrid" id="tw-pnl-grid"></div>
   </section>
 
-  <!-- ===== Mini game ===== -->
-  <section>
+  <!-- ===== Quick game ===== -->
+  <section class="game-sec">
     <div class="game reveal" id="gm-board">
       <div class="game-top">
-        <span class="gpill">Two-minute practice</span>
+        <span class="gpill">Quick game</span>
         <span class="gmeta">
           <span>Round <b id="gm-round">1</b></span>
           <span>Best <b id="gm-best">—</b></span>
@@ -145,11 +166,16 @@
       </div>
       <h2 class="gh" id="gm-title">—</h2>
       <p class="gp" id="gm-prompt">—</p>
+      <ul class="ghow">
+        <li>✋ Drag a card to move it</li>
+        <li>⌨️ Or use the up and down arrow keys</li>
+        <li>⏱️ Takes about two minutes</li>
+      </ul>
       <ol class="steps-list" id="gm-list"></ol>
       <div class="gamebar">
         <span class="msg" id="gm-msg">Drag the cards, then check your order.</span>
         <span class="row" style="gap:var(--s3)">
-          <button class="btn secondary" id="gm-reset">Shuffle again</button>
+          <button class="btn secondary" id="gm-reset">🔀 Shuffle</button>
           <button class="btn" id="gm-check">Check my order</button>
         </span>
       </div>
@@ -166,34 +192,36 @@
     <div class="week-rail" id="rail"></div>
   </section>
 
-  <!-- ===== Help desk + housekeeping ===== -->
+  <!-- ===== STEP Family group chat ===== -->
   <section>
     <div class="section-head">
-      <div class="eyebrow">Help desk</div>
-      <h2>Ask the STEP team</h2>
-      <p class="lede">Everyone in the cohort can see the answer, so it helps the next team too — and you can
-         ask without your name showing.</p>
+      <div class="eyebrow">STEP Family</div>
+      <h2>Group chat</h2>
+      <p class="lede">One room for the whole cohort — participants, trainers, mentors and the STEP team.
+         Ask anything, answer each other; everyone sees every message.</p>
     </div>
     <div class="hd-wrap">
-      <div class="card reveal">
-        <p class="anon-note">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-          <span>Questions post as <strong>Anonymous participant</strong> unless you turn that off. Your team
-          and your name are never shown to other participants.</span>
-        </p>
+      <div class="chatroom reveal">
+        <header class="ch-top">
+          <span class="ch-ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M2 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 11a3 3 0 1 0 0-6"/><path d="M19 20v-1a4.5 4.5 0 0 0-3-4.2"/></svg>
+          </span>
+          <div class="ch-t">
+            <h3>STEP Family · the whole cohort</h3>
+            <p><i class="live" aria-hidden="true"></i><span id="ch-count">—</span></p>
+          </div>
+          <span class="ch-faces" id="ch-faces" aria-hidden="true"></span>
+        </header>
         <div class="thread" id="thread"></div>
         <form class="composer-wrap" id="composer">
           <div class="composer">
-            <input type="text" id="msg" placeholder="Type your question for the STEP team…" aria-label="Your question">
-            <button class="btn" type="submit">Send</button>
+            <input type="text" id="msg" placeholder="Message the STEP Family…" aria-label="Your message">
+            <button class="btn send" type="submit" aria-label="Send message">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 20 4l-7 16-2.5-6.5z"/></svg>
+            </button>
           </div>
-          <label class="anon-switch">
-            <input type="checkbox" id="anon" checked>
-            <span class="track" aria-hidden="true"></span>
-            <span><b>Ask anonymously</b> — posts as Anonymous participant</span>
-          </label>
+          <p class="small muted mb-0">Design mockup — messages stay in your browser.</p>
         </form>
-        <p class="small muted mt-3 mb-0">This is a design mockup — messages stay in your browser.</p>
       </div>
       <div class="card reveal" style="--d:100ms">
         <div class="card-head"><h3>Good to know</h3></div>
@@ -296,16 +324,83 @@ const daysAway = iso => {
     `<li><span class="n">${i + 1}</span><span>${esc(a)}</span></li>`).join("");
   document.getElementById("tp-output").innerHTML =
     `<b>What to produce by Friday</b>${esc(T.output)}`;
-  document.getElementById("tp-mats").innerHTML = T.materials.map(m => `
-    <li>
-      <span class="ft ${m.pending ? "pend" : ""}">${esc(m.type)}</span>
-      <span>
+  const initialsOf = n => String(n || "").replace(/[^A-Za-z ]/g, "").split(/\s+/)
+    .filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("") || "S";
+
+  /* The recording is the one thing a participant watches rather than keeps,
+     so it gets its own panel; everything else is a file to take away. */
+  const MATS = T.materials || [];
+  const replayItem = MATS.find(m => m.type === "Video");
+  const fileItems = MATS.filter(m => m.type !== "Video");
+
+  const replay = document.getElementById("tp-replay");
+  if (replay) {
+    const ready = replayItem && !replayItem.pending;
+    replay.className = "replay" + (ready ? "" : " soon");
+    /* The title, who posted it and the button live on the thumbnail and come
+       up when the player is hovered or given keyboard focus — the panel at
+       rest is just the frame, the way a video tile reads. Where there is no
+       hover (touch), and when there is nothing to watch yet, they stay put. */
+    const screen = (dur, over) => `
+      <div class="rp-screen">
+        <span class="rp-grid" aria-hidden="true"></span>
+        <span class="rp-tag">${ready ? "Recorded" : "Not posted yet"}</span>
+        <span class="rp-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6L19 12z"/></svg>
+        </span>
+        ${dur ? `<span class="rp-dur">${esc(dur)}</span>` : ""}
+        <span class="rp-bar" aria-hidden="true"><i></i></span>
+        <div class="rp-over">${over}</div>
+      </div>`;
+    replay.innerHTML = ready
+      ? screen(replayItem.size, `
+        <span class="kick">Session replay</span>
+        <h3>${esc(replayItem.name)}</h3>
+        <p class="meta">
+          <span class="rp-av" aria-hidden="true">${esc(initialsOf(replayItem.by))}</span>
+          ${esc(replayItem.by)} · ${fmtD(replayItem.at, { weekday: "short" })}
+        </p>
+        <a class="btn" href="#">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg>
+          Watch the replay
+        </a>`)
+      : screen(null, `
+        <span class="kick">Session replay</span>
+        <h3>Not posted yet</h3>
+        <p class="meta">${replayItem && replayItem.pending ? esc(replayItem.pending)
+          : "The recording goes up the same afternoon as the session."}</p>`);
+  }
+
+  const matCount = document.getElementById("tp-matcount");
+  if (matCount) {
+    const up = fileItems.filter(m => !m.pending).length, wait = fileItems.length - up;
+    matCount.textContent = up + " ready" + (wait ? " · " + wait + " to come" : "");
+  }
+
+  /* one glyph per kind of file, so a row is recognisable before it is read */
+  const FGLYPH = {
+    PDF:  '<path d="M6 3h7l5 5v13H6z"/><path d="M13 3v5h5"/>',
+    DOCX: '<path d="M6 3h7l5 5v13H6z"/><path d="M13 3v5h5"/><path d="M9 13h6M9 17h6"/>',
+    XLSX: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/>',
+    PPTX: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/>',
+  };
+  document.getElementById("tp-mats").innerHTML = fileItems.map(m => `
+    <li class="${m.pending ? "is-pend" : ""}">
+      <span class="ft ${m.pending ? "pend" : ""}" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
+             stroke-linejoin="round">${FGLYPH[m.type] || FGLYPH.PDF}</svg>
+        <b>${esc(m.type)}</b>
+      </span>
+      <span class="mtext">
         <span class="mn">${esc(m.name)}</span>
         <span class="mm">${m.pending ? esc(m.pending)
           : esc(m.size) + " · " + esc(m.by) + " · " + fmtD(m.at, { weekday: "short" })}</span>
       </span>
       ${m.pending ? `<span class="badge">Not yet posted</span>`
-                  : `<a class="btn secondary" href="#">${m.type === "Video" ? "Watch" : "Download"}</a>`}
+                  : `<a class="btn secondary dl" href="#">
+                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+                       Download</a>`}
     </li>`).join("");
 })();
 
@@ -365,11 +460,11 @@ const daysAway = iso => {
     board.classList.remove("win");
     do { order = shuffle(G.steps); } while (order.every((s, i) => s.order === i + 1));   // never deal it solved
     draw();
-    msg.textContent = "Drag the cards, then check your order.";
+    msg.textContent = "Your move — put them in the order you would run them.";
     msg.className = "msg";
     roundEl.textContent = round;
     document.getElementById("gm-check").disabled = false;
-    document.getElementById("gm-reset").textContent = "Shuffle again";
+    document.getElementById("gm-reset").textContent = "🔀 Shuffle";
   }
 
   function draw(marks) {
@@ -464,17 +559,17 @@ const daysAway = iso => {
     locked = true;
     draw(marks);
     document.getElementById("gm-check").disabled = true;
-    document.getElementById("gm-reset").textContent = "Play again";
+    document.getElementById("gm-reset").textContent = "🔁 Play again";
     if (best === null || got > best) best = got;
     bestEl.textContent = best + "/" + order.length;
     round++;
     if (got === order.length) {
-      msg.textContent = "Clean sweep — that is the conversation you will run on Saturday.";
+      msg.textContent = "🎉 Clean sweep! That is the conversation you will run on Saturday.";
       msg.className = "msg ok";
       board.classList.add("win");
       celebrate();
     } else {
-      msg.textContent = got + " of " + order.length + " in place. Read the notes, then play again.";
+      msg.textContent = got + " of " + order.length + " in place — read the notes and go again.";
       msg.className = "msg no";
     }
   });
@@ -551,33 +646,49 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     if (!parts.length) return "?";
     return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
   };
-  /* an anonymous asker gets a neutral mark, never initials */
-  const ANON = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M4 21v-1a6 6 0 0 1 6-6h4a6 6 0 0 1 6 6v1"/></svg>`;
+  /* a chat room, not a ticket queue: one stream everyone can read, the
+     team's own messages on the right, and a chip for anyone who answers
+     with a STEP hat on */
+  const CHIP = { "STEP Team": "team", "Trainer": "trainer", "Mentor": "mentor" };
   const render = () => {
-    thread.innerHTML = W.helpdesk.map(m => {
-      const meta = [m.anon ? "" : esc(m.role), fmtT(m.at)].filter(Boolean).join(" · ");
-      return `<div class="msg-row">
-        <span class="av ${m.anon ? "anon" : ""}" aria-hidden="true">${m.anon ? ANON : esc(initials(m.who))}</span>
+    const rows = W.helpdesk.map((m, i) => {
+      const prev = W.helpdesk[i - 1];
+      const sameDay = prev && new Date(prev.at).toDateString() === new Date(m.at).toDateString();
+      const day = sameDay ? "" : `<div class="daydiv"><span>${
+        new Date(m.at).toDateString() === new Date().toDateString() ? "Today"
+          : fmtD(m.at, { weekday: "long" })}</span></div>`;
+      const chip = CHIP[m.role] ? ` <span class="rolechip ${CHIP[m.role]}">${esc(m.role)}</span>`
+        : (m.role ? ` <span class="rolechip team-name">${esc(m.role)}</span>` : "");
+      const who = m.me ? "You" : esc(m.who);
+      return day + `<div class="msg-row${m.me ? " me" : ""}">
+        ${m.me ? "" : `<span class="av" aria-hidden="true">${esc(initials(m.who))}</span>`}
         <div class="bubble">
-          <div class="who">${esc(m.who)}${m.me ? ' <span class="tagme">you</span>' : ""}
-            <span>${meta ? "· " + meta : ""}</span></div>
+          <div class="who">${who}${chip}<span>${fmtT(m.at)}</span></div>
           <div class="bd">${esc(m.body)}</div>
         </div>
       </div>`;
     }).join("");
+    thread.innerHTML = rows;
     thread.scrollTop = thread.scrollHeight;
+
+    /* who is in the room, drawn from the people who have spoken */
+    const faces = [], seen = {};
+    W.helpdesk.forEach(m => {
+      if (m.me || seen[m.who]) return;
+      seen[m.who] = 1; faces.push(initials(m.who));
+    });
+    const facesEl = document.getElementById("ch-faces");
+    if (facesEl) facesEl.innerHTML = faces.slice(0, 4).map(f => `<span>${esc(f)}</span>`).join("")
+      + `<span class="more">+${Math.max(0, 48 - faces.slice(0, 4).length)}</span>`;
+    const cnt = document.getElementById("ch-count");
+    if (cnt) cnt.textContent = "48 members · participants, trainers and the STEP team";
   };
   render();
   document.getElementById("composer").addEventListener("submit", e => {
     e.preventDefault();
     const box = document.getElementById("msg");
     const text = box.value.trim(); if (!text) return;
-    const anon = document.getElementById("anon").checked;
-    W.helpdesk.push({
-      who: anon ? "Anonymous participant" : "Dr. Liza Ramos",
-      role: anon ? "" : "AgriSense",
-      anon: anon, me: true, at: new Date().toISOString(), body: text,
-    });
+    W.helpdesk.push({ who: "You", role: "", me: true, at: new Date().toISOString(), body: text });
     box.value = ""; render();
   });
 })();

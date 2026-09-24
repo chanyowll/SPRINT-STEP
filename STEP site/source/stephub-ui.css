@@ -10,6 +10,7 @@
   --navy: #0b3c6b;
   --navy-700: #0a3560;
   --blue: #1f6fb2;
+  --blue-300: #7bb8e8;
   --blue-100: #e8f1fa;
   --gold: #c99a2e;
   --gold-100: #fbf3e2;
@@ -2108,72 +2109,121 @@ table.fgrid td.money .fin { letter-spacing: .01em; }
 .mats .btn { margin-left: auto; flex: none; }
 
 /* =========================
-   mini game — a dark "board" that reads as play, not as another content card
+   quick game — a playful board that should read as "come and play", not as
+   another content card. Rounder, chunkier and brighter than the rest of the
+   page on purpose: the change of shape is what tells a participant this part
+   is a game, that it takes two minutes, and that nothing here is graded.
    ========================= */
-.game { position: relative; overflow: hidden; border-radius: var(--r-lg); color: #fff;
-        background: radial-gradient(900px 340px at 14% -14%, #175c9c 0%, transparent 62%),
-                    linear-gradient(162deg, #061c34 0%, #0b3c6b 62%, #0d4780 100%);
-        border: 1px solid #0a2b4e; box-shadow: 0 22px 48px rgba(3,20,38,.30);
-        padding: var(--s6) var(--s6) var(--s6); }
+/* the board sits apart from the schedule above it: the page stack gives
+   sections 16px, and a game needs a real break before and after it so the
+   switch from "what you must do" to "have a go" is felt, not just read. */
+.game-sec { margin-top: 64px; margin-bottom: 40px; }
+@media (max-width: 640px) { .game-sec { margin-top: 44px; margin-bottom: 28px; } }
+
+.game { position: relative; overflow: hidden; border-radius: 28px; color: #fff;
+        background: radial-gradient(760px 300px at 12% -18%, #2c7fc7 0%, transparent 60%),
+                    radial-gradient(520px 340px at 92% 6%, rgba(201,154,46,.32) 0%, transparent 64%),
+                    radial-gradient(430px 300px at 78% 112%, rgba(107,79,160,.40) 0%, transparent 66%),
+                    linear-gradient(162deg, #071f39 0%, #0b3c6b 58%, #0e4d8b 100%);
+        border: 1px solid #0a2b4e; box-shadow: 0 26px 54px rgba(3,20,38,.32);
+        padding: var(--s6); }
 .game::before { content: ""; position: absolute; inset: 0; pointer-events: none;
-                background-image: radial-gradient(rgba(255,255,255,.075) 1px, transparent 1px);
-                background-size: 20px 20px; }
+                background-image: radial-gradient(rgba(255,255,255,.085) 1.4px, transparent 1.4px);
+                background-size: 26px 26px; }
 .game > * { position: relative; z-index: 1; }
-@media (max-width: 640px) { .game { padding: var(--s5) var(--s4); } }
+@media (max-width: 640px) { .game { padding: var(--s5) var(--s4); border-radius: 22px; } }
 
 .game-top { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s4); align-items: center;
             justify-content: space-between; margin-bottom: var(--s4); }
-.gpill { display: inline-flex; align-items: center; gap: 7px; background: var(--gold); color: #2e2003;
-         font-size: 11.5px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase;
-         padding: 5px 13px; border-radius: 999px; }
-.gpill::before { content: "▶"; font-size: 9px; }
-.gmeta { display: flex; gap: var(--s3); align-items: center; font-size: 12.5px; font-weight: 700;
-         letter-spacing: .05em; color: #a6cbec; }
-.gmeta b { color: #fff; font-weight: 800; }
-.gh { color: #fff; font-size: clamp(25px, 3.1vw, 35px); line-height: 1.12; margin: 0 0 8px; letter-spacing: -.01em; }
-.gp { color: #c2dcf3; font-size: 16.5px; line-height: 1.6; max-width: 58ch; margin: 0 0 var(--s5); }
+/* the badge is the first thing read, so it carries the play cue: a chunky
+   gold sticker, tilted off the grid, that lifts gently on its own. */
+.gpill { display: inline-flex; align-items: center; gap: 8px; color: #2e2003;
+         background: linear-gradient(180deg, #e7bb4e 0%, #c99a2e 100%);
+         font-size: 12.5px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase;
+         padding: 8px 16px; border-radius: 999px; transform: rotate(-1.6deg);
+         box-shadow: 0 4px 0 #8f6b14, 0 10px 18px rgba(0,0,0,.22); }
+.gpill::before { content: "🎮"; font-size: 14px; }
+@media (prefers-reduced-motion: no-preference) {
+  .gpill { animation: gbob 2.9s ease-in-out infinite; }
+  @keyframes gbob { 0%, 100% { transform: rotate(-1.6deg) translateY(0); }
+                    50%      { transform: rotate(-1.6deg) translateY(-3px); } }
+}
+/* score HUD: two small chips rather than loose text, the way a game shows it */
+.gmeta { display: flex; gap: 10px; align-items: center; font-size: 12.5px; font-weight: 750;
+         letter-spacing: .04em; color: #bcd9f3; }
+.gmeta > span { background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.18);
+                padding: 6px 12px; border-radius: 999px; }
+.gmeta b { color: #ffd97a; font-weight: 900; font-size: 14px; }
+.gh { color: #fff; font-size: clamp(26px, 3.2vw, 36px); line-height: 1.1; margin: 0 0 10px; letter-spacing: -.015em; }
+.gp { color: #cfe4f7; font-size: 16.5px; line-height: 1.6; max-width: 58ch; margin: 0 0 var(--s4); }
+/* the two ways to play, said once, in the game's own voice */
+.ghow { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 var(--s5); padding: 0; list-style: none; }
+.ghow li { display: inline-flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 650;
+           color: #d7e9fa; background: rgba(255,255,255,.07); border: 1px dashed rgba(255,255,255,.26);
+           padding: 5px 12px; border-radius: 999px; }
 
-/* the board */
-.steps-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
-.step-card { display: flex; gap: var(--s4); align-items: center; border-radius: 13px;
-             background: rgba(255,255,255,.095); border: 1px solid rgba(255,255,255,.21);
-             padding: 14px var(--s4); cursor: grab; user-select: none; touch-action: none; color: #fff;
+/* the board — cards you want to pick up */
+.steps-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.step-card { display: flex; gap: var(--s4); align-items: center; border-radius: 18px;
+             background: rgba(255,255,255,.10); border: 1px solid rgba(255,255,255,.20);
+             padding: 15px var(--s4); cursor: grab; user-select: none; touch-action: none; color: #fff;
+             box-shadow: 0 3px 0 rgba(0,0,0,.18);
              transition: background .16s ease, border-color .16s ease, transform .16s ease, box-shadow .16s ease; }
-.step-card:hover { background: rgba(255,255,255,.115); border-color: rgba(255,255,255,.34);
-                   transform: translateY(-1px); box-shadow: 0 8px 20px rgba(0,0,0,.22); }
-.step-card:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
-.step-card.dragging { opacity: .3; }
+.step-card:hover { background: rgba(255,255,255,.155); border-color: rgba(255,255,255,.40);
+                   transform: translateY(-2px) rotate(-.35deg); box-shadow: 0 10px 22px rgba(0,0,0,.26); }
+.step-card:active { cursor: grabbing; }
+.step-card:focus-visible { outline: 3px solid #ffd97a; outline-offset: 3px; }
+.step-card.dragging { opacity: .28; }
 .step-card.ghost { position: fixed; z-index: 100; pointer-events: none; cursor: grabbing; opacity: 1;
-                   background: #0e4478; border-color: var(--light-blue); box-shadow: 0 20px 40px rgba(0,0,0,.45);
-                   transform: rotate(-1.2deg) scale(1.02); }
-.step-card .grip { flex: none; color: rgba(255,255,255,.42); font-size: 15px; letter-spacing: -2px; }
-.step-card .pos { flex: none; width: 32px; height: 32px; border-radius: 50%; background: #fff; color: var(--navy);
-                  display: grid; place-items: center; font-size: 13.5px; font-weight: 800;
-                  box-shadow: inset 0 0 0 2px rgba(11,60,107,.16); }
-.step-card .lb { font-size: 15.5px; font-weight: 650; color: #fff; }
-.step-card .wy { display: block; font-size: 13.5px; font-weight: 400; color: #b6d4ef; margin-top: 4px; line-height: 1.5; }
-.step-card.right { background: rgba(60,168,120,.26); border-color: #57b98c; animation: gpop .4s ease both; }
-.step-card.right .pos { background: #6fdaa9; color: #063523; box-shadow: none; }
-.step-card.wrong { background: rgba(190,60,60,.3); border-color: rgba(242,150,150,.62); }
-.step-card.wrong .pos { background: #f0a1a1; color: #3d0e0e; box-shadow: none; }
+                   background: #10528f; border-color: var(--light-blue); box-shadow: 0 22px 44px rgba(0,0,0,.48);
+                   transform: rotate(-2deg) scale(1.03); }
+.step-card .grip { flex: none; color: rgba(255,217,122,.62); font-size: 16px; letter-spacing: -2px; }
+/* each slot gets its own playful colour, so a card visibly moves house when
+   it is dragged to a new position */
+.step-card .pos { flex: none; width: 36px; height: 36px; border-radius: 12px; transform: rotate(-4deg);
+                  background: #9ccbf4; color: #08243f; display: grid; place-items: center;
+                  font-size: 15px; font-weight: 900; box-shadow: 0 3px 0 rgba(0,0,0,.22); }
+.steps-list li:nth-child(5n+1) .pos { background: #ffd97a; }
+.steps-list li:nth-child(5n+2) .pos { background: #9ccbf4; }
+.steps-list li:nth-child(5n+3) .pos { background: #8fe3bd; }
+.steps-list li:nth-child(5n+4) .pos { background: #f7b5b5; }
+.steps-list li:nth-child(5n+5) .pos { background: #cbbaf2; }
+.step-card .lb { font-size: 15.5px; font-weight: 700; color: #fff; }
+.step-card .wy { display: block; font-size: 13.5px; font-weight: 400; color: #bcd9f3; margin-top: 5px; line-height: 1.5; }
+.step-card.right { background: rgba(52,170,118,.38); border-color: #6fd3a3; animation: gpop .4s ease both; }
+.step-card.right .pos, .steps-list li.right .pos { background: #6fdaa9; color: #063523; }
+.step-card.wrong { background: rgba(198,56,56,.42); border-color: rgba(255,163,163,.7); }
+.step-card.wrong .pos, .steps-list li.wrong .pos { background: #f0a1a1; color: #3d0e0e; }
 .step-card.locked { cursor: default; }
-.step-card.locked:hover { transform: none; box-shadow: none; }
-@keyframes gpop { 0% { transform: scale(.97); } 45% { transform: scale(1.025); } 100% { transform: scale(1); } }
+.step-card.locked:hover { transform: none; box-shadow: 0 3px 0 rgba(0,0,0,.18); }
+@keyframes gpop { 0% { transform: scale(.96); } 45% { transform: scale(1.03); } 100% { transform: scale(1); } }
 
 .gamebar { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; justify-content: space-between;
-           margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid rgba(255,255,255,.14); }
-.gamebar .msg { font-size: 14.5px; font-weight: 650; color: #c2dcf3; }
+           margin-top: var(--s5); padding-top: var(--s4); border-top: 1px dashed rgba(255,255,255,.2); }
+.gamebar .msg { font-size: 14.5px; font-weight: 700; color: #cfe4f7; }
 .gamebar .msg.ok { color: #7fe0b2; }
 .gamebar .msg.no { color: #ffd07a; }
-.game .btn { background: var(--gold); border-color: var(--gold); color: #2e2003; }
-.game .btn:hover { background: #dcac38; color: #2e2003; }
-.game .btn.secondary { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.34); color: #fff; }
-.game .btn.secondary:hover { background: rgba(255,255,255,.18); color: #fff; }
-.game.win { box-shadow: 0 22px 48px rgba(3,20,38,.30), 0 0 0 3px rgba(201,154,46,.45); }
+/* chunky buttons with a bottom edge, so pressing one feels like pressing a
+   key rather than submitting a form */
+.game .btn { background: linear-gradient(180deg, #e7bb4e 0%, #c99a2e 100%); border-color: #c99a2e;
+             color: #2e2003; border-radius: 999px; font-weight: 800; box-shadow: 0 4px 0 #8f6b14;
+             transition: transform .09s ease, box-shadow .09s ease, background .16s ease; }
+.game .btn:hover { background: linear-gradient(180deg, #f0c964 0%, #dcac38 100%); color: #2e2003; }
+.game .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 #8f6b14; }
+.game .btn.secondary { background: rgba(255,255,255,.10); border-color: rgba(255,255,255,.36); color: #fff;
+                       box-shadow: 0 4px 0 rgba(0,0,0,.24); }
+.game .btn.secondary:hover { background: rgba(255,255,255,.2); color: #fff; }
+.game .btn.secondary:active { box-shadow: 0 1px 0 rgba(0,0,0,.24); }
+.game .btn:disabled { opacity: .5; transform: none; box-shadow: none; }
+.game.win { box-shadow: 0 26px 54px rgba(3,20,38,.32), 0 0 0 4px rgba(255,217,122,.55); }
+@media (prefers-reduced-motion: no-preference) {
+  .game.win { animation: gwig .55s ease; }
+  @keyframes gwig { 0%, 100% { transform: rotate(0); } 30% { transform: rotate(-.35deg); } 65% { transform: rotate(.35deg); } }
+}
 
 /* confetti on a clean sweep */
-.cfti { position: absolute; top: -14px; width: 8px; height: 13px; border-radius: 2px; z-index: 2;
-        pointer-events: none; opacity: 0; animation: gfall 1.5s cubic-bezier(.32,.72,.5,1) forwards; }
+.cfti { position: absolute; top: -14px; width: 9px; height: 14px; border-radius: 2px; z-index: 2;
+        pointer-events: none; opacity: 0; animation: gfall 1.6s cubic-bezier(.32,.72,.5,1) forwards; }
 @keyframes gfall { 0% { opacity: 1; transform: translateY(0) rotate(0deg); }
                    100% { opacity: 0; transform: translateY(460px) rotate(460deg); } }
 @media (prefers-reduced-motion: reduce) { .cfti { display: none; } .step-card.right { animation: none; } }
@@ -3468,16 +3518,56 @@ table.fgrid td.money .fin { letter-spacing: .01em; }
 .tw-fa-row .bar { display: flex; gap: 2px; height: 12px; border-radius: 4px; overflow: hidden;
                   background: var(--line-soft); }
 .tw-fa-row .bar i { display: block; }
-.tw-fa-row .bar i.ok   { background: var(--tw-ok); }
-.tw-fa-row .bar i.wait { background: #6b4fa0; }
-.tw-fa-row .bar i.late { background: var(--tw-late); }
-.tw-fa-row .bar i.none { background: var(--tw-none); opacity: .38; }
+/* the proposal's three states, in the same ramp as the submissions chart
+   on the other face of this panel: navy in, light blue underway, a pale
+   track for an item nobody has opened yet */
+.tw-fa-row .bar i.sent  { background: var(--navy); }
+.tw-fa-row .bar i.draft { background: var(--blue-300); }
+.tw-fa-row .bar i.none  { background: #dbe3ea; }
+#fa-legend i.sent  { background: var(--navy); }
+#fa-legend i.draft { background: var(--blue-300); }
+#fa-legend i.none  { background: #dbe3ea; }
 .tw-fa-row .ct { font-size: 12px; font-weight: 800; color: var(--navy); text-align: right;
                  font-variant-numeric: tabular-nums; }
 
 /* ---------- attendance bars ---------- */
 .tw-bars { position: relative; flex: 1 1 auto; min-height: 0; margin-top: var(--s2); }
 .tw-bars svg { display: block; width: 100%; height: 100%; }
+/* Status grid (replaces complex bar chart) */
+/* Submission status — drawn like the attendance bars beside it, so the two
+   charts read as one family. Every bar is the same height on purpose: there
+   is no quantity here, only a state, carried by colour plus a glyph. */
+/* Attendance: the two kinds of session are one hue at two weights. The
+   three-hour learning sessions carry the solid brand blue; the shorter
+   feedback sessions get a lighter tint of it, outlined in the same blue so
+   the light fill still has a crisp edge against the white panel. The L / F
+   letters under each bar carry the same split, so the colour is never alone
+   in saying which is which, and a bar below the minimum stays red whichever
+   kind of session it was. */
+.tw-bar.fb { fill: var(--blue-300); stroke: var(--blue); stroke-width: 1; }
+.tw-bar.short, .tw-bar.fb.short { fill: var(--tw-miss); stroke: none; }
+/* on the lighter fill the count inside the bar switches to navy, so it stays
+   readable; a bar below the minimum keeps the red fill and the white count. */
+.tw-bval.fb { fill: var(--navy); }
+.att-legend { flex: none; margin: 0 0 2px; }
+.att-legend i.ln   { background: var(--blue); }
+.att-legend i.fb   { background: var(--blue-300); box-shadow: inset 0 0 0 1px var(--blue); }
+.att-legend i.miss { background: var(--tw-miss); }
+
+/* Submissions sit beside the attendance chart and the radar, so they speak
+   the same blue rather than a traffic-light of their own: navy for an output
+   that landed on time, the lighter brand blue for one that landed late, a
+   muted steel for one that never arrived, and an empty dashed block for a
+   week that is not due yet. The tooltip names each state in words, so the
+   colour is carrying emphasis, not the only meaning. */
+.tw-sbar.ok   { fill: var(--navy); }
+.tw-sbar.late { fill: var(--blue-300); }
+.tw-sbar.miss { fill: #6d8395; }
+.tw-sbar.open { fill: none; stroke: var(--line); stroke-width: 1.5; stroke-dasharray: 5 4; }
+/* the key under this one chart follows the same three blues */
+#hi-legend i.ok   { background: var(--navy); }
+#hi-legend i.late { background: var(--blue-300); }
+#hi-legend i.miss { background: #6d8395; }
 .tw-bar { fill: var(--blue); }
 .tw-bar.short { fill: var(--tw-miss); }
 .tw-bar-hit { fill: transparent; cursor: pointer; }
@@ -3812,3 +3902,381 @@ table.fgrid td.money .fin { letter-spacing: .01em; }
   letter-spacing: .02em;
 }
 
+
+/* =========================
+   FASTRAC proposal — three states, one hue
+   An item is not started, started, or submitted, and the participant owns
+   all three. There is no grading here, so the blocks carry no status
+   palette: one navy at three weights, with a dashed outline for "nothing
+   yet" and a tick on a submitted block, so the state never rests on colour
+   alone and no legend is needed to read the bar.
+   ========================= */
+.itembar { gap: 5px; }
+.itembar button { position: relative; height: 38px; border-radius: 9px; font-size: 11.5px; font-weight: 800;
+                  background: var(--surface); border: 1.5px solid var(--line); color: #93a1ad;
+                  transition: transform .15s ease, box-shadow .15s ease, background .15s ease; }
+.itembar button.is-none  { border-style: dashed; }
+.itembar button.is-start { background: var(--blue-300); border-color: #5fa6de; color: var(--navy); }
+.itembar button.is-sub   { background: var(--navy); border-color: var(--navy); color: #fff; }
+.itembar button.is-sub::after { content: "✓"; position: absolute; top: 1px; right: 3px; font-size: 9px;
+                                font-weight: 800; color: var(--light-blue); }
+.itembar button:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.itembar button[aria-current="true"] { outline: 2px solid var(--navy); outline-offset: 2px; }
+
+.itemlist .num { background: var(--surface); border: 1.5px solid var(--line); color: #93a1ad; }
+.itemlist .num.is-none  { border-style: dashed; }
+.itemlist .num.is-start { background: var(--blue-300); border-color: #5fa6de; color: var(--navy); }
+.itemlist .num.is-sub   { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+/* the one action an item has: submit it, and submit it again after an edit */
+.subbar { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s4); align-items: center;
+          justify-content: space-between; margin-top: var(--s4); padding-top: var(--s4);
+          border-top: 1px solid var(--line-soft); }
+.subbar .sstate { font-size: 13.5px; color: var(--ink-soft); }
+.subbar .sstate b { color: var(--navy); }
+.subbar .btn { flex: none; }
+.subbar .btn:disabled { opacity: .55; cursor: default; }
+
+/* While the live preview is docked on the right, the left side is only the
+   work: the page hero and the workspace band are out of the way, so the
+   first thing at the top of the page is the item bar the team is working
+   through. Closing the preview brings both back. */
+body.sheet-open #cap-head-form,
+body.sheet-open #ws-form > .ws-band { display: none; }
+body.sheet-open .page { padding-top: var(--s4); }
+
+/* My Team's Work: the team name is the headline of the page, so it runs
+   larger than a section title and stands on its own — the institution and
+   the region are chips underneath, and the technology line is gone. */
+#tb-name { font-size: clamp(34px, 5.2vw, 56px); line-height: 1.05; margin: 0 0 var(--s4); }
+
+/* =========================
+   Hand in this week's work — the one place a participant submits, so it
+   should look like an invitation rather than a form field: two numbered
+   boxes tinted in the brand blue, each with a visible button as well as a
+   drop target, and a submit row that says how far along they are.
+   ========================= */
+.drops-lead { font-size: 14.5px; color: var(--ink-soft); margin: 0 0 var(--s4); max-width: 70ch; }
+.drops { gap: var(--s4); }
+.drop { position: relative; border: 2.5px dashed #a9cdec; border-radius: 16px;
+        background: linear-gradient(180deg, #f4f9fe 0%, #eaf3fc 100%);
+        padding: var(--s5) var(--s4) var(--s5); text-align: center; cursor: pointer;
+        transition: border-color .16s ease, background .16s ease, transform .16s ease, box-shadow .16s ease; }
+.drop:hover, .drop.over { border-color: var(--blue); background: #e3f0fb;
+                          transform: translateY(-2px); box-shadow: 0 10px 22px rgba(11,60,107,.10); }
+.drop.over { transform: scale(1.01); border-style: solid; }
+.drop .ico { width: 52px; height: 52px; margin: 0 auto var(--s3); color: var(--blue); }
+.drop h4 { margin-bottom: 2px; font-size: 17px; }
+.drop .hint { font-size: 12.5px; font-weight: 650; letter-spacing: .06em; text-transform: uppercase;
+              color: var(--ink-soft); margin: 0 0 var(--s4); }
+/* one plain sentence rather than a button: the whole box is the target, and
+   the underline is what says it can be clicked */
+.drop .pick { display: inline-block; font-size: 12.5px; font-weight: 600; color: var(--ink-soft); }
+.drop:hover .pick, .drop.over .pick { color: var(--blue); }
+.drop.filled { border-style: solid; border-color: var(--green); background: var(--green-100);
+               text-align: left; transform: none; box-shadow: none; }
+
+.subrow { display: flex; flex-wrap: wrap; gap: var(--s3) var(--s4); align-items: center;
+          justify-content: flex-end; margin-top: var(--s5); padding-top: var(--s4);
+          border-top: 1px solid var(--line-soft); }
+.subcount { font-size: 14px; font-weight: 650; color: var(--ink-soft); margin-right: auto; }
+.subcount.ready { color: var(--green); }
+.btn.lg { font-size: 16px; padding: 13px 26px; border-radius: 999px; }
+.btn.lg:disabled { opacity: .5; }
+@media (max-width: 560px) { .subrow .btn.lg { width: 100%; } .subcount { margin-right: 0; } }
+
+/* both states sit in the middle of the box, so a chosen file does not leave
+   a hole beside the box still waiting for one */
+.drop { display: flex; flex-direction: column; justify-content: center; }
+.drop.filled { justify-content: center; gap: var(--s3); }
+.filerow .nm, .filerow .mt { display: block; }
+.filerow .mt { margin-top: 2px; }
+
+/* Sections on a stacked page need air between them. The inline gap on <main>
+   never took effect — the stack is a block, not a flex container — so every
+   section sat 16px from the next and the page read as one long slab. */
+main.page.stack > * + * { margin-top: var(--s7); }
+main.page.stack > .game-sec { margin-top: 72px; }
+
+/* Both lines above the drop boxes are one sentence each: they read better
+   set a little smaller and held on a single line than broken in two, so the
+   70ch cap comes off and the type steps down instead. */
+#submit .section-head { max-width: none; }
+#submit .lede { font-size: 15px; }
+.drops-lead { font-size: 13.5px; max-width: none; }
+
+/* =========================
+   This week's materials and replay — the first section of the page, because
+   it is what a participant opens This Week to get. Two halves: the recording,
+   which is watched, on a dark panel that looks like a player; and the files,
+   which are kept, in a plain list with a download on every row.
+   ========================= */
+.matwrap { display: grid; grid-template-columns: minmax(0,.95fr) minmax(0,1.1fr); gap: var(--s5); align-items: start; }
+@media (max-width: 900px) { .matwrap { grid-template-columns: minmax(0,1fr); } }
+
+.replay { position: relative; overflow: hidden; border-radius: var(--r-lg); color: #fff;
+          padding: var(--s6) var(--s5); box-shadow: var(--shadow);
+          background: radial-gradient(420px 220px at 88% -10%, rgba(201,154,46,.30) 0%, transparent 62%),
+                      linear-gradient(150deg, #072341 0%, #0b3c6b 58%, #10508e 100%);
+          display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.replay .play { width: 62px; height: 62px; border-radius: 50%; margin-bottom: var(--s3);
+                background: rgba(255,255,255,.14); border: 1px solid rgba(255,255,255,.32);
+                display: grid; place-items: center; }
+.replay .play svg { width: 26px; height: 26px; margin-left: 3px; }
+.replay .kick { font-size: 11.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.replay h3 { color: #fff; font-size: 22px; line-height: 1.25; margin: 2px 0 0; }
+.replay .meta { color: #c2dcf3; font-size: 13.5px; margin: 4px 0 0; }
+.replay .btn { align-self: flex-start; margin-top: var(--s4); background: var(--gold);
+               border-color: var(--gold); color: #2e2003; font-weight: 800; }
+.replay .btn:hover { background: #dcac38; color: #2e2003; }
+/* nothing to watch yet: the same panel, quietened */
+.replay.soon { background: linear-gradient(150deg, #33404c 0%, #46545f 100%); }
+.replay.soon .kick { color: #e2c887; }
+.replay.soon .play { background: rgba(255,255,255,.10); }
+
+.matcard { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+           box-shadow: var(--shadow); padding: var(--s5); display: flex; flex-direction: column; }
+.mathead { display: flex; align-items: center; justify-content: space-between; gap: var(--s3);
+           margin-bottom: var(--s2); }
+.mathead h3 { margin: 0; font-size: 17px; }
+.matcount { flex: none; font-size: 12.5px; font-weight: 700; color: var(--blue);
+            background: var(--blue-100); padding: 4px 11px; border-radius: 999px; }
+
+/* the topic card is a single column now that the materials have moved out */
+.topic .tb { grid-template-columns: minmax(0,1fr); }
+.topic .lead { max-width: 80ch; }
+
+/* --- the replay panel, built like a player -------------------------------- */
+.replay { padding: 0; display: flex; flex-direction: column; background: var(--surface);
+          border: 1px solid var(--line); color: var(--ink); overflow: hidden; }
+.rp-screen { position: relative; aspect-ratio: 16 / 9; display: grid; place-items: center;
+             background: radial-gradient(460px 240px at 50% 42%, rgba(60,140,210,.45) 0%, transparent 70%),
+                         linear-gradient(150deg, #06203c 0%, #0b3c6b 55%, #10528f 100%); }
+.rp-grid { position: absolute; inset: 0;
+           background-image: radial-gradient(rgba(255,255,255,.10) 1px, transparent 1px);
+           background-size: 22px 22px; }
+.rp-tag { position: absolute; top: 12px; left: 12px; z-index: 1; font-size: 10.5px; font-weight: 800;
+          letter-spacing: .12em; text-transform: uppercase; color: #fff;
+          background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.3);
+          padding: 4px 10px; border-radius: 999px; }
+.rp-play { position: relative; z-index: 1; width: 74px; height: 74px; border-radius: 50%; color: #fff;
+           background: rgba(255,255,255,.16); border: 1.5px solid rgba(255,255,255,.55);
+           display: grid; place-items: center; transition: transform .18s ease, background .18s ease; }
+.rp-play svg { width: 30px; height: 30px; margin-left: 4px; }
+/* the play circle lifts clear of the overlay text rather than sitting under it */
+.replay:hover .rp-play, .replay:focus-within .rp-play {
+  transform: translateY(-34px) scale(.92); background: var(--gold); color: #2e2003; border-color: var(--gold); }
+.rp-dur { position: absolute; right: 12px; bottom: 18px; z-index: 1; font-size: 12px; font-weight: 700;
+          color: #fff; background: rgba(4,20,38,.6); padding: 3px 9px; border-radius: 6px; }
+.rp-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 5px; background: rgba(255,255,255,.18); }
+.rp-bar i { display: block; height: 100%; width: 18%; background: var(--gold);
+            transition: width .5s cubic-bezier(.3,.7,.4,1); }
+.replay:hover .rp-bar i { width: 34%; }
+/* the details ride on the thumbnail and appear on hover or keyboard focus */
+.rp-over { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; color: #fff;
+           padding: var(--s6) var(--s5) var(--s5);
+           background: linear-gradient(to top, rgba(4,18,34,.94) 0%, rgba(4,18,34,.78) 48%, rgba(4,18,34,0) 100%);
+           display: flex; flex-direction: column; gap: 2px;
+           opacity: 0; transform: translateY(8px);
+           transition: opacity .2s ease, transform .2s ease; }
+.replay:hover .rp-over, .replay:focus-within .rp-over { opacity: 1; transform: none; }
+.rp-over .kick { font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); }
+.rp-over h3 { margin: 2px 0 0; font-size: 20px; line-height: 1.3; color: #fff; }
+.rp-over .meta { display: flex; align-items: center; gap: 8px; margin: 7px 0 0;
+                 font-size: 13.5px; color: #cfe4f7; }
+.rp-av { flex: none; width: 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 10.5px;
+         font-weight: 800; display: grid; place-items: center;
+         background: rgba(255,255,255,.22); border: 1px solid rgba(255,255,255,.34); }
+.rp-over .btn { align-self: flex-start; margin-top: var(--s3); display: inline-flex; align-items: center;
+                gap: 8px; background: var(--gold); border-color: var(--gold); color: #2e2003; font-weight: 800; }
+.rp-over .btn svg { width: 15px; height: 15px; }
+.rp-over .btn:hover { background: #dcac38; color: #2e2003; }
+/* the duration chip steps aside once the overlay comes up */
+.replay:hover .rp-dur, .replay:focus-within .rp-dur { opacity: 0; }
+.rp-dur { transition: opacity .18s ease; }
+/* nothing recorded yet: the screen greys out and the note stays in view */
+.replay.soon .rp-screen { background: linear-gradient(150deg, #39434d 0%, #545f69 100%); }
+.replay.soon .rp-over { opacity: 1; transform: none; }
+.replay.soon:hover .rp-play, .replay.soon:focus-within .rp-play { transform: none; background: rgba(255,255,255,.16); color: #fff;
+                              border-color: rgba(255,255,255,.55); }
+.replay.soon .rp-bar i { width: 0; }
+/* no hover to give: a touch screen shows the details all the time */
+@media (hover: none) { .rp-over { opacity: 1; transform: none; } .rp-dur { opacity: 0; } }
+
+/* --- the file list -------------------------------------------------------- */
+.mathead { align-items: flex-start; margin-bottom: var(--s3); padding-bottom: var(--s3);
+           border-bottom: 1px solid var(--line-soft); }
+.mh-ico { flex: none; width: 38px; height: 38px; border-radius: var(--r); background: var(--blue-100);
+          color: var(--blue); display: grid; place-items: center; }
+.mh-ico svg { width: 20px; height: 20px; }
+.mh-t { flex: 1 1 auto; }
+.mh-t p { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-soft); }
+.mats li { gap: var(--s3); padding: 10px var(--s2); border-radius: var(--r);
+           transition: background .15s ease; }
+.mats li:hover { background: var(--blue-100); }
+.mats li.is-pend { opacity: .8; }
+.mats li.is-pend:hover { background: var(--bg); }
+.mats .ft { flex-direction: column; gap: 1px; width: 44px; height: 44px; font-size: 0; }
+.mats .ft svg { width: 19px; height: 19px; }
+.mats .ft b { font-size: 9px; font-weight: 800; letter-spacing: .06em; }
+.mats .mtext { flex: 1 1 auto; min-width: 0; }
+.mats .btn.dl { display: inline-flex; align-items: center; gap: 7px; }
+.mats .btn.dl svg { width: 14px; height: 14px; }
+
+/* Announcements: the heading row already carries the section-head margin, so
+   the grid must not add its own on top — that stacked to 48px and left this
+   one section sitting further from its heading than every other. */
+.ann-top .section-head { margin-bottom: 0; }
+.ann-top + .anngrid { margin-top: var(--s5); }
+
+/* =========================
+   STEP Family group chat — one room for the whole cohort. It is a chat, so
+   it is built like one: a room header with who is in it, a scrolling stream
+   with the reader's own messages on the right, and a composer pinned under
+   it. Nothing here is a support ticket.
+   ========================= */
+.chatroom { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg);
+            box-shadow: var(--shadow); overflow: hidden; display: flex; flex-direction: column; }
+.ch-top { display: flex; align-items: center; gap: var(--s3); padding: var(--s4) var(--s5);
+          border-bottom: 1px solid var(--line-soft); background: linear-gradient(180deg, #f7fafd 0%, #fff 100%); }
+.ch-ico { flex: none; width: 42px; height: 42px; border-radius: 12px; background: var(--navy); color: #fff;
+          display: grid; place-items: center; }
+.ch-ico svg { width: 22px; height: 22px; }
+.ch-t { flex: 1 1 auto; min-width: 0; }
+.ch-t h3 { margin: 0; font-size: 17px; }
+.ch-t p { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-soft); display: flex; align-items: center; gap: 7px; }
+.ch-t .live { width: 8px; height: 8px; border-radius: 50%; background: var(--green); flex: none; }
+.ch-faces { display: flex; flex: none; }
+.ch-faces span { width: 30px; height: 30px; border-radius: 50%; margin-left: -8px; border: 2px solid #fff;
+                 background: var(--blue-100); color: var(--navy); font-size: 11px; font-weight: 800;
+                 display: grid; place-items: center; }
+.ch-faces .more { background: var(--navy); color: #fff; font-size: 10.5px; }
+@media (max-width: 560px) { .ch-faces { display: none; } }
+
+.chatroom .thread { gap: var(--s2); margin: 0; padding: var(--s4) var(--s5);
+                    max-height: 460px; overflow-y: auto; background: var(--bg); }
+.ch-note { display: flex; align-items: center; gap: 8px; margin: 0 0 var(--s3);
+           font-size: 12.5px; color: var(--ink-soft); background: var(--surface);
+           border: 1px dashed var(--line); border-radius: 999px; padding: 7px var(--s4); }
+.ch-note svg { flex: none; color: var(--blue); }
+/* a day marker, so a long room still reads as a timeline */
+.daydiv { display: flex; align-items: center; gap: var(--s3); margin: var(--s3) 0 var(--s2); }
+.daydiv::before, .daydiv::after { content: ""; flex: 1 1 auto; height: 1px; background: var(--line); }
+.daydiv span { font-size: 11px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+               color: var(--ink-soft); }
+.chatroom .msg-row { align-items: flex-end; }
+.chatroom .msg-row .bubble { max-width: 78%; background: var(--surface); border: 1px solid var(--line);
+                             border-radius: 4px 14px 14px 14px; padding: 9px var(--s4);
+                             box-shadow: 0 1px 2px rgba(16,32,48,.05); }
+/* the reader's own messages sit on the right, in the brand blue */
+.chatroom .msg-row.me { flex-direction: row-reverse; }
+/* the reader's own bubble is the mid brand blue, not the deep navy — it
+   still reads as theirs without sitting on the page like a hole */
+.chatroom .msg-row.me .bubble { background: var(--blue); border-color: var(--blue);
+                                border-radius: 14px 4px 14px 14px; }
+.chatroom .msg-row.me .who { color: #e3f0fb; }
+.chatroom .msg-row.me .who span { color: #cbe2f6; }
+.chatroom .msg-row.me .bd { color: #fff; }
+.chatroom .msg-row .who { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.chatroom .msg-row .who span { font-size: 11.5px; }
+/* who is speaking with a STEP hat on */
+.rolechip { font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase;
+            padding: 2px 8px; border-radius: 999px; }
+.rolechip.team    { background: var(--gold-100); color: #8a6512; }
+.rolechip.trainer { background: var(--blue-100); color: var(--blue); }
+.rolechip.mentor  { background: var(--green-100); color: var(--green); }
+
+.chatroom .composer-wrap { padding: var(--s4) var(--s5) var(--s5); gap: var(--s3); }
+.chatroom .composer input { border-radius: 999px; padding: 12px var(--s5); }
+.chatroom .btn.send { flex: none; width: 46px; height: 46px; padding: 0; border-radius: 50%;
+                      display: grid; place-items: center; }
+.chatroom .btn.send svg { width: 19px; height: 19px; }
+.ch-bar { display: flex; flex-wrap: wrap; gap: var(--s2) var(--s4); align-items: center;
+          justify-content: space-between; }
+.rolechip.anon { background: rgba(255,255,255,.18); color: #dbe9f7; }
+/* the face stack overlaps by a sliver, not by half */
+.ch-faces span { margin-left: -6px; }
+.ch-faces span:first-child { margin-left: 0; }
+/* a participant's team reads as a quiet chip beside their name */
+.rolechip.team-name { background: var(--line-soft); color: var(--ink-soft); }
+
+/* the participant sign-in stands alone at the foot of the home page */
+.login-card { max-width: 520px; margin: 0 auto; text-align: center; }
+.login-card h3 { margin-bottom: 6px; }
+
+/* =========================
+   "At a glance" / "This cycle" plates — one shared grid for the whole list,
+   so every figure ends on the same right edge and every unit starts on the
+   same left edge, whatever the label or the unit is. The rows are display:
+   contents, which lets the three cells of a row sit in the plate's columns;
+   the rule that used to sit on the row is carried by the cells, which are
+   bottom-aligned so it stays one straight line.
+   ========================= */
+/* no column gap: the cells touch, so their bottom borders read as one rule
+   across the row rather than three dashes */
+.spec dl { display: grid; grid-template-columns: minmax(0,1fr) max-content max-content; }
+.spec .r, .spec .r dd { display: contents; }
+.spec .r > dt, .spec .r > dd > b, .spec .r > dd > em {
+  align-self: end; padding: 13px 0 11px; margin: 0;
+  border-bottom: 1px solid rgba(255,255,255,.13); }
+.spec .r:last-child > dt,
+.spec .r:last-child > dd > b,
+.spec .r:last-child > dd > em { border-bottom: 0; padding-bottom: 4px; }
+.spec .r > dt { grid-column: 1; padding-right: var(--s4); }
+/* the cells fill their columns (and align their text inside) rather than
+   shrinking to fit, so the rule under a short figure is not broken */
+.spec .r > dd > b  { grid-column: 2; justify-self: stretch; text-align: right; margin-right: 0;
+                     padding-right: 10px; padding-bottom: 8px; }
+.spec .r > dd > em { grid-column: 3; justify-self: stretch; text-align: left; }
+.spec .r:last-child > dd > b { padding-bottom: 1px; }
+
+/* A row that carries only a value ("1 FASTRAC proposal") spans the figure
+   and unit columns and sits against the right edge, so its length no longer
+   widens the unit column and pushes every figure to the left. */
+.spec .r > dd > em:only-child { grid-column: 2 / -1; text-align: right; padding-right: 0; }
+
+/* =========================
+   Once both files are handed in, the submission card becomes the team's own
+   screening room: their video plays here and the deck opens beside it, and
+   it is the same view their mentor and their Saturday panel see.
+   ========================= */
+.outhead { display: flex; align-items: center; gap: var(--s4); flex-wrap: wrap;
+           padding-bottom: var(--s4); border-bottom: 1px solid var(--line-soft); margin-bottom: var(--s5); }
+.okchip { flex: none; width: 40px; height: 40px; border-radius: 50%; background: var(--green-100);
+          color: var(--green); display: grid; place-items: center; }
+.okchip svg { width: 20px; height: 20px; }
+.oh-t { flex: 1 1 260px; min-width: 0; }
+.oh-t h3 { margin: 0; font-size: 19px; }
+.oh-t p { margin: 3px 0 0; font-size: 13.5px; color: var(--ink-soft); }
+.outhead .btn { flex: none; }
+
+.outgrid { display: grid; grid-template-columns: minmax(0,1.6fr) minmax(0,1fr); gap: var(--s5); align-items: start; }
+@media (max-width: 880px) { .outgrid { grid-template-columns: minmax(0,1fr); } }
+.outvid { margin: 0; }
+.outvid video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: var(--r-lg);
+                background: #06203c; box-shadow: var(--shadow); }
+.outvid figcaption { margin-top: var(--s3); font-size: 13px; color: var(--ink-soft); word-break: break-all; }
+
+.outdeck { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface);
+           box-shadow: var(--shadow); padding: var(--s4); display: flex; flex-direction: column; gap: var(--s3); }
+.od-head { display: flex; align-items: flex-start; gap: var(--s3); }
+.od-ic { flex: none; width: 36px; height: 36px; border-radius: var(--r); background: var(--blue-100);
+         color: var(--blue); display: grid; place-items: center; }
+.od-ic svg { width: 19px; height: 19px; }
+.od-head h4 { margin: 0; font-size: 15px; }
+.od-head p { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-soft); word-break: break-all; }
+.od-prev { border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; background: var(--bg);
+           aspect-ratio: 4 / 3; }
+.od-prev iframe { width: 100%; height: 100%; border: 0; display: block; }
+.od-none { height: 100%; display: grid; place-items: center; align-content: center; gap: 6px; text-align: center; }
+.od-none b { font-size: 20px; font-weight: 800; color: var(--navy); letter-spacing: .04em; }
+.od-none span { font-size: 12.5px; color: var(--ink-soft); }
+
+/* upload progress while a real file is going to storage */
+.upbar { display: flex; align-items: center; gap: var(--s3); margin-top: var(--s4); }
+.up-track { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--line-soft); overflow: hidden; }
+.up-track i { display: block; height: 100%; width: 0; border-radius: 999px; background: var(--blue);
+              transition: width .2s ease; }
+.up-txt { flex: none; font-size: 13px; font-weight: 650; color: var(--ink-soft); }
+.up-err { margin: var(--s3) 0 0; font-size: 13.5px; font-weight: 600; color: var(--red);
+          background: var(--red-100); border-radius: var(--r); padding: 9px var(--s4); }

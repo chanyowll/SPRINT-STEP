@@ -126,7 +126,8 @@
       <div class="ws-band">
         <div>
           <h3>DOST Form 2 — your FASTRAC proposal</h3>
-          <p>24 items, filled in week by week. Nothing here is written the night before Demo Day.</p>
+          <p>24 items. Each week's topic points to the items it feeds, but every item is open —
+             work ahead whenever you are ready.</p>
         </div>
         <div class="acts">
           <button class="btn solid" id="btn-preview">Preview the form</button>
@@ -140,29 +141,12 @@
           <span class="small muted">Click any block to open that item</span>
         </div>
         <div class="itembar" id="itembar"></div>
-        <div class="barkey">
-          <span><i class="st-reviewed"></i> Approved</span>
-          <span><i class="st-submitted"></i> Submitted</span>
-          <span><i class="st-draft"></i> Draft</span>
-          <span><i class="st-revise"></i> Needs revision</span>
-          <span><i class="st-open"></i> Due this week</span>
-          <span><i class="st-locked"></i> Unlocks later</span>
-        </div>
+        <p class="small muted mb-0 mt-3" id="fa-counts">—</p>
       </div>
 
       <div class="work">
         <div class="itemlist" id="itemlist" role="list"></div>
         <div class="editor" id="editor"></div>
-      </div>
-
-      <!-- Readiness -->
-      <div class="card mt-5 reveal">
-        <div class="card-head">
-          <h3>Readiness check</h3>
-          <span class="badge" id="rd-badge">—</span>
-        </div>
-        <p class="small muted">What still stands between this draft and a submittable DOST Form 2.</p>
-        <ul class="ready mb-0" id="ready" style="list-style:none; padding:0; margin:0"></ul>
       </div>
       </div>
     </div>
@@ -259,16 +243,27 @@
 let { capstone: CAP, teams } = window.MOCK;
 let TEAM = teams.find(t => t.id === CAP.team_id) || teams[0];
 let FORM = CAP.form, DECK = CAP.deck;
+/* the sample data still carries the old six-way status; anything that had
+   already gone to the panel counts as submitted, everything else is the
+   team's own to submit. FORM is rebuilt on a team switch, so this runs
+   wherever FORM is set, not just at load. */
+function seedSubmitted() {
+  FORM.forEach(f => { if (f.submitted === undefined)
+    f.submitted = (f.status === "reviewed" || f.status === "submitted"); });
+}
+seedSubmitted();
 const words = s => (s || "").trim() ? s.trim().split(/\s+/).length : 0;
 const plural = (n, one, many) => n + " " + (n === 1 ? one : (many || one + "s"));
-const STATUS = {
-  reviewed:  ["Approved",        "st-reviewed"],
-  submitted: ["Submitted",       "st-submitted"],
-  draft:     ["Draft",           "st-draft"],
-  revise:    ["Needs revision",  "st-revise"],
-  open:      ["Due this week",   "st-open"],
-  locked:    ["Unlocks later",   "st-locked"],
-};
+/* An item is in one of three states, and the participant owns all three:
+   they have not started it, they have started it, or they have submitted it.
+   Nothing here is reviewed or graded on this page, so the state is derived
+   from the team's own work — submitting is a click, and editing a submitted
+   item puts it back to "started" so it can be submitted again. */
+const STATE  = { submitted: "Submitted", started: "Draft", none: "Not started" };
+const SCLASS = { submitted: "is-sub",    started: "is-start", none: "is-none" };
+const stateOf = f => f.submitted ? "submitted" : (hasContent(f) ? "started" : "none");
+const subDate = () => new Date().toLocaleDateString("en-PH",
+  { timeZone: "Asia/Manila", day: "numeric", month: "long" });
 
 /* ---------------------------------------------------------------
    Structured items carry `value`; prose items carry `draft`.
@@ -307,15 +302,14 @@ function hasContent(f) {
 
 /* ---------- header figures ---------- */
 function refreshCounts() {
-  const started = FORM.filter(hasContent).length;
-  const approved = FORM.filter(f => f.status === "reviewed").length;
+  const started = FORM.filter(f => stateOf(f) === "started").length;
+  const sent    = FORM.filter(f => stateOf(f) === "submitted").length;
   const slidesIn = DECK.filter(d => d.status === "in").length;
   const nextSlide = DECK.find(d => d.status !== "in");
 
-  document.getElementById("ca-form").innerHTML = started + '<small>of 24 items</small>';
+  document.getElementById("ca-form").innerHTML = sent + '<small>of 24 items submitted</small>';
   document.getElementById("ca-form-sub").textContent =
-    approved + " approved · " + FORM.filter(f => f.status === "revise").length + " to revise · " +
-    FORM.filter(f => f.status === "locked").length + " still to come";
+    started + " in draft · " + (FORM.length - sent - started) + " not started yet";
   document.getElementById("ca-deck").innerHTML = slidesIn + '<small>of 14 slides</small>';
   document.getElementById("ca-deck-sub").textContent = nextSlide ? "Next up: " + nextSlide.title : "Deck complete";
 
@@ -325,7 +319,7 @@ function refreshCounts() {
   ].map(c => `<span class="chip">${c}</span>`).join("");
 
   requestAnimationFrame(() => {
-    document.getElementById("ca-form-bar").style.width = (started / FORM.length * 100) + "%";
+    document.getElementById("ca-form-bar").style.width = (sent / FORM.length * 100) + "%";
     document.getElementById("ca-deck-bar").style.width = (slidesIn / DECK.length * 100) + "%";
   });
 }
@@ -386,9 +380,17 @@ showTab(readCapHash(), "init");
 function renderItemBar() {
   const bar = document.getElementById("itembar");
   if (!bar) return;
-  bar.innerHTML = FORM.map(f =>
-    `<button class="${STATUS[f.status][1]}" data-n="${f.n}" title="Item ${f.n} · ${f.title} — ${STATUS[f.status][0]}"
-             aria-label="Item ${f.n}, ${f.title}, ${STATUS[f.status][0]}">${f.n}</button>`).join("");
+  bar.innerHTML = FORM.map(f => {
+    const s = stateOf(f);
+    return `<button class="${SCLASS[s]}" data-n="${f.n}" title="Item ${f.n} · ${f.title} — ${STATE[s]}"
+             aria-label="Item ${f.n}, ${f.title}, ${STATE[s]}">${f.n}</button>`;
+  }).join("");
+  const counts = document.getElementById("fa-counts");
+  if (counts) {
+    const n = k => FORM.filter(f => stateOf(f) === k).length;
+    counts.textContent = n("submitted") + " submitted · " + n("started") + " in draft · " +
+                         n("none") + " not started";
+  }
 }
 
 /* ---------- the item list ---------- */
@@ -398,11 +400,12 @@ function renderItemList() {
   let html = "", grp = null;
   FORM.forEach(f => {
     if (f.group !== grp) { grp = f.group; html += `<div class="grp">${grp}</div>`; }
-    html += `<button data-n="${f.n}" role="listitem" class="${f.status === "locked" ? "is-locked" : ""}">
-      <span class="num ${STATUS[f.status][1]}">${f.n}</span>
+    const s = stateOf(f);
+    html += `<button data-n="${f.n}" role="listitem">
+      <span class="num ${SCLASS[s]}">${f.n}</span>
       <span>
         <span class="ti">${f.title}</span>
-        <span class="wk">${f.status === "locked" ? "Unlocks Week " + f.week : STATUS[f.status][0] + " · Week " + f.week}</span>
+        <span class="wk">${STATE[s]} · covered in Week ${f.week}</span>
       </span>
     </button>`;
   });
@@ -543,30 +546,23 @@ function openItem(n) {
   current = n;
   const f = FORM.find(x => x.n === n);
   const ed = document.getElementById("editor");
-  const locked = f.status === "locked";
   const isProse = f.kind === "prose";
 
+  /* No item is ever locked. The weekly topics say which item each session
+     feeds, but the whole proposal is open from day one — a team that wants
+     to run ahead is not stopped. */
   let body;
-  if (locked) {
-    body = `<div class="locknote">
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex:none" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-      <span>This item opens in <strong>Week ${f.week}</strong>, after ${f.source}. You are not behind —
-      nothing is expected here yet.</span></div>`;
-  } else if (isProse) {
+  if (isProse) {
     const wc = words(f.draft);
     body = `
-      ${f.note ? `<div class="revise-note"><strong>Needs revision.</strong> ${f.note}</div>` : ""}
       <textarea id="ta" aria-label="Your answer for item ${f.n}"
         placeholder="Nothing written yet. Start from what you produced in ${f.source}.">${f.draft || ""}</textarea>
       <div class="ebar">
         <span class="wc ${f.limit && wc > f.limit ? "over" : ""}" id="wc">${wc} words${f.limit ? " of " + f.limit + " allowed" : ""}</span>
-        <span class="row" style="gap:var(--s3)">
-          <span class="saved" id="saved">Saved</span>
-          <button class="btn secondary" id="btn-save">Save draft</button>
-        </span>
+        <span class="saved" id="saved">Saved</span>
       </div>`;
   } else {
-    body = `${f.note ? `<div class="revise-note"><strong>Needs revision.</strong> ${f.note}</div>` : ""}
+    body = `
       <div id="fieldset">${FIELDS[f.kind](f)}</div>
       <div class="ebar"><span class="wc">Filled in as fields — the form on the right updates as you go</span>
         <span class="saved on" id="saved">Saved</span></div>`;
@@ -575,7 +571,7 @@ function openItem(n) {
   ed.innerHTML = `
     <div class="ehead">
       <h3>Item ${f.n} · ${f.title}</h3>
-      <span class="badge ${f.status === "reviewed" ? "green" : f.status === "revise" ? "amber" : f.status === "open" ? "gold" : ""}">${STATUS[f.status][0]}</span>
+      <span class="badge" id="fa-state">${STATE[stateOf(f)]}</span>
     </div>
     <div class="from mt-3">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
@@ -586,12 +582,52 @@ function openItem(n) {
       <div class="fchecks" id="parts">${f.parts.map((p, i) => `<label>
         <input type="checkbox" data-part="${i}" ${p.done ? "checked" : ""}>
         <span>(${p.k}) ${esc(p.label)} <span class="fgrid-note">· Week ${p.week}</span></span></label>`).join("")}</div>` : ""}
-    ${body}`;
+    ${body}
+    <div class="subbar">
+      <span class="sstate" id="fa-subnote"></span>
+      <button class="btn solid" id="fa-submit">Submit this item</button>
+    </div>`;
 
-  document.querySelectorAll("#itembar button, #itemlist button").forEach(b =>
-    b.setAttribute("aria-current", String(+b.dataset.n === n)));
+  const markCurrent = () => document.querySelectorAll("#itembar button, #itemlist button")
+    .forEach(b => b.setAttribute("aria-current", String(+b.dataset.n === n)));
+  markCurrent();
 
-  if (!locked && isProse) {
+  /* The three states are painted from the item itself, so the badge, the
+     bar, the list and the button can never tell three different stories. */
+  let shown = null;
+  function paintState() {
+    const s = stateOf(f), filled = hasContent(f);
+    const badge = document.getElementById("fa-state");
+    if (badge) badge.textContent = STATE[s];
+    const note = document.getElementById("fa-subnote"), btn = document.getElementById("fa-submit");
+    if (note) note.innerHTML = s === "submitted"
+      ? `<b>Submitted</b>${f.submitted_at ? " on " + f.submitted_at : ""} — edit it any time and submit again.`
+      : filled
+        ? (f.submitted_at ? "You have edited this since you submitted it." : "In draft — not submitted yet.")
+        : "Nothing written here yet.";
+    if (btn) {
+      btn.disabled = s === "submitted" || !filled;
+      btn.textContent = s === "submitted" ? "Submitted ✓"
+                      : f.submitted_at ? "Submit the update" : "Submit this item";
+    }
+    if (s !== shown) { shown = s; renderItemBar(); renderItemList(); markCurrent(); refreshCounts(); }
+  }
+  /* any edit to a submitted item reopens it — the team submits again when ready */
+  function afterEdit() {
+    if (f.submitted) { f.submitted = false; }
+    paintState();
+  }
+  paintState();
+  const btnSub = document.getElementById("fa-submit");
+  if (btnSub) btnSub.addEventListener("click", () => {
+    if (!hasContent(f)) return;
+    f.submitted = true;
+    f.submitted_at = subDate();
+    shown = null;
+    paintState();
+  });
+
+  if (isProse) {
     const ta = document.getElementById("ta"), wcEl = document.getElementById("wc"), saved = document.getElementById("saved");
     let t;
     ta.addEventListener("input", () => {
@@ -601,15 +637,15 @@ function openItem(n) {
       f.draft = ta.value;                                  // kept in memory for this session only
       syncSheet(f.n, false);
       clearTimeout(t); saved.classList.remove("on");
-      t = setTimeout(() => { saved.classList.add("on"); refreshCounts(); buildReady(); }, 700);
+      afterEdit();
+      t = setTimeout(() => { saved.classList.add("on"); refreshCounts(); }, 700);
     });
-    document.getElementById("btn-save").addEventListener("click", () => saved.classList.add("on"));
   }
 
   /* structured fields write straight into f.value */
   const fs = document.getElementById("fieldset");
   if (fs) {
-    const touch = () => { syncSheet(f.n, false); refreshCounts(); buildReady(); };
+    const touch = () => { syncSheet(f.n, false); refreshCounts(); afterEdit(); };
     fs.addEventListener("input", e => {
       const el = e.target; if (!el.matches("input")) return;
       const row = el.dataset.row, k = el.dataset.k;
@@ -660,12 +696,11 @@ function openItem(n) {
   if (parts) parts.addEventListener("change", e => {
     const i = e.target.dataset.part; if (i == null) return;
     f.parts[+i].done = e.target.checked;
-    syncSheet(f.n, false); buildReady();
+    syncSheet(f.n, false); afterEdit();
     ed.querySelector("h4").textContent =
       `Sub-items (${f.parts.filter(p => p.done).length} of ${f.parts.length} done)`;
   });
 
-  buildReady();
   syncSheet(n, true);                 // follow the team to the item they just opened
 }
 document.getElementById("itembar").addEventListener("click", e => {
@@ -674,47 +709,6 @@ document.getElementById("itembar").addEventListener("click", e => {
 document.getElementById("itemlist").addEventListener("click", e => {
   const b = e.target.closest("button"); if (b) openItem(+b.dataset.n);
 });
-
-/* ---------- readiness check ---------- */
-function buildReady() {
-  const empty = FORM.filter(f => !hasContent(f) && f.status !== "locked");
-  const locked = FORM.filter(f => f.status === "locked");
-  const revise = FORM.filter(f => f.status === "revise");
-  const over = FORM.filter(f => f.limit && words(f.draft) > f.limit);
-  const it9 = FORM.find(f => f.n === 9), it24 = FORM.find(f => f.n === 24);
-  const parts9 = (it9 && it9.parts) ? it9.parts.filter(p => !p.done) : [];
-  const docs = (it24 && it24.attachments) ? it24.attachments.filter(a => a.have === false) : [];
-
-  const lockWeeks = [...new Set(locked.map(f => f.week))].sort((a, b) => a - b);
-  const rows = [
-    over.length
-      ? { s: "bad",  t: "Over the word limit: " + over.map(f => "item " + f.n).join(", ") }
-      : { s: "ok",   t: "Every answer is inside its word limit" },
-    revise.length
-      ? { s: "warn", t: plural(revise.length, "item") + (revise.length === 1 ? " needs" : " need") + " revision — item " + revise.map(f => f.n).join(", ") }
-      : { s: "ok",   t: "Nothing waiting on a revision" },
-    empty.length
-      ? { s: "warn", t: plural(empty.length, "open item") + " not yet written — item " + empty.map(f => f.n).join(", ") }
-      : { s: "ok",   t: "Every unlocked item has a draft" },
-    parts9.length
-      ? { s: "warn", t: "Item 9 is missing " + plural(parts9.length, "sub-item") + ": " + parts9.map(p => "(" + p.k + ")").join(" ") }
-      : { s: "ok",   t: "Item 9 covers all eleven sub-items" },
-    docs.length
-      ? { s: "warn", t: plural(docs.length, "supporting document") + " still to collect" }
-      : { s: "ok",   t: "All supporting documents collected" },
-    locked.length
-      ? { s: "warn", t: plural(locked.length, "item") + (locked.length === 1 ? " opens" : " open") + " in a later week — " +
-                        (lockWeeks.length > 1 ? "Weeks " : "Week ") + lockWeeks.join(" and ") }
-      : { s: "ok",   t: "Every item of the form is open" },
-  ];
-  document.getElementById("ready").innerHTML = rows.map(r =>
-    `<li class="${r.s}"><span class="ic">${r.s === "ok" ? "✓" : r.s === "warn" ? "!" : "×"}</span><span>${r.t}</span></li>`).join("");
-
-  const bad = rows.filter(r => r.s !== "ok").length;
-  const badge = document.getElementById("rd-badge");
-  badge.textContent = bad ? bad + " thing" + (bad > 1 ? "s" : "") + " to settle" : "Ready to submit";
-  badge.className = "badge " + (bad > 2 ? "amber" : bad ? "gold" : "green");
-}
 
 /* ---------- pitch deck ---------- */
 const SLIDE_BODY = {
@@ -934,9 +928,7 @@ document.getElementById("btn-assemble").addEventListener("click", function () {
 function ans(n) {
   const f = F(n), t = (f.draft || "").trim();
   if (t) return `<div class="ans">${esc(t)}</div>`;
-  return `<div class="todo">${f.status === "open"
-    ? "to be written this week — " + esc(f.source)
-    : "opens Week " + f.week + " — " + esc(f.source)}</div>`;
+  return `<div class="todo">not yet written — ${esc(f.source)}, Week ${f.week}</div>`;
 }
 const inline = v => String(v || "").trim()
   ? `<span class="inline">${esc(v)}</span>` : `<span class="rule"></span>`;
@@ -1152,6 +1144,10 @@ function openSheet() {
   document.body.classList.add("sheet-open");
   sheetOpen = true;
   document.getElementById("btn-preview").textContent = "Hide the form";
+  /* With the paper open the left side is a workbench: the cover and the
+     workspace band are hidden by .sheet-open, so the page begins at the
+     item bar and there is nothing above the work to scroll back up to. */
+  window.scrollTo(0, 0);
   const box = markHot(current);
   if (box) box.scrollIntoView({ block: "center" });
 }
@@ -1160,6 +1156,9 @@ function closeSheet() {
   document.body.classList.remove("sheet-open");
   sheetOpen = false;
   document.getElementById("btn-preview").textContent = "Preview the form";
+  /* the cover comes back — land on the workspace rather than at the top */
+  const band = document.querySelector("#ws-form .ws-band");
+  if (band) band.scrollIntoView({ block: "start" });
   if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
 }
 /* called on every keystroke in the editor */
@@ -1220,6 +1219,7 @@ window.__renderCapstone = function(targetTeamId) {
   CAP = window.MOCK.getCapstone(activeId);
   FORM = CAP.form;
   DECK = CAP.deck;
+  seedSubmitted();
 
   // Render team switcher
   const slot = document.getElementById("capstone-switcher-slot");

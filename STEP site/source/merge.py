@@ -252,6 +252,7 @@ page = f"""<!doctype html>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-client.js"></script>
 <script src="myteam-data.js"></script>
+<script src="submissions-data.js"></script>
 <script src="mock-data.js"></script>
 <script>
 {observer}

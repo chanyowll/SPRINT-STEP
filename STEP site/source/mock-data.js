@@ -376,7 +376,11 @@ window.MOCK = (function () {
         return u.team_id ? [u.team_id] : [];
       }
       if (u.role === "mentor" || u.role === "panel") {
-        return u.assigned_teams || [];
+        /* a live Supabase profile has no assigned_teams column yet, so a
+           signed-in mentor or panelist can reach every team until those
+           assignments exist in the database */
+        if (Array.isArray(u.assigned_teams)) return u.assigned_teams;
+        return groups.map(g => g.id);
       }
       return [];
     }
@@ -858,7 +862,7 @@ window.MOCK = (function () {
     helpdesk: [
       { who: "Ms. May Ann Albis", role: "STEP Team", me: false, at: "2027-08-12T09:02:00+08:00",
         body: "Good morning po! Reminder lang, bukas 12 NN ang deadline ng Week 8 output. The battle card template will be up by 10 AM tomorrow." },
-      { who: "Anonymous participant", role: "", anon: true, me: false, at: "2027-08-12T09:40:00+08:00",
+      { who: "Ms. Michelle Yu", role: "POSTE", me: false, at: "2027-08-12T09:40:00+08:00",
         body: "Ma'am, pwede po bang two competitors lang sa battle card? Yung third namin hindi pa confirmed." },
       { who: "Ms. May Ann Albis", role: "STEP Team", me: false, at: "2027-08-12T09:51:00+08:00",
         body: "Yes, two is fine. Better two you can defend than three you are guessing at." },

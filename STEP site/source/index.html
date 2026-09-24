@@ -255,27 +255,13 @@
     <p class="pub-empty" id="pub-empty" hidden>Nothing filed under that yet.</p>
   </section>
 
-  <!-- ===== Upcoming + participants ===== -->
-  <section class="grid c2">
-    <div class="card card-accent gold">
-      <div class="card-head"><h3>Upcoming</h3><a class="small" href="program.html#calendar">Full calendar</a></div>
-      <div id="event-list"></div>
-    </div>
-    <div class="card">
+  <!-- ===== For participants ===== -->
+  <section>
+    <div class="card login-card">
       <h3>For participants</h3>
       <p class="small mb-0">Schedule, materials, submissions and feedback live inside STEP Hub during the cycle.</p>
       <a class="btn secondary w-full mt-3" href="#">Participant login</a>
       <p class="small mt-3 mb-0 muted">Coming soon · invite only</p>
-    </div>
-  </section>
-
-  <!-- ===== CTA ===== -->
-  <section class="cta-band">
-    <h2>DOST-funded research team?</h2>
-    <p class="muted">Cycle 4 selection opens after Demo Day.</p>
-    <div class="row gap-2" style="justify-content:center">
-      <a class="btn" href="program.html#selection">How teams are selected</a>
-      <a class="btn secondary" href="mailto:aipo@ateneo.edu">Email the STEP team</a>
     </div>
   </section>
 </main>
@@ -383,16 +369,6 @@
     render("all");
   })();
 
-  document.getElementById("event-list").innerHTML = sessions.filter(s => s.is_public).map(s => {
-    const d = new Date(s.starts_at);
-    const m = d.toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short" });
-    const day = d.toLocaleString("en-PH", { timeZone: "Asia/Manila", day: "numeric" });
-    return `<div class="event-row">
-        <div class="date-block"><div class="m">${m}</div><div class="d">${day}</div></div>
-        <div><strong>${s.title.replace(/^On-site Workshop · /, "")}</strong>
-          <div class="small">${s.venue || "Online"}</div></div>
-      </div>`;
-  }).join("");
 
   // Reveal on scroll (respects reduced-motion via CSS)
   const io = new IntersectionObserver((entries) => {
