@@ -167,6 +167,29 @@
         <p class="small muted mb-0 mt-4">Your mentor and your Saturday panel watch it from here. You can
            replace either file until the deadline — the newest version is the one they see.</p>
       </div>
+
+      <!-- shown before Replace wipes anything: this deletion cannot be undone -->
+      <div class="confirm" id="redo-confirm" hidden>
+        <div class="confirm-box" role="alertdialog" aria-modal="true"
+             aria-labelledby="rc-title" aria-describedby="rc-body">
+          <span class="rc-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18.4A2 2 0 0 0 3.5 21.5h17a2 2 0 0 0 1.7-3.1L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>
+          </span>
+          <h3 id="rc-title">Delete this submission?</h3>
+          <div id="rc-body">
+            <p>Replacing removes your video and your slide deck from the STEP Hub permanently.
+               Your mentor and your panel will no longer be able to watch them, and the record of
+               this hand-in goes with them — including the date and time you submitted.</p>
+            <p class="rc-warn">This cannot be undone.</p>
+            <p>Before you continue, make sure you still have your own copy of both files, and that
+               the replacements are ready to upload.</p>
+          </div>
+          <div class="rc-acts">
+            <button class="btn secondary" id="rc-cancel" type="button">Keep my files</button>
+            <button class="btn danger" id="rc-ok" type="button">Delete and replace</button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="card mt-4 reveal">
@@ -1311,8 +1334,22 @@ window.__renderMyTeam = function(targetTeamId) {
     }
     subBtn.addEventListener("click", doSubmit);
 
-    const redo = document.getElementById("btn-redo");
-    if (redo) redo.addEventListener("click", async () => {
+    /* Replacing is destructive — the old files and the record of the
+       hand-in are deleted for good — so it asks first. Nothing is touched
+       until the participant confirms. */
+    const redo    = document.getElementById("btn-redo");
+    const rcWrap  = document.getElementById("redo-confirm");
+    const rcOk    = document.getElementById("rc-ok");
+    const rcNo    = document.getElementById("rc-cancel");
+
+    const closeConfirm = () => {
+      if (!rcWrap) return;
+      rcWrap.hidden = true;
+      document.body.classList.remove("modal-open");
+      if (redo) redo.focus();
+    };
+
+    async function wipeAndReopen() {
       const C = subBtn._ctx;
       const vid = document.getElementById("out-video");
       vid.pause(); vid.removeAttribute("src"); vid.load();
@@ -1326,6 +1363,23 @@ window.__renderMyTeam = function(targetTeamId) {
       outView.hidden = true;
       uploadView.hidden = false;
       document.getElementById("due-bar").innerHTML = C.dueBar;
+    }
+
+    if (redo) redo.addEventListener("click", () => {
+      if (!rcWrap) return wipeAndReopen();
+      rcWrap.hidden = false;
+      document.body.classList.add("modal-open");
+      if (rcOk) rcOk.focus();
+    });
+    if (rcNo) rcNo.addEventListener("click", closeConfirm);
+    if (rcWrap) rcWrap.addEventListener("click", e => { if (e.target === rcWrap) closeConfirm(); });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape" && rcWrap && !rcWrap.hidden) closeConfirm();
+    });
+    if (rcOk) rcOk.addEventListener("click", async () => {
+      rcOk.disabled = true;
+      try { await wipeAndReopen(); }
+      finally { rcOk.disabled = false; closeConfirm(); }
     });
   }
 

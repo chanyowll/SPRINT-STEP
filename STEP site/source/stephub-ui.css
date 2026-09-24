@@ -4280,3 +4280,36 @@ main.page.stack > .game-sec { margin-top: 72px; }
 .up-txt { flex: none; font-size: 13px; font-weight: 650; color: var(--ink-soft); }
 .up-err { margin: var(--s3) 0 0; font-size: 13.5px; font-weight: 600; color: var(--red);
           background: var(--red-100); border-radius: var(--r); padding: 9px var(--s4); }
+
+/* ── Replace-submission confirmation ─────────────────────────────────
+   A destructive action gets a stop: the dialog sits over the page and
+   nothing is deleted until the participant chooses. */
+.confirm {
+  position: fixed; inset: 0; z-index: 80;
+  display: grid; place-items: center; padding: var(--s4);
+  background: rgba(11, 60, 107, .42);
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+}
+.confirm[hidden] { display: none; }
+.confirm-box {
+  width: min(470px, 100%); background: var(--surface);
+  border-radius: var(--r-lg); box-shadow: 0 12px 40px rgba(16, 32, 48, .22);
+  padding: var(--s5); text-align: center;
+}
+.rc-ic {
+  display: inline-grid; place-items: center; width: 46px; height: 46px;
+  border-radius: 50%; background: var(--red-100); color: var(--red);
+  margin-bottom: var(--s3);
+}
+.rc-ic svg { width: 24px; height: 24px; }
+.confirm-box h3 { margin: 0 0 var(--s4); font-size: 18px; color: var(--ink); }
+.confirm-box p {
+  margin: 0 0 var(--s3); font-size: 13.5px; line-height: 1.55;
+  color: var(--ink-soft); text-align: left;
+}
+.confirm-box p:last-child { margin-bottom: 0; }
+.rc-warn { font-weight: 600; color: var(--red); }
+.rc-acts { display: flex; gap: var(--s2); margin-top: var(--s5); }
+.rc-acts .btn { flex: 1; justify-content: center; }
+body.modal-open { overflow: hidden; }
+@media (max-width: 420px) { .rc-acts { flex-direction: column-reverse; } }
