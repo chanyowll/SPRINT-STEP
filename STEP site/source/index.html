@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SPRINT-STEP · Science and Technology Entrepreneurship Program</title>
+<meta name="description" content="Turning Filipino researches into business. SPRINT-STEP is a 12-week commercialization program for DOST-funded research teams, run by the Ateneo Intellectual Property Office with DOST-PCIEERD.">
+<link rel="icon" href="assets/step-logo.png">
+<link rel="stylesheet" href="stephub-ui.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<!-- ===== Institutional bar ===== -->
+<div class="utility-bar">
+  <div class="wrap">
+    <span>A DOST-PCIEERD program implemented by the Ateneo Intellectual Property Office</span>
+    <span class="util-right">
+      <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a>
+      <!-- Placeholder only: sign-in is not built yet -->
+      <a class="util-login" href="#">Participant login</a>
+    </span>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="site-header light">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SPRINT-STEP home">
+      <img src="assets/step-logo-mark.png" alt="SPRINT-STEP — Science and Technology Entrepreneurship Program">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"
+            onclick="const n=document.getElementById('nav');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open'))">☰</button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="index.html" class="active">Home</a>
+      <a href="program.html">Program</a>
+      <a href="groups.html">STEP Groups</a>
+      <a href="this-week.html">This Week <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <a href="my-team.html">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <span class="navdd"><a href="capstone.html" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="capstone.html#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="capstone.html#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
+      <span class="navdd"><a href="trainers.html" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="trainers.html#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="trainers.html#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="trainers.html#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
+    </nav>
+  </div>
+  <script>
+  /* The Trainers tab opens its menu — a view is only reached by picking one. */
+  (function () {
+    if (window.__navdd) return; window.__navdd = 1;
+    function shut() {
+      document.querySelectorAll(".navdd.open").forEach(function (d) {
+        d.classList.remove("open");
+        var a = d.querySelector("a"); if (a) a.setAttribute("aria-expanded", "false");
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var tab = e.target.closest && e.target.closest(".navdd > a[aria-haspopup]");
+      if (!tab) { shut(); return; }
+      /* in the stacked mobile menu the three views are already listed below */
+      if (window.matchMedia("(max-width: 900px)").matches) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dd = tab.parentNode, wasOpen = dd.classList.contains("open");
+      shut();
+      if (!wasOpen) { dd.classList.add("open"); tab.setAttribute("aria-expanded", "true"); }
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+  })();
+  </script>
+</header>
+
+<!-- ===== Hero: one statement, nothing else =====
+     Photo: SPRINT-STEP on-site session. Swap freely; keep the dark overlay so the text stays readable. -->
+<section class="hero-photo" style="background-image:url('assets/photos/hero.jpg')">
+  <div class="wrap">
+    <h1 class="hero-statement">Turning Filipino Researches into <em>Business</em></h1>
+  </div>
+  <div class="scroll-cue" aria-hidden="true">Scroll<span>↓</span></div>
+</section>
+
+<!-- ===== Numbers (PLACEHOLDER FIGURES — replace with AIPO's records) ===== -->
+<section class="numbers">
+  <div class="wrap">
+    <div><div class="n">24</div><div class="l">Research teams</div></div>
+    <div><div class="n">9</div><div class="l">Institutions</div></div>
+    <div><div class="n">12</div><div class="l">Weeks per cycle</div></div>
+    <div><div class="n">14</div><div class="l">Modules</div></div>
+  </div>
+</section>
+
+
+<!-- ===== Journey: the 12 weeks as a path ===== -->
+<section class="journey">
+  <div class="wrap">
+    <div class="section-head center" style="margin:0 auto var(--s6)">
+      <div class="eyebrow">The 12 weeks</div>
+      <h2>Lab bench to first customer</h2>
+    </div>
+
+    <div class="rail-wrap reveal" style="--d:0ms">
+      <div class="rail"><span class="rail-fill"></span></div>
+
+      <div class="stops">
+        <article class="stop reveal" style="--d:120ms">
+          <span class="node">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle class="draw" cx="11" cy="11" r="6.5"/><path class="draw" d="m20 20-4-4"/><path class="draw" d="M11 8.2v5.6M8.2 11h5.6"/>
+            </svg>
+          </span>
+          <div class="weeks">Weeks 1–4</div>
+          <h3>Find the market</h3>
+          <div class="chips">
+            <span class="chip">Beachhead market</span><span class="chip">TAM · SAM · SOM</span>
+            <span class="chip">Measured value</span><span class="chip">VRIO &amp; CPM</span>
+          </div>
+        </article>
+
+        <article class="stop reveal" style="--d:300ms">
+          <span class="node">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect class="draw" x="3.5" y="4.5" width="17" height="15" rx="2"/><path class="draw" d="M3.5 10h17"/><path class="draw" d="M9.5 10v9.5"/>
+            </svg>
+          </span>
+          <div class="weeks">Weeks 5–8</div>
+          <h3>Build the business</h3>
+          <div class="chips">
+            <span class="chip">Lean canvas</span><span class="chip">Go-to-market</span>
+            <span class="chip">Patents &amp; FTO</span><span class="chip">DCF &amp; ROI</span>
+          </div>
+        </article>
+
+        <article class="stop reveal" style="--d:480ms">
+          <span class="node">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path class="draw" d="M5 20V10M12 20V5M19 20v-7"/><path class="draw" d="M3 20h18"/>
+            </svg>
+          </span>
+          <div class="weeks">Weeks 9–12</div>
+          <h3>Pitch and propose</h3>
+          <div class="chips">
+            <span class="chip">Selling skills</span><span class="chip">Investor pitch</span>
+            <span class="chip">Tech roadmap</span><span class="chip">FASTRAC draft</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="scale" aria-hidden="true">
+        <span>Week 1</span><span class="line"></span><span>Demo Day</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap page stack" style="gap:var(--s7)">
+
+  <!-- ===== Photo mosaic ===== -->
+  <section>
+    <div class="section-head center" style="margin:0 auto var(--s4)">
+      <div class="eyebrow">Inside the program</div>
+      <h2>What twelve weeks look like</h2>
+    </div>
+    <div class="mosaic">
+      <figure class="m1">
+        <img src="assets/photos/workshop.jpg" alt="Research team working together at an on-site STEP workshop">
+        <figcaption>Team workshops</figcaption>
+      </figure>
+      <figure class="m2"><img src="assets/photos/session.jpg" alt="Trainer presenting at a STEP learning session"><figcaption>Learning sessions</figcaption></figure>
+      <figure class="m3"><img src="assets/photos/tables.jpg" alt="Teams working in groups during an on-site session"><figcaption>Mentoring</figcaption></figure>
+      <figure class="m4"><img src="assets/photos/teams.jpg" alt="Participants during a team-building activity"><figcaption>Team formation</figcaption></figure>
+      <figure class="m5"><img src="assets/photos/awards.jpg" alt="Awarding ceremony at the STEP graduation"><figcaption>Graduation</figcaption></figure>
+      <figure class="m6">
+        <img src="assets/photos/demoday.jpg" alt="Participants and panelists at STEP Demo Day">
+        <figcaption>Demo Day before investors, agencies and industry</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===== What teams leave with — between the photographs and the reading ===== -->
+  <section class="outcomes">
+    <div class="section-head center" style="margin:0 auto var(--s6)">
+      <div class="eyebrow">What teams leave with</div>
+      <h2>Three things, every cycle</h2>
+      <p class="lede">Nothing here stays on a slide. Every weekly output feeds one of these three, so by
+         Demo Day they are finished rather than started.</p>
+    </div>
+
+    <div class="flow">
+      <article class="oc reveal" style="--d:0ms">
+        <span class="oc-top">
+          <span class="oc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path class="draw" d="M4 19h16"/><path class="draw" d="M7 19V12"/><path class="draw" d="M12 19V7"/><path class="draw" d="M17 19v-4"/><path class="draw" d="m6 9 5-4 4 3 4-5"/></svg></span>
+          <span class="oc-num">01</span>
+        </span>
+        <h3>A validated business model</h3>
+        <p>Not a guess about who might buy. A beachhead market you chose, sized, and then checked
+           with the people actually in it.</p>
+        <ul class="oc-list">
+          <li>Beachhead market and customer segments</li>
+          <li>TAM, SAM and SOM, with the reasoning behind each</li>
+          <li>Quantified value proposition, Lean Canvas, go-to-market plan</li>
+        </ul>
+        <span class="oc-foot">Weeks 1 to 6</span>
+      </article>
+
+      <article class="oc reveal" style="--d:110ms">
+        <span class="oc-top">
+          <span class="oc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path class="draw" d="M7 3h7l5 5v13a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/><path class="draw" d="M14 3v5h5"/><path class="draw" d="M9 13h6"/><path class="draw" d="M9 17h4"/></svg></span>
+          <span class="oc-num">02</span>
+        </span>
+        <h3>A FASTRAC proposal</h3>
+        <p>The DOST form that funds the next stage — answered a few items a week, so none of it is
+           written the night before the deadline.</p>
+        <ul class="oc-list">
+          <li>All 24 items of DOST FASTRAC Form 2</li>
+          <li>A technology roadmap you can defend</li>
+          <li>A two-year budget that adds up</li>
+        </ul>
+        <span class="oc-foot">Assembled across the whole cycle</span>
+      </article>
+
+      <article class="oc reveal" style="--d:220ms">
+        <span class="oc-top">
+          <span class="oc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path class="draw" d="M12 3c3 2.2 4.8 5.2 4.8 8.4 0 2-.7 3.8-1.8 5.2H9c-1.1-1.4-1.8-3.2-1.8-5.2C7.2 8.2 9 5.2 12 3z"/><circle class="draw" cx="12" cy="10" r="2.2"/><path class="draw" d="M9.5 19.5h5M10.5 22h3"/></svg></span>
+          <span class="oc-num">03</span>
+        </span>
+        <h3>A path to spin-off</h3>
+        <p>Where the technology can go and what stands in its way, written down while the people who
+           can answer are still in the room.</p>
+        <ul class="oc-list">
+          <li>Draft IP documentation or strategy</li>
+          <li>Freedom-to-Operate analysis of the real risks</li>
+          <li>A pitch deck built one slide a week</li>
+        </ul>
+        <span class="oc-foot">Weeks 7 to 12</span>
+      </article>
+    </div>
+
+    <p class="oc-note">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+      Each one is scored by a three-person panel before the cycle ends, so what you leave with has
+      already been read by people outside your team.
+    </p>
+  </section>
+
+  <!-- ===== Articles and publications ===== -->
+  <section id="publications">
+    <div class="row between wrap-row" style="margin-bottom:var(--s5)">
+      <div>
+        <div class="eyebrow">From the program</div>
+        <h2 class="mb-0">Articles and publications</h2>
+        <p class="lede mb-0" id="pub-lede">—</p>
+      </div>
+      <div class="pubfilter" role="tablist" aria-label="Filter articles and publications" id="pub-filter"></div>
+    </div>
+    <div class="readgrid" id="readgrid">
+      <a class="feat reveal" id="feat" href="#"></a>
+      <div class="readlist" id="readlist"></div>
+    </div>
+    <p class="pub-empty" id="pub-empty" hidden>Nothing filed under that yet.</p>
+  </section>
+
+  <!-- ===== For participants ===== -->
+  <section>
+    <div class="card login-card">
+      <h3>For participants</h3>
+      <p class="small mb-0">Schedule, materials, submissions and feedback live inside STEP Hub during the cycle.</p>
+      <a class="btn secondary w-full mt-3" href="#">Participant login</a>
+      <p class="small mt-3 mb-0 muted">Coming soon · invite only</p>
+    </div>
+  </section>
+</main>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="wrap grid c3">
+    <div>
+      <a class="brand" href="index.html"><img src="assets/step-logo-white.png" alt="SPRINT-STEP"></a>
+      <p class="small">Science and Technology Entrepreneurship Program of the Ateneo Intellectual Property
+         Office, supported by DOST-PCIEERD.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <p class="small">
+        <a href="index.html">Home</a> · <a href="program.html">Program</a> ·
+        <a href="groups.html">STEP Groups</a><br>
+        <a href="this-week.html">This Week</a> · <a href="my-team.html">My Team's Work</a> ·
+        <a href="capstone.html">Capstone</a> · <a href="trainers.html">Trainers</a>
+      </p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p class="small">Ateneo Intellectual Property Office<br>
+        Rm 213, 2/F PLDT-CTC Building, Katipunan Ave., Loyola Heights, Quezon City<br>
+        <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
+    </div>
+  </div>
+  <div class="wrap small" style="margin-top:var(--s5);opacity:.8">© 2027 Ateneo Intellectual Property Office</div>
+</footer>
+
+<script src="mock-data.js"></script>
+<script>
+  const { sessions, helpers } = window.MOCK;
+
+  /* ---------- articles and publications ---------- */
+  (function () {
+    const esc = t => String(t == null ? "" : t)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    const day = iso => new Date(iso + "T00:00:00+08:00").toLocaleDateString("en-PH",
+      { timeZone: "Asia/Manila", day: "numeric", month: "long", year: "numeric" });
+    const all = window.MOCK.articles.slice()
+      .sort((a, b) => b.published_at.localeCompare(a.published_at));
+    const KIND = { article: "Article", publication: "Publication" };
+    const DOC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
+
+    const FILTERS = [
+      { k: "all", label: "Everything" },
+      { k: "article", label: "Articles" },
+      { k: "publication", label: "Publications" },
+    ];
+    const count = k => k === "all" ? all.length : all.filter(a => a.kind === k).length;
+    document.getElementById("pub-filter").innerHTML = FILTERS.map(f => `
+      <button role="tab" class="pf" data-k="${f.k}" aria-selected="${f.k === "all"}">
+        ${f.label}<span>${count(f.k)}</span></button>`).join("");
+
+    function render(kind) {
+      const list = kind === "all" ? all : all.filter(a => a.kind === kind);
+      document.getElementById("pub-lede").textContent =
+        kind === "publication"
+          ? "Peer-reviewed work and policy briefs that came out of the program."
+          : kind === "article"
+            ? "News and field notes from the cycles as they run."
+            : "Everything the program has published — news from the cycles, policy briefs and peer-reviewed work.";
+      document.getElementById("readgrid").hidden = !list.length;
+      document.getElementById("pub-empty").hidden = !!list.length;
+      if (!list.length) return;
+
+      const [lead, ...rest] = list;
+      const feat = document.getElementById("feat");
+      feat.className = "feat reveal in " + lead.kind;
+      feat.innerHTML = `
+        <span class="cover"><img src="${lead.photo}" alt="" loading="lazy">
+          <span class="kind">${lead.kind === "publication" ? DOC : ""}${KIND[lead.kind]}</span></span>
+        <span class="fb">
+          <span class="tagline">${lead.tags.map(t => `<span class="tg">${esc(t)}</span>`).join("")}
+            <span class="dt">${day(lead.published_at)}</span></span>
+          <strong>${esc(lead.title)}</strong>
+          <span class="ex">${esc(lead.excerpt)}</span>
+          <span class="by">${esc(lead.author)}${lead.venue ? " · " + esc(lead.venue) : ""}${lead.read ? " · " + esc(lead.read) : ""}</span>
+        </span>`;
+
+      document.getElementById("readlist").innerHTML = rest.map((a, i) => `
+        <a class="rd reveal in ${a.kind}" style="--d:${i * 60}ms" href="#">
+          <span class="th"><img src="${a.photo}" alt="" loading="lazy">
+            ${a.kind === "publication" ? `<span class="pin">${DOC}</span>` : ""}</span>
+          <span class="rb">
+            <span class="tagline"><span class="tg">${esc(a.tags[0])}</span>
+              <span class="dt">${day(a.published_at)}</span></span>
+            <strong>${esc(a.title)}</strong>
+            <span class="by">${esc(a.author)}${a.venue ? " · " + esc(a.venue) : ""}${a.read ? " · " + esc(a.read) : ""}</span>
+          </span>
+          <span class="go" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+          </span>
+        </a>`).join("");
+    }
+
+    document.getElementById("pub-filter").addEventListener("click", e => {
+      const b = e.target.closest(".pf"); if (!b) return;
+      document.querySelectorAll("#pub-filter .pf").forEach(x =>
+        x.setAttribute("aria-selected", x === b ? "true" : "false"));
+      render(b.dataset.k);
+    });
+    render("all");
+  })();
+
+
+  // Reveal on scroll (respects reduced-motion via CSS)
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, { threshold: 0.25 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>

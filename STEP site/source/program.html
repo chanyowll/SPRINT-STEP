@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Program · SPRINT-STEP</title>
+<meta name="description" content="How SPRINT-STEP runs: 14 modules over 12 weeks, online learning sessions, weekly mentoring, Saturday feedback panels, on-site workshops, Demo Day and graduation — with the timeline of the 2025 cycle.">
+<link rel="icon" href="assets/step-logo.png">
+<link rel="stylesheet" href="stephub-ui.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<!-- ===== Institutional bar ===== -->
+<div class="utility-bar">
+  <div class="wrap">
+    <span>A DOST-PCIEERD program implemented by the Ateneo Intellectual Property Office</span>
+    <span class="util-right">
+      <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a>
+      <!-- Placeholder only: sign-in is not built yet -->
+      <a class="util-login" href="#">Participant login</a>
+    </span>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="site-header light">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SPRINT-STEP home">
+      <img src="assets/step-logo-mark.png" alt="SPRINT-STEP — Science and Technology Entrepreneurship Program">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"
+            onclick="const n=document.getElementById('nav');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open'))">☰</button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="this-week.html">This Week <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <a href="program.html" class="active">Program</a>
+      <a href="groups.html">STEP Groups</a>
+      <a href="my-team.html">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <span class="navdd"><a href="capstone.html" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="capstone.html#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="capstone.html#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
+      <span class="navdd"><a href="trainers.html" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="trainers.html#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="trainers.html#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="trainers.html#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
+    </nav>
+  </div>
+  <script>
+  /* The Trainers tab opens its menu — a view is only reached by picking one. */
+  (function () {
+    if (window.__navdd) return; window.__navdd = 1;
+    function shut() {
+      document.querySelectorAll(".navdd.open").forEach(function (d) {
+        d.classList.remove("open");
+        var a = d.querySelector("a"); if (a) a.setAttribute("aria-expanded", "false");
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var tab = e.target.closest && e.target.closest(".navdd > a[aria-haspopup]");
+      if (!tab) { shut(); return; }
+      /* in the stacked mobile menu the three views are already listed below */
+      if (window.matchMedia("(max-width: 900px)").matches) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dd = tab.parentNode, wasOpen = dd.classList.contains("open");
+      shut();
+      if (!wasOpen) { dd.classList.add("open"); tab.setAttribute("aria-expanded", "true"); }
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+  })();
+  </script>
+</header>
+
+<!-- ===== Page hero ===== -->
+<section class="page-hero plain">
+  <div class="wrap">
+    <div class="hero-split">
+      <div>
+        <div class="eyebrow">The program</div>
+        <div class="rule"></div>
+        <h1>Twelve weeks, five ways of working</h1>
+        <p>Online learning sessions, weekly mentoring, Saturday feedback panels, on-site workshops, and a
+           Demo Day in front of investors and agencies.</p>
+      </div>
+      <div class="spec">
+        <div class="cap">At a glance</div>
+        <dl>
+          <div class="r"><dt>Length</dt><dd><b>12</b><em>weeks</em></dd></div>
+          <div class="r"><dt>Curriculum</dt><dd><b>14</b><em>modules</em></dd></div>
+          <div class="r hi"><dt>Scheduled time</dt><dd><b>4</b><em>hours a week</em></dd></div>
+          <div class="r"><dt>Cohort</dt><dd><b>12</b><em>teams</em></dd></div>
+          <div class="r"><dt>What you leave with</dt><dd><em>1 FASTRAC proposal</em></dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap page stack" style="gap:var(--s7)">
+
+  <!-- ===== Program brief ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Program brief</div>
+      <h2>What STEP is for</h2>
+    </div>
+    <div class="brief reveal">
+      <p class="lead mb-0">
+        The <strong>Science and Technology Entrepreneurship Program (STEP)</strong> equips scientists and
+        engineers with the entrepreneurial skills to create sustainable business models, prepare successful
+        <strong>FASTRAC</strong> grant proposals, catalyse the establishment of spin-off companies that
+        commercialize their technologies, and foster a culture of innovation and entrepreneurship that
+        contributes to Philippine economic development.
+      </p>
+      <p class="small mt-4 mb-0 muted">
+        STEP is the second phase of SPRINT — the Short-term Program for Researchers on Innovation and
+        Technopreneurship — and follows the Filipinnovation Entrepreneurship Corps (FEC). It is funded by
+        DOST-PCIEERD and implemented by the Ateneo Intellectual Property Office.
+      </p>
+    </div>
+
+    <div class="objectives mt-5">
+      <div class="obj reveal" style="--d:0ms">
+        <div class="k">01</div>
+        <h4>Entrepreneurial skills</h4>
+        <p>Train researchers to apply what they learned in FEC and build sustainable business models in a
+           short, focused time frame.</p>
+      </div>
+      <div class="obj reveal" style="--d:100ms">
+        <div class="k">02</div>
+        <h4>FASTRAC proposals</h4>
+        <p>Guide each team through the preparation of a DOST FASTRAC grant proposal.</p>
+      </div>
+      <div class="obj reveal" style="--d:200ms">
+        <div class="k">03</div>
+        <h4>Spin-off companies</h4>
+        <p>Foster the creation of spin-offs that commercialize the innovations developed by scientists and
+           engineers.</p>
+      </div>
+      <div class="obj reveal" style="--d:300ms">
+        <div class="k">04</div>
+        <h4>Innovation culture</h4>
+        <p>Promote innovation and entrepreneurship in the Philippines and contribute to economic
+           development.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== Weekly rhythm ===== -->
+<section class="journey">
+  <div class="wrap">
+    <div class="section-head center" style="margin:0 auto var(--s5)">
+      <div class="eyebrow">A week in the program</div>
+      <h2>Four hours a week</h2>
+      <p class="lede" style="color:#c8d8e8">Every session is scheduled in advance, so teams can plan around
+         their laboratory and teaching loads.</p>
+    </div>
+    <div class="weekstrip reveal">
+      <div class="day key">
+        <div class="d">Tuesday</div>
+        <div class="hrs">3<small>hrs</small></div>
+        <div class="t">Learning session</div>
+        <div class="s">9:00 AM–12:00 NN, online. Recorded, so anyone who misses it can catch up.</div>
+      </div>
+      <div class="day key">
+        <div class="d">Wed – Fri</div>
+        <div class="hrs">1<small>hr</small></div>
+        <div class="t">Mentoring</div>
+        <div class="s">One hour with your mentor, at a time your team picks.</div>
+      </div>
+      <div class="day key">
+        <div class="d">Friday</div>
+        <div class="hrs">—</div>
+        <div class="t">Output submitted</div>
+        <div class="s">Upload what you worked on. No meeting, no presentation.</div>
+      </div>
+      <div class="day key">
+        <div class="d">Saturday</div>
+        <div class="hrs">20<small>min</small></div>
+        <div class="t">Your turn with the panel</div>
+        <div class="s">A 5-minute video, then 15 minutes of questions from the panel.</div>
+      </div>
+    </div>
+    <div class="weeknote reveal">
+      <strong>Three days a week carry no scheduled session.</strong>
+      <span>Teams decide when to do the work; mentoring is arranged directly with the mentor.</span>
+    </div>
+  </div>
+</section>
+
+<main class="wrap page stack" style="gap:var(--s7)">
+
+  <!-- ===== Training setups ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Training setups</div>
+      <h2>Five ways teams learn</h2>
+    </div>
+
+    <div class="zig reveal">
+      <div class="zig-media"><img src="assets/photos/session.jpg" alt="Trainer presenting during an online STEP learning session"></div>
+      <div>
+        <span class="badge blue">Online · weekly</span>
+        <h3 class="mt-3">Online learning sessions</h3>
+        <p class="muted">One three-hour Tuesday morning over Zoom, one module at a time, taught by faculty
+          from the Ateneo School of Management and invited specialists. Lecture, discussion, and a worked
+          exercise on the team's own technology — you leave with the week's work already started.</p>
+        <ul class="meta-list">
+          <li><span class="k">When</span><span class="v">Tuesdays, 9:00 AM–12:00 NN</span></li>
+          <li><span class="k">Format</span><span class="v">Zoom, recorded — watch it later if you cannot join</span></li>
+          <li><span class="k">After each</span><span class="v">One team output, uploaded by Friday</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="zig flip reveal">
+      <div class="zig-media"><img src="assets/photos/mentoring.jpg" alt="Mentor and participant reviewing work on a laptop"></div>
+      <div>
+        <span class="badge">Per team · weekly</span>
+        <h3 class="mt-3">Mentoring sessions</h3>
+        <p class="muted">Every team is paired with a mentor drawn from business practitioners and faculty.
+          One hour a week to work through the assignment, prepare for Saturday, and decide what to test next.</p>
+        <ul class="meta-list">
+          <li><span class="k">When</span><span class="v">Any slot the team picks, Wednesday to Friday</span></li>
+          <li><span class="k">Length</span><span class="v">1 hour, online</span></li>
+          <li><span class="k">Mentors</span><span class="v">One assigned mentor for the whole cycle</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="zig reveal">
+      <div class="zig-media"><img src="assets/photos/panel.jpg" alt="Panelists giving feedback during a Saturday session"></div>
+      <div>
+        <span class="badge green">Saturdays · panels A, B and C</span>
+        <h3 class="mt-3">Feedback sessions</h3>
+        <p class="muted">Teams play a five-minute video of the week's output to a panel of three
+          entrepreneurs and faculty, then take fifteen minutes of questions. The comments become the team's
+          short list for the week ahead — nothing to write up afterwards.</p>
+        <ul class="meta-list">
+          <li><span class="k">Format</span><span class="v">5-minute video, then 15 minutes of Q&amp;A</span></li>
+          <li><span class="k">Your slot</span><span class="v">20 minutes — you do not sit through the whole morning</span></li>
+          <li><span class="k">Panel</span><span class="v">3 panelists per session, rotating</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="zig flip reveal">
+      <div class="zig-media"><img src="assets/photos/workshop.jpg" alt="Teams working together during the on-site workshop"></div>
+      <div>
+        <span class="badge purple">On site · two days</span>
+        <h3 class="mt-3">On-site workshops</h3>
+        <p class="muted">Mid-programme, everyone gathers at the Ateneo campus for the hands-on modules:
+          intellectual property and patent searching with IPOPHL, financial analysis, tax incentives for
+          spin-offs, and the team organization and spin-off simulation.</p>
+        <ul class="meta-list">
+          <li><span class="k">Covers</span><span class="v">Modules 7 to 10</span></li>
+          <li><span class="k">Includes</span><span class="v">Team building, exhibits, networking lunch</span></li>
+          <li><span class="k">2025 cycle</span><span class="v">September 16–17</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="zig reveal">
+      <div class="zig-media"><img src="assets/photos/pitch.jpg" alt="Participant pitching on Demo Day"></div>
+      <div>
+        <span class="badge gold">On site · closing</span>
+        <h3 class="mt-3">Demo Day and graduation</h3>
+        <p class="muted">The cycle closes with a pre-Demo Day video pitch, then Demo Day itself in front of
+          investors, DOST officials, agencies and industry partners — followed by the FASTRAC writeshop,
+          awarding and graduation.</p>
+        <ul class="meta-list">
+          <li><span class="k">Panel</span><span class="v">6 Demo Day panelists, 3 for the pre-Demo Day</span></li>
+          <li><span class="k">Also</span><span class="v">Technology roadmapping, FASTRAC writeshop</span></li>
+          <li><span class="k">2025 cycle</span><span class="v">October 14–15</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== Timeline ===== -->
+  <section id="calendar">
+    <div class="section-head">
+      <div class="eyebrow">Previous cycle</div>
+      <h2>How the 2025 cycle ran</h2>
+      <p class="muted">Actual dates from SPRINT-STEP 2. The next cycle follows the same rhythm; exact dates
+         are announced at the kick-off.</p>
+    </div>
+
+    <div class="rhythm">
+      <div class="rh">
+        <span class="rh-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+        </span>
+        <span><b>Every midweek</b>One hour of mentoring, at a time the team and mentor arrange</span>
+      </div>
+      <div class="rh">
+        <span class="rh-ic" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v4M16 2v4M3 10h18"/><rect x="3" y="4" width="18" height="18" rx="2"/></svg>
+        </span>
+        <span><b>Every Saturday</b>A feedback session — five-minute video, then a panel takes questions</span>
+      </div>
+      <p class="rh-note">Both ran on every week of the cycle, so the timeline below shows only what changed.</p>
+    </div>
+
+    <div class="tl2" id="tl"></div>
+  </section>
+
+  <!-- ===== Modules ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Curriculum</div>
+      <h2>The 14 modules</h2>
+      <p class="muted">One module per Tuesday session. Open a
+         module to see what teams produce.</p>
+    </div>
+    <div class="mods" id="mods"></div>
+  </section>
+
+  <!-- ===== Assessment ===== -->
+  <section>
+    <div class="section-head">
+      <div class="eyebrow">Assessment</div>
+      <h2>How teams are graded</h2>
+    </div>
+    <div class="weights reveal">
+      <div class="w1" style="flex:30">30% Team output</div>
+      <div class="w2" style="flex:30">30% FASTRAC proposal</div>
+      <div class="w3" style="flex:20">20% Demo Day</div>
+      <div class="w4" style="flex:20">20% Attendance</div>
+    </div>
+    <div class="wkey">
+      <div class="card"><h4>Team output</h4><p>Weekly deliverables, panel feedback scores and mentor reports.</p></div>
+      <div class="card"><h4>FASTRAC proposal</h4><p>Technical gaps closed, market and business model validated, spin-off simulation.</p></div>
+      <div class="card"><h4>Demo Day</h4><p>Market size, customer segmentation, evidence, and how well the pitch lands.</p></div>
+      <div class="card"><h4>Attendance</h4><p>At least three team members present at every learning and feedback session.</p></div>
+    </div>
+  </section>
+
+  <!-- ===== CTA ===== -->
+  <section class="cta-band" id="selection">
+    <h2>How teams are selected</h2>
+    <p class="muted">Teams come from DOST-PCIEERD-funded projects, chosen on their Filipinnovation
+       Entrepreneurship Corps performance, the market potential of their technology, and their commitment
+       to the four hours a week the programme asks for.</p>
+    <div class="row gap-2" style="justify-content:center">
+      <a class="btn" href="groups.html">See the current teams</a>
+      <a class="btn secondary" href="mailto:aipo@ateneo.edu">Email the STEP team</a>
+    </div>
+  </section>
+</main>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="wrap grid c3">
+    <div>
+      <a class="brand" href="index.html"><img src="assets/step-logo-white.png" alt="SPRINT-STEP"></a>
+      <p class="small">Science and Technology Entrepreneurship Program of the Ateneo Intellectual Property
+         Office, supported by DOST-PCIEERD.</p>
+    </div>
+    <div>
+      <h4>Explore</h4>
+      <p class="small">
+        <a href="index.html">Home</a> · <a href="program.html">Program</a> ·
+        <a href="groups.html">STEP Groups</a><br>
+        <a href="this-week.html">This Week</a> · <a href="my-team.html">My Team's Work</a> ·
+        <a href="capstone.html">Capstone</a> · <a href="trainers.html">Trainers</a>
+      </p>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <p class="small">Ateneo Intellectual Property Office<br>
+        Rm 213, 2/F PLDT-CTC Building, Katipunan Ave., Loyola Heights, Quezon City<br>
+        <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
+    </div>
+  </div>
+  <div class="wrap small" style="margin-top:var(--s5);opacity:.8">© 2027 Ateneo Intellectual Property Office</div>
+</footer>
+
+<script>
+/* ---------------------------------------------------------------
+   Program content. Edit these two arrays to update the page.
+   Timeline dates are the actual SPRINT-STEP 2 (2025) cycle.
+   --------------------------------------------------------------- */
+const TIMELINE = [
+  /* Only what differed week to week. The Saturday feedback panels and the
+     midweek mentoring ran on every week of the cycle and are stated once,
+     above the timeline, instead of repeating as twelve near-identical rows. */
+  { m: "June", items: [
+    { d: "Jun 20", t: "milestone", w: "Kick-off event",
+      n: "Why spin off, technology-based entrepreneurship, pathway ideation workshop, FASTRAC grantee panel" },
+  ]},
+  { m: "July", items: [
+    { d: "Jul 15", t: "online", w: "Online onboarding", n: "Programme walkthrough, expectations, platform orientation" },
+    { d: "Jul 22 & 26", t: "note", w: "Postponed — typhoon", n: "Sessions moved, and the deadlines moved with them" },
+    { d: "Jul 29", t: "online", w: "Beachhead markets and customer segments", c: "M2", n: "" },
+  ]},
+  { m: "August", items: [
+    { d: "Aug 5", t: "online", w: "Market size estimation and market research", c: "M3", n: "" },
+    { d: "Aug 12", t: "online", w: "From understanding use to measured value", c: "M3B", n: "" },
+    { d: "Aug 26", t: "online", w: "Competitive advantage (VRIO, CPM)", c: "M4", n: "" },
+  ]},
+  { m: "September", items: [
+    { d: "Sep 2", t: "online", w: "Go-to-market plan and lean canvas", c: "M5", n: "" },
+    { d: "Sep 9", t: "online", w: "Business model validation", c: "M6", n: "" },
+    { d: "Sep 16–17", t: "onsite", w: "On-site workshop", c: "M7–M10",
+      n: "Team organization and spin-off simulation, IP and patents with IPOPHL, tax incentives, financial analysis" },
+    { d: "Sep 23", t: "online", w: "Selling skills", c: "M11", n: "" },
+    { d: "Sep 30", t: "online", w: "Pitching skills", c: "M12", n: "" },
+  ]},
+  { m: "October", items: [
+    { d: "Oct 4", t: "milestone", w: "Pre-Demo Day", n: "Five-minute video pitch before a three-person panel" },
+    { d: "Oct 14", t: "milestone", w: "Demo Day",
+      n: "Pitches before investors, DOST-PCIEERD, agencies and industry, then technology roadmapping and the FASTRAC writeshop" },
+    { d: "Oct 15", t: "milestone", w: "Graduation and closing", n: "Awarding, a panel on FASTRAC, networking" },
+  ]},
+  { m: "After the cycle", items: [
+    { d: "Oct 16 – Nov 15", t: "note", w: "Follow-through", n: "Site visits, commercialization assessments, terminal report" },
+  ]},
+];
+
+const MODULES = [
+  { phase: "Weeks 1–4", title: "Find the market", items: [
+    { c: "M1A", t: "Introduction to STEP", h: "1h", d: "Why a spin-off is a route worth taking" },
+    { c: "M1B", t: "Technology-based entrepreneurship", h: "0.75h", d: "What makes deep-tech ventures different" },
+    { c: "M1C", t: "Time and resource management", h: "0.75h", d: "Prioritisation for teams with day jobs" },
+    { c: "M1D", t: "Marketing basics", h: "1h", d: "Foundations for technology products" },
+    { c: "M1E", t: "Pathway ideation workshop", h: "2.5h", d: "Choose the commercialization pathway" },
+    { c: "M2", t: "Beachhead markets and customer segments", h: "3h + 2h", d: "5–10 market opportunities, a chosen beachhead, problem-solution fit canvas, value proposition statement" },
+    { c: "M3", t: "Market size estimation and market research", h: "3h + 1.5h", d: "TAM, SAM and SOM with rationale, plus follow-on market analysis" },
+    { c: "M3B", t: "From understanding use to measured value", h: "3h + 1.5h", d: "Full life-cycle use case, customer metrics, a one-sentence quantified value proposition, concept board" },
+    { c: "M4", t: "Competitive advantage", h: "3h + 2h", d: "Competitive profile matrix, VRIO analysis, refined value proposition, first lean canvas" },
+  ]},
+  { phase: "Weeks 5–8", title: "Build the business", items: [
+    { c: "M5", t: "Go-to-market plan and lean canvas", h: "3h + 3h", d: "Strategy canvas, bullseye framework, go-to-market Gantt chart" },
+    { c: "M6", t: "Business model validation", h: "3h + 4h", d: "Channels, cost and revenue structure, business model canvas, five-week plan" },
+    { c: "M7", t: "Team organization workshop", h: "2h", d: "Roles, responsibilities and equity in a spin-off; spin-off simulation" },
+    { c: "M8", t: "Intellectual property and patents", h: "3h", d: "With IPOPHL: patent basics, prior art search, draft IP and freedom-to-operate" },
+    { c: "M9", t: "Tax incentives for spin-offs", h: "1h + 3h", d: "What R&D-based spin-offs can claim" },
+    { c: "M10", t: "Financial analysis: DCF and ROI", h: "3h + 2h", d: "Projections, sensitivity analysis, five-year sustainability plan" },
+  ]},
+  { phase: "Weeks 9–12", title: "Pitch and propose", items: [
+    { c: "M11", t: "Selling skills", h: "3h + 1.5h", d: "Prospect list and qualification, elevator pitch, sales presentation, battle cards" },
+    { c: "M12", t: "Pitching skills", h: "3h + 2h", d: "60-second elevator pitch, five-minute video pitch, final pitch deck" },
+    { c: "M13", t: "Technology roadmapping", h: "1h + 2h", d: "Long-term plan for the product's evolution" },
+    { c: "M14", t: "FASTRAC proposal writeshop", h: "2h + 3h", d: "Consolidate everything into a draft DOST FASTRAC proposal" },
+  ]},
+];
+
+/* ---------- the timeline, on one spine ---------- */
+document.getElementById("tl").innerHTML = TIMELINE.map(g => `
+  <div class="tl-mo"><span>${g.m}</span></div>
+  ${g.items.map(i => `
+    <div class="tl-row t-${i.t} reveal">
+      <span class="tl-node" aria-hidden="true"></span>
+      <span class="tl-when">${i.d}</span>
+      <span class="tl-what">
+        <span class="tl-title">${i.c ? `<span class="tl-code">${i.c}</span>` : ""}${i.w}</span>
+        ${i.n ? `<span class="tl-note">${i.n}</span>` : ""}
+      </span>
+      <span class="tl-tag">${
+        i.t === "milestone" ? "Milestone" : i.t === "onsite" ? "On site" : i.t === "online" ? "Online" : ""}</span>
+    </div>`).join("")}
+`).join("");
+
+/* ---------- render modules ---------- */
+document.getElementById("mods").innerHTML = MODULES.map(col => `
+  <div class="modcol reveal">
+    <header>
+      <div class="ph">${col.phase}</div>
+      <h3>${col.title}</h3>
+    </header>
+    ${col.items.map(m => `
+      <details class="mod">
+        <summary><span class="code">${m.c}</span> ${m.t}</summary>
+        <div class="body">
+          <div class="hrs">${m.h}</div>
+          <div>${m.d}</div>
+        </div>
+      </details>`).join("")}
+  </div>`).join("");
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>

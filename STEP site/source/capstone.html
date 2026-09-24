@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Capstone · SPRINT-STEP</title>
+<meta name="description" content="A SPRINT-STEP team's two capstone deliverables: the DOST FASTRAC proposal filled in item by item across the cycle, and the pitch deck assembled one slide per module.">
+<link rel="icon" href="assets/step-logo.png">
+<link rel="stylesheet" href="stephub-ui.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<!-- ===== Institutional bar ===== -->
+<div class="utility-bar">
+  <div class="wrap">
+    <span>A DOST-PCIEERD program implemented by the Ateneo Intellectual Property Office</span>
+    <span class="util-right">
+      <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a>
+      <!-- Placeholder only: sign-in is not built yet -->
+      <a class="util-login" href="#">Participant login</a>
+    </span>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="site-header light">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SPRINT-STEP home">
+      <img src="assets/step-logo-mark.png" alt="SPRINT-STEP — Science and Technology Entrepreneurship Program">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"
+            onclick="const n=document.getElementById('nav');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open'))">☰</button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="this-week.html">This Week <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <a href="program.html">Program</a>
+      <a href="groups.html">STEP Groups</a>
+      <a href="my-team.html">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <span class="navdd"><a href="capstone.html" class="active" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="capstone.html#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="capstone.html#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
+      <span class="navdd"><a href="trainers.html" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="trainers.html#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="trainers.html#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="trainers.html#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
+    </nav>
+  </div>
+  <script>
+  /* The Trainers tab opens its menu — a view is only reached by picking one. */
+  (function () {
+    if (window.__navdd) return; window.__navdd = 1;
+    function shut() {
+      document.querySelectorAll(".navdd.open").forEach(function (d) {
+        d.classList.remove("open");
+        var a = d.querySelector("a"); if (a) a.setAttribute("aria-expanded", "false");
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var tab = e.target.closest && e.target.closest(".navdd > a[aria-haspopup]");
+      if (!tab) { shut(); return; }
+      /* in the stacked mobile menu the three views are already listed below */
+      if (window.matchMedia("(max-width: 900px)").matches) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dd = tab.parentNode, wasOpen = dd.classList.contains("open");
+      shut();
+      if (!wasOpen) { dd.classList.add("open"); tab.setAttribute("aria-expanded", "true"); }
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+  })();
+  </script>
+</header>
+
+<div id="capstone-locked-gate" class="wrap page" hidden style="margin-top:var(--s6);margin-bottom:var(--s6)">
+  <div class="access-restricted-card">
+    <div class="lock-icon-wrap">
+      <svg class="lock-big" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h3>Sign In Required</h3>
+    <p>The Capstone workspace contains your team's live DOST Form 2 FASTRAC proposal draft and pitch deck. Please sign in with your STEP account to access this page.</p>
+    <div style="margin-top:var(--s4)">
+      <button type="button" class="btn solid" onclick="window.MOCK.auth.renderAuthModal()">Sign In to STEP</button>
+    </div>
+  </div>
+</div>
+
+<div id="capstone-content-wrap">
+<!-- ===== FASTRAC proposal header ===== -->
+<section class="team-bar" id="cap-head-form">
+  <div class="wrap" style="display:block">
+    <div id="capstone-switcher-slot" class="mb-4"></div>
+    <div class="eyebrow">Capstone</div>
+    <h1 style="margin-bottom:4px">FASTRAC Proposal</h1>
+    <p class="tech">DOST Form 2, filled in item by item across the cycle. Every week's work feeds directly into your proposal.</p>
+    <div class="cap-head mt-4">
+      <div class="cap-art" style="max-width:480px">
+        <div class="k">Progress</div>
+        <div class="v" id="ca-form">—<small>of 24 items</small></div>
+        <div class="cap-meter"><i id="ca-form-bar"></i></div>
+        <div class="s" id="ca-form-sub">—</div>
+      </div>
+    </div>
+    <div class="chips mt-4" id="ca-chips"></div>
+  </div>
+</section>
+
+<!-- ===== Pitch deck header ===== -->
+<section class="team-bar" id="cap-head-deck" hidden>
+  <div class="wrap" style="display:block">
+    <div id="capstone-switcher-slot-deck" class="mb-4"></div>
+    <div class="eyebrow">Capstone</div>
+    <h1 style="margin-bottom:4px">Pitch Deck</h1>
+    <p class="tech">One slide per topic, assembled week by week. Your Demo Day presentation, already being built.</p>
+    <div class="cap-head mt-4">
+      <div class="cap-art" style="max-width:480px">
+        <div class="k">Progress</div>
+        <div class="v" id="ca-deck">—<small>of 14 slides</small></div>
+        <div class="cap-meter"><i id="ca-deck-bar"></i></div>
+        <div class="s" id="ca-deck-sub">—</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap page stack" style="gap:var(--s7)">
+
+  <!-- ===== Workspace switch ===== -->
+  <section id="workspaces">
+    <!-- ---------- Workspace A: the proposal ---------- -->
+    <div id="ws-form" role="tabpanel" aria-label="FASTRAC proposal workspace">
+      <div class="ws-band">
+        <div>
+          <h3>DOST Form 2 — your FASTRAC proposal</h3>
+          <p>24 items. Each week's topic points to the items it feeds, but every item is open —
+             work ahead whenever you are ready.</p>
+        </div>
+        <div class="acts">
+          <button class="btn solid" id="btn-preview">Preview the form</button>
+          <button class="btn" id="btn-export">Export current draft</button>
+        </div>
+      </div>
+      <div class="ws-body">
+      <div class="card mb-4 reveal">
+        <div class="card-head">
+          <h3>DOST Form 2, item by item</h3>
+          <span class="small muted">Click any block to open that item</span>
+        </div>
+        <div class="itembar" id="itembar"></div>
+        <p class="small muted mb-0 mt-3" id="fa-counts">—</p>
+      </div>
+
+      <div class="work">
+        <div class="itemlist" id="itemlist" role="list"></div>
+        <div class="editor" id="editor"></div>
+      </div>
+      </div>
+    </div>
+
+    <!-- ---------- Workspace B: the deck ---------- -->
+    <div id="ws-deck" role="tabpanel" aria-label="Pitch deck workspace" hidden>
+      <div class="ws-body plain">
+      <div class="stage reveal mb-4" id="stage">
+        <div class="screen" id="stage-screen"></div>
+        <div class="bar">
+          <div class="who" id="stage-who">—<small>—</small></div>
+          <div class="nav">
+            <button id="slide-prev" aria-label="Previous slide">‹</button>
+            <button id="slide-next" aria-label="Next slide">›</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ws-band deck under mb-4">
+        <div>
+          <h3>Your pitch deck</h3>
+          <p>One slide per topic. Drop each week's slide straight onto its frame.</p>
+        </div>
+        <div class="acts">
+          <button class="btn solid" id="btn-assemble">Assemble the deck</button>
+        </div>
+      </div>
+
+      <div class="card reveal">
+        <div class="card-head">
+          <h3>Your deck so far</h3>
+          <span class="small muted">One slide per topic, in the order you will present them</span>
+        </div>
+        <div class="film" id="film"></div>
+        <p class="small muted mt-4 mb-0">Click an empty frame to choose a file, or drag a slide onto it.
+           PDF, PPTX, PNG or JPG. A frame you have already filled opens the slide above instead — use
+           its Replace button to swap the file. A topic not yet taught stays a dashed placeholder.</p>
+      </div>
+
+      <div class="deckdrop mt-4" id="deckdrop">
+        <strong>Or drop several slides here at once</strong>
+        They fill the next empty frames in order.
+      </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+</div>
+
+<!-- ===== FASTRAC proposal preview — the real DOST form, filled in ===== -->
+<div class="sheetwrap" id="sheetwrap" hidden role="dialog" aria-modal="true" aria-label="FASTRAC proposal preview">
+  <div class="sheettools">
+    <span class="t">DOST Form 2 — live preview<small id="sheet-sub">—</small></span>
+    <span class="acts">
+      <button type="button" class="primary" id="sheet-print">Print or save as PDF</button>
+      <button type="button" id="sheet-close">Close preview</button>
+    </span>
+  </div>
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="grid c3">
+      <div>
+        <img src="assets/step-logo-white.png" alt="SPRINT-STEP" style="height:66px; margin-bottom:var(--s3)">
+        <p class="small">A DOST-PCIEERD funded program that helps Filipino research teams turn their
+           technology into a business.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <p class="small">
+          <a href="index.html">Home</a> · <a href="program.html">Program</a> ·
+          <a href="groups.html">STEP Groups</a><br>
+          <a href="this-week.html">This Week</a> · <a href="my-team.html">My Team's Work</a> ·
+          <a href="capstone.html">Capstone</a> · <a href="trainers.html">Trainers</a>
+        </p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p class="small">Ateneo Intellectual Property Office<br>
+           Rm 213, 2/F PLDT-CTC Building, Katipunan Ave., Loyola Heights, Quezon City<br>
+           <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
+      </div>
+    </div>
+    <p class="small mb-0" style="margin-top:var(--s5)">© 2027 Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+  </div>
+</footer>
+
+<script src="mock-data.js"></script>
+<script>
+let { capstone: CAP, teams } = window.MOCK;
+let TEAM = teams.find(t => t.id === CAP.team_id) || teams[0];
+let FORM = CAP.form, DECK = CAP.deck;
+/* the sample data still carries the old six-way status; anything that had
+   already gone to the panel counts as submitted, everything else is the
+   team's own to submit. FORM is rebuilt on a team switch, so this runs
+   wherever FORM is set, not just at load. */
+function seedSubmitted() {
+  FORM.forEach(f => { if (f.submitted === undefined)
+    f.submitted = (f.status === "reviewed" || f.status === "submitted"); });
+}
+seedSubmitted();
+const words = s => (s || "").trim() ? s.trim().split(/\s+/).length : 0;
+const plural = (n, one, many) => n + " " + (n === 1 ? one : (many || one + "s"));
+/* An item is in one of three states, and the participant owns all three:
+   they have not started it, they have started it, or they have submitted it.
+   Nothing here is reviewed or graded on this page, so the state is derived
+   from the team's own work — submitting is a click, and editing a submitted
+   item puts it back to "started" so it can be submitted again. */
+const STATE  = { submitted: "Submitted", started: "Draft", none: "Not started" };
+const SCLASS = { submitted: "is-sub",    started: "is-start", none: "is-none" };
+const stateOf = f => f.submitted ? "submitted" : (hasContent(f) ? "started" : "none");
+const subDate = () => new Date().toLocaleDateString("en-PH",
+  { timeZone: "Asia/Manila", day: "numeric", month: "long" });
+
+/* ---------------------------------------------------------------
+   Structured items carry `value`; prose items carry `draft`.
+   One test for "has this been filled in", used by the counters,
+   the readiness check and the form preview alike.
+   --------------------------------------------------------------- */
+/* shared helpers — declared once, before anything uses them */
+const esc = t => String(t == null ? "" : t)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const F = n => FORM.find(x => x.n === n);
+const fmtDay = d => d ? new Date(d + "T00:00:00+08:00").toLocaleDateString("en-PH",
+  { timeZone: "Asia/Manila", day: "numeric", month: "long", year: "numeric" }) : "";
+const money = n => Number(n) ? "₱" + Number(n).toLocaleString("en-PH") : "";
+const rowTotal = r => (+r.ps || 0) + (+r.mooe || 0) + (+r.eo || 0);
+const AREAS = [
+  { k: "agri",     label: "Agriculture, Aquatic and Natural Resources", extra: "commodity",      extraLabel: "Commodity" },
+  { k: "health",   label: "Health",                                     extra: "priorityTopic",  extraLabel: "Priority Topic" },
+  { k: "industry", label: "Industry, Energy and Emerging Technology",   extra: "sectorIndustry", extraLabel: "Sector" },
+  { k: "drr",      label: "Disaster Risk Reduction and Climate Change Adaptation" },
+  { k: "basic",    label: "Basic Research",                             extra: "sectorBasic",    extraLabel: "Sector" },
+];
+function hasContent(f) {
+  const v = f.value;
+  switch (f.kind) {
+    case "profile":     return Object.values(v).some(x => String(x).trim());
+    case "sites":       return v.some(r => Object.values(r).some(x => String(x).trim()));
+    case "choice":      return !!v.precommercialization;
+    case "agenda":      return !!v.area || !!String(v.sdg).trim();
+    case "personnel":   return v.some(r => String(r.position).trim());
+    case "budget":      return v.rows.some(r => rowTotal(r) > 0);
+    case "projects":    return v.rows.some(r => String(r.title).trim());
+    case "attachments": return f.attachments ? f.attachments.some(a => a.have === true) : false;
+    default:            return !!(f.draft || "").trim();
+  }
+}
+
+/* ---------- header figures ---------- */
+function refreshCounts() {
+  const started = FORM.filter(f => stateOf(f) === "started").length;
+  const sent    = FORM.filter(f => stateOf(f) === "submitted").length;
+  const slidesIn = DECK.filter(d => d.status === "in").length;
+  const nextSlide = DECK.find(d => d.status !== "in");
+
+  document.getElementById("ca-form").innerHTML = sent + '<small>of 24 items submitted</small>';
+  document.getElementById("ca-form-sub").textContent =
+    started + " in draft · " + (FORM.length - sent - started) + " not started yet";
+  document.getElementById("ca-deck").innerHTML = slidesIn + '<small>of 14 slides</small>';
+  document.getElementById("ca-deck-sub").textContent = nextSlide ? "Next up: " + nextSlide.title : "Deck complete";
+
+  document.getElementById("ca-chips").innerHTML = [
+    TEAM.name, "Week " + CAP.week_no + " of " + CAP.weeks_total,
+    "Demo Day " + new Date(CAP.demo_day).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", month: "long", day: "numeric" }),
+  ].map(c => `<span class="chip">${c}</span>`).join("");
+
+  requestAnimationFrame(() => {
+    document.getElementById("ca-form-bar").style.width = (sent / FORM.length * 100) + "%";
+    document.getElementById("ca-deck-bar").style.width = (slidesIn / DECK.length * 100) + "%";
+  });
+}
+refreshCounts();
+
+/* =====================================================================
+   The two capstone workspaces are two views of this page, reached from
+   the Capstone tab's menu or from the pill bar in the hero — they never
+   share the screen.
+   ===================================================================== */
+const CAPVIEWS = ["form", "deck"];
+const CAPLABEL = { form: "FASTRAC proposal", deck: "Pitch deck" };
+const CAPNOTE  = {
+  form: "DOST Form 2, filled in item by item across the cycle.",
+  deck: "One slide per topic, assembled week by week.",
+};
+function readCapHash() {
+  const raw = (location.hash || "").replace(/^#/, "");
+  if (raw === "capstone-deck" || raw === "deck") return "deck";
+  return "form";
+}
+/* mode: "init" on first paint (never touch the URL — in the merged site the
+   hash belongs to the router), "push" when the reader chose a view. */
+function showTab(which, mode) {
+  const v = CAPVIEWS.includes(which) ? which : "form";
+  const isForm = v === "form";
+  document.getElementById("ws-form").hidden = !isForm;
+  document.getElementById("ws-deck").hidden = isForm;
+  // Show/hide the corresponding header
+  const headForm = document.getElementById("cap-head-form");
+  const headDeck = document.getElementById("cap-head-deck");
+  if (headForm) headForm.hidden = !isForm;
+  if (headDeck) headDeck.hidden = isForm;
+  if (!isForm && sheetOpen) closeSheet();
+  document.querySelectorAll(".navdd .ddm a[href*='capstone']").forEach(a =>
+    a.setAttribute("aria-current", String((a.getAttribute("href") || "").endsWith(
+      isForm ? "#capstone" : "#capstone-deck"))));
+  // the panel was hidden, so its reveal observer never fired — show it at once
+  document.getElementById(isForm ? "ws-form" : "ws-deck")
+          .querySelectorAll(".reveal").forEach(el => el.classList.add("in"));
+  if (mode === "init") return;
+  const want = "#capstone" + (isForm ? "" : "-deck");
+  if (location.hash !== want) {
+    if (mode === "push") location.hash = want; else history.replaceState(null, "", want);
+  }
+}
+/* the Capstone tab menu drops a new hash in — follow it, but leave hashes
+   that belong to another route alone */
+window.addEventListener("hashchange", () => {
+  const raw = (location.hash || "").replace(/^#/, "");
+  if (raw && !/^capstone(-|$)/.test(raw) && !CAPVIEWS.includes(raw)) return;
+  const v = readCapHash();
+  if (document.getElementById("ws-" + v).hidden) showTab(v, "init");
+});
+showTab(readCapHash(), "init");
+
+/* ---------- the 24-block bar ---------- */
+function renderItemBar() {
+  const bar = document.getElementById("itembar");
+  if (!bar) return;
+  bar.innerHTML = FORM.map(f => {
+    const s = stateOf(f);
+    return `<button class="${SCLASS[s]}" data-n="${f.n}" title="Item ${f.n} · ${f.title} — ${STATE[s]}"
+             aria-label="Item ${f.n}, ${f.title}, ${STATE[s]}">${f.n}</button>`;
+  }).join("");
+  const counts = document.getElementById("fa-counts");
+  if (counts) {
+    const n = k => FORM.filter(f => stateOf(f) === k).length;
+    counts.textContent = n("submitted") + " submitted · " + n("started") + " in draft · " +
+                         n("none") + " not started";
+  }
+}
+
+/* ---------- the item list ---------- */
+function renderItemList() {
+  const list = document.getElementById("itemlist");
+  if (!list) return;
+  let html = "", grp = null;
+  FORM.forEach(f => {
+    if (f.group !== grp) { grp = f.group; html += `<div class="grp">${grp}</div>`; }
+    const s = stateOf(f);
+    html += `<button data-n="${f.n}" role="listitem">
+      <span class="num ${SCLASS[s]}">${f.n}</span>
+      <span>
+        <span class="ti">${f.title}</span>
+        <span class="wk">${STATE[s]} · covered in Week ${f.week}</span>
+      </span>
+    </button>`;
+  });
+  list.innerHTML = html;
+}
+
+/* ---------- the editor ---------- */
+/* Structured items get the form's own fields; prose items get a writing box.
+   Every control writes straight back into FORM, then redraws the paper. */
+const inp = (val, ph, cls) =>
+  `<input class="fin ${cls || ""}" type="text" value="${esc(val || "")}" placeholder="${esc(ph || "")}">`;
+
+const FIELDS = {
+  profile(f) {
+    const v = f.value;
+    const row = (k, label, fine, ph, extra) =>
+      `<div class="ff"><label for="p-${k}">${label}${fine ? `<span class="fine">${fine}</span>` : ""}</label>
+        <div>${extra || `<input class="fin" id="p-${k}" data-k="${k}" type="text" value="${esc(v[k] || "")}" placeholder="${esc(ph || "")}">`}</div></div>`;
+    return row("program", "Program Title") + row("title", "Project Title") +
+      `<div class="ff"><label>Project Leader / Sex</label><div class="frow2">
+        <input class="fin" data-k="leader" type="text" value="${esc(v.leader)}" placeholder="Name">
+        <input class="fin short" data-k="sex" type="text" value="${esc(v.sex)}" placeholder="M / F"></div></div>` +
+      `<div class="ff"><label>Project Duration</label><div class="frow2">
+        <input class="fin short" data-k="months" type="number" min="1" value="${esc(v.months)}" placeholder="months">
+        <span class="fgrid-note">number of months</span></div></div>` +
+      `<div class="ff"><label>Project Start Date</label><div><input class="fin short" data-k="start" type="date" value="${esc(v.start)}"></div></div>` +
+      `<div class="ff"><label>Project End Date</label><div><input class="fin short" data-k="end" type="date" value="${esc(v.end)}"></div></div>` +
+      row("agency", "Implementing Agency", "University-College-Institute, Department/Organization or Company") +
+      row("address", "Address / Telephone / Fax / Email", "Barangay, Municipality, District, Province, Region");
+  },
+
+  sites(f) {
+    const cols = [["country", "Country"], ["region", "Region"], ["province", "Province"],
+                  ["district", "District"], ["municipality", "Municipality"], ["barangay", "Barangay"]];
+    return `<p class="fhint">Up to five sites, exactly as the form asks for them.</p>
+      <div class="fgrid-wrap"><table class="fgrid">
+        <thead><tr><th class="n">No.</th>${cols.map(c => `<th>${c[1]}</th>`).join("")}</tr></thead>
+        <tbody>${f.value.map((r, i) => `<tr><td class="n">${i + 1}</td>${cols.map(c =>
+          `<td><input class="fin" data-row="${i}" data-k="${c[0]}" type="text" value="${esc(r[c[0]])}"></td>`).join("")}</tr>`).join("")}
+        </tbody></table></div>`;
+  },
+
+  choice(f) {
+    return `<div class="fchecks"><label>
+      <input type="checkbox" data-k="precommercialization" ${f.value.precommercialization ? "checked" : ""}>
+      <span>Pre-commercialization</span></label></div>
+      <p class="fhint">The only type of research DOST Form 2 offers for startups.</p>`;
+  },
+
+  agenda(f) {
+    const v = f.value;
+    return `<p class="fhint">Tick one agenda, then name the commodity or sector under it.</p>
+      <div class="fchecks">${AREAS.map(a => `
+        <label><input type="radio" name="hnrda" data-area="${a.k}" ${v.area === a.k ? "checked" : ""}>
+          <span>${a.label}</span></label>
+        ${a.extra ? `<div class="sub"><span>${a.extraLabel}:</span>
+          <input class="fin" data-k="${a.extra}" type="text" value="${esc(v[a.extra])}" ${v.area === a.k ? "" : "disabled"}></div>` : ""}`).join("")}
+      </div>
+      <div class="ff"><label>Sustainable Development Goal(s) addressed</label>
+        <div><input class="fin" data-k="sdg" type="text" value="${esc(v.sdg)}" placeholder="e.g. SDG 2 (Zero Hunger)"></div></div>`;
+  },
+
+  personnel(f) {
+    return `<p class="fhint">One row per position. Percent time is what the form asks for, not hours.</p>
+      <div class="fgrid-wrap"><table class="fgrid">
+        <thead><tr><th class="n">#</th><th style="width:38%">Position</th><th style="width:18%">Percent time</th><th>Responsibilities</th></tr></thead>
+        <tbody>${f.value.map((r, i) => `<tr><td class="n">${i + 1}</td>
+          <td><input class="fin" data-row="${i}" data-k="position" type="text" value="${esc(r.position)}"></td>
+          <td><input class="fin" data-row="${i}" data-k="pct" type="number" min="0" max="100" value="${esc(r.pct)}"></td>
+          <td><input class="fin" data-row="${i}" data-k="resp" type="text" value="${esc(r.resp)}"></td></tr>`).join("")}
+        </tbody></table></div>
+      <button class="btn secondary" data-add="personnel" type="button">Add a position</button>`;
+  },
+
+  budget(f) {
+    const rows = f.value.rows;
+    const col = k => rows.reduce((a, r) => a + (+r[k] || 0), 0);
+    const grand = rows.reduce((a, r) => a + rowTotal(r), 0);
+    return `<p class="fhint">Type the peso amounts; the Total column and the TOTAL row add themselves up.</p>
+      <div class="fgrid-wrap"><table class="fgrid" id="budget-grid">
+        <thead><tr><th style="width:26%">Implementing agency</th><th>PS</th><th>MOOE</th><th>EO</th><th style="width:18%">Total</th></tr></thead>
+        <tbody>
+          ${rows.map((r, i) => `<tr>
+            <td><input class="fin" data-row="${i}" data-k="label" type="text" value="${esc(r.label)}"></td>
+            ${["ps", "mooe", "eo"].map(k => `<td class="money"><input class="fin peso" data-row="${i}" data-k="${k}"
+                 type="text" inputmode="numeric" value="${r[k] ? Number(r[k]).toLocaleString("en-PH") : ""}"
+                 placeholder="0" aria-label="${k.toUpperCase()} for ${esc(r.label)}"></td>`).join("")}
+            <td class="calc" data-total="${i}">${money(rowTotal(r))}</td></tr>`).join("")}
+          <tr class="total"><td>TOTAL</td><td data-sum="ps">${money(col("ps"))}</td>
+            <td data-sum="mooe">${money(col("mooe"))}</td><td data-sum="eo">${money(col("eo"))}</td>
+            <td data-sum="grand">${money(grand)}</td></tr>
+        </tbody></table></div>
+      <div class="ff"><label>Counterpart and other fund sources</label>
+        <div><input class="fin" data-k="counterpart" type="text" value="${esc(f.value.counterpart)}"
+             placeholder="e.g. Counterpart (UPLB, in kind): laboratory access and 15% of total"></div></div>
+      <button class="btn secondary" data-add="budget" type="button">Add a year</button>`;
+  },
+
+  projects(f) {
+    return `<div class="ff"><label>Number of ongoing projects</label>
+        <div><input class="fin short" data-count="1" type="number" min="0" value="${esc(f.value.count)}"></div></div>
+      <div class="fgrid-wrap"><table class="fgrid">
+        <thead><tr><th class="n">#</th><th style="width:46%">Title of the project</th><th>Funding agency</th><th>Involvement</th></tr></thead>
+        <tbody>${f.value.rows.map((r, i) => `<tr><td class="n">${i + 1}</td>
+          <td><input class="fin" data-row="${i}" data-k="title" type="text" value="${esc(r.title)}"></td>
+          <td><input class="fin" data-row="${i}" data-k="agency" type="text" value="${esc(r.agency)}"></td>
+          <td><input class="fin" data-row="${i}" data-k="role" type="text" value="${esc(r.role)}"></td></tr>`).join("")}
+        </tbody></table></div>
+      <button class="btn secondary" data-add="projects" type="button">Add a project</button>`;
+  },
+
+  attachments(f) {
+    return `<p class="fhint">Tick each document once you have a copy on file.</p>
+      <div class="fchecks">${f.attachments.map((a, i) => a.have === null
+        ? `<div class="na">— ${esc(a.label)} · not applicable to this project</div>`
+        : `<label><input type="checkbox" data-att="${i}" ${a.have ? "checked" : ""}><span>${esc(a.label)}</span></label>`).join("")}
+      </div>`;
+  },
+};
+
+/* keep the budget's computed cells right without redrawing the inputs */
+function recalcBudget(f) {
+  const g = document.getElementById("budget-grid"); if (!g) return;
+  const rows = f.value.rows;
+  rows.forEach((r, i) => {
+    const c = g.querySelector(`[data-total="${i}"]`); if (c) c.textContent = money(rowTotal(r));
+  });
+  ["ps", "mooe", "eo"].forEach(k => {
+    const c = g.querySelector(`[data-sum="${k}"]`);
+    if (c) c.textContent = money(rows.reduce((a, r) => a + (+r[k] || 0), 0));
+  });
+  const gr = g.querySelector('[data-sum="grand"]');
+  if (gr) gr.textContent = money(rows.reduce((a, r) => a + rowTotal(r), 0));
+}
+
+let current = null;
+function openItem(n) {
+  current = n;
+  const f = FORM.find(x => x.n === n);
+  const ed = document.getElementById("editor");
+  const isProse = f.kind === "prose";
+
+  /* No item is ever locked. The weekly topics say which item each session
+     feeds, but the whole proposal is open from day one — a team that wants
+     to run ahead is not stopped. */
+  let body;
+  if (isProse) {
+    const wc = words(f.draft);
+    body = `
+      <textarea id="ta" aria-label="Your answer for item ${f.n}"
+        placeholder="Nothing written yet. Start from what you produced in ${f.source}.">${f.draft || ""}</textarea>
+      <div class="ebar">
+        <span class="wc ${f.limit && wc > f.limit ? "over" : ""}" id="wc">${wc} words${f.limit ? " of " + f.limit + " allowed" : ""}</span>
+        <span class="saved" id="saved">Saved</span>
+      </div>`;
+  } else {
+    body = `
+      <div id="fieldset">${FIELDS[f.kind](f)}</div>
+      <div class="ebar"><span class="wc">Filled in as fields — the form on the right updates as you go</span>
+        <span class="saved on" id="saved">Saved</span></div>`;
+  }
+
+  ed.innerHTML = `
+    <div class="ehead">
+      <h3>Item ${f.n} · ${f.title}</h3>
+      <span class="badge" id="fa-state">${STATE[stateOf(f)]}</span>
+    </div>
+    <div class="from mt-3">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      Comes from ${f.source}${f.revisit ? " · revisited in Week " + f.revisit : ""}
+    </div>
+    <div class="guide"><b>What DOST asks for</b>${f.guide}</div>
+    ${f.parts ? `<h4 class="mt-4 mb-0">Sub-items (${f.parts.filter(p => p.done).length} of ${f.parts.length} done)</h4>
+      <div class="fchecks" id="parts">${f.parts.map((p, i) => `<label>
+        <input type="checkbox" data-part="${i}" ${p.done ? "checked" : ""}>
+        <span>(${p.k}) ${esc(p.label)} <span class="fgrid-note">· Week ${p.week}</span></span></label>`).join("")}</div>` : ""}
+    ${body}
+    <div class="subbar">
+      <span class="sstate" id="fa-subnote"></span>
+      <button class="btn solid" id="fa-submit">Submit this item</button>
+    </div>`;
+
+  const markCurrent = () => document.querySelectorAll("#itembar button, #itemlist button")
+    .forEach(b => b.setAttribute("aria-current", String(+b.dataset.n === n)));
+  markCurrent();
+
+  /* The three states are painted from the item itself, so the badge, the
+     bar, the list and the button can never tell three different stories. */
+  let shown = null;
+  function paintState() {
+    const s = stateOf(f), filled = hasContent(f);
+    const badge = document.getElementById("fa-state");
+    if (badge) badge.textContent = STATE[s];
+    const note = document.getElementById("fa-subnote"), btn = document.getElementById("fa-submit");
+    if (note) note.innerHTML = s === "submitted"
+      ? `<b>Submitted</b>${f.submitted_at ? " on " + f.submitted_at : ""} — edit it any time and submit again.`
+      : filled
+        ? (f.submitted_at ? "You have edited this since you submitted it." : "In draft — not submitted yet.")
+        : "Nothing written here yet.";
+    if (btn) {
+      btn.disabled = s === "submitted" || !filled;
+      btn.textContent = s === "submitted" ? "Submitted ✓"
+                      : f.submitted_at ? "Submit the update" : "Submit this item";
+    }
+    if (s !== shown) { shown = s; renderItemBar(); renderItemList(); markCurrent(); refreshCounts(); }
+  }
+  /* any edit to a submitted item reopens it — the team submits again when ready */
+  function afterEdit() {
+    if (f.submitted) { f.submitted = false; }
+    paintState();
+  }
+  paintState();
+  const btnSub = document.getElementById("fa-submit");
+  if (btnSub) btnSub.addEventListener("click", () => {
+    if (!hasContent(f)) return;
+    f.submitted = true;
+    f.submitted_at = subDate();
+    shown = null;
+    paintState();
+  });
+
+  if (isProse) {
+    const ta = document.getElementById("ta"), wcEl = document.getElementById("wc"), saved = document.getElementById("saved");
+    let t;
+    ta.addEventListener("input", () => {
+      const w = words(ta.value);
+      wcEl.textContent = w + " words" + (f.limit ? " of " + f.limit + " allowed" : "");
+      wcEl.classList.toggle("over", !!f.limit && w > f.limit);
+      f.draft = ta.value;                                  // kept in memory for this session only
+      syncSheet(f.n, false);
+      clearTimeout(t); saved.classList.remove("on");
+      afterEdit();
+      t = setTimeout(() => { saved.classList.add("on"); refreshCounts(); }, 700);
+    });
+  }
+
+  /* structured fields write straight into f.value */
+  const fs = document.getElementById("fieldset");
+  if (fs) {
+    const touch = () => { syncSheet(f.n, false); refreshCounts(); afterEdit(); };
+    fs.addEventListener("input", e => {
+      const el = e.target; if (!el.matches("input")) return;
+      const row = el.dataset.row, k = el.dataset.k;
+      if (el.dataset.count) f.value.count = el.value;
+      else if (row != null) {
+        const target = f.kind === "budget" ? f.value.rows[+row]
+                     : f.kind === "projects" ? f.value.rows[+row] : f.value[+row];
+        target[k] = el.classList.contains("peso") ? Number(String(el.value).replace(/[^0-9]/g, "")) || 0
+                  : (el.type === "number") ? (el.value === "" ? 0 : Number(el.value))
+                  : el.value;
+        if (f.kind === "budget") recalcBudget(f);
+      } else if (k) {
+        f.value[k] = el.value;
+      }
+      touch();
+    });
+    fs.addEventListener("blur", e => {
+      const el = e.target;
+      if (el.classList && el.classList.contains("peso")) {
+        const n = Number(String(el.value).replace(/[^0-9]/g, "")) || 0;
+        el.value = n ? n.toLocaleString("en-PH") : "";
+      }
+    }, true);
+    fs.addEventListener("change", e => {
+      const el = e.target;
+      if (el.dataset.area) {                                 // one agenda at a time
+        f.value.area = el.dataset.area;
+        fs.querySelectorAll("[data-k]").forEach(x => {
+          const owner = AREAS.find(a => a.extra === x.dataset.k);
+          if (owner) x.disabled = owner.k !== f.value.area;
+        });
+      } else if (el.dataset.k && el.type === "checkbox") f.value[el.dataset.k] = el.checked;
+      else if (el.dataset.att) f.attachments[+el.dataset.att].have = el.checked;
+      else return;
+      touch();
+    });
+    fs.addEventListener("click", e => {
+      const add = e.target.closest("[data-add]"); if (!add) return;
+      if (f.kind === "personnel") f.value.push({ position: "", pct: "", resp: "" });
+      if (f.kind === "budget")    f.value.rows.push({ label: "Year " + (f.value.rows.length + 1), ps: 0, mooe: 0, eo: 0 });
+      if (f.kind === "projects")  f.value.rows.push({ title: "", agency: "", role: "" });
+      openItem(n);
+    });
+  }
+
+  /* the (a)–(k) checklist on item 9 */
+  const parts = document.getElementById("parts");
+  if (parts) parts.addEventListener("change", e => {
+    const i = e.target.dataset.part; if (i == null) return;
+    f.parts[+i].done = e.target.checked;
+    syncSheet(f.n, false); afterEdit();
+    ed.querySelector("h4").textContent =
+      `Sub-items (${f.parts.filter(p => p.done).length} of ${f.parts.length} done)`;
+  });
+
+  syncSheet(n, true);                 // follow the team to the item they just opened
+}
+document.getElementById("itembar").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (b) openItem(+b.dataset.n);
+});
+document.getElementById("itemlist").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (b) openItem(+b.dataset.n);
+});
+
+/* ---------- pitch deck ---------- */
+const SLIDE_BODY = {
+  title:     '<rect x="120" y="150" width="240" height="14" rx="7" fill="#cfe0f1"/>',
+  statement: '<rect x="56" y="104" width="368" height="13" rx="6" fill="#e3e9ef"/><rect x="56" y="128" width="300" height="13" rx="6" fill="#e3e9ef"/><rect x="56" y="152" width="200" height="13" rx="6" fill="#cfe0f1"/>',
+  bullets:   '<circle cx="62" cy="110" r="5" fill="#1f6fb2"/><rect x="78" y="104" width="300" height="11" rx="5" fill="#e3e9ef"/><circle cx="62" cy="140" r="5" fill="#1f6fb2"/><rect x="78" y="134" width="250" height="11" rx="5" fill="#e3e9ef"/><circle cx="62" cy="170" r="5" fill="#1f6fb2"/><rect x="78" y="164" width="280" height="11" rx="5" fill="#e3e9ef"/>',
+  chart:     '<rect x="60" y="150" width="46" height="46" rx="4" fill="#cfe0f1"/><rect x="118" y="124" width="46" height="72" rx="4" fill="#9dc4e6"/><rect x="176" y="98" width="46" height="98" rx="4" fill="#1f6fb2"/><rect x="250" y="104" width="170" height="11" rx="5" fill="#e3e9ef"/><rect x="250" y="128" width="130" height="11" rx="5" fill="#e3e9ef"/>',
+  table:     '<rect x="56" y="96" width="368" height="24" rx="4" fill="#0b3c6b"/><rect x="56" y="126" width="368" height="22" rx="4" fill="#eef3f8"/><rect x="56" y="154" width="368" height="22" rx="4" fill="#f6f8fa"/><rect x="56" y="182" width="368" height="22" rx="4" fill="#eef3f8"/>',
+  grid:      '<rect x="56" y="96" width="176" height="52" rx="6" fill="#eef3f8"/><rect x="248" y="96" width="176" height="52" rx="6" fill="#eef3f8"/><rect x="56" y="158" width="176" height="52" rx="6" fill="#eef3f8"/><rect x="248" y="158" width="176" height="52" rx="6" fill="#fbf3e2"/>',
+  timeline:  '<rect x="56" y="150" width="368" height="4" rx="2" fill="#e3e9ef"/><circle cx="90" cy="152" r="10" fill="#1f6fb2"/><circle cx="200" cy="152" r="10" fill="#9dc4e6"/><circle cx="310" cy="152" r="10" fill="#cfe0f1"/><circle cx="410" cy="152" r="10" fill="#c99a2e"/>',
+};
+function slideSVG(d, big) {
+  const t = String(d.title).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const s = String(d.sub).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const isTitle = d.kind === "title";
+  return `<svg viewBox="0 0 480 270" role="img" aria-label="Slide ${d.n}: ${t}">
+    <rect width="480" height="270" fill="#ffffff"/>
+    <rect x="0" y="0" width="480" height="8" fill="#0b3c6b"/>
+    <text x="${isTitle ? 240 : 56}" y="${isTitle ? 120 : 68}" text-anchor="${isTitle ? "middle" : "start"}"
+      font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="${isTitle ? 34 : 22}" font-weight="800" fill="#0b3c6b">${t}</text>
+    <text x="${isTitle ? 240 : 56}" y="${isTitle ? 148 : 90}" text-anchor="${isTitle ? "middle" : "start"}"
+      font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="14" font-weight="600" fill="#5a6470">${s}</text>
+    ${SLIDE_BODY[d.kind] || ""}
+    <text x="440" y="252" text-anchor="end" font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="12" fill="#97a3ae">${d.n}</text>
+  </svg>`;
+}
+const heatOf = s => "heat heat-" + (s >= 3.5 ? 4 : s >= 3.0 ? 3 : s >= 2.5 ? 2 : 1);
+
+/* ---------- the deck storyboard, every frame a drop target ---------- */
+const OK_TYPES = /\.(pdf|pptx?|png|jpe?g)$/i;
+const sizeOf = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
+
+function frameInner(d) {
+  const filled = d.status === "in";
+  if (d.file) {
+    return `<span class="up">${d.file.url
+      ? `<img src="${d.file.url}" alt="Slide ${d.n}: ${esc(d.title)}">`
+      : `<svg class="doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+           <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+         <span class="fn">${esc(d.file.name)}</span><span class="sz">${esc(d.file.size)}</span>`}</span>`;
+  }
+  if (filled) return slideSVG(d);
+  return `<svg viewBox="0 0 480 270" aria-hidden="true"><text x="240" y="132" text-anchor="middle"
+      font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="15" font-weight="650"
+      fill="${d.status === "due" ? "#c99a2e" : "#9aa6b2"}">${d.status === "due" ? "Due this week" : "Week " + d.week}</text></svg>`;
+}
+
+function renderFilm() {
+  document.getElementById("film").innerHTML = DECK.map(d => {
+    const filled = d.status === "in", locked = d.status === "locked";
+    const hint = locked ? "Opens in Week " + d.week : "Drop your slide here";
+    /* A frame that already holds a file is a viewer: clicking it puts the
+       slide on the stage. Only an empty frame is a drop target, and the
+       file already in place is changed with its own Replace button. */
+    /* A frame that already has a slide is a viewer: clicking it puts that
+       slide on the stage. Only a frame still waiting for one is an upload
+       target, and a slide already in place is changed with Replace. */
+    return `<div class="frame ${filled ? "" : "empty"} ${d.file ? "uploaded" : ""} ${locked ? "locked" : ""}" data-i="${d.n - 1}">
+      <span class="thumb">
+        ${locked || filled ? "" : `<input type="file" accept=".pdf,.ppt,.pptx,.png,.jpg,.jpeg"
+             aria-label="Upload slide ${d.n}: ${esc(d.title)}">`}
+        ${frameInner(d)}
+        ${filled ? `<span class="viewhint">View slide</span>`
+                 : `<span class="drophint">${hint}${locked ? "" : "<br><span style=\"font-weight:500\">PDF, PPTX, PNG or JPG</span>"}</span>`}
+      </span>
+      ${d.file ? `<button class="rmslide" type="button" aria-label="Remove the file on slide ${d.n}">×</button>` : ""}
+      ${filled ? `<input class="reinput" type="file" accept=".pdf,.ppt,.pptx,.png,.jpg,.jpeg" hidden
+                         aria-label="Replace slide ${d.n}">` : ""}
+      <span class="cap"><span class="no">${String(d.n).padStart(2, "0")}</span><span class="nm">${esc(d.title)}</span></span>
+      <span class="fmeta">
+        ${d.file ? `<span class="badge mine">Your file</span>`
+                 : d.score ? `<span class="${heatOf(d.score)}">${d.score.toFixed(2)}</span>` : ""}
+        ${filled ? `<button class="repl" type="button">Replace</button>`
+                 : `<span class="src">${esc(d.source)}</span>`}
+      </span>
+    </div>`;
+  }).join("");
+  wireFrames();
+}
+
+/* a dropped file becomes that slide */
+function takeFile(i, file) {
+  const d = DECK[i];
+  if (!file || d.status === "locked") return false;
+  if (!OK_TYPES.test(file.name)) { alertLine("That file type is not accepted — use PDF, PPTX, PNG or JPG."); return false; }
+  if (d.file && d.file.url) URL.revokeObjectURL(d.file.url);
+  d.file = { name: file.name, size: sizeOf(file.size),
+             url: /^image\//.test(file.type) ? URL.createObjectURL(file) : null };
+  d.status = "in";
+  renderFilm(); refreshCounts(); showSlide(i);
+  return true;
+}
+function alertLine(msg) {
+  const note = document.getElementById("deckdrop");
+  const keep = note.innerHTML;
+  note.innerHTML = `<strong>${msg}</strong>`;
+  setTimeout(() => { note.innerHTML = keep; }, 2600);
+}
+
+function wireFrames() {
+  document.querySelectorAll("#film .frame").forEach(fr => {
+    const i = +fr.dataset.i;
+    const inp = fr.querySelector("input[type=file]");
+    if (inp) inp.addEventListener("change", e => { if (e.target.files[0]) takeFile(i, e.target.files[0]); });
+    fr.addEventListener("dragover", e => { e.preventDefault(); if (DECK[i].status !== "locked") fr.classList.add("over"); });
+    fr.addEventListener("dragleave", () => fr.classList.remove("over"));
+    fr.addEventListener("drop", e => {
+      e.preventDefault(); e.stopPropagation(); fr.classList.remove("over");
+      takeFile(i, e.dataTransfer.files[0]);
+    });
+    const re = fr.querySelector(".reinput"), rb = fr.querySelector(".repl");
+    if (rb && re) {
+      rb.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); re.click(); });
+      // the synthetic click on the hidden input would otherwise bubble to the strip
+      re.addEventListener("click", e => e.stopPropagation());
+      re.addEventListener("change", e => { if (e.target.files[0]) takeFile(i, e.target.files[0]); });
+    }
+    const rm = fr.querySelector(".rmslide");
+    if (rm) rm.addEventListener("click", e => {
+      e.preventDefault(); e.stopPropagation();
+      const d = DECK[i];
+      if (d.file && d.file.url) URL.revokeObjectURL(d.file.url);
+      d.file = null;
+      d.status = d.n <= 11 ? "in" : (d.n === 12 ? "due" : "locked");   // back to how the week left it
+      renderFilm(); refreshCounts(); showSlide(Math.min(i, DECK.length - 1));
+    });
+  });
+}
+renderFilm();
+
+/* drop a handful of slides at once — they fill the next empty frames */
+(function () {
+  const zone = document.getElementById("deckdrop");
+  zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("over"); });
+  zone.addEventListener("dragleave", () => zone.classList.remove("over"));
+  zone.addEventListener("drop", e => {
+    e.preventDefault(); zone.classList.remove("over");
+    const files = [...e.dataTransfer.files];
+    let taken = 0, full = false;
+    files.forEach(f => {
+      // fill the next frame that has no file of its own and is open — never jump a filled one
+      const slot = DECK.findIndex(d => !d.file && d.status !== "locked");
+      if (slot === -1) { full = true; return; }
+      if (takeFile(slot, f)) taken++;
+    });
+    if (full) alertLine("No open frames left — drop onto a slide to replace it.");
+    else if (taken) alertLine(taken + (taken === 1 ? " slide" : " slides") + " added, in order.");
+  });
+})();
+
+let slideAt = 0;
+function showSlide(i) {
+  const filledIdx = DECK.map((d, k) => d.status === "in" ? k : -1).filter(k => k >= 0);
+  if (!filledIdx.length) return;
+  slideAt = Math.max(0, Math.min(DECK.length - 1, i));
+  if (DECK[slideAt].status !== "in") slideAt = filledIdx[filledIdx.length - 1];
+  const d = DECK[slideAt];
+  document.getElementById("stage-screen").innerHTML = d.file
+    ? (d.file.url
+        ? `<img src="${d.file.url}" alt="Slide ${d.n}: ${esc(d.title)}" style="width:100%;height:100%;object-fit:contain;background:#fff">`
+        : `<div style="height:100%;display:grid;place-items:center;align-content:center;gap:8px;background:#fff;text-align:center;padding:20px">
+             <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#2e7d5b" stroke-width="1.4" aria-hidden="true">
+               <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+             <div style="font-weight:700;color:#0b3c6b">${esc(d.file.name)}</div>
+             <div style="font-size:13px;color:#5a6470">${esc(d.file.size)} · handed in, ready for the panel</div>
+           </div>`)
+    : slideSVG(d, true);
+  document.getElementById("stage-who").innerHTML =
+    `Slide ${d.n} · ${d.title}<small>${d.sub} — from ${d.source}${
+      d.file ? " · your file: " + esc(d.file.name) : d.score ? " · panel scored this " + d.score.toFixed(2) : ""}</small>`;
+  document.getElementById("slide-prev").disabled = slideAt <= filledIdx[0];
+  document.getElementById("slide-next").disabled = slideAt >= filledIdx[filledIdx.length - 1];
+  document.querySelectorAll("#film .frame").forEach(b =>
+    b.setAttribute("aria-current", String(+b.dataset.i === slideAt)));
+}
+document.getElementById("film").addEventListener("click", e => {
+  const b = e.target.closest(".frame"); if (!b) return;
+  const i = +b.dataset.i, d = DECK[i];
+  if (d.status === "in") { showSlide(i); return; }
+  document.getElementById("stage-screen").innerHTML =
+    `<svg viewBox="0 0 480 270" role="img" aria-label="Slide ${d.n} not made yet">
+       <rect width="480" height="270" fill="#f6f8fa"/>
+       <rect x="24" y="24" width="432" height="222" rx="10" fill="none" stroke="#cfd8e1" stroke-width="2" stroke-dasharray="8 7"/>
+       <text x="240" y="128" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
+         font-size="20" font-weight="700" fill="#0b3c6b">${d.title}</text>
+       <text x="240" y="156" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
+         font-size="13" fill="#5a6470">${d.status === "due" ? "Due this week" : "Opens in Week " + d.week}</text>
+     </svg>`;
+  document.getElementById("stage-who").innerHTML =
+    `Slide ${d.n} · ${d.title}<small>Not made yet — comes from ${d.source} in Week ${d.week}</small>`;
+  document.getElementById("slide-prev").disabled = false;
+  document.getElementById("slide-next").disabled = false;
+  document.querySelectorAll("#film .frame").forEach(x => x.setAttribute("aria-current", String(+x.dataset.i === i)));
+});
+document.getElementById("slide-prev").addEventListener("click", () => showSlide(slideAt - 1));
+document.getElementById("slide-next").addEventListener("click", () => showSlide(slideAt + 1));
+
+/* ---------- export (mockup) ---------- */
+function flash(btn, msg, back) {
+  btn.textContent = msg;
+  setTimeout(() => { btn.textContent = back; }, 2600);
+}
+document.getElementById("btn-export").addEventListener("click", function () {
+  flash(this, "Assembled " + FORM.filter(hasContent).length + " items into DOST Form 2 (mockup)", "Export current draft");
+});
+document.getElementById("btn-assemble").addEventListener("click", function () {
+  flash(this, "Assembled " + DECK.filter(d => d.status === "in").length + " slides into one deck (mockup)", "Assemble the deck");
+});
+
+
+/* =====================================================================
+   Proposal preview — DOST Form 2 redrawn box for box. Structured items
+   read their `value`; prose items read `draft`. Nothing is parsed.
+   ===================================================================== */
+
+/* the blue answer, or a grey note saying which week fills it */
+function ans(n) {
+  const f = F(n), t = (f.draft || "").trim();
+  if (t) return `<div class="ans">${esc(t)}</div>`;
+  return `<div class="todo">not yet written — ${esc(f.source)}, Week ${f.week}</div>`;
+}
+const inline = v => String(v || "").trim()
+  ? `<span class="inline">${esc(v)}</span>` : `<span class="rule"></span>`;
+const tickbox = on => `<span class="tick">${on ? "&#9745;" : "_____"}</span>`;
+
+function buildSheet() {
+  const P = F(1).value, S = F(3).value, C4 = F(4).value, A = F(5).value;
+  const staff = F(21).value, B = F(22).value, PR = F(23).value;
+  const sCols = ["country", "region", "province", "district", "municipality", "barangay"];
+
+  const siteRows = S.map((r, i) =>
+    `<tr><td>${i + 1}.</td>${sCols.map(k => `<td class="ans">${esc(r[k])}</td>`).join("")}</tr>`).join("");
+
+  const staffRows = (staff.length ? staff : [{ position: "", pct: "", resp: "" }]).map(r =>
+    `<tr><td class="l ans">${esc(r.position)}</td><td class="ans">${r.pct ? esc(r.pct) + "%" : ""}</td>
+      <td class="l ans">${esc(r.resp)}</td></tr>`).join("");
+
+  const col = k => B.rows.reduce((a, r) => a + (+r[k] || 0), 0);
+  const grand = B.rows.reduce((a, r) => a + rowTotal(r), 0);
+  const budgetRows = B.rows.map(r =>
+    `<tr><td class="l">${esc(r.label)}</td><td class="ans">${money(r.ps)}</td><td class="ans">${money(r.mooe)}</td>
+      <td class="ans">${money(r.eo)}</td><td class="ans">${money(rowTotal(r))}</td></tr>`).join("");
+
+  const projRows = PR.rows.map(r =>
+    `<tr><td class="l ans">${esc(r.title) || "&nbsp;"}</td><td class="l ans">${esc(r.agency)}</td>
+      <td class="l ans">${esc(r.role)}</td></tr>`).join("");
+
+  const areaLine = a => `<div class="idt">${tickbox(A.area === a.k)} ${a.label}</div>` +
+    (a.extra ? `<div class="idt" style="padding-left:44px">${a.extraLabel}: ${A.area === a.k ? inline(A[a.extra]) : '<span class="rule"></span>'}</div>` : "");
+
+  const page1 = `
+  <div class="frame">
+    <div class="box">
+      <div class="no">(1) PROJECT PROFILE</div>
+      <div>Program Title: ${inline(P.program)}</div>
+      <div>Project Title: ${inline(P.title)}</div>
+      <div>Project Leader/Sex: ${inline(P.leader && P.sex ? P.leader + " (" + P.sex + ")" : P.leader)}</div>
+      <div>Project Duration (number of months): ${inline(P.months)}</div>
+      <div class="idt">Project Start Date: ${inline(fmtDay(P.start))}</div>
+      <div class="idt">Project End Date: ${inline(fmtDay(P.end))}</div>
+      <div>Implementing Agency <span class="fine">(Name of University-College-Institute, Department/Organization or Company)</span>: ${inline(P.agency)}</div>
+      <div>Address/Telephone/Fax/Email <span class="fine">(Barangay, Municipality, District, Province, Region)</span>: ${inline(P.address)}</div>
+    </div>
+
+    <div class="box">
+      <div class="no">(2) COOPERATING AGENCY/IES <span class="fine red">(Name/s and Address/es)</span></div>
+      ${ans(2)}
+    </div>
+
+    <div class="box">
+      <div class="no">(3) SITE(S) OF IMPLEMENTATION</div>
+      <table class="g" style="margin-top:4px">
+        <thead><tr>
+          <th style="width:13%">IMPLEMENTATION SITES NO.</th><th class="red">COUNTRY</th><th>REGION</th>
+          <th>PROVINCE</th><th>DISTRICT</th><th>MUNICIPALITY</th><th class="red">BARANGAY</th>
+        </tr></thead>
+        <tbody>${siteRows}</tbody>
+      </table>
+    </div>
+
+    <div class="split" style="border-bottom:1px solid #000">
+      <div>
+        <div class="no">(4) TYPE OF RESEARCH</div>
+        <div class="idt">${tickbox(C4.precommercialization)} Pre-commercialization</div>
+      </div>
+      <div>
+        <div class="no">(5) R&amp;D PRIORITY AREA &amp; PROGRAM <span class="fine">(based on HNRDA 2017-2022)</span></div>
+        ${AREAS.map(areaLine).join("")}
+      </div>
+    </div>
+
+    <div class="split" style="border-bottom:1px solid #000">
+      <div><span class="no">Sustainable Development Goal (SDG) Addressed</span></div>
+      <div>${A.sdg ? `<span class="inline">${esc(A.sdg)}</span>` : '<span class="rule" style="min-width:100%"></span>'}</div>
+    </div>
+
+    <div class="box">
+      <div class="no">(6) EXECUTIVE SUMMARY <span class="fine">(not to exceed 200 words)</span></div>
+      ${ans(6)}
+      <div class="sub red" style="margin-top:6px">STARTUP BACKGROUND
+        <span class="fine" style="color:#000">(Description of the startup and the founders, their product and value proposition, and the IP status and protection (if applicable))</span></div>
+    </div>
+
+    <div class="box"><div class="no red">(7) INTRODUCTION</div></div>
+    <div class="box"><div class="no idt">(7.1) RATIONALE/SIGNIFICANCE <span class="fine">(not to exceed 300 words)</span></div>${ans(7)}</div>
+    <div class="box"><div class="no idt">(7.2) SCIENTIFIC BASIS/THEORETICAL FRAMEWORK</div></div>
+    <div class="box">
+      <div class="no idt">(7.3) OBJECTIVES</div>
+      <div>General:</div><div>Specific:</div>
+    </div>
+
+    <div class="box">
+      <div class="no">(8) REVIEW OF LITERATURE</div>
+      <p class="hint">For startup proposals, results of previous R&amp;D conducted related to the proposed technology
+        (product/process/service) and the status of the intellectual property (IP) protection of the proposed technology
+        should be included. Also, include a background on the development of the technology (i.e., evolution of the
+        startup, first prototype, first test, first sale).</p>
+      ${ans(8)}
+    </div>
+
+    <div class="box">
+      <div class="no">(9) MARKETING AND COMMERCIAL VIABILITY <span class="fine">(For startup proposals)</span></div>
+      <p class="hint">(Details such as: a) competitors (Include in the proposal a competitive advantage analysis using a
+        comparative advantage table.); b) similarities, differences, and advantages of the product compared to its
+        competitors; c) production requirements and its corresponding values; d) details of Intellectual Property Rights
+        (IPR) and license applications; e) raw materials and suppliers; f) target and current areas of distribution;
+        g) target market and beneficiaries; h) description and size of the target market; i) ideal forecast of the demand
+        and sales; j) limiting factors, and; k) marketing strategies and pricing.)</p>
+      ${ans(9)}
+      <div class="hint" style="margin-top:4px">${(F(9).parts || []).map(pt =>
+        `${tickbox(pt.done)} (${pt.k}) ${esc(pt.label)}`).join("<br>")}</div>
+    </div>
+  </div>`;
+
+  const simple = (n, title, hint) => `
+    <div class="box">
+      <div class="no">(${n}) ${title}${hint ? ` <span class="fine">${hint}</span>` : ""}</div>
+      ${ans(n)}
+    </div>`;
+
+  const page2 = `
+  <div class="frame">
+    ${simple(10, "METHODOLOGY")}
+    ${simple(11, "TECHNOLOGY ROADMAP", "(if applicable) (use the attached sheet)")}
+    ${simple(12, "EXPECTED OUTPUTS (6Ps)")}
+    ${simple(13, "POTENTIAL OUTCOMES")}
+    ${simple(14, "POTENTIAL IMPACTS (2Is)")}
+    ${simple(15, "TARGET BENEFICIARIES")}
+    ${simple(16, "SUSTAINABILITY PLAN", "(if applicable)")}
+    ${simple(17, "GENDER AND DEVELOPMENT (GAD) SCORE", "(refer to the attached GAD checklist)")}
+    ${simple(18, "LIMITATIONS OF THE PROJECT")}
+    ${simple(19, "LIST OF RISKS AND ASSUMPTIONS RISK MANAGEMENT PLAN", "(List possible risks and assumptions in attaining target outputs or objectives.)")}
+    ${simple(20, "LITERATURE CITED")}
+
+    <div class="box">
+      <div class="no">(21) PERSONNEL REQUIREMENT</div>
+      <table class="g" style="margin-top:4px">
+        <thead><tr><th style="width:42%">Position</th><th style="width:18%">Percent Time Devoted to the Project</th><th>Responsibilities</th></tr></thead>
+        <tbody>${staffRows}</tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <div class="no">(22) BUDGET BY IMPLEMENTING AGENCY</div>
+      <table class="g" style="margin-top:4px">
+        <thead><tr><th style="width:32%">IMPLEMENTING AGENCY</th><th>PS</th><th>MOOE</th><th>EO</th><th>Total</th></tr></thead>
+        <tbody>${budgetRows}
+          <tr><td><strong>TOTAL</strong></td><td class="ans"><strong>${money(col("ps"))}</strong></td>
+            <td class="ans"><strong>${money(col("mooe"))}</strong></td><td class="ans"><strong>${money(col("eo"))}</strong></td>
+            <td class="ans"><strong>${money(grand)}</strong></td></tr>
+        </tbody></table>
+      ${B.counterpart ? `<div class="ans">${esc(B.counterpart)}</div>` : ""}
+    </div>
+
+    <div class="box">
+      <div class="no">(23) OTHER ONGOING PROJECTS BEING HANDLED BY THE PROJECT LEADER: ${inline(PR.count)} <span class="fine">(number)</span></div>
+      <table class="g" style="margin-top:4px">
+        <thead><tr><th style="width:48%">Title of the Project</th><th>Funding Agency</th><th>Involvement in the Project</th></tr></thead>
+        <tbody>${projRows}</tbody>
+      </table>
+    </div>
+
+    <div class="box">
+      <div class="no">(24) OTHER SUPPORTING DOCUMENTS <span class="fine">(Please refer to page 2 for the additional necessary documents.)</span></div>
+      <div class="hint">${(F(24).attachments || []).map(a =>
+        `${a.have === null ? '<span class="tick">&#8211;</span>' : tickbox(a.have)} ${esc(a.label)}`).join("<br>")}</div>
+    </div>
+  </div>
+
+  <p class="certify">I hereby certify the truth of the foregoing and have no pending financial and/or technical
+    obligations from the DOST and its attached Agencies. I further certify that the programs/projects being handled
+    is within the prescribed number as stipulated in the DOST-GIA Guidelines. Any willful omission/false statement
+    shall be a basis of disapproval and cancellation of the project.</p>
+
+  <table class="g">
+    <thead><tr><th style="width:26%">&nbsp;</th><th>SUBMITTED BY (Project Leader)</th><th>ENDORSED BY (Head of the Agency)</th></tr></thead>
+    <tbody>${["Signature", "Printed Name", "Designation/Title", "Date"].map(r =>
+      `<tr><td class="l" style="height:30px">${r}</td><td></td><td></td></tr>`).join("")}</tbody>
+  </table>
+  <div class="footnote">Note: See guidelines/definitions at the back.</div>`;
+
+  const done = FORM.filter(hasContent).length;
+  document.getElementById("sheet").innerHTML = `
+    <div class="dochead">
+      <img src="assets/dost-logo.png" alt="Department of Science and Technology">
+      <div class="ti"><div class="l1">DOST Form 2 (for Startups)</div>
+        <div class="l2">DETAILED RESEARCH &amp; DEVELOPMENT PROJECT PROPOSAL</div></div>
+      <div></div>
+    </div>
+    <div class="draftnote">Working draft · ${done} of ${FORM.length} items written · ${esc(TEAM.name)} · Week ${CAP.week_no} of ${CAP.weeks_total}</div>
+    ${page1}<div class="pagebreak"></div>${page2}`;
+
+  document.getElementById("sheet-sub").textContent =
+    done + " of " + FORM.length + " items written · updates as you type";
+}
+
+/* the box on the paper that belongs to the item being edited */
+function markHot(n) {
+  const sheet = document.getElementById("sheet");
+  sheet.querySelectorAll(".hot").forEach(el => el.classList.remove("hot"));
+  const box = [...sheet.querySelectorAll(".box, .split")]
+    .find(el => new RegExp("^\\(" + n + "\\)").test((el.querySelector(".no") || {}).textContent || ""));
+  if (box) box.classList.add("hot");
+  return box;
+}
+
+/* open / close — docked, so typing on the left redraws the paper on the right */
+let sheetOpen = false, lastFocus = null;
+function openSheet() {
+  buildSheet();
+  lastFocus = document.activeElement;
+  document.getElementById("sheetwrap").hidden = false;
+  document.body.classList.add("sheet-open");
+  sheetOpen = true;
+  document.getElementById("btn-preview").textContent = "Hide the form";
+  /* With the paper open the left side is a workbench: the cover and the
+     workspace band are hidden by .sheet-open, so the page begins at the
+     item bar and there is nothing above the work to scroll back up to. */
+  window.scrollTo(0, 0);
+  const box = markHot(current);
+  if (box) box.scrollIntoView({ block: "center" });
+}
+function closeSheet() {
+  document.getElementById("sheetwrap").hidden = true;
+  document.body.classList.remove("sheet-open");
+  sheetOpen = false;
+  document.getElementById("btn-preview").textContent = "Preview the form";
+  /* the cover comes back — land on the workspace rather than at the top */
+  const band = document.querySelector("#ws-form .ws-band");
+  if (band) band.scrollIntoView({ block: "start" });
+  if (lastFocus && document.contains(lastFocus)) lastFocus.focus();
+}
+/* called on every keystroke in the editor */
+function syncSheet(n, scroll) {
+  if (!sheetOpen) return;
+  const keep = document.getElementById("sheetwrap").scrollTop;
+  buildSheet();
+  const box = markHot(n);
+  if (scroll && box) box.scrollIntoView({ block: "center" });
+  else document.getElementById("sheetwrap").scrollTop = keep;
+}
+document.getElementById("btn-preview").addEventListener("click", () => sheetOpen ? closeSheet() : openSheet());
+// the merged site's router calls this when you navigate away from Capstone
+window.__closeSheet = () => { if (sheetOpen) closeSheet(); };
+document.getElementById("sheet-close").addEventListener("click", closeSheet);
+document.getElementById("sheet-print").addEventListener("click", () => window.print());
+document.addEventListener("keydown", e => {
+  if (e.key === "Escape" && sheetOpen) closeSheet();
+});
+
+/* ---------- dynamic controller & start ---------- */
+window.__renderCapstone = function(targetTeamId) {
+  const gate = document.getElementById("capstone-locked-gate");
+  const content = document.getElementById("capstone-content-wrap");
+  if (!gate || !content) return;
+
+  const auth = window.MOCK && window.MOCK.auth;
+  if (!auth || !auth.canAccess("capstone")) {
+    gate.hidden = false;
+    content.hidden = true;
+    const slot = document.getElementById("capstone-switcher-slot");
+    if (slot) slot.innerHTML = "";
+    if (typeof closeSheet === "function" && sheetOpen) closeSheet();
+    return;
+  }
+
+  gate.hidden = true;
+  content.hidden = false;
+
+  const user = auth.getCurrentUser();
+  const assigned = auth.getAssignedTeams();
+  let activeId;
+  if (user.role === "participant") {
+    activeId = user.team_id || "g1";
+  } else {
+    if (targetTeamId && (assigned.includes(targetTeamId) || user.role === "admin")) {
+      activeId = targetTeamId;
+    } else if (window.__selectedTeamId && (assigned.includes(window.__selectedTeamId) || user.role === "admin")) {
+      activeId = window.__selectedTeamId;
+    } else {
+      activeId = assigned[0] || "g1";
+    }
+  }
+  window.__selectedTeamId = activeId;
+
+  const teams = window.MOCK.teams;
+  TEAM = teams.find(t => t.id === activeId) || teams[0];
+  CAP = window.MOCK.getCapstone(activeId);
+  FORM = CAP.form;
+  DECK = CAP.deck;
+  seedSubmitted();
+
+  // Render team switcher
+  const slot = document.getElementById("capstone-switcher-slot");
+  if (slot) {
+    if (user.role === "participant") {
+      // Participants: no banner needed
+      slot.innerHTML = '';
+    } else {
+      const allowedTeams = (user.role === "admin") ? teams : teams.filter(t => assigned.includes(t.id));
+      if (allowedTeams.length > 1) {
+        slot.innerHTML = `
+          <div class="team-switcher-bar admin-switcher">
+            <div class="ts-left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              <select id="team-select-capstone">
+                ${allowedTeams.map(t => `<option value="${t.id}" ${t.id === activeId ? 'selected' : ''}>${esc(t.short)} (${esc(t.abbr)})</option>`).join('')}
+              </select>
+            </div>
+            <span class="ts-count">${allowedTeams.length} teams</span>
+          </div>`;
+        const sel = document.getElementById("team-select-capstone");
+        if (sel) {
+          sel.addEventListener("change", (e) => {
+            window.__selectedTeamId = e.target.value;
+            window.__renderCapstone(e.target.value);
+            document.dispatchEvent(new CustomEvent("stephub_team_changed", { detail: e.target.value }));
+          });
+        }
+      } else {
+        slot.innerHTML = '';
+      }
+    }
+  }
+
+  refreshCounts();
+  renderItemBar();
+  renderItemList();
+  const openItemObj = FORM.find(f => f.status === "open") || FORM[0];
+  openItem(openItemObj.n);
+  renderFilm();
+  const firstIn = DECK.filter(d => d.status === "in").length - 1;
+  showSlide(firstIn >= 0 ? firstIn : 0);
+  if (sheetOpen) buildSheet();
+};
+
+window.addEventListener("stephub_auth_changed", () => {
+  if (typeof window.__renderCapstone === "function") window.__renderCapstone();
+});
+
+window.__renderCapstone();
+
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
