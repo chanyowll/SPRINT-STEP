@@ -18,7 +18,7 @@ window.MOCK = (function () {
       about: "POSTE (Interconnected Poste Kits for Environmental Sensing)",
       technology_title: "Interconnected Poste Kits for Environmental Sensing",
       implementing_agency: "University of San Carlos",
-      mentor_id: "mn1", mentor_name: "Mr. Antonio Feria", panel_letter: "A",
+      mentor_id: "mn1", mentor_name: "Dr. Jon Fernandez", panel_letter: "A",
       initials: "PO", accent: "hsl(206 56% 56%)", glow: "hsla(206, 56%, 56%, .30)", is_public: true },
 
     { id: "g2", name: "SINAG (USM)", short: "SINAG", abbr: "USM", logo: "assets/logos/wm/usm.png", mark: "assets/logos/sm/usm.png",
@@ -26,7 +26,7 @@ window.MOCK = (function () {
       about: "Optimization of Irrigation Flow through Conduit Micro Hydropower to Generate Electricity for Off-grid Barangay of Kabacan, Cotabato (SINAG)",
       technology_title: "Conduit micro hydropower utilizing irrigation canal flow for off-grid communities",
       implementing_agency: "University of Southern Mindanao",
-      mentor_id: "mn2", mentor_name: "Dr. Proceso “Jon” Fernandez", panel_letter: "A",
+      mentor_id: "mn2", mentor_name: "Dr. John Lagdameo", panel_letter: "A",
       initials: "SI", accent: "hsl(196 56% 56%)", glow: "hsla(196, 56%, 56%, .30)", is_public: true },
 
     { id: "g3", name: "BRICKS (USC)", short: "BRICKS", abbr: "USC", logo: "assets/logos/wm/usc.png", mark: "assets/logos/sm/usc.png",
@@ -34,7 +34,7 @@ window.MOCK = (function () {
       about: "Conversion of Quarry Waste (Silt) Into High Temperature Refractory Bricks",
       technology_title: "High-temperature refractory bricks synthesized from quarry silt waste",
       implementing_agency: "University of San Carlos",
-      mentor_id: "mn3", mentor_name: "Ms. Janine Chiong", panel_letter: "A",
+      mentor_id: "mn3", mentor_name: "Mr. Bienvenido Garcia", panel_letter: "A",
       initials: "BR", accent: "hsl(186 56% 56%)", glow: "hsla(186, 56%, 56%, .30)", is_public: true },
 
     { id: "g4", name: "Halal Blockchain (USEP)", short: "Halal Blockchain", abbr: "USeP", logo: "assets/logos/wm/usep.png", mark: "assets/logos/sm/usep.png",
@@ -42,7 +42,7 @@ window.MOCK = (function () {
       about: "Blockchain-Based Novel System/Application for Transparent Traceability of Halal-and-Tayeb Cacao Products",
       technology_title: "Distributed ledger traceability platform for farm-to-table Halal cacao certification",
       implementing_agency: "University of Southeastern Philippines",
-      mentor_id: "mn4", mentor_name: "Mr. Bryan Erfe", panel_letter: "A",
+      mentor_id: "mn4", mentor_name: "Mr. Michael Tan", panel_letter: "A",
       initials: "HB", accent: "hsl(172 56% 56%)", glow: "hsla(172, 56%, 56%, .30)", is_public: true },
 
     { id: "g5", name: "Zeoskin (SLU)", short: "Zeoskin", abbr: "SLU", logo: "assets/logos/wm/slu.png", mark: "assets/logos/sm/slu.png",
@@ -50,7 +50,7 @@ window.MOCK = (function () {
       about: "ZEOSKIN: A Green Indoor Air Filter",
       technology_title: "Natural zeolite-enhanced breathable bio-composite filter for indoor air quality",
       implementing_agency: "Saint Louis University",
-      mentor_id: "mn5", mentor_name: "Ms. Pamela Ann Da Silva", panel_letter: "B",
+      mentor_id: "mn5", mentor_name: "Mr. Armando Miclat", panel_letter: "B",
       initials: "ZS", accent: "hsl(158 56% 56%)", glow: "hsla(158, 56%, 56%, .30)", is_public: true },
 
     { id: "g6", name: "CAPPS (MSU IIT)", short: "CAPPS", abbr: "MSU-IIT", logo: "assets/logos/wm/msu-iit.png", mark: "assets/logos/sm/msu-iit.png",
@@ -58,7 +58,7 @@ window.MOCK = (function () {
       about: "CAPPS: Development of Alternative Ceramic Armor Plates from Philippine Silicates for Philippine Armed Personnel",
       technology_title: "Ballistic-grade ceramic armor insert plates synthesized from domestic silicates",
       implementing_agency: "Mindanao State University – Iligan Institute of Technology",
-      mentor_id: "mn6", mentor_name: "Ms. M.C.B. de Guzman", panel_letter: "B",
+      mentor_id: "mn6", mentor_name: "Mr. George Quitoriano", panel_letter: "B",
       initials: "CA", accent: "hsl(142 56% 56%)", glow: "hsla(142, 56%, 56%, .30)", is_public: true },
 
     { id: "g7", name: "SPArC (MSU IIT)", short: "SPArC", abbr: "MSU-IIT", logo: "assets/logos/wm/msu-iit.png", mark: "assets/logos/sm/msu-iit.png",
@@ -66,7 +66,7 @@ window.MOCK = (function () {
       about: "Synergy in Solid Fuel Production from Agri-Industrial Biomass for Boiler Combustion (SPArC)",
       technology_title: "Densified high-calorific solid biofuel pellets from agricultural waste for industrial boilers",
       implementing_agency: "Mindanao State University – Iligan Institute of Technology",
-      mentor_id: "mn7", mentor_name: "Ingco", panel_letter: "B",
+      mentor_id: "mn7", mentor_name: "Engr. Benjamin N. Mirasol", panel_letter: "B",
       initials: "SP", accent: "hsl(118 56% 56%)", glow: "hsla(118, 56%, 56%, .30)", is_public: true },
 
     { id: "g8", name: "meSHM (DLSU)", short: "meSHM", abbr: "DLSU", logo: "assets/logos/wm/dlsu.png", mark: "assets/logos/sm/dlsu.png",
@@ -74,7 +74,7 @@ window.MOCK = (function () {
       about: "Intelligent Structural Health Monitoring via Mesh of Tremor Sensors (meSHM)",
       technology_title: "Wireless sensor mesh for rapid post-earthquake structural integrity assessment",
       implementing_agency: "De La Salle University",
-      mentor_id: "mn8", mentor_name: "Oppus", panel_letter: "C",
+      mentor_id: "mn8", mentor_name: "Ms. Janine Chiong", panel_letter: "C",
       initials: "MS", accent: "hsl(92 56% 56%)", glow: "hsla(92, 56%, 56%, .30)", is_public: true },
 
     { id: "g9", name: "SFRSCC (FEU Tech)", short: "SFRSCC", abbr: "FEU Tech", logo: "assets/logos/wm/feu-tech.png", mark: "assets/logos/sm/feu-tech.png",
@@ -82,7 +82,7 @@ window.MOCK = (function () {
       about: "Development of Fiber-Reinforced Self-Compacting Concrete (SFRSCC) for corrosion reduction",
       technology_title: "Corrosion-inhibiting fiber-reinforced self-compacting concrete for coastal structures",
       implementing_agency: "FEU Institute of Technology",
-      mentor_id: "mn9", mentor_name: "Miclat", panel_letter: "C",
+      mentor_id: "mn9", mentor_name: "Ms. Bunnie De Guzman", panel_letter: "C",
       initials: "SF", accent: "hsl(62 56% 56%)", glow: "hsla(62, 56%, 56%, .30)", is_public: true },
 
     { id: "g10", name: "LASER (DOST PNRI)", short: "LASER", abbr: "DOST-PNRI", logo: "assets/logos/wm/dost-pnri.png", mark: "assets/logos/sm/dost-pnri.png",
@@ -90,7 +90,7 @@ window.MOCK = (function () {
       about: "Luzon Arsenic Source Tracing and Extent Mapping with Risk Mitigation and Engineering Intervention (LASER)",
       technology_title: "Isotopic tracing and point-of-use adsorbent cartridges for groundwater arsenic remediation",
       implementing_agency: "DOST - Philippine Nuclear Research Institute",
-      mentor_id: "mn10", mentor_name: "Mr. Antonio Feria", panel_letter: "C",
+      mentor_id: "mn10", mentor_name: "Mr. Tony Feria", panel_letter: "C",
       initials: "LA", accent: "hsl(38 56% 56%)", glow: "hsla(38, 56%, 56%, .30)", is_public: true },
   ];
 
@@ -160,26 +160,111 @@ window.MOCK = (function () {
     ],
 
     mentors: [
-      { id: "mn1", name: "Mr. Antonio Feria",          initials: "AF", team: "POSTE",            team_id: "g1",  day: "Wed", time: "14:00", zoom: "https://zoom.us/j/0000000001" },
-      { id: "mn2", name: "Dr. Proceso “Jon” Fernandez", initials: "PF", team: "SINAG",            team_id: "g2",  day: "Wed", time: "16:00", zoom: "https://zoom.us/j/0000000002" },
-      { id: "mn3", name: "Ms. Janine Chiong",           initials: "JC", team: "BRICKS",           team_id: "g3",  day: "Thu", time: "09:00", zoom: "https://zoom.us/j/0000000003" },
-      { id: "mn4", name: "Mr. Bryan Erfe",              initials: "BE", team: "Halal Blockchain", team_id: "g4",  day: "Thu", time: "11:00", zoom: "https://zoom.us/j/0000000004" },
-      { id: "mn5", name: "Ms. Pamela Ann Da Silva",     initials: "PD", team: "Zeoskin",          team_id: "g5",  day: "Thu", time: "14:00", zoom: "https://zoom.us/j/0000000005" },
-      { id: "mn6", name: "Ms. M.C.B. de Guzman",        initials: "MG", team: "CAPPS",            team_id: "g6",  day: "Thu", time: "17:00", zoom: "https://zoom.us/j/0000000006" },
-      { id: "mn7", name: "Ingco",                       initials: "IN", team: "SPArC",            team_id: "g7",  day: "Fri", time: "09:00", zoom: "https://zoom.us/j/0000000007" },
-      { id: "mn8", name: "Oppus",                       initials: "OP", team: "meSHM",            team_id: "g8",  day: "Fri", time: "10:30", zoom: "https://zoom.us/j/0000000008" },
-      { id: "mn9", name: "Miclat",                      initials: "MI", team: "SFRSCC",           team_id: "g9",  day: "Fri", time: "13:00", zoom: "https://zoom.us/j/0000000009" },
-      { id: "mn10", name: "Mr. Antonio Feria",          initials: "AF", team: "LASER",            team_id: "g10", day: "Fri", time: "15:00", zoom: "https://zoom.us/j/0000000010" },
+      { id: "mn1", name: "Dr. Jon Fernandez",          initials: "JF", team: "POSTE",            team_id: "g1",  day: "Wed", time: "14:00", zoom: "https://zoom.us/j/0000000001" },
+      { id: "mn2", name: "Dr. John Lagdameo", initials: "JL", team: "SINAG",            team_id: "g2",  day: "Wed", time: "16:00", zoom: "https://zoom.us/j/0000000002" },
+      { id: "mn3", name: "Mr. Bienvenido Garcia",           initials: "BG", team: "BRICKS",           team_id: "g3",  day: "Thu", time: "09:00", zoom: "https://zoom.us/j/0000000003" },
+      { id: "mn4", name: "Mr. Michael Tan",              initials: "MT", team: "Halal Blockchain", team_id: "g4",  day: "Thu", time: "11:00", zoom: "https://zoom.us/j/0000000004" },
+      { id: "mn5", name: "Mr. Armando Miclat",     initials: "AM", team: "Zeoskin",          team_id: "g5",  day: "Thu", time: "14:00", zoom: "https://zoom.us/j/0000000005" },
+      { id: "mn6", name: "Mr. George Quitoriano",        initials: "GQ", team: "CAPPS",            team_id: "g6",  day: "Thu", time: "17:00", zoom: "https://zoom.us/j/0000000006" },
+      { id: "mn7", name: "Engr. Benjamin N. Mirasol",                       initials: "BM", team: "SPArC",            team_id: "g7",  day: "Fri", time: "09:00", zoom: "https://zoom.us/j/0000000007" },
+      { id: "mn8", name: "Ms. Janine Chiong",                       initials: "JC", team: "meSHM",            team_id: "g8",  day: "Fri", time: "10:30", zoom: "https://zoom.us/j/0000000008" },
+      { id: "mn9", name: "Ms. Bunnie De Guzman",                      initials: "BD", team: "SFRSCC",           team_id: "g9",  day: "Fri", time: "13:00", zoom: "https://zoom.us/j/0000000009" },
+      { id: "mn10", name: "Mr. Tony Feria",          initials: "TF", team: "LASER",            team_id: "g10", day: "Fri", time: "15:00", zoom: "https://zoom.us/j/0000000010" },
     ],
-    mentorNote: "One hour a week per team, Wednesday to Friday, at a time the team and mentor arrange between them.",
+    mentorNote: "An hour and a half a week per team, Wednesday to Friday, at a time the team and mentor arrange between them.",
+    /* The mentors' weekly accomplishment report — the planned activities
+       each week, carried over word for word from the STEP 2 mentors'
+       reports (Mentors Accomplishment Report folder). They are the targets
+       every mentor reports against. `lead` rows are headings inside the
+       table; **…** is printed bold, as on the original forms.
+       Weeks 7 (IP) and 9 (financial analysis) had no STEP 2 report: their
+       activities are drafted from the panel score sheet for that week and
+       marked source: "scoresheet" until the team confirms them. */
+    mentorReport: {
+      title: "SPRINT-STEP MENTORS ACCOMPLISHMENTS REPORT",
+      endorsedBy: "May Ann A. Udtojan-Albis", endorsedRole: "Project Leader",
+    },
+    mentorPlans: [
+      { code: "M2", week: 1, topic: "Beachhead Markets and Customer Segments", tasks: [
+        { text: "Guide the group in identifying 5 to 10 possible market opportunities." },
+        { text: "Support the group in prioritizing these opportunities and identifying a beachhead market." },
+        { text: "Help the group develop a clear and coherent Problem-Solution Fit Canvas for their beachhead segment." },
+        { text: "Assist the group in articulating a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas." },
+      ] },
+      { code: "M3A", week: 2, topic: "Market Size Estimation and Market Research", tasks: [
+        { text: "Assist the team in\n(a) continuing to identify/ideate on feasible market opportunities for their technology\n(b) evaluating and assessing these candidates, and\n(c) finally settling on a viable, realistic, and strong beachhead opportunity." },
+        { text: "Help the team evaluate the realism of their TAM/SAM/SOM analysis **for their beachhead market**, including the logic/soundness of their market estimates. Encourage them to consider current and emerging market trends that could affect their opportunity sizing." },
+        { text: "Help the team evaluate the realism of their TAM/SAM/SOM analysis **for their other candidate market opportunities** (which they could attack after success in their beachhead market), including the logic/soundness of their market estimates. Encourage them to consider current and emerging market trends that could affect their opportunity sizing." },
+      ] },
+      { code: "M3B", week: 3, topic: "From Understanding Use to Measured Value",
+        topicLines: ["1. Understanding your Product's Full Life Cycle Use Case", "2. Developing your High-Level Product Specification", "3. Quantifying Your Value Proposition"],
+        tasks: [
+        { text: "Help the team to detail their product’s full life cycle use case" },
+        { text: "Guide the team in creating their customer pitch either using a concept board or a brochure." },
+        { text: "For the teams' product/technology, help them:\n- Identify 2–3 relevant metrics for their customer\n- Estimate baseline vs. improvement\n- Calculate $ or % benefit\n- Draft a one-sentence Quantified Value Proposition" },
+      ] },
+      { code: "CU", week: null, label: "Catch-up week", topic: "Catch Up Mentoring Session", tasks: [
+        { text: "Meet with the team to catch up on the progress of their technology." },
+      ] },
+      { code: "M4", week: 4, topic: "Competitive Advantage",
+        topicLines: ["VRIO Analysis", "Competitor Profile matrix", "Conceptualize Value proposition"],
+        tasks: [
+        { text: "Help the group identify their Competitive Advantage using the Competitive Profile Matrix." },
+        { text: "Guide the group in making their Competitive Advantage sustainable (VRIO)." },
+        { text: "Help the group in creating their Lean Canvas Model." },
+      ] },
+      { code: "M5", week: 5, topic: "Go-to-Market Plan and Lean Canvas", tasks: [
+        { text: "Help the team develop their Strategy Canvas" },
+        { text: "Help the team complete their Lean Canvas" },
+        { text: "Guide the group in creating their Bullseye Framework" },
+        { text: "Guide the group in developing their Go-to-Market Gantt Chart" },
+      ] },
+      { code: "M6", week: 6, topic: "Business Model Validation", tasks: [
+        { text: "Help the team refine their Lean Canvas" },
+        { text: "Guide the group in transitioning their Business Model Canvas from startup to scale-up." },
+        { text: "Assist the group in reconfiguring their Go-to-Market Gantt Chart for the next five weeks in preparation for their final pitch" },
+      ] },
+      { code: "M8", week: 7, topic: "Overview of IP and Basics of Patents", source: "scoresheet", tasks: [
+        { text: "Guide the team in completing their Patent Search Report:", lead: true },
+        { text: "Search strategy and methodology — databases, keywords, classifications and filters" },
+        { text: "Relevance and quality of the patent documents and prior art selected" },
+        { text: "Analysis and interpretation — novelty, inventiveness and potential infringement risks" },
+        { text: "Report structure and clarity" },
+      ] },
+      { code: "M11", week: 8, topic: "Selling Skills", tasks: [
+        { text: "Guide the team in completing the following outputs:", lead: true },
+        { text: "Rejection Therapy" },
+        { text: "Prospect List" },
+        { text: "Elevator Pitch (30 - 120s)" },
+        { text: "Sales Presentation" },
+        { text: "Battle Cards/ FAQs" },
+      ] },
+      { code: "M10", week: 9, topic: "Discounted Cash Flow, ROI, 5-year Projection", source: "scoresheet", tasks: [
+        { text: "Guide the team in completing their Financial Analysis:", lead: true },
+        { text: "Ratio interpretation and application — liquidity, profitability, efficiency" },
+        { text: "Capital budgeting analysis — Payback Period and IRR" },
+        { text: "Cost-benefit and breakeven analysis" },
+        { text: "Analytical reasoning and financial insight drawn from the model" },
+      ] },
+      { code: "M12", week: 10, topic: "Pitching Skills", tasks: [
+        { text: "Provide guidance and support to the team as they prepare for their pitch at the STEP Pre-Demo Day" },
+      ] },
+      { code: "DDP", week: 11, topic: "Preparation for Demo Day", tasks: [
+        { text: "Provide guidance and support to the team as they prepare for their final pitch at the STEP Demo Day" },
+      ] },
+    ],
 
+    /* Nine panel seats, three per panel — the STEP 2.5 panel list. The third
+       seat on each panel is an industry panelist, named "Industry Panel 1–3"
+       until the names are in. With a live project the names come from the
+       panel_seats table (each seat tied to the panelist's email). */
     panels: [
-      { letter: "A", panelists: ["Dr. Proceso “Jon” Fernandez", "Mr. Bryan Erfe", "Ms. Janine Chiong"],
+      { letter: "A", seats: [1, 2, 3], panelists: ["Dr. Jon Fernandez", "Ms. Janine Chiong", "Industry Panel 1"],
         teams: [{ team: "POSTE", team_id: "g1", at: "09:00" }, { team: "SINAG", team_id: "g2", at: "09:35" },
                 { team: "BRICKS", team_id: "g3", at: "10:10" }, { team: "Halal Blockchain", team_id: "g4", at: "10:45" }] },
-      { letter: "B", panelists: ["Mr. Antonio Feria", "Ms. Pamela Ann Da Silva", "Ms. M.C.B. de Guzman"],
+      { letter: "B", seats: [4, 5, 6], panelists: ["Mr. George Quitoriano", "Mr. Bienvenido Garcia", "Industry Panel 2"],
         teams: [{ team: "Zeoskin", team_id: "g5", at: "09:00" }, { team: "CAPPS", team_id: "g6", at: "09:35" }, { team: "SPArC", team_id: "g7", at: "10:10" }] },
-      { letter: "C", panelists: ["Mr. G. Quitoriano", "Ingco", "Oppus"],
+      { letter: "C", seats: [7, 8, 9], panelists: ["Mr. Tony Feria", "Engr. Benjamin N. Mirasol", "Industry Panel 3"],
         teams: [{ team: "meSHM", team_id: "g8", at: "09:00" }, { team: "SFRSCC", team_id: "g9", at: "09:35" }, { team: "LASER", team_id: "g10", at: "10:10" }] },
     ],
 
@@ -197,7 +282,13 @@ window.MOCK = (function () {
         ] },
       { code: "M3A", week: 2, title: "Market Size Estimation and Market Research", trainer: "Mr. Antonio Feria", mode: "Online",
         coverage: "TAM, SAM and SOM · Primary and secondary research", deliverable: "TAM SAM SOM estimate",
-        assess: [{ label: "Has the group estimated their TAM, SAM, and SOM with clear rationale?", weight: 100 }] },
+        assess: [
+          { label: "Has the group identified their beachhead market opportunity?", weight: 20 },
+          { label: "Has the group clearly defined their Value Proposition for the beachhead market?", weight: 20 },
+          { label: "Has the group estimated the market size for their beachhead market, including TAM, SAM, and SOM?", weight: 20 },
+          { label: "Has the group identified potential follow-on markets?", weight: 20 },
+          { label: "Has the group estimated the market size for each follow-on market, including TAM, SAM, and SOM?", weight: 20 },
+        ] },
       { code: "M3B", week: 3, title: "From Understanding of Use to Measured Value", trainer: "Mr. Antonio Feria", mode: "Online",
         coverage: "Full life cycle use case · Customer pitch · Quantified value proposition",
         deliverable: "Concept board or brochure, and a quantified value proposition",
@@ -207,15 +298,16 @@ window.MOCK = (function () {
           { group: "Quantified Value Proposition (Total: 40%)" },
           { label: "Relevant Metrics – Has the team identified 2–3 relevant and meaningful metrics for their customer?", weight: 10 },
           { label: "Baseline vs. Improvement – Has the team estimated the baseline performance versus the expected improvement?", weight: 10 },
-          { label: "Benefit Calculation – Has the team accurately calculated the potential ₱ or % benefit to the customer?", weight: 10 },
-          { label: "One-Sentence Value Proposition – How well did the team articulate a clear one-sentence value proposition?", weight: 10 },
+          { label: "Benefit Calculation – Has the team accurately calculated the potential $ or % benefit to the customer?", weight: 10 },
+          { label: "One-Sentence Value Proposition – How well did the team draft a clear and persuasive one-sentence Quantified Value Proposition?", weight: 10 },
         ] },
       { code: "M4", week: 4, title: "Competitive Advantage (VRIO, CPM)", trainer: "Mr. G. Quitoriano", mode: "Online",
         coverage: "VRIO analysis · Competitor profile matrix · Conceptualizing the value proposition",
         deliverable: "Refined value proposition",
         assess: [
-          { label: "Has the group identified their Competitive Advantage? Is this sustainable? (VRIO)", weight: 50 },
-          { label: "Has the group identified their Value Proposition?", weight: 50 },
+          { label: "Has the group identified their Competitive Advantage using the Competitive Profile Matrix?", weight: 35 },
+          { label: "Is this sustainable? (VRIO)", weight: 35 },
+          { label: "How was the group's Lean Canvas Model?", weight: 30 },
         ] },
       { code: "SP1", week: 5, title: "Tax Incentives for Spin-Offs", trainer: "Dr. Ma. Corazon Halili-Dichosa", mode: "On site",
         coverage: "Guest lecture · Incentives available to research spin-offs", deliverable: "—", assess: [], special: true },
@@ -223,41 +315,83 @@ window.MOCK = (function () {
         coverage: "Lean Canvas · Go-to-market plan · Validation through product-market fit activities",
         deliverable: "Lean Canvas, go-to-market plan and market validation",
         assess: [
-          { label: "Has the group developed their Lean Canvas?", weight: 34 },
-          { label: "Do they have a go-to-market plan?", weight: 33 },
-          { label: "Have they validated their product-market fit?", weight: 33 },
+          { label: "How well did the team develop their Strategy Canvas?", weight: 25 },
+          { label: "How complete and coherent was the Lean Canvas?", weight: 25 },
+          { label: "How effectively did the team identify, prioritize, and justify their chosen channels for reaching the target market (Bullseye Framework)?", weight: 25 },
+          { label: "How clear, feasible, and well-structured was the team’s Go-to-Market Gantt Chart?", weight: 25 },
         ] },
       { code: "M6", week: 6, title: "Business Model Validation", trainer: "Mr. G. Quitoriano", mode: "Online",
         coverage: "Team organization · Team formation and spin-off simulation · Business model validation",
         deliverable: "Team composition and roles, validated business model",
-        assess: [{ label: "Has the group clearly defined team roles and responsibilities aligned with their project goals?", weight: 100 }] },
+        assess: [
+          { label: "Has the group refined their Lean Canvas?", weight: 35 },
+          { label: "How's the group transitioned their Business Model Canvas from startup to scale-up?", weight: 35 },
+          { label: "Has the group reconfigured their Go-to-Market Gantt Chart for the next five weeks in preparation for their final pitch?", weight: 30 },
+        ] },
       { code: "M8", week: 7, title: "Overview of IP and Basics of Patents", trainer: "Dr. Proceso “Jon” Fernandez, with IPOPHL", mode: "On site",
         coverage: "Overview of intellectual property · Basics of patents · Prior art search",
         deliverable: "Draft IP documentation and draft Freedom to Operate analysis",
         assess: [
-          { label: "Has the group produced a draft of their Intellectual Property (IP) documentation or strategy?", weight: 50 },
-          { label: "Has the group produced a draft Freedom to Operate (FTO) analysis that addresses relevant IP risks?", weight: 50 },
+          { label: "Search Strategy and Methodology", weight: 25, hint: "Assess the clarity and rigor of the search strategy used, including the selection of databases, keywords, classifications, and filters. Consider how systematically and thoroughly the prior art search was conducted." },
+          { label: "Relevance and Quality of Results", weight: 25, hint: "Evaluate the relevance, accuracy, and quality of the patent documents or prior art selected. Determine whether the identified results are closely aligned with the claimed invention or technical features." },
+          { label: "Analysis and Interpretation", weight: 25, hint: "Assess the team’s ability to analyze the search results critically. Consider the clarity of comparisons made between the target invention and prior art, including novelty, inventiveness, and potential infringement risks." },
+          { label: "Report Structure and Clarity", weight: 25, hint: "Evaluate the overall organization, formatting, and clarity of the report. Consider how well the information is presented, whether conclusions are well-supported, and if the report is accessible to both technical and non-technical readers." },
         ] },
       { code: "M10", week: 9, title: "Discounted Cash Flow, ROI, 5-year Projection", trainer: "Mr. M. Santos", mode: "Online",
         coverage: "Basics of finance · Project and development cost estimates · Cost-benefit analysis · Break-even",
         deliverable: "Validated financial model",
-        assess: [{ label: "Has the group developed and validated a Financial Model with realistic projections and assumptions?", weight: 100 }] },
+        assess: [
+          { label: "Ratio Interpretation and Application", weight: 25, hint: "Assess the accuracy and relevance of the financial ratios presented (e.g., liquidity, profitability, efficiency). Consider how well the presenters interpret the results and connect them to the financial health and operational performance of the business." },
+          { label: "Capital Budgeting Analysis", weight: 25, hint: "Review the clarity and correctness of capital budgeting calculations such as Payback Period and Internal Rate of Return (IRR). Examine whether the evaluation of investment feasibility is well-reasoned and aligned with the startup’s strategic goals." },
+          { label: "Cost-Benefit and Breakeven Analysis", weight: 25, hint: "Assess how effectively the cost-benefit analysis and breakeven points are calculated and explained. Consider whether the presenters clearly demonstrate the relationship between costs, revenues, and profitability thresholds." },
+          { label: "Analytical Reasoning and Financial Insight", weight: 25, hint: "Evaluate the depth of financial insight and analytical thinking reflected in the overall output. Consider how well the team uses data to draw conclusions, support decision-making, and reflect on the financial viability of the venture." },
+        ] },
       { code: "M11", week: 8, title: "Selling Skills", trainer: "Mr. G. Quitoriano", mode: "Online",
         coverage: "Qualifying a prospect · Opening with the problem · Handling objections · Closing for a next step",
         deliverable: "Prospect list, battle card and a five-minute video",
         assess: [
-          { label: "Has the group produced a prospect list of at least fifteen qualified names, with budget, authority and timing noted?", weight: 30 },
-          { label: "Does the battle card address the group’s two closest competitors with evidence rather than adjectives?", weight: 30 },
-          { group: "The sales conversation (Total: 40%)" },
-          { label: "Opening – Does the conversation open with the buyer’s problem rather than the technology?", weight: 10 },
-          { label: "Evidence – Are claims supported by field data or user numbers?", weight: 10 },
-          { label: "Objection handling – Does the group answer the objection actually raised?", weight: 10 },
-          { label: "Commitment – Does the conversation close by naming a specific next step?", weight: 10 },
+          { label: "Rejection Therapy", weight: 20 },
+          { label: "Prospect List", weight: 20 },
+          { label: "Elevator Pitch (30 - 120s)", weight: 20 },
+          { label: "Sales Presentation", weight: 20 },
+          { label: "Battle Cards/ FAQs", weight: 20 },
         ] },
       { code: "M12", week: 10, title: "Pitching Skills", trainer: "Ms. D. Reyes", mode: "Online",
-        coverage: "Investor pitch structure · Storyline · Delivery", deliverable: "Improved pitch deck", assess: [] },
+        coverage: "Investor pitch structure · Storyline · Delivery", deliverable: "Improved pitch deck",
+        /* STEP 2 "Pitch Deck Presentation (In preparation for Pre-Demo Day)" score sheet */
+        assess: [
+          { label: "Content", weight: 30, hint: "• Clarity of Problem Statement and Solution (10%): A clear identification of the problem the business is solving is crucial. Judges should assess how well the problem is defined and how well the proposed solution addresses it.\n• Market Opportunity and Size (10%): Understanding the market opportunity and its size is essential for the success of any business. Judges should evaluate the thoroughness of market research and the potential for growth in the target market.\n• Business Model (10%): A well-defined and sustainable business model is fundamental. Judges should assess the viability, scalability, and profitability of the proposed business model." },
+          { label: "Presentation Skills", weight: 25, hint: "• Communication and Delivery (15%): Effective communication is key in conveying the value proposition. Judges should evaluate the clarity, coherence, and persuasiveness of the presentation, including the use of visuals and language.\n• Engagement with the Audience (10%): Engaging the audience helps create a connection and ensures that the message is well-received. Judges should assess how well the presenters involve the audience through questions, interactions, and overall presentation style." },
+          { label: "Viability and Scalability", weight: 25, hint: "• Financial Projections and ROI (15%): Judges should evaluate the realism and accuracy of financial projections. This includes revenue forecasts, cost structures, and the overall return on investment (ROI).\n• Scalability of the Business Model (10%): Scalability is crucial for long-term success. Judges should assess how well the business can grow and handle increased demand without a proportional increase in costs." },
+          { label: "Innovation and Uniqueness", weight: 20, hint: "• Uniqueness of the Product/Service (10%): Assessing the uniqueness of the product or service helps determine its market differentiation. Judges should evaluate how innovative and distinctive the offering is compared to competitors.\n• Competitive Edge (10%): Judges should consider the business's competitive advantage, whether it's through technology, unique features, pricing strategy, or other factors. This criterion evaluates the sustainability of the business in a competitive landscape." },
+        ] },
       { code: "M14", week: 11, title: "FASTRAC Proposal Writing Workshop", trainer: "AIPO Ideation Support", mode: "On site",
         coverage: "Technology roadmapping · DOST FASTRAC Form 2", deliverable: "Completed FASTRAC proposal", assess: [] },
+    ],
+    /* Panel score sheets that are not tied to a curriculum session: the
+       Pre-Demo Day video pitch and Demo Day itself. The Panel page lists
+       them after the weekly sessions. Criteria and weights follow the STEP 2
+       score sheets; on the Demo Day sheet the explanations for Financial
+       Viability and Customer Understanding were in each other's rows and are
+       paired with the right criterion here. */
+    panelSheets: [
+      { code: "PDD", tag: "Pre-Demo Day", week: 11, title: "Pre-Demo Day — Video Pitch Deck",
+        assess: [
+          { label: "Market Opportunity", weight: 20, hint: "Market Potential or Market Size & Opportunity (Highlights scope, growth potential, and demand.)" },
+          { label: "Customer Understanding and Business Model", weight: 20, hint: "Customer Insight & Business Model (Emphasizes clarity of customer needs and how the business delivers value.)" },
+          { label: "Financial Viability", weight: 20, hint: "Financial Sustainability or Business Viability (Focuses on revenue model, cost structure, and path to profitability.)" },
+          { label: "Pitching and Selling Skills", weight: 20, hint: "Pitch Delivery & Persuasion or Communication & Selling Ability (Captures clarity, confidence, storytelling, and salesmanship.)" },
+          { label: "Team Composition", weight: 20, hint: "Team Strength or Team Capability (Assesses skill diversity, experience, commitment, and execution capacity.)" },
+        ] },
+      { code: "DD", tag: "Demo Day", week: 12, title: "Demo Day",
+        assess: [
+          { label: "Market Opportunity", weight: 20, hint: "Market Potential or Market Size & Opportunity (Highlights scope, growth potential, and demand.)" },
+          { label: "Financial Viability", weight: 20, hint: "Financial Sustainability or Business Viability (Focuses on revenue model, cost structure, and path to profitability.)" },
+          { label: "Customer Understanding and Business Model", weight: 10, hint: "Customer Insight & Business Model (Emphasizes clarity of customer needs and how the business delivers value.)" },
+          { label: "Pitching and Selling Skills", weight: 10, hint: "Pitch Delivery & Persuasion or Communication & Selling Ability (Captures clarity, confidence, storytelling, and salesmanship.)" },
+          { label: "Team Composition", weight: 10, hint: "Team Strength or Team Capability (Assesses skill diversity, experience, commitment, and execution capacity.)" },
+          { label: "Potential adopter/Nearness to commercialization", weight: 30, hint: "Readiness for Adoption or Market Entry (Evaluates the product’s maturity, user validation, adaptability, and potential for real-world implementation or commercialization.)" },
+        ] },
     ],
   };
 
@@ -278,18 +412,18 @@ window.MOCK = (function () {
     { id: "u_laser", name: "Dr. Raymond Sucgang", email: "rsucgang@pnri.dost.gov.ph", role: "participant", role_label: "Participant", team_id: "g10", team_name: "LASER (DOST PNRI)", initials: "RS", institution: "DOST - PNRI" },
 
     // --- Mentors ---
-    { id: "u_mentor_feria", name: "Mr. Antonio Feria", email: "aferia@ateneo.edu", role: "mentor", role_label: "Mentor (POSTE & LASER)", assigned_teams: ["g1", "g10"], initials: "AF", institution: "AIPO" },
-    { id: "u_mentor_fernandez", name: "Dr. Proceso “Jon” Fernandez", email: "pfernandez@ateneo.edu", role: "mentor", role_label: "Mentor (SINAG)", assigned_teams: ["g2"], initials: "PF", institution: "Ateneo / IPOPHL" },
-    { id: "u_mentor_chiong", name: "Ms. Janine Chiong", email: "jchiong@ateneo.edu", role: "mentor", role_label: "Mentor (BRICKS)", assigned_teams: ["g3"], initials: "JC", institution: "AIPO" },
-    { id: "u_mentor_erfe", name: "Mr. Bryan Erfe", email: "berfe@ateneo.edu", role: "mentor", role_label: "Mentor (Halal Blockchain)", assigned_teams: ["g4"], initials: "BE", institution: "AIPO" },
-
-    // --- Panelists ---
-    { id: "u_panel_erfe", name: "Mr. Bryan Erfe", email: "berfe@ateneo.edu", role: "panel", role_label: "Panelist (Panel A)", panel: "A", assigned_teams: ["g1", "g2", "g3", "g4"], initials: "BE", institution: "AIPO" },
-    { id: "u_panel_silva", name: "Ms. Pamela Ann Da Silva", email: "pdasilva@ateneo.edu", role: "panel", role_label: "Panelist (Panel B)", panel: "B", assigned_teams: ["g5", "g6", "g7"], initials: "PD", institution: "AIPO" },
-    { id: "u_panel_quitoriano", name: "Mr. G. Quitoriano", email: "gquitoriano@ateneo.edu", role: "panel", role_label: "Panelist (Panel C)", panel: "C", assigned_teams: ["g8", "g9", "g10"], initials: "GQ", institution: "AIPO" },
+    { id: "u_mentor_pfernandez", name: "Dr. Jon Fernandez", email: "pfernandez@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (POSTE)", assigned_teams: ["g1"], team_id: "g1", initials: "JF", institution: "AIPO" },
+    { id: "u_mentor_jlagdameo", name: "Dr. John Lagdameo", email: "jlagdameo@ateneo.edu", role: "mentor", role_label: "Mentor (SINAG)", assigned_teams: ["g2"], team_id: "g2", initials: "JL", institution: "AIPO" },
+    { id: "u_mentor_bgarcia", name: "Mr. Bienvenido Garcia", email: "bgarcia@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (BRICKS)", assigned_teams: ["g3"], team_id: "g3", initials: "BG", institution: "AIPO" },
+    { id: "u_mentor_mctan", name: "Mr. Michael Tan", email: "mctan@ateneo.edu", role: "mentor", roles: ["mentor", "trainer"], role_label: "Mentor & Trainer (Halal Blockchain)", assigned_teams: ["g4"], team_id: "g4", initials: "MT", institution: "AIPO" },
+    { id: "u_mentor_amiclat", name: "Mr. Armando Miclat", email: "amiclat@ateneo.edu", role: "mentor", role_label: "Mentor (Zeoskin)", assigned_teams: ["g5"], team_id: "g5", initials: "AM", institution: "AIPO" },
+    { id: "u_mentor_gquitoriano", name: "Mr. George Quitoriano", email: "gquitoriano@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (CAPPS)", assigned_teams: ["g6"], team_id: "g6", initials: "GQ", institution: "AIPO" },
+    { id: "u_mentor_bmirasol", name: "Engr. Benjamin N. Mirasol", email: "bmirasol@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (SPArC)", assigned_teams: ["g7"], team_id: "g7", initials: "BM", institution: "AIPO" },
+    { id: "u_mentor_jchiong", name: "Ms. Janine Chiong", email: "jchiong@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (meSHM)", assigned_teams: ["g8"], team_id: "g8", initials: "JC", institution: "AIPO" },
+    { id: "u_mentor_mcbdeguzman", name: "Ms. Bunnie De Guzman", email: "mcbdeguzman@ateneo.edu", role: "mentor", role_label: "Mentor (SFRSCC)", assigned_teams: ["g9"], team_id: "g9", initials: "BD", institution: "AIPO" },
+    { id: "u_mentor_aferia", name: "Mr. Tony Feria", email: "aferia@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (LASER)", assigned_teams: ["g10"], team_id: "g10", initials: "TF", institution: "AIPO" },
 
     // --- Trainers ---
-    { id: "u_trainer_mirasol", name: "Engr. Benjamin N. Mirasol", email: "bmirasol@ateneo.edu", role: "trainer", role_label: "Trainer (Ideation)", initials: "BM", institution: "AIPO" },
     { id: "u_trainer_santos", name: "Mr. M. Santos", email: "msantos@ateneo.edu", role: "trainer", role_label: "Trainer (Finance)", initials: "MS", institution: "AIPO" },
 
     // --- Admin ---
@@ -313,7 +447,11 @@ window.MOCK = (function () {
     },
 
     getCurrentUser() {
-      const storedId = auth._get(auth.KEY);
+      /* The sample accounts are for building the site only. On the real site
+         a visitor is a guest until they sign in with their own account;
+         the samples answer only when the page is opened with ?demo=1. */
+      const demoOn = typeof location !== "undefined" && /[?&]demo=1(&|$)/.test(location.search || "");
+      const storedId = demoOn ? auth._get(auth.KEY) : "guest";
       const user = users.find(u => u.id === storedId);
       // Default to guest if no stored user
       return user || users.find(u => u.id === "guest");
@@ -339,6 +477,33 @@ window.MOCK = (function () {
       return guest;
     },
 
+    /* Every role a person holds. One account may be given more than one
+       — a mentor who also sits on a panel, say — by setting `roles` on
+       their profile. With nothing set, they hold exactly the one role in
+       `role`: access is never inferred from a neighbouring role. */
+    rolesOf(user) {
+      const u = user || auth.getCurrentUser();
+      if (!u) return [];
+      const list = Array.isArray(u.roles) && u.roles.length ? u.roles : [u.role];
+      return list.filter(Boolean).map(r => String(r).trim().toLowerCase());
+    },
+
+    /* The faculty portal holds three separate pages. Each answers to its
+       own role and nothing else; an admin sees all three. */
+    canView(view, user) {
+      const u = user || auth.getCurrentUser();
+      if (!u) return false;
+      const roles = auth.rolesOf(u);
+      if (roles.includes("admin")) return true;
+      const NEEDS = { trainers: "trainer", mentors: "mentor", panel: "panel" };
+      return !!NEEDS[view] && roles.includes(NEEDS[view]);
+    },
+
+    /* Which of the three a person may open, in page order. */
+    viewsFor(user) {
+      return ["trainers", "mentors", "panel"].filter(v => auth.canView(v, user));
+    },
+
     canAccess(route, user) {
       const u = user || auth.getCurrentUser();
       if (!u || u.role === "guest") {
@@ -358,9 +523,9 @@ window.MOCK = (function () {
       // ── Capstone — all authenticated users
       if (route === "capstone") return true;
 
-      // ── Trainers / Mentors / Panel — restricted to staff roles
+      // ── Trainers / Mentors / Panel — each answers to its own role
       if (route === "trainers") {
-        return ["trainer", "mentor", "panel", "admin"].includes(u.role);
+        return auth.viewsFor(u).length > 0;
       }
 
       // ── Default: deny access to unknown routes
@@ -375,11 +540,16 @@ window.MOCK = (function () {
       if (u.role === "participant") {
         return u.team_id ? [u.team_id] : [];
       }
+      /* facilitators work alongside a few teams without being members of them */
+      if (u.role === "facilitator") {
+        return Array.isArray(u.teams) ? u.teams.slice() : [];
+      }
       if (u.role === "mentor" || u.role === "panel") {
         /* a live Supabase profile has no assigned_teams column yet, so a
            signed-in mentor or panelist can reach every team until those
            assignments exist in the database */
         if (Array.isArray(u.assigned_teams)) return u.assigned_teams;
+        if (u.role === "mentor" && u.team_id) return [u.team_id];
         return groups.map(g => g.id);
       }
       return [];
@@ -595,7 +765,7 @@ window.MOCK = (function () {
         { week: 8, code: "M11", due: "2027-08-13T12:00:00+08:00", video: { state: "open" }, slides: { state: "open" }, report: { state: "open" } },
       ],
       insight: {
-        method: "Reflexive thematic analysis — every panel comment coded, codes grouped into themes",
+        method: "Reflexive thematic analysis — every panel and mentor comment coded, codes grouped into themes",
         claim: p.claim,
         based_on: 23, weeks: "Weeks 1–7", reviewed_by: "Ms. May Ann Albis, STEP team", reviewed_on: "2027-08-11",
         corpus: { comments: 23, panelists: 6, sessions: 7, codes: 9, themes: 4 },
@@ -682,9 +852,13 @@ window.MOCK = (function () {
         week: 3, revisit: 9, source: "M3B · Measured value", status: "submitted", limit: 200,
         draft: `${t.name} is a university spin-off from ${t.implementing_agency} founded by ${lead.name} and research co-inventors. The team developed ${t.technology_title}. Field validation in ${t.city} demonstrates substantial cost reduction and operational advantage over imported solutions. IP protection includes a Philippine patent / utility model application. Grant funds will deploy industrial-scale pilot units across target partner sites.`
       },
-      { n: 7, group: "The case", title: "Introduction — rationale, scientific basis, objectives", kind: "prose",
+      /* Item 7 has three parts on DOST Form 2 — 7.1 Rationale/Significance
+         (max 300 words), 7.2 Scientific basis/Theoretical framework, and
+         7.3 Objectives (General and Specific) — so it is filled part by part. */
+      { n: 7, group: "The case", title: "Introduction — rationale, scientific basis, objectives", kind: "intro",
         guide: "Rationale, scientific framework, and general and specific objectives.",
-        week: 11, source: "M14 · FASTRAC writeshop", status: "locked", limit: 300
+        week: 11, source: "M14 · FASTRAC writeshop", status: "locked", limit: 300,
+        value: { rationale: "", framework: "", general: "", specific: "" }
       },
       { n: 8, group: "The case", title: "Review of literature & Prior Art", kind: "prose",
         guide: "State of the art, prior art search, patent novelty, and freedom-to-operate.",
@@ -838,10 +1012,10 @@ window.MOCK = (function () {
     },
     days: [
       { d: "2027-08-10", label: "Tuesday", kind: "session", title: "Learning session · M11 Selling skills", time: "9:00 AM – 12:00 NN", where: "Zoom", note: "Recording posted the same afternoon.", action: "recording" },
-      { d: "2027-08-11", label: "Wednesday", kind: "window", title: "Mentoring window opens", time: "Wednesday to Friday", note: "One hour with your mentor, arranged directly." },
+      { d: "2027-08-11", label: "Wednesday", kind: "window", title: "Mentoring window opens", time: "Wednesday to Friday", note: "An hour and a half with your mentor, arranged directly." },
       { d: "2027-08-12", label: "Thursday", kind: "window", title: "Mentoring continues", time: "Any slot your team booked", note: "Nothing scheduled by STEP team today." },
       { d: "2027-08-13", label: "Friday", kind: "deadline", title: "Team output due", time: "12:00 NN", note: "Prospect list, battle card and five-minute video.", action: "submit" },
-      { d: "2027-08-14", label: "Saturday", kind: "panel", title: "Feedback session · Panels A, B and C", time: "9:00 AM – 12:00 NN", where: "Zoom", note: "Five-minute video, then fifteen minutes of questions.", action: "join" },
+      { d: "2027-08-14", label: "Saturday", kind: "panel", title: "Feedback session · Panels A, B and C", time: "9:00 AM – 12:00 NN", where: "Zoom", note: "Five-minute video, then twenty-five minutes of questions.", action: "join" },
       { d: "2027-08-15", label: "Sunday", kind: "rest", title: "No session", note: "Rest and regroup." },
       { d: "2027-08-16", label: "Monday", kind: "info", title: "Week 9 materials posted", note: "M12 Pitching skills opens on Program page." },
     ],
@@ -870,7 +1044,7 @@ window.MOCK = (function () {
         body: "Not at all. What the panel wants is evidence you had the conversation — even a note of what the customer said counts." },
     ],
     housekeeping: [
-      { title: "How the panels work", note: "Five-minute video, fifteen minutes of questions, three panelists." },
+      { title: "How the panels work", note: "Five-minute video, twenty-five minutes of questions, three panelists." },
       { title: "Missed the session?", note: "Every learning session is recorded and posted the same afternoon." },
     ],
     game: {
@@ -893,7 +1067,7 @@ window.MOCK = (function () {
       tags: ["Program news"], cover_color: "#dfeefc" },
     { slug: "spinoff-policy-brief", photo: "assets/photos/panel.jpg", kind: "publication", title: "What slows down university spin-offs in the Philippines",
       excerpt: "Evidence from two STEP cycles on fairness opinion boards, licensing timelines and equity rules, with five recommendations for HEIs.",
-      published_at: "2027-05-30", author: "AIPO Policy Team", venue: "AIPO Policy Brief 2027-02", read: "PDF · 18 pages",
+      published_at: "2027-05-30", author: "AIPO Policy Team", venue: "AIPO Policy Brief", venue_from_date: true, read: "PDF · 18 pages",
       tags: ["Policy brief"], cover_color: "#fbf1de" },
     { slug: "readiness-instrument", photo: "assets/photos/tables.jpg", kind: "publication", title: "Measuring commercialization readiness in researcher-led teams",
       excerpt: "An instrument developed inside SPRINT-STEP and tested across two cohorts, with reliability statistics and the full item bank.",
@@ -966,6 +1140,13 @@ window.MOCK = (function () {
     return _origGetCurrentUser();
   };
 
+  /* a profile that came from Supabase may not carry the mock extras */
+  const ROLE_NAMES = { participant: "Participant", trainer: "Trainer", mentor: "Mentor", facilitator: "Facilitator",
+                       panel: "Panelist", admin: "STEP Team / Admin", guest: "Guest" };
+  const initialsOf = u => String((u && (u.name || u.full_name || u.email)) || "?")
+    .replace(/[^A-Za-z ]/g, " ").trim().split(/\s+/).slice(0, 2)
+    .map(w => w[0] ? w[0].toUpperCase() : "").join("") || "?";
+
   function renderAuthModal() {
     let modal = document.getElementById("stephub-auth-modal");
     if (!modal) {
@@ -1005,10 +1186,10 @@ window.MOCK = (function () {
           ` : isLoggedIn && !isLiveUser ? `
             <!-- Mock signed-in state -->
             <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(46,125,50,.06);border-radius:12px;margin-bottom:var(--s4);">
-              <span class="card-av" style="width:44px;height:44px;font-size:16px;flex-shrink:0;">${curr.initials}</span>
+              <span class="card-av" style="width:44px;height:44px;font-size:16px;flex-shrink:0;">${curr.initials || initialsOf(curr)}</span>
               <div>
                 <div style="font-weight:600;font-size:15px;color:var(--navy);">${curr.name}</div>
-                <div style="font-size:13px;color:var(--ink-soft);">${curr.role_label} ${curr.team_name ? '· ' + curr.team_name : ''}</div>
+                <div style="font-size:13px;color:var(--ink-soft);">${curr.role_label || ROLE_NAMES[curr.role] || curr.role || ''} ${curr.team_name ? '· ' + curr.team_name : ''}</div>
                 <div style="font-size:12px;color:var(--ink-soft);opacity:.6;">Demo account</div>
               </div>
             </div>
@@ -1031,44 +1212,6 @@ window.MOCK = (function () {
             </form>
           `}
 
-          <!-- Demo accounts (collapsible) -->
-          <details style="margin-top:var(--s5);border-top:1px solid rgba(0,0,0,.08);padding-top:var(--s4);" ${!isLoggedIn ? '' : 'open'}>
-            <summary style="font-size:12.5px;color:var(--ink-soft);cursor:pointer;user-select:none;">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-1px;margin-right:4px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              Demo accounts (for testing)
-            </summary>
-            <div style="margin-top:var(--s3);">
-              <div class="auth-section-title">Participants</div>
-              <div class="auth-user-grid">
-                ${users.filter(u => u.role === "participant").map(u => `
-                  <div class="auth-user-card ${curr.id === u.id && !isLiveUser ? 'active-user' : ''}" onclick="window.MOCK.selectUser('${u.id}')">
-                    <span class="card-av">${u.initials}</span>
-                    <span class="card-details">
-                      <span class="card-name">${u.name}</span>
-                      <span class="card-role">${u.team_name}</span>
-                    </span>
-                  </div>
-                `).join("")}
-              </div>
-              <div class="auth-section-title">Admin / Faculty</div>
-              <div class="auth-user-grid">
-                ${users.filter(u => ["admin","mentor","panel","trainer"].includes(u.role)).map(u => `
-                  <div class="auth-user-card ${curr.id === u.id && !isLiveUser ? 'active-user' : ''}" onclick="window.MOCK.selectUser('${u.id}')">
-                    <span class="card-av" style="background:${u.role==='admin'?'#c62828':u.role==='mentor'?'#5e35b1':u.role==='panel'?'#e65100':'#2e7d32'}">${u.initials}</span>
-                    <span class="card-details">
-                      <span class="card-name">${u.name}</span>
-                      <span class="card-role">${u.role_label}</span>
-                    </span>
-                  </div>
-                `).join("")}
-              </div>
-              <div class="auth-signout-row" style="margin-top:var(--s3);">
-                <button class="btn secondary" style="font-size:12px;padding:5px 12px;width:100%;" onclick="window.MOCK.signOutUser()">
-                  Sign Out (Guest Mode)
-                </button>
-              </div>
-            </div>
-          </details>
 
         </div>
       </div>
@@ -1085,6 +1228,24 @@ window.MOCK = (function () {
 
     // 1. Update utility-bar
     const utilRight = document.querySelector(".utility-bar .util-right");
+
+    /* 1a. The address beside the account pill is the signed-in person's own
+           email, or "Not logged in". It replaces the static office mailto link
+           the page ships with (kept in the markup for no-JS visitors). */
+    if (utilRight) {
+      let em = document.getElementById("util-email");
+      if (!em) {
+        const old = utilRight.querySelector('a[href^="mailto:"]');
+        em = document.createElement("span");
+        em.id = "util-email";
+        if (old) old.replaceWith(em); else utilRight.prepend(em);
+      }
+      const signedIn = !!_liveUser || (user && user.role !== "guest");
+      const email = signedIn ? (user.email || "") : "";
+      em.className = "util-email" + (email ? "" : " out");
+      em.textContent = email || "Not logged in";
+      em.title = email ? "Signed in as " + email : "You are not signed in";
+    }
     if (utilRight) {
       let authArea = document.getElementById("util-auth-area");
       const oldLogin = utilRight.querySelector(".util-login:not(#util-auth-area *)");
@@ -1104,9 +1265,11 @@ window.MOCK = (function () {
           </button>
         `;
       } else {
-        const displayName = isLive ? (user.full_name || user.email) : user.name;
-        const badgeLabel = user.role === "participant" ? (user.team_name || user.team_id || 'Participant') : (user.role_label || user.role);
-        const initials = user.initials || displayName.charAt(0).toUpperCase();
+        const displayName = (isLive ? (user.full_name || user.email) : user.name)
+                         || user.full_name || user.name || user.email || "Account";
+        const badgeLabel = user.role === "participant" ? (user.team_name || user.team_id || 'Participant')
+                         : (user.role_label || ROLE_NAMES[user.role] || user.role || '');
+        const initials = user.initials || initialsOf(user);
         authArea.innerHTML = `
           <div class="util-user-pill" onclick="window.MOCK.openAuthModal()" title="Logged in as ${displayName} (${badgeLabel}). Click to manage account.">
             <span class="util-user-av">${initials}</span>
@@ -1130,33 +1293,41 @@ window.MOCK = (function () {
       }
     });
 
-    // 3. Update floating quick switcher
-    let qs = document.getElementById("quick-role-switcher");
-    if (!qs) {
-      qs = document.createElement("div");
-      qs.id = "quick-role-switcher";
-      qs.className = "quick-switcher-pill";
-      qs.onclick = () => window.MOCK.openAuthModal();
-      document.body.appendChild(qs);
-    }
-    if ((!user || user.role === "guest") && !_liveUser) {
-      qs.innerHTML = `
-        <span class="quick-switcher-av" style="background:#546e7a; color:#fff">🔒</span>
-        <span class="quick-switcher-txt">Guest (Logged Out)</span>
-        <span class="quick-switcher-tag">Sign In</span>
-      `;
-      qs.title = "Current: Guest (public). Click to sign in.";
-    } else {
-      const displayName = isLive ? (user.full_name || user.email) : user.name;
-      const label = user.role === "participant" ? (user.team_name || user.team_id || 'Participant') : (user.role_label || user.role);
-      const initials = user.initials || displayName.charAt(0).toUpperCase();
-      qs.innerHTML = `
-        <span class="quick-switcher-av">${initials}</span>
-        <span class="quick-switcher-txt">${displayName}</span>
-        <span class="quick-switcher-tag">${label}</span>
-      `;
-      qs.title = `Signed in: ${displayName} (${label}). Click to manage account.`;
-    }
+    // 2b. Sub-items of the faculty dropdown follow the same rule: a
+    //     mentor is offered Mentors, and is not shown Trainers or Panel.
+    const SUB = { "#trainers": "trainers", "#trainers-mentors": "mentors", "#trainers-panel": "panel" };
+    document.querySelectorAll(".ddm a").forEach(a => {
+      const href = a.getAttribute("href") || "";
+      const key = Object.keys(SUB).find(k => href.endsWith(k));
+      if (!key) return;
+      a.hidden = !auth.canView(SUB[key], user);
+    });
+
+    /* A menu whose every item is hidden would open as an empty box, so the
+       whole dropdown folds away and the tab becomes a plain link — clicking
+       it lands on the page, which explains why it is shut. */
+    document.querySelectorAll(".navdd").forEach(dd => {
+      const menu = dd.querySelector(".ddm");
+      if (!menu) return;
+      const links = Array.prototype.slice.call(menu.querySelectorAll("a"));
+      const empty = links.length > 0 && links.every(a => a.hidden);
+      dd.classList.toggle("dd-empty", empty);
+      if (empty) dd.classList.remove("open");
+      /* Found by position, not by aria-haspopup: that attribute is removed while
+         the menu is empty (e.g. the guest state at page load), and must come back
+         once a live profile with access arrives a moment later. */
+      const trigger = dd.querySelector(":scope > a");
+      if (trigger) {
+        if (empty) trigger.removeAttribute("aria-haspopup");
+        else trigger.setAttribute("aria-haspopup", "true");
+        trigger.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    // 3. No floating account pill: the one in the utility bar at the top
+    //    already shows who is signed in and opens the account panel.
+    const qs = document.getElementById("quick-role-switcher");
+    if (qs) qs.remove();
   }
 
   function openAuthModal() {
@@ -1207,7 +1378,7 @@ window.MOCK = (function () {
     if (errBox) { errBox.style.display = "none"; errBox.textContent = ""; }
 
     if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) {
-      if (errBox) { errBox.textContent = "Supabase is not configured. Use a demo account below instead."; errBox.style.display = "block"; }
+      if (errBox) { errBox.textContent = "Sign-in is not available right now. Please try again later."; errBox.style.display = "block"; }
       btn.disabled = false; btn.textContent = "Sign In";
       return;
     }
@@ -1298,8 +1469,13 @@ window.MOCK = (function () {
   }
 
   /** Check if there's an existing Supabase session (e.g. page reload) */
+  function _settleAuth() {
+    if (window.__authSettled) return;
+    window.__authSettled = true;
+    window.dispatchEvent(new CustomEvent("stephub_auth_settled"));
+  }
   async function _checkExistingSession() {
-    if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) return;
+    if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) { _settleAuth(); return; }
     try {
       const profile = await window.STEP_SUPABASE.getCurrentUser();
       if (profile) {
@@ -1313,6 +1489,8 @@ window.MOCK = (function () {
       }
     } catch (err) {
       console.warn("[STEP] Session check failed:", err);
+    } finally {
+      _settleAuth();
     }
   }
 
@@ -1320,8 +1498,10 @@ window.MOCK = (function () {
     updateAuthChrome();
   });
 
-  // ── Return the public API ──
-  return {
+  /* Put the sample cohort on the real calendar before anyone reads it:
+     everything dated moves by a whole number of weeks so that "this
+     week" is the week you are actually looking at the site in. */
+  const _mock = {
     cohort,
     groups,
     teams,
@@ -1349,4 +1529,10 @@ window.MOCK = (function () {
     _doSignOut,
     updateAuthChrome
   };
+
+  if (window.STEP_CLOCK && window.STEP_CLOCK.align) {
+    try { _mock.__shiftedDays = window.STEP_CLOCK.align(_mock); } catch (e) {}
+  }
+
+  return _mock;
 })();

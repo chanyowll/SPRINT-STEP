@@ -258,14 +258,18 @@
            <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
       </div>
     </div>
-    <p class="small mb-0" style="margin-top:var(--s5)">© 2027 Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+    <p class="small mb-0" style="margin-top:var(--s5)">© <span class="yr">2026</span> Ateneo de Manila University · Ateneo Intellectual Property Office</p>
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="site-clock.js"></script>
+<script src="supabase-client.js"></script>
+<script src="materials-data.js"></script>
 <script src="mock-data.js"></script>
 <script>
 const W = window.MOCK.thisWeek;
-const NOW = new Date(W.today);                       // demo clock: Thursday afternoon
+const NOW = new Date();                              // the real clock
 const esc = t => String(t == null ? "" : t)
   .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 /* Compare Manila calendar days as plain YYYY-MM-DD strings — comparing Date
@@ -289,9 +293,11 @@ const daysAway = iso => {
 (function () {
   document.getElementById("wk-title").textContent =
     "Week " + W.week_no + " of " + W.weeks_total;
+  /* today's date, plainly — the rail below already shows the week */
   document.getElementById("wk-tag").textContent =
-    fmtD(W.starts + "T00:00:00+08:00", { weekday: "long" }) + " to " +
-    fmtD(W.ends + "T00:00:00+08:00", { weekday: "long", year: "numeric" });   // the topic sits beside it
+    new Date().toLocaleDateString("en-PH", {
+      timeZone: "Asia/Manila", weekday: "long", month: "short", day: "numeric", year: "numeric",
+    });
   document.getElementById("wk-dots").innerHTML = W.days.map(d =>
     `<span class="${isToday(d.d) ? "now" : isPast(d.d) ? "done" : ""}"
        title="${esc(d.label)} · ${esc(d.title)}">${d.label.slice(0, 3)}<br>${dayNum(d.d)}</span>`).join("");
@@ -330,52 +336,48 @@ const daysAway = iso => {
   /* The recording is the one thing a participant watches rather than keeps,
      so it gets its own panel; everything else is a file to take away. */
   const MATS = T.materials || [];
-  const replayItem = MATS.find(m => m.type === "Video");
   const fileItems = MATS.filter(m => m.type !== "Video");
 
+  /* The replay panel only looks like a player when there is a real recording
+     to play — one the STEP team posted on the Trainers page. Until then it is
+     an empty frame that says so. (The sample cohort's "recording" is not a
+     real video, so the mockup shows the empty frame too.) */
   const replay = document.getElementById("tp-replay");
-  if (replay) {
-    const ready = replayItem && !replayItem.pending;
-    replay.className = "replay" + (ready ? "" : " soon");
-    /* The title, who posted it and the button live on the thumbnail and come
-       up when the player is hovered or given keyboard focus — the panel at
-       rest is just the frame, the way a video tile reads. Where there is no
-       hover (touch), and when there is nothing to watch yet, they stay put. */
-    const screen = (dur, over) => `
-      <div class="rp-screen">
-        <span class="rp-grid" aria-hidden="true"></span>
-        <span class="rp-tag">${ready ? "Recorded" : "Not posted yet"}</span>
-        <span class="rp-play" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6L19 12z"/></svg>
-        </span>
-        ${dur ? `<span class="rp-dur">${esc(dur)}</span>` : ""}
-        <span class="rp-bar" aria-hidden="true"><i></i></span>
-        <div class="rp-over">${over}</div>
+  const VIDEO_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L22 8v8"/><path d="M2 2l20 20"/></svg>';
+  function paintReplayEmpty() {
+    if (!replay) return;
+    replay.className = "replay rp-none";
+    replay.innerHTML = `
+      <div class="rp-emptybox">
+        <span class="rp-empty-ic" aria-hidden="true">${VIDEO_OFF}</span>
+        <b>Video not available yet</b>
+        <span>The session recording will be posted here soon.</span>
+      </div>
+      <div class="rp-cap">
+        <span class="kick">Session replay</span>
+        <h3>${esc(T.code)} ${esc(T.title)}</h3>
       </div>`;
-    replay.innerHTML = ready
-      ? screen(replayItem.size, `
-        <span class="kick">Session replay</span>
-        <h3>${esc(replayItem.name)}</h3>
-        <p class="meta">
-          <span class="rp-av" aria-hidden="true">${esc(initialsOf(replayItem.by))}</span>
-          ${esc(replayItem.by)} · ${fmtD(replayItem.at, { weekday: "short" })}
-        </p>
-        <a class="btn" href="#">
-          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.2v13.6L19 12z"/></svg>
-          Watch the replay
-        </a>`)
-      : screen(null, `
-        <span class="kick">Session replay</span>
-        <h3>Not posted yet</h3>
-        <p class="meta">${replayItem && replayItem.pending ? esc(replayItem.pending)
-          : "The recording goes up the same afternoon as the session."}</p>`);
   }
+  function paintReplayVideo(v) {
+    if (!replay) return;
+    const kb = n => !n ? "" : n < 1048576 ? Math.max(1, Math.round(n / 1024)) + " KB"
+      : n < 1073741824 ? Math.round(n / 1048576) + " MB" : (n / 1073741824).toFixed(1) + " GB";
+    const on = v.posted_at && !isNaN(new Date(v.posted_at)) ? "Posted " + fmtD(v.posted_at, { weekday: "short" }) : "";
+    replay.className = "replay rp-live";
+    replay.innerHTML = `
+      <div class="rp-player">
+        <video controls preload="metadata" playsinline src="${v.url}"
+               aria-label="Recording of the ${esc(T.title)} session"></video>
+      </div>
+      <div class="rp-cap">
+        <span class="kick">Session replay</span>
+        <h3>${esc(T.code)} ${esc(T.title)}</h3>
+        <p class="meta">${[on, kb(v.size)].filter(Boolean).join(" · ")}</p>
+      </div>`;
+  }
+  paintReplayEmpty();
 
   const matCount = document.getElementById("tp-matcount");
-  if (matCount) {
-    const up = fileItems.filter(m => !m.pending).length, wait = fileItems.length - up;
-    matCount.textContent = up + " ready" + (wait ? " · " + wait + " to come" : "");
-  }
 
   /* one glyph per kind of file, so a row is recognisable before it is read */
   const FGLYPH = {
@@ -384,24 +386,226 @@ const daysAway = iso => {
     XLSX: '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M10 4v16"/>',
     PPTX: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/>',
   };
-  document.getElementById("tp-mats").innerHTML = fileItems.map(m => `
-    <li class="${m.pending ? "is-pend" : ""}">
-      <span class="ft ${m.pending ? "pend" : ""}" aria-hidden="true">
+
+  /* A real posted file gets a small picture of itself: the first page of a
+     PDF, or the image itself. Word, Excel and PowerPoint files cannot be
+     drawn in the browser, so they keep their file-type tile. */
+  const IMG_EXT = ["PNG", "JPG", "JPEG", "GIF", "WEBP"];
+  const thumbKind = m => !m.href || m.pending ? "" :
+    m.type === "PDF" ? "pdf" : IMG_EXT.includes(m.type) ? "img" : "";
+
+  const thumbCache = {};
+  let pdfjsReady = null;
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    if (pdfjsReady) return pdfjsReady;
+    const BASE = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/";   // same CDN as supabase-js
+    pdfjsReady = new Promise((res, rej) => {
+      const sc = document.createElement("script");
+      sc.src = BASE + "pdf.min.js";
+      sc.onload = () => {
+        try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = BASE + "pdf.worker.min.js"; } catch (e) {}
+        res(window.pdfjsLib);
+      };
+      sc.onerror = () => rej(new Error("pdf.js did not load"));
+      document.head.appendChild(sc);
+    });
+    return pdfjsReady;
+  }
+  async function pdfThumb(url) {
+    const lib = await loadPdfJs();
+    const doc = await lib.getDocument({ url, disableAutoFetch: true, disableStream: true }).promise;
+    const page = await doc.getPage(1);
+    const base = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: 280 / base.width });      // ~2.5x the tile, for sharp screens
+    const c = document.createElement("canvas");
+    c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+    await page.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise;
+    const out = c.toDataURL("image/jpeg", 0.82);
+    try { doc.destroy(); } catch (e) {}
+    return out;
+  }
+  function hydrateThumbs(box) {
+    box.querySelectorAll(".ft.thumb[data-thumb]").forEach(async tile => {
+      const url = tile.dataset.thumb, kind = tile.dataset.kind;
+      try {
+        const src = thumbCache[url] || (thumbCache[url] =
+          kind === "img" ? Promise.resolve(url) : pdfThumb(url));
+        const img = new Image();
+        img.alt = "";
+        img.src = await src;
+        await (img.decode ? img.decode() : Promise.resolve());
+        tile.classList.add("has-img");
+        tile.insertBefore(img, tile.firstChild);
+      } catch (e) {
+        delete thumbCache[url];                     // leave the file-type tile as it is
+      }
+    });
+  }
+
+  let SHOWN = [];                     // the rows on screen, in order — the viewer opens one of these
+
+  /* ---- click a material to see it: PDFs and images open in a viewer on
+     the page; other files (Word, Excel, PowerPoint) can only be downloaded ---- */
+  const viewer = (() => {
+    const box = document.createElement("div");
+    box.className = "mv"; box.id = "mat-view"; box.hidden = true;
+    box.setAttribute("role", "dialog"); box.setAttribute("aria-modal", "true");
+    box.setAttribute("aria-labelledby", "mv-title");
+    box.innerHTML = `
+      <div class="mv-box">
+        <div class="mv-head">
+          <span class="mv-t"><b id="mv-title">—</b><em id="mv-meta"></em></span>
+          <a class="btn secondary sm" id="mv-dl" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+            Download</a>
+          <button type="button" class="mv-x" aria-label="Close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+        <div class="mv-body" id="mv-body"></div>
+      </div>`;
+    document.body.appendChild(box);
+    const body = box.querySelector("#mv-body"), dl = box.querySelector("#mv-dl");
+    let back = null;
+    function close() {
+      if (box.hidden) return;
+      box.hidden = true; body.innerHTML = "";
+      document.body.classList.remove("modal-open");
+      if (back && back.focus) back.focus();
+    }
+    box.addEventListener("click", e => { if (e.target === box || e.target.closest(".mv-x")) close(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+    function open(m, from) {
+      back = from || null;
+      box.querySelector("#mv-title").textContent = m.name;
+      box.querySelector("#mv-meta").textContent = [m.file, m.size, m.type].filter(Boolean).join(" · ");
+      const kind = thumbKind(m);
+      if (m.href) { dl.href = m.href; dl.setAttribute("download", m.file || m.name); dl.hidden = false; }
+      else { dl.removeAttribute("href"); dl.hidden = true; }
+      if (kind === "pdf") {
+        body.innerHTML = `<iframe title="${esc(m.name)}" src="${m.href}#view=FitH&toolbar=1"></iframe>`;
+      } else if (kind === "img") {
+        body.innerHTML = `<div class="mv-img"><img src="${m.href}" alt="${esc(m.name)}"></div>`;
+      } else {
+        body.innerHTML = `<div class="mv-none">
+          <span class="ft">${esc(m.type || "FILE")}</span>
+          <b>${m.href ? "This file can’t be shown in the browser" : "Not uploaded yet"}</b>
+          <span>${m.href ? esc(m.type) + " files open in their own app. Download it to view."
+                         : "The preview appears here once the trainer posts the file."}</span></div>`;
+      }
+      box.hidden = false;
+      document.body.classList.add("modal-open");
+      box.querySelector(".mv-x").focus();
+    }
+    return { open };
+  })();
+
+  const matRow = m => {
+    const dl = m.href
+      ? `href="${m.href}" download="${esc(m.file || m.name)}" target="_blank" rel="noopener"`
+      : `href="#"`;
+    const i = SHOWN.indexOf(m);
+    return `
+    <li class="${m.pending ? "is-pend" : "can-view"}" ${m.pending ? "" :
+      `data-i="${i}" tabindex="0" role="button" aria-label="Open ${esc(m.name)}"`}>
+      <span class="ft ${m.pending ? "pend" : ""}${thumbKind(m) ? " thumb" : ""}" aria-hidden="true"
+            ${thumbKind(m) ? `data-thumb="${m.href}" data-kind="${thumbKind(m)}"` : ""}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"
              stroke-linejoin="round">${FGLYPH[m.type] || FGLYPH.PDF}</svg>
         <b>${esc(m.type)}</b>
       </span>
       <span class="mtext">
         <span class="mn">${esc(m.name)}</span>
-        <span class="mm">${m.pending ? esc(m.pending)
-          : esc(m.size) + " · " + esc(m.by) + " · " + fmtD(m.at, { weekday: "short" })}</span>
+        ${m.pending ? `<span class="mm">${esc(m.pending)}</span>`
+          /* a trainer's real upload: the topic is the title, the file it came in as sits underneath */
+          : m.file ? `<span class="mm has-file">
+              <span class="mf" title="${esc(m.file)}">${esc(m.file)}</span>
+              <span>${esc(m.size)}</span><span>${fmtD(m.at, { weekday: "short" })}</span></span>`
+          : `<span class="mm">${esc(m.size) + " · " + esc(m.by) + " · " + fmtD(m.at, { weekday: "short" })}</span>`}
       </span>
       ${m.pending ? `<span class="badge">Not yet posted</span>`
-                  : `<a class="btn secondary dl" href="#">
+                  : `<a class="btn secondary dl" ${dl}>
                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                             stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
                        Download</a>`}
-    </li>`).join("");
+    </li>`;
+  };
+
+  /* extra = what a trainer really posted for this session. On a live project
+     that list IS the materials: the sample rows are for the offline mockup
+     only, so a participant is never offered a Download that goes nowhere. */
+  function paintMats(extra, live) {
+    const all = live ? (extra || []) : (extra || []).concat(fileItems);
+    SHOWN = all;
+    const box = document.getElementById("tp-mats");
+    box.innerHTML = all.length ? all.map(matRow).join("")
+      : `<li class="mats-empty">Nothing posted for this session yet. The trainer’s files appear here as soon as they are up.</li>`;
+    hydrateThumbs(box);
+    if (matCount) {
+      const up = all.filter(m => !m.pending).length, wait = all.length - up;
+      matCount.textContent = !all.length ? "None yet"
+        : up + " ready" + (wait ? " · " + wait + " to come" : "");
+    }
+  }
+  paintMats([]);
+  (function () {
+    const list = document.getElementById("tp-mats");
+    const openRow = (li) => { const m = SHOWN[+li.dataset.i]; if (m) viewer.open(m, li); };
+    list.addEventListener("click", e => {
+      if (e.target.closest("a, button")) return;          // Download keeps doing its own job
+      const li = e.target.closest("li.can-view"); if (li) openRow(li);
+    });
+    list.addEventListener("keydown", e => {
+      if ((e.key === "Enter" || e.key === " ") && e.target.matches("li.can-view")) { e.preventDefault(); openRow(e.target); }
+    });
+  })();
+
+  /* When the page is signed in to a real project, whatever the trainer
+     posted against this session on the Trainers page is the actual file
+     to take away — it goes to the top with a working download link. */
+  (async () => {
+    const MAT = window.STEP_MATERIALS;
+    if (!MAT) return;
+    let live = false;
+    try { live = await MAT.isLive(); } catch (e) { return; }
+    if (!live) return;
+    /* the deck and anything else the trainer added for this session */
+    let deck = null, extras = [], rec = null;
+    try {
+      [deck, extras, rec] = await Promise.all([
+        MAT.forModule(T.code),
+        MAT.materialsFor ? MAT.materialsFor(T.code) : Promise.resolve([]),
+        MAT.recordingFor ? MAT.recordingFor(T.code).catch(() => null) : Promise.resolve(null),
+      ]);
+    } catch (e) { return; }
+    if (rec && rec.url) paintReplayVideo(rec); else paintReplayEmpty();
+    const kb = n => !n ? "—" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
+    const ext = n => (String(n || "file").split(".").pop() || "PDF").toUpperCase().slice(0, 4);
+    const rows = [];
+    if (deck && deck.url) rows.push({
+      type: ext(deck.name),
+      /* named after the week's topic, whatever the trainer called the file */
+      name: `${T.code} ${T.title} — slide deck`,
+      file: deck.name || "",
+      isDeck: true,
+      size: kb(deck.size),
+      by: "posted by the trainer",
+      at: deck.posted_at,
+      href: deck.url,
+    });
+    (extras || []).filter(m => m.url).forEach(m => rows.push({
+      type: ext(m.name),
+      /* the name the trainer typed when adding it */
+      name: m.title || m.name || "Session material",
+      file: m.name || "",
+      size: kb(m.size),
+      by: "posted by the trainer",
+      at: m.posted_at,
+      href: m.url,
+    }));
+    paintMats(rows, true);
+  })();
 })();
 
 /* ---------- Saturday panel schedule (for participants) ---------- */
@@ -418,7 +622,7 @@ const daysAway = iso => {
     return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
   }
 
-  grid.innerHTML = panels.map((p, i) => `
+  const draw = () => { grid.innerHTML = panels.map((p, i) => `
     <article class="pcard reveal" style="--d:${i * 70}ms">
       <div class="ph"><span class="pl">Panel ${esc(p.letter)}</span>
         <span class="pn2">${p.teams.length} team${p.teams.length === 1 ? "" : "s"}</span></div>
@@ -435,6 +639,10 @@ const daysAway = iso => {
         }).join("")}
       </div>
     </article>`).join("");
+    if (window.__stepObserve) window.__stepObserve(grid);
+  };
+  draw();
+  window.addEventListener("stephub_roster", draw);      // real panelist names from the database
 })();
 
 (function () {

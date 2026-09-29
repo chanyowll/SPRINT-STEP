@@ -234,10 +234,11 @@
            <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
       </div>
     </div>
-    <p class="small mb-0" style="margin-top:var(--s5)">© 2027 Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+    <p class="small mb-0" style="margin-top:var(--s5)">© <span class="yr">2026</span> Ateneo de Manila University · Ateneo Intellectual Property Office</p>
   </div>
 </footer>
 
+<script src="site-clock.js"></script>
 <script src="mock-data.js"></script>
 <script>
 let { capstone: CAP, teams } = window.MOCK;
@@ -296,6 +297,7 @@ function hasContent(f) {
     case "budget":      return v.rows.some(r => rowTotal(r) > 0);
     case "projects":    return v.rows.some(r => String(r.title).trim());
     case "attachments": return f.attachments ? f.attachments.some(a => a.have === true) : false;
+    case "intro":       return ["rationale", "framework", "general", "specific"].some(k => String(v[k] || "").trim());
     default:            return !!(f.draft || "").trim();
   }
 }
@@ -419,6 +421,30 @@ const inp = (val, ph, cls) =>
   `<input class="fin ${cls || ""}" type="text" value="${esc(val || "")}" placeholder="${esc(ph || "")}">`;
 
 const FIELDS = {
+  /* item 7: the three parts DOST Form 2 asks for, each in its own box */
+  intro(f) {
+    const v = f.value, wc = words(v.rationale), lim = f.limit || 300;
+    const ta = (k, rows, ph) =>
+      `<textarea id="i-${k}" data-k="${k}" rows="${rows}" placeholder="${esc(ph)}">${esc(v[k] || "")}</textarea>`;
+    return `
+      <div class="isub" data-part="7.1">
+        <label for="i-rationale"><b>7.1</b> Rationale / Significance <span class="fine">not to exceed ${lim} words</span></label>
+        ${ta("rationale", 6, "Why the project matters: the problem, who has it, what it costs them, and why now.")}
+        <span class="wc ${wc > lim ? "over" : ""}" data-wc="rationale">${wc} words of ${lim} allowed</span>
+      </div>
+      <div class="isub" data-part="7.2">
+        <label for="i-framework"><b>7.2</b> Scientific basis / Theoretical framework</label>
+        ${ta("framework", 5, "The science the technology rests on, and the framework the project follows.")}
+      </div>
+      <div class="isub" data-part="7.3">
+        <label><b>7.3</b> Objectives</label>
+        <div class="isub2"><label for="i-general">General</label>
+          ${ta("general", 2, "The one overall aim of the project.")}</div>
+        <div class="isub2"><label for="i-specific">Specific</label>
+          ${ta("specific", 4, "One objective per line. Each line becomes a numbered objective on the form.")}</div>
+      </div>`;
+  },
+
   profile(f) {
     const v = f.value;
     const row = (k, label, fine, ph, extra) =>
@@ -647,7 +673,7 @@ function openItem(n) {
   if (fs) {
     const touch = () => { syncSheet(f.n, false); refreshCounts(); afterEdit(); };
     fs.addEventListener("input", e => {
-      const el = e.target; if (!el.matches("input")) return;
+      const el = e.target; if (!el.matches("input, textarea")) return;
       const row = el.dataset.row, k = el.dataset.k;
       if (el.dataset.count) f.value.count = el.value;
       else if (row != null) {
@@ -659,6 +685,10 @@ function openItem(n) {
         if (f.kind === "budget") recalcBudget(f);
       } else if (k) {
         f.value[k] = el.value;
+        if (k === "rationale") {                              // 7.1 has its own word limit
+          const w = words(el.value), lim = f.limit || 300, out = fs.querySelector('[data-wc="rationale"]');
+          if (out) { out.textContent = w + " words of " + lim + " allowed"; out.classList.toggle("over", w > lim); }
+        }
       }
       touch();
     });
@@ -936,6 +966,13 @@ const tickbox = on => `<span class="tick">${on ? "&#9745;" : "_____"}</span>`;
 
 function buildSheet() {
   const P = F(1).value, S = F(3).value, C4 = F(4).value, A = F(5).value;
+  /* item 7, part by part */
+  const I7 = (F(7) && F(7).value) || {};
+  const introPart = k => String(I7[k] || "").trim()
+    ? `<div class="ans">${esc(I7[k].trim())}</div>`
+    : `<div class="todo">not yet written — ${esc(F(7).source)}, Week ${F(7).week}</div>`;
+  const specifics = String(I7.specific || "").split(/\n+/)
+    .map(x => x.replace(/^\s*(?:[-•*]|\d+[.)])\s*/, "").trim()).filter(Boolean);
   const staff = F(21).value, B = F(22).value, PR = F(23).value;
   const sCols = ["country", "region", "province", "district", "municipality", "barangay"];
 
@@ -1013,11 +1050,13 @@ function buildSheet() {
     </div>
 
     <div class="box"><div class="no red">(7) INTRODUCTION</div></div>
-    <div class="box"><div class="no idt">(7.1) RATIONALE/SIGNIFICANCE <span class="fine">(not to exceed 300 words)</span></div>${ans(7)}</div>
-    <div class="box"><div class="no idt">(7.2) SCIENTIFIC BASIS/THEORETICAL FRAMEWORK</div></div>
+    <div class="box"><div class="no idt">(7.1) RATIONALE/SIGNIFICANCE <span class="fine">(not to exceed 300 words)</span></div>${introPart("rationale")}</div>
+    <div class="box"><div class="no idt">(7.2) SCIENTIFIC BASIS/THEORETICAL FRAMEWORK</div>${introPart("framework")}</div>
     <div class="box">
       <div class="no idt">(7.3) OBJECTIVES</div>
-      <div>General:</div><div>Specific:</div>
+      <div>General: ${String(I7.general || "").trim() ? `<span class="ans">${esc(I7.general.trim())}</span>` : ""}</div>
+      <div>Specific:${specifics.length
+        ? `<ol class="ans objs">${specifics.map(x => `<li>${esc(x)}</li>`).join("")}</ol>` : ""}</div>
     </div>
 
     <div class="box">
@@ -1129,10 +1168,11 @@ function buildSheet() {
 function markHot(n) {
   const sheet = document.getElementById("sheet");
   sheet.querySelectorAll(".hot").forEach(el => el.classList.remove("hot"));
-  const box = [...sheet.querySelectorAll(".box, .split")]
-    .find(el => new RegExp("^\\(" + n + "\\)").test((el.querySelector(".no") || {}).textContent || ""));
-  if (box) box.classList.add("hot");
-  return box;
+  const re = new RegExp("^\\(" + n + "(\\.\\d+)?\\)");
+  const boxes = [...sheet.querySelectorAll(".box, .split")]
+    .filter(el => re.test(((el.querySelector(".no") || {}).textContent || "").trim()));
+  boxes.forEach(b => b.classList.add("hot"));
+  return boxes[0];
 }
 
 /* open / close — docked, so typing on the left redraws the paper on the right */

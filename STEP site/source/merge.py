@@ -116,14 +116,37 @@ router = """
                  groups:  "STEP Groups · SPRINT-STEP",
                  trainers: "Trainers · SPRINT-STEP" };
 
+  function signInPending() {
+    if (window.__authSettled) return false;
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        if (/^sb-.*-auth-token$/.test(localStorage.key(i) || "")) return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
   function show(name, anchor) {
     if (!titles[name]) name = "home";
     // ── RBAC: block navigation to locked routes ──
-    if (window.MOCK && window.MOCK.auth && !window.MOCK.auth.canAccess(name)) {
-      name = "home";
-      location.hash = "#home";
-      if (window.MOCK.openAuthModal) window.MOCK.openAuthModal();
+    if (window.MOCK && window.MOCK.auth && !window.MOCK.auth.canAccess(name) && signInPending()) {
+      /* A refresh starts as a guest for a moment while the saved sign-in is
+         read back. Stay on the requested tab and decide once it is known,
+         instead of bouncing to Home. */
+      window.__pendingRoute = true;
       return;
+    }
+    if (window.MOCK && window.MOCK.auth && !window.MOCK.auth.canAccess(name)) {
+      /* A page that explains its own lock is shown, so the person reads why
+         they cannot open it. Anything else falls back to home. */
+      var gated = document.getElementById("route-" + name)
+        && document.getElementById("route-" + name).querySelector("[data-locked-gate]");
+      if (!gated) {
+        name = "home";
+        location.hash = "#home";
+        if (window.MOCK.openAuthModal) window.MOCK.openAuthModal();
+        return;
+      }
     }
     // the Capstone form panel is docked to the page; never let it follow you elsewhere
     if (name !== "capstone" && window.__closeSheet) window.__closeSheet();
@@ -159,7 +182,11 @@ router = """
   }
 
   window.addEventListener("hashchange", fromHash);
+  window.addEventListener("stephub_auth_settled", function () {
+    if (window.__pendingRoute) { window.__pendingRoute = false; fromHash(); }
+  });
   window.addEventListener("stephub_auth_changed", function () {
+    if (window.__pendingRoute) { window.__pendingRoute = false; fromHash(); return; }
     var h = (location.hash || "#home").slice(1);
     var name = h.split("-")[0];
     if (name === "week" && typeof window.__renderThisWeek === "function") window.__renderThisWeek();
@@ -253,6 +280,11 @@ page = f"""<!doctype html>
 <script src="supabase-client.js"></script>
 <script src="myteam-data.js"></script>
 <script src="submissions-data.js"></script>
+<script src="site-clock.js"></script>
+<script src="materials-data.js"></script>
+<script src="panelsheets-data.js"></script>
+<script src="mentorreports-data.js"></script>
+<script src="mentorreport-pdf.js"></script>
 <script src="mock-data.js"></script>
 <script>
 {observer}

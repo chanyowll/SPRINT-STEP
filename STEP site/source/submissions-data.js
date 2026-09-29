@@ -151,5 +151,24 @@
     await sb.from('submissions').delete().eq('team_id', teamId).eq('week_no', week);
   }
 
-  window.STEP_SUBMISSIONS = { isLive, putFile, getWeek, clearWeek, BUCKET };
+  /** Who has handed in for one week: { team_id: { video, slide, late } }.
+      One small query, no signed URLs — used to mark the team picker. */
+  async function weekStatus(week) {
+    const sb = client();
+    if (!sb) return {};
+    const { data, error } = await sb.from('submissions')
+      .select('team_id, kind, status, storage_path').eq('week_no', week);
+    if (error || !data) return {};
+    const out = {};
+    data.forEach(r => {
+      if (!r.storage_path) return;
+      const t = out[r.team_id] || (out[r.team_id] = { video: false, slide: false, late: false });
+      if (r.kind === 'video') t.video = true;
+      if (r.kind === 'slide') t.slide = true;
+      if (r.status === 'late') t.late = true;
+    });
+    return out;
+  }
+
+  window.STEP_SUBMISSIONS = { isLive, putFile, getWeek, clearWeek, weekStatus, BUCKET };
 })();

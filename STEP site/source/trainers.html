@@ -67,7 +67,7 @@
 </header>
 
 <!-- ===== Page hero ===== -->
-<div id="trainers-locked-gate" class="wrap" hidden></div>
+<div id="trainers-locked-gate" data-locked-gate class="wrap" hidden></div>
 <div id="trainers-content-wrap">
 <section class="page-hero plain">
   <div class="wrap hero-split">
@@ -89,27 +89,142 @@
 
     <section>
       <div class="section-head">
-        <div class="eyebrow">Materials</div>
-        <h2>Post your slides</h2>
-        <p class="lede">Drop a deck for any session you are running. Participants see it on This Week and on
-           the Program page from the moment it is posted.</p>
+        <div class="eyebrow">Slide deck</div>
+        <h2>Post your materials</h2>
+        <p class="lede">Post the slide deck and any other files for a session you are running. Participants see them on This Week (and the deck on the Program page) from the moment they are posted.</p>
       </div>
-      <div class="upl">
-        <label class="drop" id="sl-drop">
-          <input type="file" id="sl-file" accept=".pdf,.ppt,.pptx,.key" hidden>
-          <span class="dz-ic" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4"/><path d="m7 9 5-5 5 5"/><path d="M4 16v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <!-- same shape as the participant hand-in card on My Team's Work:
+           a bar saying where it lands, the drop box, then one button -->
+      <div class="card reveal" id="sl-card">
+
+        <!-- The session is stated once, here, as the card's subject —
+             everything below is about this one deck. -->
+        <header class="deckhead">
+          <div class="dh-t">
+            <span class="dh-kick">Posting to</span>
+            <h3 id="sl-topic">—</h3>
+            <p id="sl-sub">—</p>
+          </div>
+          <span class="dh-status" id="sl-status">No deck yet</span>
+        </header>
+
+        <div class="deckgrid">
+          <!-- the work: an empty box, or the deck that is already up -->
+          <div class="dg-main">
+            <div class="drop" id="sl-drop" data-kind="deck">
+              <input type="file" id="sl-file" accept=".pdf,.ppt,.pptx,.key" aria-label="Upload your slide deck">
+              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/>
+              </svg>
+              <h4>Drop the deck here</h4>
+              <p class="hint">PDF, PPTX or Keynote</p>
+              <span class="pick">or click to choose a file</span>
+            </div>
+
+            <!-- posted: the deck itself, the way My Team's Work shows an
+                 output once the team has handed it in -->
+            <figure class="deckprev" id="sl-preview" hidden>
+              <div class="dp-paper" id="sp-prev"></div>
+              <figcaption class="dp-cap">
+                <span class="dp-file"><b id="sp-name">—</b><span id="sp-meta">—</span></span>
+                <a class="btn secondary" id="sp-open" target="_blank" rel="noopener">Open</a>
+              </figcaption>
+            </figure>
+          </div>
+
+          <!-- the controls, in the order they are used -->
+          <aside class="dg-side">
+            <div class="ds-top">
+              <label class="fld"><span>Session</span>
+                <select id="sl-session" aria-label="Session this deck belongs to"></select>
+              </label>
+              <p class="ds-note" id="sl-note">—</p>
+            </div>
+            <div class="ds-act">
+              <div class="upbar" id="sl-upbar" hidden>
+                <div class="up-track"><i id="sl-upfill"></i></div>
+                <span class="up-txt" id="sl-uptxt">Posting…</span>
+              </div>
+              <button class="btn solid w-full" id="sl-post" disabled>Post this deck</button>
+              <div class="ds-links" id="sl-links" hidden>
+                <button class="lnk" id="sp-new" type="button">Post a new version</button>
+                <button class="lnk danger" id="sp-del" type="button">Remove this deck</button>
+                <!-- the replacement is chosen here while the current deck stays up;
+                     nothing changes until the trainer confirms the new file -->
+                <input type="file" id="sp-newfile" accept=".pdf,.ppt,.pptx,.key" hidden aria-label="Choose the new version of the deck">
+              </div>
+              <p class="subcount" id="sl-count">—</p>
+            </div>
+
+            <!-- anything besides the deck: each file goes up under a name the
+                 trainer types, and that name is what This Week shows -->
+            <section class="ds-extra" id="sx" aria-labelledby="sx-h">
+              <div class="sx-head">
+                <h4 id="sx-h">Other materials</h4>
+                <span class="sx-count" id="sx-count"></span>
+              </div>
+              <p class="sx-hint">Worksheets, templates, readings. Participants see each one on This Week under the name you give it.</p>
+              <ul class="sx-list" id="sx-list"></ul>
+              <div class="sx-form">
+                <label class="sx-fld" for="sx-name"><span>Material name</span>
+                  <input id="sx-name" type="text" maxlength="120" autocomplete="off"
+                         placeholder="e.g. Prospect qualification worksheet" aria-describedby="sx-msg">
+                </label>
+                <label class="sx-pick" id="sx-pick">
+                  <input type="file" id="sx-file" aria-label="Choose the material file">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.5 12.6 20.9a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg>
+                  <span class="sx-fn" id="sx-fn">Choose a file</span>
+                  <button class="sx-clear" id="sx-clear" type="button" aria-label="Clear the chosen file" hidden>×</button>
+                </label>
+                <p class="sx-msg" id="sx-msg" role="status" hidden></p>
+                <div class="upbar" id="sx-upbar" hidden>
+                  <div class="up-track"><i id="sx-upfill"></i></div>
+                  <span class="up-txt" id="sx-uptxt">Adding…</span>
+                </div>
+                <button class="btn secondary w-full" id="sx-post" type="button">Add material</button>
+              </div>
+            </section>
+          </aside>
+        </div>
+
+        <p class="mockup-note mb-0 mt-4">This is a design mockup — files stay in your browser and nothing is sent anywhere.</p>
+      </div>
+
+      <!-- the session is confirmed here, in front of the trainer, not
+           chosen from a dropdown they might skim past -->
+      <div class="confirm" id="sl-confirm" hidden>
+        <div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="sc-topic">
+          <span class="rc-ic blue" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/></svg>
           </span>
-          <strong>Drop a slide deck here, or choose a file</strong>
-          <span class="small muted">PDF, PPTX or Keynote · up to 50 MB</span>
-        </label>
-        <div class="upl-side">
-          <label class="fld"><span>Session</span>
-            <select id="sl-session"></select>
-          </label>
-          <div class="posted" id="sl-posted"></div>
+          <p class="sc-kick">You are posting a slide deck for</p>
+          <h3 class="sc-topic" id="sc-topic">—</h3>
+          <p class="sc-week" id="sc-week">—</p>
+          <div class="sc-file" id="sc-file">—</div>
+          <div class="rc-acts">
+            <button class="btn secondary" id="sc-cancel" type="button">Go back and change</button>
+            <button class="btn solid" id="sc-go" type="button">Yes, post it</button>
+          </div>
         </div>
       </div>
+
+      <!-- removing a deck takes it away from participants, so it is asked, not assumed -->
+      <div class="confirm" id="sl-delconfirm" hidden>
+        <div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="sd-h" aria-describedby="sd-p">
+          <span class="rc-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+          </span>
+          <h3 id="sd-h">Remove this deck?</h3>
+          <div class="sc-file" id="sd-file">—</div>
+          <p class="sd-p" id="sd-p">Participants will no longer see it on This Week or the Program page. This cannot be undone, but you can post a deck again at any time.</p>
+          <div class="rc-acts">
+            <button class="btn secondary" id="sd-cancel" type="button">Keep the deck</button>
+            <button class="btn danger" id="sd-go" type="button">Yes, remove it</button>
+          </div>
+        </div>
+      </div>
+
+
     </section>
 
     <section class="mt-7">
@@ -135,7 +250,72 @@
   <!-- ===================== MENTORS ===================== -->
   <div class="fa-view" id="view-mentors" hidden>
 
-    <section>
+    <!-- the weekly accomplishment report: the planned activities are the
+         mentor's targets; tick, remark, download to sign, upload back -->
+    <section id="mr-sec">
+      <div class="section-head">
+        <div class="eyebrow">Weekly accomplishment report</div>
+        <h2>Your targets for the week</h2>
+        <p class="lede">The planned activities each week, carried over from the STEP 2 mentors’ reports.
+           Tick what the team completed and add a remark on each, then download the report, sign it,
+           and upload the signed copy as your submission.</p>
+      </div>
+
+      <div class="mrep" id="mrep">
+        <div class="sh-top">
+          <div class="sh-tx">
+            <div class="sh-code" id="mr-code">—</div>
+            <h3 id="mr-topic">—</h3>
+            <div class="sh-meta" id="mr-meta">—</div>
+          </div>
+          <div class="sh-picks">
+            <label class="fld"><span>Week</span><select id="mr-week"></select></label>
+            <label class="fld"><span>Mentee</span><select id="mr-team"></select></label>
+          </div>
+        </div>
+
+        <div class="mr-info">
+          <label class="mr-in"><span>Mentor name</span><input id="mr-name" type="text" autocomplete="name" placeholder="Your name as it should appear on the report"></label>
+          <label class="mr-in"><span>Period covered</span><input id="mr-period" type="text" placeholder="Week of …"></label>
+          <span class="mr-state" id="mr-state">Draft</span>
+        </div>
+
+        <div class="mr-scroll" id="mr-scroll">
+        <p class="mr-src" id="mr-src" hidden>No STEP 2 mentors’ report exists for this week, so these activities are
+           drafted from the week’s panel score sheet.</p>
+
+        <div class="mr-table" role="table" aria-label="Planned activities">
+          <div class="mr-head" role="row">
+            <span role="columnheader">Planned activities / outputs for the period</span>
+            <span role="columnheader">Task status</span>
+            <span role="columnheader">Remarks</span>
+          </div>
+          <div id="mr-list"></div>
+        </div>
+        </div>
+
+        <div class="mr-signed" id="mr-signed" hidden></div>
+
+        <div class="sh-foot">
+          <span class="sh-status">
+            <span class="msg" id="mr-msg">—</span>
+            <span class="save-st" id="mr-save" aria-live="polite"></span>
+          </span>
+          <span class="row mr-acts">
+            <button class="btn secondary" id="mr-dl" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+              Download report</button>
+            <button class="btn" id="mr-up" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>
+              <span id="mr-up-l">Upload signed copy</span></button>
+            <input type="file" id="mr-file" accept="application/pdf,image/*" hidden>
+          </span>
+        </div>
+        <div class="mr-prog" id="mr-prog" hidden><i></i></div>
+      </div>
+    </section>
+
+    <section class="mt-7">
       <div class="section-head">
         <div class="eyebrow">This week</div>
         <h2>Mentoring schedule</h2>
@@ -147,7 +327,7 @@
 
     <section class="mt-7">
       <div class="section-head">
-        <div class="eyebrow">One hour a week, one team each</div>
+        <div class="eyebrow">An hour and a half a week, one team each</div>
         <h2>The mentors</h2>
         <p class="lede" id="mn-note">—</p>
       </div>
@@ -173,8 +353,13 @@
           </div>
           <div class="sh-picks">
             <label class="fld"><span>Session</span><select id="sc-session"></select></label>
-            <label class="fld"><span>Panel</span><select id="sc-panel"></select></label>
-            <label class="fld"><span>Panelist</span><select id="sc-panelist"></select></label>
+            <label class="fld" id="sc-panel-fld"><span>Panel</span><select id="sc-panel"></select></label>
+            <label class="fld" id="sc-panelist-fld"><span>Panelist</span><select id="sc-panelist"></select></label>
+            <!-- a panelist sees only their own sheet: their name, no pickers -->
+            <div class="fld sh-me" id="sc-me" hidden>
+              <span>Your score sheet</span>
+              <div class="sh-me-v"><b id="sc-me-name">—</b><em id="sc-me-panel"></em></div>
+            </div>
           </div>
         </div>
 
@@ -182,7 +367,10 @@
         <div class="tm-panel" id="sc-body"></div>
 
         <div class="sh-foot">
-          <span class="msg" id="sc-msg">Nothing scored yet.</span>
+          <span class="sh-status">
+            <span class="msg" id="sc-msg">Nothing scored yet.</span>
+            <span class="save-st" id="sc-save" aria-live="polite"></span>
+          </span>
           <span class="row" style="gap:var(--s3)">
             <button class="btn secondary" id="sc-clear">Clear sheet</button>
             <button class="btn" id="sc-submit">Submit scores</button>
@@ -194,6 +382,88 @@
          score sheet. Each panelist scores on their own sheet; the team's mark for the week is the average
          across the panel.</p>
     </section>
+
+    <!-- asked before an admin changes a panelist's sheet (once per sheet opened) -->
+    <div class="confirm" id="sa-confirm" hidden>
+      <div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="sa-title" aria-describedby="sa-body">
+        <span class="rc-ic gold" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+        </span>
+        <h3 id="sa-title">Edit this panelist’s score sheet?</h3>
+        <div id="sa-body">
+          <p id="sa-p1">—</p>
+          <p>Your account is recorded as the last editor. Make changes only when the panelist has asked you to,
+             or to correct an error. You will be asked again when you open another panelist’s sheet.</p>
+        </div>
+        <div class="rc-acts">
+          <button class="btn secondary" id="sa-cancel" type="button">Cancel</button>
+          <button class="btn solid" id="sa-ok" type="button">Yes, edit this sheet</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== What the teams handed in: pick a week and a team, watch and read ===== -->
+    <section class="mt-7" id="panel-outputs">
+      <div class="section-head">
+        <div class="eyebrow">Team outputs</div>
+        <h2>Watch a team's output</h2>
+        <p class="lede">The five-minute video and slide deck each team submitted. Pick the week and the team.</p>
+      </div>
+
+      <div class="card reveal po-card">
+        <div class="po-bar">
+          <label class="fld"><span>Week</span><select id="po-week"></select></label>
+          <!-- a custom list rather than a <select>: a native menu cannot colour its
+               options on a Mac, and the colour is the point — who has handed in -->
+          <div class="fld po-team"><span id="po-team-l">Team</span>
+            <div class="tpick" id="po-team">
+              <button type="button" class="tpick-btn" id="po-team-btn" aria-haspopup="listbox"
+                      aria-expanded="false" aria-labelledby="po-team-l po-team-btn">
+                <span class="tp-dot" aria-hidden="true"></span>
+                <span class="tp-name" id="po-team-name">—</span>
+                <span class="tp-tag" id="po-team-tag"></span>
+                <svg class="tp-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+              </button>
+              <ul class="tpick-list" id="po-team-list" role="listbox" aria-labelledby="po-team-l" tabindex="-1" hidden></ul>
+            </div>
+          </div>
+          <span class="po-state" id="po-state" aria-live="polite"></span>
+        </div>
+
+        <div id="po-empty" class="po-empty">
+          <span class="po-empty-ic" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M16 16v1a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h2m5.66 0H14a2 2 0 0 1 2 2v3.34l1 1L22 8v8"/><path d="M2 2l20 20"/></svg>
+          </span>
+          <b id="po-empty-t">Nothing submitted yet</b>
+          <span id="po-empty-s">—</span>
+        </div>
+
+        <div id="po-view" hidden>
+          <div class="outgrid">
+            <figure class="outvid">
+            <div class="od-head">
+              <span class="od-ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13.5" height="12" rx="2"/><path d="m16 11 5.5-3v8L16 13z"/></svg>
+              </span>
+              <div><h4>Five-minute video</h4><p id="po-vcap">—</p></div>
+            </div>
+            <div class="ov-screen"><video id="po-video" controls playsinline preload="metadata"></video></div>
+          </figure>
+            <aside class="outdeck">
+              <div class="od-head">
+                <span class="od-ic" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/></svg>
+                </span>
+                <div><h4>Slide deck</h4><p id="po-dcap">—</p></div>
+              </div>
+              <div class="od-prev" id="po-deck"></div>
+              <a class="btn secondary w-full" id="po-dl" target="_blank" rel="noopener">Open the deck</a>
+            </aside>
+          </div>
+        </div>
+      </div>
+    </section>
+
 
     <section class="mt-7">
       <div class="section-head">
@@ -234,10 +504,18 @@
            <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
       </div>
     </div>
-    <p class="small mb-0" style="margin-top:var(--s5)">© 2027 Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+    <p class="small mb-0" style="margin-top:var(--s5)">© <span class="yr">2026</span> Ateneo de Manila University · Ateneo Intellectual Property Office</p>
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="site-clock.js"></script>
+<script src="supabase-client.js"></script>
+<script src="materials-data.js"></script>
+<script src="submissions-data.js"></script>
+<script src="panelsheets-data.js"></script>
+<script src="mentorreports-data.js"></script>
+<script src="mentorreport-pdf.js"></script>
 <script src="mock-data.js"></script>
 <script>
 const F = window.MOCK.faculty;
@@ -273,14 +551,56 @@ document.getElementById("fa-spec").innerHTML = `
     return VIEWS.includes(h) ? h : "trainers";
   };
 
+  /* Each of the three pages answers to its own role. A trainer opens
+     Trainers, a mentor opens Mentors, a panelist opens Panel; someone
+     holding two roles opens both. Nothing is inferred — an account that
+     was not given a role does not get that page. */
+  const allowed = () => (window.MOCK && window.MOCK.auth.viewsFor)
+    ? window.MOCK.auth.viewsFor() : VIEWS.slice();
+
+  /* The Trainers tab in the top bar reads as whichever of the three pages is
+     open — Trainers by default. All three names are stacked in the tab and
+     only the current one is shown, so the tab keeps the width of the longest
+     name and never jumps as you switch. */
+  function navLabel(v) {
+    document.querySelectorAll('.navdd > a[data-route="trainers"], .navdd > a[href="trainers.html"]').forEach(a => {
+      let lab = a.querySelector(".ddlab");
+      if (!lab) {
+        const t = [...a.childNodes].find(n => n.nodeType === 3 && n.textContent.trim());
+        if (!t) return;
+        lab = document.createElement("span");
+        lab.className = "ddlab";
+        lab.innerHTML = VIEWS.map(k => `<span data-v="${k}">${LABEL[k]}</span>`).join("");
+        a.insertBefore(lab, t);
+        t.textContent = " ";
+      }
+      lab.querySelectorAll("span").forEach(s => {
+        const on = s.dataset.v === v;
+        s.classList.toggle("on", on);
+        s.setAttribute("aria-hidden", on ? "false" : "true");
+      });
+    });
+  }
+
   function show(v, mode) {
+    const may = allowed();
+    if (!may.length) return;
+    if (!may.includes(v)) v = may[0];          // land on their own page
     VIEWS.forEach(k => { document.getElementById("view-" + k).hidden = k !== v; });
     note.textContent = NOTES[v];
     document.getElementById("fa-title").textContent = LABEL[v];
+    navLabel(v);
     document.querySelectorAll(".ddm a").forEach(a =>
       a.setAttribute("aria-current", (a.getAttribute("href") || "").endsWith(
         v === "trainers" ? "#trainers" : "-" + v) ? "true" : "false"));
     if (mode === "init") return;
+    /* In the merged site these views live inside every page load, and the
+       account arrives a moment after it — re-checking roles then must never
+       pull the address over to #trainers while you are on another tab, or
+       the next refresh opens Trainers. Only a Trainers address is rewritten. */
+    const raw = (location.hash || "").replace(/^#/, "");
+    const ours = /^trainers(-|$)/.test(raw) || VIEWS.includes(raw);
+    if (mode !== "push" && !ours) return;
     const want = "#trainers" + (v === "trainers" ? "" : "-" + v);
     if (location.hash !== want) {
       if (mode === "push") location.hash = want; else history.replaceState(null, "", want);
@@ -291,8 +611,24 @@ document.getElementById("fa-spec").innerHTML = `
     const raw = (location.hash || "").replace(/^#/, "");
     if (raw && !/^trainers(-|$)/.test(raw) && !VIEWS.includes(raw)) return;
     const h = readHash();
-    if (document.getElementById("view-" + h).hidden) show(h, "init");
+    const may = allowed();
+    const want = may.includes(h) ? h : (may[0] || null);
+    if (want && document.getElementById("view-" + want).hidden) show(want, "replace");
   });
+
+  /* the account can change after the page loads — a live profile lands a
+     moment later — so the view is re-checked, not decided once */
+  window.__faApplyRoles = () => {
+    const may = allowed();
+    if (!may.length) return;
+    /* the address says which of the three was asked for (a refresh on Mentors
+       stays on Mentors); off the Trainers pages, keep whichever is showing */
+    const raw = (location.hash || "").replace(/^#/, "");
+    const cur = /^trainers(-|$)/.test(raw) ? readHash()
+      : VIEWS.find(k => !document.getElementById("view-" + k).hidden);
+    show(may.includes(cur) ? cur : may[0], "replace");
+  };
+  window.addEventListener("stephub_auth_changed", () => window.__faApplyRoles());
   show(readHash(), "init");
 })();
 
@@ -335,7 +671,7 @@ document.getElementById("fa-spec").innerHTML = `
           ? `<details class="cass"><summary>Panel criteria (${s.assess.filter(a => a.weight).length})</summary>
                <ul>${s.assess.map(a => a.group
                     ? `<li class="grp">${esc(a.group)}</li>`
-                    : `<li><b>${a.weight}%</b> ${esc(a.label)}</li>`).join("")}</ul>
+                    : `<li><b>${a.weight}%</b> ${esc(a.label)}${a.hint ? `<small class="cass-h">${esc(a.hint)}</small>` : ""}</li>`).join("")}</ul>
              </details>` : ""}
       </div>
       <div class="cside"><span class="cstat ${state}">${tag}</span>
@@ -345,38 +681,441 @@ document.getElementById("fa-spec").innerHTML = `
   }).join("");
 })();
 
-/* ---------- posting a deck ---------- */
+/* ---------- posting a deck ----------
+   Mirrors the participant hand-in on My Team's Work: choose the session,
+   drop the file, then one button posts it.
+
+   Live (signed in to Supabase): the deck goes into the private
+   "materials" bucket, a row is recorded in session_materials, and the
+   list reads back through short-lived signed URLs — which is why the
+   deck then shows up for participants on This Week and on Program.
+
+   Offline (the design mockup, no Supabase): the deck stays in this
+   browser so the flow can still be demonstrated. */
 (function () {
-  const sel = document.getElementById("sl-session");
-  sel.innerHTML = F.sessions.map(s => `<option value="${esc(s.code)}">${esc(s.code)} · ${esc(s.title)}</option>`).join("");
-  sel.value = (F.sessions.find(s => s.week === CUR) || F.sessions[0]).code;
+  const sel    = document.getElementById("sl-session");
+  const card   = document.getElementById("sl-card");
+  const drop   = document.getElementById("sl-drop");
+  const topicEl = document.getElementById("sl-topic");
+  const subEl   = document.getElementById("sl-sub");
+  const statEl  = document.getElementById("sl-status");
+  const postBt = document.getElementById("sl-post");
+  const cnt    = document.getElementById("sl-count");
+  const prevBox = document.getElementById("sl-preview");
+  const note    = document.getElementById("sl-note");
+  const spNew   = document.getElementById("sp-new");
+  const conf   = document.getElementById("sl-confirm");
+  const scTop  = document.getElementById("sc-topic");
+  const scWeek = document.getElementById("sc-week");
+  const scFile = document.getElementById("sc-file");
+  const scGo   = document.getElementById("sc-go");
+  const scNo   = document.getElementById("sc-cancel");
+  const upbar  = document.getElementById("sl-upbar");
+  const upfill = document.getElementById("sl-upfill");
+  const uptxt  = document.getElementById("sl-uptxt");
+  const MAT    = () => window.STEP_MATERIALS;
 
-  const drop = document.getElementById("sl-drop");
-  const input = document.getElementById("sl-file");
-  const posted = document.getElementById("sl-posted");
-  const list = [];
+  let list   = [];
+  let picked = null;
+  let live   = false;
+  let reposting = false;          // "Post a new version" was pressed
 
-  const kb = n => n < 1024 * 1024 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
-  function draw() {
-    posted.innerHTML = list.length
-      ? `<div class="pl-h">Posted in this session</div>` + list.map((f, i) => `
-          <div class="pl">
-            <span class="ft">${esc(f.ext)}</span>
-            <span class="pn"><b>${esc(f.name)}</b><span>${esc(f.code)} · ${esc(f.size)}</span></span>
-            <button class="lnk" data-i="${i}" aria-label="Remove ${esc(f.name)}">Remove</button>
-          </div>`).join("")
-      : `<div class="pl-h">Nothing posted yet</div>
-         <p class="small muted mb-0">Decks you post here appear against the session in the curriculum above.</p>`;
+  /* Mentors and panelists reach this page too — they may read the list
+     but the database would refuse their upload, so don't offer it.
+
+     The signed-in profile arrives from Supabase a moment after the page
+     parses, so this cannot be decided once and left: it is re-checked
+     whenever the account changes. */
+  const meNow = () => (window.MOCK ? window.MOCK.auth.getCurrentUser() : null);
+  const canPost = () => {
+    const u = meNow();
+    if (!u) return false;
+    const r = window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role];
+    return r.includes("trainer") || r.includes("admin");
+  };
+  function applyRole() {
+    if (card) card.hidden = !canPost();
+    drawList();                       // Remove only on your own decks
+    if (typeof drawExtras === "function") drawExtras();
   }
+  window.addEventListener("stephub_auth_changed", applyRole);
+
+  /* Starts on the session the programme is actually running this week —
+     right nearly every time, and plainly labelled so it reads as a
+     suggestion the trainer can override, not a hidden default. */
+  sel.innerHTML = F.sessions.slice().sort((a, b) => a.week - b.week)
+    .map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}${
+      s.week === CUR ? " (this week)" : ""}</option>`).join("");
+  const SUGGESTED = (F.sessions.find(s => s.week === CUR) || F.sessions[0]).code;
+  sel.value = SUGGESTED;
+
+  const kb = n => !n ? "" : n < 1024 * 1024 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
+  const day = d => new Date(d).toLocaleDateString("en-PH", { month: "short", day: "numeric" });
+  const sessionOf = code => F.sessions.find(s => s.code === code) || null;
+  const DECK_ICO = `<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M12 17v3M8 20h8"/>`;
+
+  /* The card's subject line: the session, its week and whoever teaches
+     it, plus one status word. Said once — the picker below does not
+     repeat it, and neither does anything else. */
+  function drawHead() {
+    const s = sessionOf(sel.value);
+    const f = s ? deckFor(s.code) : null;
+    topicEl.textContent = s ? s.title : "—";
+    subEl.textContent   = s ? ("Week " + s.week + " · " + s.code + (s.trainer ? " · " + s.trainer : "")) : "";
+    statEl.textContent  = f ? "Deck posted" : "No deck yet";
+    statEl.className    = "dh-status" + (f ? " on" : "");
+    if (note) {
+      note.textContent = f
+        ? "Posted " + f.when + ". Posting again replaces what participants see."
+        : (sel.value === SUGGESTED
+            ? "This week\u2019s session. Change it if the deck is for another topic."
+            : "Not this week\u2019s session — check before posting.");
+      note.className = "ds-note" + (!f && sel.value !== SUGGESTED ? " warn" : "");
+    }
+  }
+
+  /* empty box, or the chosen file sitting in it — same as the team card */
+  function drawDrop() {
+    const input = drop.querySelector("input");
+    const s = sessionOf(sel.value);
+    drop.classList.toggle("waiting", !s);
+    if (!picked) {
+      drop.classList.remove("filled");
+      drop.innerHTML = `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">${DECK_ICO}</svg>
+        <h4>Drop the deck here</h4><p class="hint">PDF, PPTX or Keynote</p>
+        <span class="pick">or click to choose a file</span>`;
+      if (input) { drop.prepend(input); input.value = ""; }
+    } else {
+      drop.classList.add("filled");
+      drop.innerHTML = `<div class="filerow">
+          <span class="fi"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="m5 13 4 4L19 7"/></svg></span>
+          <span><span class="nm">${esc(picked.name)}</span><span class="mt">${kb(picked.size)} · ready to post</span></span>
+          <button class="rm" type="button" aria-label="Remove ${esc(picked.name)}">×</button>
+        </div><div class="bar"><i></i></div>`;
+      if (input) drop.prepend(input);
+      requestAnimationFrame(() => { const i = drop.querySelector(".bar i"); if (i) i.style.width = "100%"; });
+      const rm = drop.querySelector(".rm");
+      if (rm) rm.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); picked = null; drawDrop(); sync(); });
+    }
+  }
+
+  /* No list card any more: the preview shows the deck that matters and
+     the curriculum below marks every session that has one. */
+  function drawList() {}
+
+  /* the newest deck posted against the chosen session, if any */
+  function deckFor(code) {
+    return list.find(f => f.code === code && f.kind === "deck") || null;
+  }
+
+  /* Mirrors My Team's Work: a session that already has a deck shows the
+     deck, not an empty box. The drop box comes back on request. */
+  function paintPreview(f) {
+    document.getElementById("sp-name").textContent = f.name;
+    document.getElementById("sp-meta").textContent = f.ext + (f.size ? " · " + kb(f.size) : "");
+    const open = document.getElementById("sp-open");
+    if (f.url) { open.href = f.url; open.hidden = false; open.setAttribute("download", f.name); }
+    else open.hidden = true;
+    const isPdf = /\.pdf$/i.test(f.name || "");
+    document.getElementById("sp-prev").innerHTML = isPdf && f.url
+      ? `<iframe src="${f.url}#toolbar=0&navpanes=0&view=FitH" title="The posted deck" loading="lazy"></iframe>`
+      : `<div class="dp-none"><b>${esc(f.ext)}</b><span>${
+          f.url ? "Opens in your slides app" : "Held in this browser"}</span></div>`;
+  }
+
+  function syncView() {
+    const f = reposting ? null : deckFor(sel.value);
+    if (f) paintPreview(f);
+    if (prevBox) prevBox.hidden = !f;
+    drop.hidden = !!f;
+    postBt.hidden = !!f;                       // nothing to post while one is up
+    const links = document.getElementById("sl-links");
+    if (links) links.hidden = !f;
+    const cnt = document.getElementById("sl-count");
+    if (cnt) cnt.hidden = !!f;
+  }
+
+  function sync() {
+    postBt.disabled = !picked;
+    cnt.textContent = picked ? "Ready to post" : "Add a deck to continue";
+  }
+
+  /* one posted deck, whichever side it came from, in one shape */
+  function fromRow(r) {
+    return {
+      id: r.id || ("local-" + Math.random().toString(36).slice(2)), path: r.path, url: r.url,
+      posted_by: r.posted_by, at: r.posted_at || "",
+      name: r.name, size: r.size, code: r.code,
+      kind: r.kind || "deck", title: r.title || "",
+      ext: (String(r.name || "file").split(".").pop() || "file").toUpperCase().slice(0, 4),
+      when: r.posted_at ? day(r.posted_at) : day(Date.now()),
+    };
+  }
+
+  function markCurriculum() {
+    list.filter(f => f.kind === "deck").forEach(f => {
+      const mark = document.querySelector(`.cslides[data-code="${f.code}"]`);
+      if (mark) { mark.textContent = "Slides posted"; mark.closest(".crow").classList.add("has-slides"); }
+    });
+  }
+
+  async function reload() {
+    if (!live) return;
+    try { list = (await MAT().listAll()).map(fromRow); } catch (e) { list = []; }
+    applyRole(); drawHead(); sync(); syncView(); markCurriculum(); drawExtras();
+  }
+
   function take(file) {
     if (!file) return;
-    const ext = (file.name.split(".").pop() || "file").toUpperCase().slice(0, 4);
-    list.unshift({ name: file.name, size: kb(file.size), ext, code: sel.value });
-    const mark = document.querySelector(`.cslides[data-code="${sel.value}"]`);
-    if (mark) { mark.textContent = "Slides posted"; mark.closest(".crow").classList.add("has-slides"); }
-    draw();
+    picked = file;
+    drawDrop(); sync();
   }
-  input.addEventListener("change", e => take(e.target.files[0]));
+
+  /* Step one: show the trainer, in plain sight, which session this deck
+     is about to be filed against. Nothing uploads until they say yes. */
+  function drawConfirm() {
+    const s = sessionOf(sel.value);
+    if (!s) return;
+    scTop.textContent  = s.title;
+    scWeek.textContent = "Week " + s.week + " · " + s.code;
+    scFile.innerHTML = picked
+      ? `<span class="ft">${esc((String(picked.name).split(".").pop() || "file").toUpperCase().slice(0, 4))}</span>
+         <span><b>${esc(picked.name)}</b> · ${esc(kb(picked.size))}</span>`
+      : "—";
+    const current = deckFor(s.code);
+    const taken = !!current;
+    const kick = conf.querySelector(".sc-kick");
+    if (kick) kick.textContent = taken ? "You are replacing the slide deck for" : "You are posting a slide deck for";
+    scGo.textContent = taken ? "Yes, replace it" : "Yes, post it";
+    scNo.textContent = taken ? "Keep the current deck" : "Go back and change";
+    let warn = conf.querySelector(".sc-warn");
+    if (taken && !warn) {
+      warn = document.createElement("p");
+      warn.className = "sc-warn";
+      conf.querySelector(".sc-file").insertAdjacentElement("afterend", warn);
+    }
+    if (warn) {
+      warn.textContent = taken
+        ? "This replaces the deck posted now (" + current.name + "). Participants will see the new one instead."
+        : "";
+      warn.hidden = !taken;
+    }
+  }
+
+  function openConfirm() {
+    if (!picked || !sessionOf(sel.value)) return;
+    drawConfirm();
+    conf.hidden = false;
+    document.body.classList.add("modal-open");
+    scGo.focus();
+  }
+
+  function closeConfirm() {
+    conf.hidden = true;
+    document.body.classList.remove("modal-open");
+    (postBt.hidden ? spNew : postBt).focus();
+  }
+
+  /* Backing out of a replacement drops the chosen file; the posted deck
+     was never touched. */
+  function cancelConfirm() {
+    closeConfirm();
+    if (deckFor(sel.value)) { picked = null; drawDrop(); sync(); }
+  }
+
+  /* Step two: the actual upload. */
+  async function post() {
+    if (!picked) return;
+    const file = picked, code = sel.value, s = sessionOf(code);
+    const prev = deckFor(code);                 // the deck being replaced, if any
+    closeConfirm();
+    postBt.disabled = true;
+    upbar.hidden = false; upfill.style.width = "0%"; uptxt.textContent = "Posting…";
+
+    if (live) {
+      try {
+        await MAT().putDeck({
+          moduleCode: code, week: s.week, title: s.title, file,
+          onProgress: fr => { upfill.style.width = Math.round(fr * 100) + "%"; },
+        });
+        upfill.style.width = "100%"; uptxt.textContent = prev ? "Replaced" : "Posted";
+        picked = null;
+        /* the new deck is up, so the old file and row can go */
+        if (prev && prev.id && !String(prev.id).startsWith("local-")) {
+          try { await MAT().remove(prev.id, prev.path); } catch (e) { /* newest still wins */ }
+        }
+        await reload();
+      } catch (err) {
+        uptxt.textContent = String(err && err.message ? err.message : err);
+        postBt.disabled = false;
+        return;
+      }
+      setTimeout(() => { upbar.hidden = true; }, 500);
+      reposting = false;
+      drawDrop(); sync(); syncView();
+      return;
+    }
+
+    /* mockup: run the bar, then keep it in this browser */
+    let pct = 0;
+    const tick = setInterval(() => {
+      pct = Math.min(100, pct + 20);
+      upfill.style.width = pct + "%";
+      if (pct < 100) return;
+      clearInterval(tick);
+      uptxt.textContent = "Posted";
+      setTimeout(() => {
+        upbar.hidden = true;
+        if (prev) list = list.filter(x => x !== prev);
+        list.unshift(fromRow({ name: file.name, size: file.size, code, url: null }));
+        markCurriculum();
+        picked = null;
+        reposting = false;
+        drawDrop(); drawList(); drawHead(); sync(); syncView();
+      }, 420);
+    }, 90);
+  }
+
+  /* ---------- other materials ----------
+     Same session as the deck (the picker above). A file only goes up with
+     a name: that name is the row's title on This Week, so the trainer is
+     asked for it the moment a file is chosen without one. */
+  const sxList = document.getElementById("sx-list");
+  const sxCount = document.getElementById("sx-count");
+  const sxName = document.getElementById("sx-name");
+  const sxFile = document.getElementById("sx-file");
+  const sxFn   = document.getElementById("sx-fn");
+  const sxPick = document.getElementById("sx-pick");
+  const sxClr  = document.getElementById("sx-clear");
+  const sxMsg  = document.getElementById("sx-msg");
+  const sxPost = document.getElementById("sx-post");
+  const sxBar  = document.getElementById("sx-upbar");
+  const sxFill = document.getElementById("sx-upfill");
+  const sxTxt  = document.getElementById("sx-uptxt");
+  let sxPicked = null, sxBusy = false;
+
+  const extrasFor = code => list.filter(f => f.code === code && f.kind === "material")
+    .sort((a, b) => String(a.at || "").localeCompare(String(b.at || "")));
+  const mayRemove = f => {
+    const u = meNow();
+    if (!u) return false;
+    const r = window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role];
+    if (r.includes("admin")) return true;
+    return r.includes("trainer") && (!f.posted_by || f.posted_by === u.id);
+  };
+
+  function say(text, tone) {
+    sxMsg.textContent = text || "";
+    sxMsg.hidden = !text;
+    sxMsg.className = "sx-msg" + (tone ? " " + tone : "");
+  }
+
+  function drawExtras() {
+    if (!sxList) return;
+    const rows = extrasFor(sel.value);
+    sxCount.textContent = rows.length ? rows.length + " posted" : "";
+    sxList.innerHTML = rows.length ? rows.map(f => `
+      <li data-id="${esc(f.id || "")}">
+        <span class="sx-ext" aria-hidden="true">${esc(f.ext)}</span>
+        <span class="sx-t"><b>${esc(f.title || f.name)}</b>
+          <em title="${esc(f.name)}">${esc(f.name)}${f.size ? " · " + kb(f.size) : ""}</em></span>
+        ${f.url ? `<a class="sx-open" href="${f.url}" target="_blank" rel="noopener" download="${esc(f.name)}" aria-label="Open ${esc(f.title || f.name)}">Open</a>` : ""}
+        ${mayRemove(f) ? `<button class="sx-rm" type="button" aria-label="Remove ${esc(f.title || f.name)}">Remove</button>` : ""}
+      </li>`).join("")
+      : `<li class="sx-none">Nothing else posted for this session yet.</li>`;
+  }
+
+  function drawPick() {
+    sxFn.textContent = sxPicked ? sxPicked.name + " · " + kb(sxPicked.size) : "Choose a file";
+    sxPick.classList.toggle("has", !!sxPicked);
+    sxClr.hidden = !sxPicked;
+  }
+
+  function takeExtra(file) {
+    if (!file) return;
+    sxPicked = file;
+    drawPick();
+    if (!sxName.value.trim()) {
+      sxName.classList.add("need");
+      say("Now give it a name. This is what participants see on This Week.", "ask");
+      sxName.focus();
+    } else say("");
+  }
+
+  async function postExtra() {
+    if (sxBusy) return;
+    const name = sxName.value.trim();
+    if (!sxPicked) { say("Choose the file to add.", "ask"); sxPick.focus(); return; }
+    if (!name) {
+      sxName.classList.add("need");
+      say("Name this material first. This is what participants see on This Week.", "ask");
+      sxName.focus(); return;
+    }
+    const code = sel.value, s = sessionOf(code);
+    if (!s) return;
+    const file = sxPicked;
+    sxBusy = true; sxPost.disabled = true; say("");
+    sxBar.hidden = false; sxFill.style.width = "0%"; sxTxt.textContent = "Adding…";
+    const done = () => {
+      sxPicked = null; sxFile.value = ""; sxName.value = ""; sxName.classList.remove("need");
+      drawPick(); drawExtras();
+      say("Added. Participants now see \u201c" + name + "\u201d on This Week.", "ok");
+      setTimeout(() => { sxBar.hidden = true; }, 500);
+      sxBusy = false; sxPost.disabled = false;
+    };
+    if (live) {
+      try {
+        await MAT().putMaterial({ moduleCode: code, week: s.week, title: name, file,
+          onProgress: fr => { sxFill.style.width = Math.round(fr * 100) + "%"; } });
+        sxFill.style.width = "100%"; sxTxt.textContent = "Added";
+        await reload();
+        done();
+      } catch (err) {
+        sxBar.hidden = true; sxBusy = false; sxPost.disabled = false;
+        say(String(err && err.message ? err.message : err), "err");
+      }
+      return;
+    }
+    /* mockup: kept in this browser only */
+    sxFill.style.width = "100%"; sxTxt.textContent = "Added";
+    list.push(fromRow({ name: file.name, size: file.size, code, url: null,
+                        kind: "material", title: name, posted_at: new Date().toISOString() }));
+    done();
+  }
+
+  if (sxList) {
+    sxFile.addEventListener("change", e => takeExtra(e.target.files && e.target.files[0]));
+    ["dragenter", "dragover"].forEach(ev => sxPick.addEventListener(ev, e => { e.preventDefault(); sxPick.classList.add("over"); }));
+    ["dragleave", "drop"].forEach(ev => sxPick.addEventListener(ev, e => { e.preventDefault(); sxPick.classList.remove("over"); }));
+    sxPick.addEventListener("drop", e => takeExtra(e.dataTransfer.files[0]));
+    sxClr.addEventListener("click", e => {
+      e.preventDefault(); e.stopPropagation();
+      sxPicked = null; sxFile.value = ""; drawPick(); say("");
+    });
+    sxName.addEventListener("input", () => {
+      if (sxName.value.trim()) { sxName.classList.remove("need"); if (sxMsg.classList.contains("ask")) say(""); }
+    });
+    sxName.addEventListener("keydown", e => { if (e.key === "Enter") { e.preventDefault(); postExtra(); } });
+    sxPost.addEventListener("click", postExtra);
+    sxList.addEventListener("click", async e => {
+      const b = e.target.closest(".sx-rm");
+      if (!b) return;
+      const id = b.closest("li").dataset.id;
+      const f = extrasFor(sel.value).find(x => String(x.id || "") === id);
+      if (!f) return;
+      b.disabled = true; b.textContent = "Removing…";
+      try {
+        if (live && f.id) await MAT().remove(f.id, f.path);
+        list = list.filter(x => x !== f);
+        drawExtras(); say("Removed \u201c" + (f.title || f.name) + "\u201d.", "ok");
+      } catch (err) {
+        b.disabled = false; b.textContent = "Remove";
+        say(String(err && err.message ? err.message : err), "err");
+      }
+    });
+  }
+
+  drop.addEventListener("change", e => take(e.target.files && e.target.files[0]));
   ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => {
     e.preventDefault(); drop.classList.add("over");
   }));
@@ -384,11 +1123,376 @@ document.getElementById("fa-spec").innerHTML = `
     e.preventDefault(); drop.classList.remove("over");
   }));
   drop.addEventListener("drop", e => take(e.dataTransfer.files[0]));
-  posted.addEventListener("click", e => {
-    const b = e.target.closest(".lnk"); if (!b) return;
-    list.splice(+b.dataset.i, 1); draw();
+  /* Remove this deck: asked in a dialog, done only on "Yes, remove it". */
+  const spDel  = document.getElementById("sp-del");
+  const delBox = document.getElementById("sl-delconfirm");
+  const sdFile = document.getElementById("sd-file");
+  const sdGo   = document.getElementById("sd-go");
+  const sdNo   = document.getElementById("sd-cancel");
+
+  function openDel() {
+    const f = deckFor(sel.value);
+    if (!f || !delBox) return;
+    const s = sessionOf(sel.value);
+    sdFile.innerHTML = `<span class="ft">${esc(f.ext)}</span>
+      <span><b>${esc(f.name)}</b>${f.size ? " · " + esc(kb(f.size)) : ""}${
+        s ? "<br>Week " + s.week + " · " + esc(s.title) : ""}</span>`;
+    sdGo.disabled = false; sdGo.textContent = "Yes, remove it";
+    delBox.hidden = false;
+    document.body.classList.add("modal-open");
+    sdNo.focus();                         // the safe choice has focus
+  }
+  function closeDel() {
+    if (!delBox || delBox.hidden) return;
+    delBox.hidden = true;
+    document.body.classList.remove("modal-open");
+    if (spDel) spDel.focus();
+  }
+  async function doDel() {
+    const f = deckFor(sel.value);
+    if (!f) { closeDel(); return; }
+    sdGo.disabled = true; sdGo.textContent = "Removing…";
+    try {
+      if (live && f.id) { await MAT().remove(f.id, f.path); await reload(); }
+      else { list = list.filter(x => x !== f); drawHead(); syncView(); }
+      delBox.hidden = true;
+      document.body.classList.remove("modal-open");
+    } catch (e) {
+      sdGo.disabled = false; sdGo.textContent = "Couldn\u2019t remove it. Try again";
+    }
+  }
+  if (spDel) spDel.addEventListener("click", openDel);
+  if (sdNo) sdNo.addEventListener("click", closeDel);
+  if (sdGo) sdGo.addEventListener("click", doDel);
+  if (delBox) delBox.addEventListener("click", e => { if (e.target === delBox) closeDel(); });
+
+  /* Post a new version: pick the file first. The current deck stays on
+     screen (and for participants) until the new one is confirmed and up. */
+  const spNewFile = document.getElementById("sp-newfile");
+  if (spNew && spNewFile) {
+    spNew.addEventListener("click", () => { spNewFile.value = ""; spNewFile.click(); });
+    spNewFile.addEventListener("change", () => {
+      const f = spNewFile.files && spNewFile.files[0];
+      if (!f) return;                     // picker closed without a file: nothing changes
+      picked = f;
+      sync();
+      openConfirm();
+    });
+  }
+
+  postBt.addEventListener("click", openConfirm);
+  scGo.addEventListener("click", post);
+  scNo.addEventListener("click", cancelConfirm);
+  conf.addEventListener("click", e => { if (e.target === conf) cancelConfirm(); });
+  document.addEventListener("keydown", e => {
+    if (e.key !== "Escape") return;
+    if (!conf.hidden) cancelConfirm();
+    else if (delBox && !delBox.hidden) closeDel();
   });
-  draw();
+  sel.addEventListener("change", () => {
+    reposting = false;
+    drawHead(); drawDrop(); sync(); syncView(); drawExtras();
+  });
+  drawHead(); drawDrop(); applyRole(); sync(); syncView(); drawExtras();
+
+  /* if there is a real project behind the page, the list is the database's */
+  (async () => {
+    try { live = MAT() ? await MAT().isLive() : false; } catch (e) { live = false; }
+    if (!live) return;
+    const note = card && card.querySelector(".mockup-note");
+    if (note) note.remove();
+    await reload();
+    applyRole();
+  })();
+})();
+
+/* ---------- the mentor's weekly accomplishment report ----------
+   Planned activities per week (F.mentorPlans) are the targets. The mentor
+   ticks what was completed and adds a remark on each; everything is saved
+   as they go. "Download report" draws the STEP 2 form as a PDF to sign;
+   "Upload signed copy" files the signed version as the submission. */
+(function () {
+  const MR = () => window.STEP_MENTORREPORTS;
+  const PLANS = F.mentorPlans || [];
+  const $ = id => document.getElementById(id);
+  if (!$("mrep") || !PLANS.length) return;
+
+  const selW = $("mr-week"), selT = $("mr-team");
+  const inName = $("mr-name"), inPer = $("mr-period");
+  const TW = window.MOCK.thisWeek;
+
+  /* ---- dates: week N runs Tue→Mon, counted from this week ---- */
+  const DAY = 86400000;
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  function periodOf(week) {
+    const w = week == null ? TW.week_no : week;
+    const base = new Date(TW.starts + "T00:00:00");
+    const a = new Date(+base + (w - TW.week_no) * 7 * DAY), b = new Date(+a + 6 * DAY);
+    const A = MONTHS[a.getMonth()] + " " + a.getDate();
+    const B = (a.getMonth() === b.getMonth() ? "" : MONTHS[b.getMonth()] + " ") + b.getDate();
+    return "Week of " + A + "–" + B + ", " + b.getFullYear();
+  }
+
+  /* ---- who is looking ---- */
+  const me = () => window.MOCK.auth.getCurrentUser() || {};
+  const rolesOf = u => (window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role]);
+  const isAdmin = () => rolesOf(me()).includes("admin");
+  function teamsFor() {
+    const u = me();
+    if (!isAdmin() && Array.isArray(u.assigned_teams) && u.assigned_teams.length) {
+      return G.filter(g => u.assigned_teams.includes(g.id));
+    }
+    /* a signed-in mentor's profile carries their team: they report on that team only */
+    if (!isAdmin() && rolesOf(u).includes("mentor") && u.team_id) {
+      const mine = G.filter(g => g.id === u.team_id);
+      if (mine.length) return mine;
+    }
+    return G.slice();
+  }
+  function defaultTeam(list) {
+    const u = me(), nm = String(u.name || u.full_name || "").toLowerCase();
+    const m = nm && F.mentors.find(x => x.name.toLowerCase() === nm && list.some(g => g.id === x.team_id));
+    return (m ? m.team_id : (list[0] || {}).id) || "";
+  }
+
+  /* ---- the week list: every plan, the current week chosen ---- */
+  const wLabel = p => p.week == null ? (p.label || p.topic) : "Week " + p.week + " · " + p.topic;
+  selW.innerHTML = PLANS.map(p => `<option value="${esc(p.code)}">${esc(wLabel(p))}</option>`).join("");
+  (function pickCurrent() {
+    let best = PLANS[0];
+    PLANS.forEach(p => { if (p.week != null && p.week <= CUR) best = p; });
+    selW.value = best.code;
+  })();
+  const plan = () => PLANS.find(p => p.code === selW.value) || PLANS[0];
+  const teamOf = id => G.find(g => g.id === id);
+  const teamLabel = g => g ? (g.short ? "Team " + g.short : g.name) : "";
+
+  let state = null;           // { key, report, stale }
+  let saveT = null, seq = 0;
+
+
+  async function fillTeams() {
+    const list = teamsFor();
+    const keep = selT.value;
+    let st = {};
+    try { st = MR() ? await MR().weekStatus(selW.value) : {}; } catch (e) {}
+    selT.innerHTML = list.map(g =>
+      `<option value="${esc(g.id)}">${esc(g.name)}${st[g.id] ? " — submitted" : ""}</option>`).join("");
+    selT.value = list.some(g => g.id === keep) ? keep : defaultTeam(list);
+  }
+
+  function header() {
+    const p = plan();
+    const n = p.tasks.filter(t => !t.lead).length;
+    $("mr-code").textContent = (p.week == null ? "Catch-up" : "Week " + p.week) + " · " + (p.code === "CU" || p.code === "DDP" ? "Mentoring" : p.code);
+    $("mr-topic").textContent = p.topic;
+    $("mr-meta").textContent = n + " planned " + (n === 1 ? "activity" : "activities") +
+      (p.topicLines && p.topicLines.length ? " · " + p.topicLines.map(t => t.replace(/^\d+\.\s*/, "")).join(" · ") : "");
+    $("mr-src").hidden = p.source !== "scoresheet";
+  }
+
+  const rich = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+    .split("\n").map((l, i) => i === 0 ? l : `<span class="mr-sub">${l}</span>`).join("");
+
+  function drawRows() {
+    const p = plan(), T = state.report.tasks;
+    let n = 0;
+    $("mr-list").innerHTML = p.tasks.map((t, i) => {
+      if (t.lead) return `<div class="mr-row lead" role="row"><span role="cell">${rich(t.text)}</span></div>`;
+      n++;
+      const v = T[i] || {};
+      return `
+      <div class="mr-row${v.done ? " done" : ""}" role="row" data-i="${i}">
+        <span class="mr-task" role="cell"><i class="mr-n">${n}</i><span>${rich(t.text)}</span></span>
+        <span class="mr-stat" role="cell">
+          <button type="button" class="mr-chk" aria-pressed="${v.done ? "true" : "false"}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+            <span>${v.done ? "Done" : "Mark done"}</span>
+          </button>
+        </span>
+        <span class="mr-rem" role="cell">
+          <textarea rows="1" placeholder="Remark — what happened, what is still open…" aria-label="Remarks on activity ${n}">${esc(v.remark || "")}</textarea>
+        </span>
+      </div>`;
+    }).join("");
+    $("mr-list").querySelectorAll("textarea").forEach(autoGrow);
+    status();
+  }
+  function autoGrow(ta) { ta.style.height = "auto"; ta.style.height = Math.max(34, ta.scrollHeight + 2) + "px"; }
+
+  function counts() {
+    const p = plan(), T = state.report.tasks;
+    const idx = p.tasks.map((t, i) => t.lead ? -1 : i).filter(i => i > -1);
+    return { total: idx.length, done: idx.filter(i => T[i] && T[i].done).length,
+             remarked: idx.filter(i => T[i] && String(T[i].remark || "").trim()).length };
+  }
+
+  function status() {
+    const r = state.report, c = counts();
+    const sub = r.status === "submitted";
+    const stale = sub && state.stale;
+    const chip = $("mr-state");
+    chip.className = "mr-state" + (sub ? (stale ? " stale" : " ok") : "");
+    chip.textContent = sub ? (stale ? "Changed since submitted" : "Submitted") : "Draft";
+    const msg = $("mr-msg");
+    msg.className = "msg" + (c.done === c.total ? " ok" : "");
+    msg.textContent = c.done + " of " + c.total + " completed · " + c.remarked + " with remarks";
+    $("mr-up-l").textContent = sub ? "Replace signed copy" : "Upload signed copy";
+
+    const box = $("mr-signed");
+    if (r.signed && sub) {
+      const when = r.submitted_at ? new Date(r.submitted_at).toLocaleString("en-PH",
+        { timeZone: "Asia/Manila", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
+      const size = r.signed.size ? (r.signed.size / 1048576 >= 1 ? (r.signed.size / 1048576).toFixed(1) + " MB"
+                                                                  : Math.max(1, Math.round(r.signed.size / 1024)) + " KB") : "";
+      box.classList.toggle("stale", !!stale);
+      box.innerHTML = `
+        <span class="mr-sig-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>${stale ? '<path d="M12 11v3"/><path d="M12 17h.01"/>' : '<path d="m9 14 2 2 4-4"/>'}</svg></span>
+        <b>${stale ? "Changed after signing" : "Signed copy submitted"}</b>
+        <em title="${esc(r.signed.name)}">${stale ? "Download again, sign, and replace the copy" : esc(r.signed.name)}</em>
+        <i>${[size, when].filter(Boolean).map(esc).join(" · ")}</i>
+        ${r.signed.url ? `<a class="mr-view" href="${esc(r.signed.url)}" target="_blank" rel="noopener">View</a>` : ""}`;
+      box.title = stale ? "You have changed the report since this copy was signed. Download it again, sign, and replace the copy." : "";
+      box.hidden = false;
+    } else { box.hidden = true; box.innerHTML = ""; }
+  }
+
+  function setSave(t, cls) { const el = $("mr-save"); el.textContent = t || ""; el.className = "save-st" + (cls ? " " + cls : ""); }
+
+  function key() {
+    const p = plan(), g = teamOf(selT.value);
+    return { week: p.code, week_no: p.week, team: selT.value, team_name: g ? g.name : "" };
+  }
+
+  async function open() {
+    const my = ++seq;
+    header();
+    if (!selT.value) { $("mr-list").innerHTML = ""; return; }
+    setSave("Loading…");
+    let res;
+    try { res = await MR().load(selW.value, selT.value); }
+    catch (e) { if (my === seq) setSave(e.message || "Could not load this report.", "err"); return; }
+    if (my !== seq) return;
+    const r = res.report;
+    if (!r.mentor_name) { const u = me(); r.mentor_name = u && u.role !== "guest" ? (u.name || u.full_name || "") : ""; }
+    if (!r.period) r.period = periodOf(plan().week);
+    state = { key: key(), report: r,
+              stale: r.status === "submitted" && !!r.updated_at && !!r.submitted_at &&
+                     new Date(r.updated_at) - new Date(r.submitted_at) > 1500 };
+    inName.value = r.mentor_name; inPer.value = r.period;
+    setSave(res.live ? "" : "Saved in this browser only — sign in to keep it on the STEP Hub.");
+    drawRows();
+  }
+
+  function queueSave() {
+    if (state.report.status === "submitted") state.stale = true;
+    status();
+    clearTimeout(saveT);
+    setSave("Saving…");
+    saveT = setTimeout(doSave, 650);
+  }
+  async function doSave() {
+    const s = state; if (!s) return;
+    try {
+      const saved = await MR().save(s.key, s.report);
+      if (s !== state) return;
+      s.report.mentor_id = saved.mentor_id;
+      setSave("Saved", "ok");
+    } catch (e) { if (s === state) setSave(e.message || "Could not save.", "err"); }
+  }
+
+  /* ---- editing ---- */
+  $("mr-list").addEventListener("click", e => {
+    const b = e.target.closest(".mr-chk"); if (!b || !state) return;
+    const i = b.closest(".mr-row").dataset.i;
+    const T = state.report.tasks, v = T[i] = Object.assign({}, T[i]);
+    v.done = !v.done;
+    b.setAttribute("aria-pressed", v.done ? "true" : "false");
+    b.querySelector("span").textContent = v.done ? "Done" : "Mark done";
+    b.closest(".mr-row").classList.toggle("done", v.done);
+    queueSave();
+  });
+  $("mr-list").addEventListener("input", e => {
+    const ta = e.target.closest("textarea"); if (!ta || !state) return;
+    const i = ta.closest(".mr-row").dataset.i;
+    const T = state.report.tasks;
+    T[i] = Object.assign({}, T[i], { remark: ta.value });
+    autoGrow(ta);
+    queueSave();
+  });
+  inName.addEventListener("input", () => { if (state) { state.report.mentor_name = inName.value; queueSave(); } });
+  inPer.addEventListener("input", () => { if (state) { state.report.period = inPer.value; queueSave(); } });
+  selW.addEventListener("change", async () => { await fillTeams(); open(); });
+  selT.addEventListener("change", open);
+
+  /* ---- download: the STEP 2 form, filled in ---- */
+  function fileBase() {
+    const r = state.report;
+    return (r.period || "Week") + "_STEP MENTORS ACCOMPLISHMENTS REPORT_" + (r.mentor_name || "Mentor");
+  }
+  $("mr-dl").addEventListener("click", () => {
+    if (!state) return;
+    const p = plan(), r = state.report, g = teamOf(selT.value);
+    if (!String(r.mentor_name || "").trim()) { inName.focus(); setSave("Add your name first — it goes on the Prepared by line.", "err"); return; }
+    const blob = window.STEP_REPORTPDF.build({
+      mentor: r.mentor_name.trim(), team: teamLabel(g), topic: p.topic, topicLines: p.topicLines || [],
+      period: r.period,
+      rows: p.tasks.map((t, i) => t.lead ? { text: t.text, lead: true }
+        : { text: t.text, done: !!(r.tasks[i] && r.tasks[i].done), remark: (r.tasks[i] && r.tasks[i].remark) || "" }),
+      endorsedBy: (F.mentorReport || {}).endorsedBy, endorsedRole: (F.mentorReport || {}).endorsedRole,
+      stamp: "Generated from STEP Hub · " + new Date().toLocaleDateString("en-PH", { day: "numeric", month: "long", year: "numeric" }),
+    });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = fileBase().replace(/[\\/:*?"<>|]+/g, "-") + ".pdf";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    setSave("Downloaded. Sign it, then upload the signed copy.", "ok");
+  });
+
+  /* ---- upload the signed copy ---- */
+  const fileIn = $("mr-file");
+  $("mr-up").addEventListener("click", () => { if (state) fileIn.click(); });
+  fileIn.addEventListener("change", async () => {
+    const f = fileIn.files && fileIn.files[0];
+    fileIn.value = "";
+    if (!f || !state) return;
+    if (!/pdf$|^image\//i.test(f.type) && !/\.(pdf|png|jpe?g)$/i.test(f.name)) {
+      setSave("Upload the signed report as a PDF or a photo (PNG, JPG).", "err"); return;
+    }
+    if (f.size > 25 * 1048576) { setSave("That file is over 25 MB.", "err"); return; }
+    clearTimeout(saveT);
+    const s = state, bar = $("mr-prog"), btn = $("mr-up");
+    btn.disabled = true; bar.hidden = false; bar.firstElementChild.style.width = "0%";
+    setSave("Uploading " + f.name + "…");
+    try {
+      const saved = await MR().submit({ key: s.key, report: s.report, file: f,
+        onProgress: x => { bar.firstElementChild.style.width = Math.round(x * 100) + "%"; } });
+      if (s !== state) return;
+      Object.assign(s.report, { status: saved.status, submitted_at: saved.submitted_at,
+                                signed: saved.signed, mentor_id: saved.mentor_id });
+      s.stale = false;
+      setSave("Submitted", "ok");
+      status();
+      const o = [...selT.options].find(x => x.value === s.key.team);
+      if (o && !/submitted$/.test(o.textContent)) o.textContent += " — submitted";
+    } catch (e) { setSave(e.message || "Upload failed.", "err"); }
+    finally { btn.disabled = false; setTimeout(() => { bar.hidden = true; }, 500); }
+  });
+
+  /* the list scrolls inside the card; its bar shows only while scrolling */
+  (function () {
+    const sc = $("mr-scroll"); let t = null;
+    sc.addEventListener("scroll", () => {
+      sc.classList.add("scrolling"); clearTimeout(t);
+      t = setTimeout(() => sc.classList.remove("scrolling"), 900);
+    }, { passive: true });
+  })();
+
+  /* ---- start, and again when the account changes ---- */
+  async function start() { await fillTeams(); open(); }
+  start();
+  window.addEventListener("stephub_auth_changed", () => setTimeout(start, 60));
 })();
 
 /* ---------- mentors ---------- */
@@ -464,7 +1568,7 @@ document.getElementById("fa-spec").innerHTML = `
 
 /* ---------- the panels ---------- */
 (function () {
-  document.getElementById("pnl-grid").innerHTML = F.panels.map((p, i) => `
+  const draw = () => { document.getElementById("pnl-grid").innerHTML = F.panels.map((p, i) => `
     <article class="pcard reveal" style="--d:${i * 70}ms">
       <div class="ph"><span class="pl">Panel ${esc(p.letter)}</span>
         <span class="pn2">${p.teams.length} team${p.teams.length === 1 ? "" : "s"}</span></div>
@@ -481,6 +1585,10 @@ document.getElementById("fa-spec").innerHTML = `
         }).join("")}
       </div>
     </article>`).join("");
+    if (window.__stepObserve) window.__stepObserve(document.getElementById("pnl-grid"));
+  };
+  draw();
+  window.addEventListener("stephub_roster", draw);       // real names from the database
 })();
 
 function initials(n) {
@@ -489,16 +1597,39 @@ function initials(n) {
   return ((parts[0] || "?")[0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
 }
 
-/* ---------- the score sheet: one team at a time ---------- */
+/* ---------- the score sheet: one sheet per panelist, saved as they go ----------
+   A sheet is (session, panel, panelist). Each panelist sees only their own
+   scores and comments; switching panelist opens that person's sheet. Every
+   score and comment is saved as it is typed (to Supabase when signed in to
+   the project, to this browser otherwise), and "Submit scores" stamps the
+   sheet submitted without clearing anything. */
 (function () {
-  const scored = F.sessions.filter(s => s.assess.length);
+  /* Every session with panel criteria, whatever week the cycle is in, plus
+     the Pre-Demo Day and Demo Day sheets — in calendar order. */
+  const scored = F.sessions.filter(s => s.assess.length)
+    .concat(F.panelSheets || [])
+    .map((s, i) => ({ s, i }))
+    .sort((a, b) => (a.s.week - b.s.week) || (a.i - b.i))
+    .map(x => x.s);
   const selS = document.getElementById("sc-session");
   const selP = document.getElementById("sc-panel");
   const selN = document.getElementById("sc-panelist");
   const tabs = document.getElementById("sc-tabs");
   const body = document.getElementById("sc-body");
   const msg = document.getElementById("sc-msg");
+  const saveEl = document.getElementById("sc-save");
+  const btnClear = document.getElementById("sc-clear");
+  const btnSubmit = document.getElementById("sc-submit");
+  const sheetEl = document.querySelector(".sheet2");
+  const PS = () => window.STEP_PANELSHEETS;
+
   let S, P, cur = 0, marks = {}, notes = {}, pnotes = {}, openRow = -1;
+  let meta = {};                 // team -> { status, submitted_at, updated_at }
+  let key = null;                // the sheet on screen
+  let live = false;
+  let loadToken = 0;
+  const timers = {};             // team -> pending save timer
+  const pending = new Set();     // teams with unsaved changes
 
   selS.innerHTML = scored.map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}</option>`).join("");
   const topic = window.MOCK.thisWeek.topic.code;      // keep it in step with This Week
@@ -506,6 +1637,19 @@ function initials(n) {
                 || scored[scored.length - 1]).code;
   selP.innerHTML = F.panels.map(p => `<option value="${esc(p.letter)}">Panel ${esc(p.letter)}</option>`).join("");
 
+  const when = iso => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toLocaleDateString("en-PH", { month: "short", day: "numeric" }) + ", " +
+           d.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+  };
+  const isSubmitted = team => !!(meta[team] && meta[team].submitted_at);
+  const teamOf = name => P.teams.find(t => t.team === name);
+
+  function setSave(text, tone) {
+    saveEl.textContent = text || "";
+    saveEl.className = "save-st" + (tone ? " " + tone : "");
+  }
 
   const crit = () => S.assess.filter(a => !a.group);
   const band = v => v >= 3.5 ? "hi" : v >= 3.0 ? "ok" : v >= 2.5 ? "mid" : "lo";
@@ -529,7 +1673,7 @@ function initials(n) {
         <span class="tmb-slot">${esc(t.at)}</span>
         ${g ? `<span class="tlogo sm"><img src="${g.mark}" alt="" loading="lazy"></span>` : ""}
         <span class="tmb-tx"><b>${esc(t.team)}</b>
-          <span class="tmb-st">${r.all ? "Scored " + r.sum.toFixed(2)
+          <span class="tmb-st">${r.all ? (isSubmitted(t.team) ? "Submitted · " : "Scored ") + r.sum.toFixed(2)
                                 : r.filled ? r.filled + " of " + crit().length
                                 : "Not started"}</span></span>
         <span class="tmb-dot" aria-hidden="true">${r.all ? "✓" : ""}</span>
@@ -552,7 +1696,7 @@ function initials(n) {
         <span class="wt">${a.weight}%</span>
         <button type="button" class="cdef" data-row="${i}" aria-expanded="${open}"
                 aria-controls="cnote-${i}">
-          <span class="cdef-t">${esc(a.label)}</span>
+          <span class="cdef-t">${esc(a.label)}${a.hint ? `<small class="cdef-h">${esc(a.hint)}</small>` : ""}</span>
           <span class="cdef-ic" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
           </span>
@@ -577,7 +1721,7 @@ function initials(n) {
           ${g ? `<span class="tlogo lg"><img src="${g.mark}" alt="" loading="lazy"></span>` : ""}
           <span class="tmh-tx">
             <h4>${esc(t.team)}</h4>
-            <span>${g ? esc(g.institution) : ""}</span>
+            <span title="${g ? esc(g.institution) : ""}">${g ? esc(g.institution) : ""}</span>
           </span>
         </div>
         <div class="tmh-tot ${r.all ? band(r.sum) : ""}" id="sc-tot">
@@ -603,11 +1747,26 @@ function initials(n) {
   /* Measure the panel once with every note closed, then pin that height.
      Opening a note scrolls inside the criteria column instead of making the
      whole sheet grow and shift under the panelist. */
+  /* One height for the sheet, whatever the session, panel or team: it is the
+     height of the right-hand column (team, total, scale, comment), measured
+     once per window width. A session with more or longer criteria scrolls
+     inside the criteria column instead of stretching the sheet. On a narrow
+     screen the columns stack, so the sheet is left to its natural height. */
+  let pinnedFor = null;
   function lockPanel() {
+    const want = String(window.innerWidth);
+    if (pinnedFor === want && body.style.height) return;
     body.style.height = "";
     requestAnimationFrame(() => {
       if (body.offsetParent === null) return;          // hidden view: measure it once it shows
-      body.style.height = Math.ceil(body.getBoundingClientRect().height) + "px";
+      if (window.matchMedia("(max-width: 900px)").matches) { pinnedFor = want; return; }
+      const crit = body.querySelector(".crit");
+      const was = crit ? crit.getAttribute("style") : null;
+      if (crit) crit.style.cssText = "height:0;padding-top:0;padding-bottom:0;overflow:hidden";
+      const h = Math.ceil(body.getBoundingClientRect().height);
+      if (crit) { if (was == null) crit.removeAttribute("style"); else crit.setAttribute("style", was); }
+      body.style.height = Math.max(h, 420) + "px";
+      pinnedFor = want;
     });
   }
   /* In the merged site the Panel view is built while it is still hidden, so the
@@ -617,7 +1776,7 @@ function initials(n) {
       if (es.some(e => e.isIntersecting) && S && !body.style.height) lockPanel();
     }).observe(body);
   }
-  window.addEventListener("resize", () => { if (S) lockPanel(); });
+  window.addEventListener("resize", () => { if (S) { pinnedFor = null; lockPanel(); } });
 
   function refreshTotal() {
     const t = P.teams[cur], r = totals(t.team);
@@ -629,10 +1788,24 @@ function initials(n) {
 
   function tally() {
     const done = P.teams.filter(t => totals(t.team).all).length;
-    msg.textContent = done === 0 ? "Nothing scored yet."
-      : done === P.teams.length ? "All " + done + " teams scored. Submit when you are ready."
-      : done + " of " + P.teams.length + " teams fully scored.";
-    msg.className = "msg" + (done === P.teams.length ? " ok" : "");
+    const sub = P.teams.filter(t => meta[t.team] && meta[t.team].submitted_at);
+    const edited = sub.some(t => meta[t.team].updated_at &&
+      new Date(meta[t.team].updated_at) - new Date(meta[t.team].submitted_at) > 1500);
+    let text, cls = "";
+    if (sub.length === P.teams.length && !edited) {
+      text = "Submitted " + when(sub[0] && meta[sub[0].team].submitted_at) + ". You can still edit and submit again.";
+      cls = " ok";
+    } else if (sub.length && edited) {
+      text = "Changed since you submitted. Submit again to update the record.";
+      cls = " no";
+    } else {
+      text = done === 0 ? "Nothing scored yet."
+        : done === P.teams.length ? "All " + done + " teams scored. Submit when you are ready."
+        : done + " of " + P.teams.length + " teams fully scored.";
+      cls = done === P.teams.length ? " ok" : "";
+    }
+    msg.textContent = text;
+    msg.className = "msg" + cls;
   }
 
   function pick(i) {
@@ -672,6 +1845,57 @@ function initials(n) {
     }
   });
 
+  /* ---- saving ---- */
+  function entryFor(team) {
+    const t = teamOf(team), r = totals(team);
+    return {
+      team_id: t.team_id || team, team_name: team,
+      scores: marks[team] || {}, notes: pnotes[team] || {}, comment: notes[team] || "",
+      total: r.sum, complete: r.all,
+    };
+  }
+
+  async function saveTeam(team, k) {
+    clearTimeout(timers[team]); delete timers[team];
+    if (!pending.has(team)) return;
+    pending.delete(team);
+    const sheet = k || key;
+    if (!sheet) return;
+    setSave("Saving…");
+    try {
+      const saved = await PS().save(sheet, entryFor(team));
+      if (sheet === key) {
+        meta[team] = Object.assign(meta[team] || {}, { updated_at: saved.updated_at,
+          status: saved.status, submitted_at: saved.submitted_at });
+        if (!pending.size) setSave((live ? "Saved" : "Saved in this browser") + " · " +
+          new Date().toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" }), "ok");
+        tally(); drawTabs();
+      }
+    } catch (err) {
+      pending.add(team);
+      setSave("Not saved: " + (err && err.message ? err.message : err) + ". Retrying…", "err");
+      timers[team] = setTimeout(() => saveTeam(team, sheet), 4000);
+    }
+  }
+
+  function queue(team) {
+    if (!key) return;                               // no seat: nothing to save to
+    pending.add(team);
+    setSave("Unsaved changes…");
+    clearTimeout(timers[team]);
+    const k = key;
+    timers[team] = setTimeout(() => saveTeam(team, k), 600);
+  }
+
+  /* write out anything still waiting before the sheet changes under it */
+  async function flush() {
+    const teams = Array.from(pending);
+    await Promise.all(teams.map(t => saveTeam(t, key)));
+  }
+  window.addEventListener("beforeunload", e => {
+    if (pending.size) { e.preventDefault(); e.returnValue = ""; }
+  });
+
   body.addEventListener("input", e => {
     const el = e.target, team = P.teams[cur].team;
     if (el.classList.contains("scin")) {
@@ -682,43 +1906,421 @@ function initials(n) {
         (marks[team] = marks[team] || {})[el.dataset.i] = v;
         el.closest(".crow2").classList.add("set");
       }
-      refreshTotal(); drawTabs(); tally();
+      refreshTotal(); drawTabs();
     }
     if (el.id === "sc-note") notes[team] = el.value;
     if (el.classList.contains("pnote")) {
       (pnotes[team] = pnotes[team] || {})[el.dataset.i] = el.value;
       el.closest(".crow2").classList.toggle("noted", !!el.value.trim());
     }
+    if (el.classList.contains("scin") || el.id === "sc-note" || el.classList.contains("pnote")) queue(team);
   });
 
-  function load() {
-    S = scored.find(s => s.code === selS.value);
-    P = F.panels.find(p => p.letter === selP.value);
-    selN.innerHTML = P.panelists.map(n => `<option>${esc(n)}</option>`).join("");
-    document.getElementById("sc-code").textContent = S.code + " · Week " + S.week;
-    document.getElementById("sc-title").textContent = S.title;
-    document.getElementById("sc-meta").textContent =
-      "Saturday panel · " + P.teams.length + " teams · 35 min each";
-    marks = {}; notes = {}; pnotes = {}; openRow = -1; cur = 0;
-    drawTabs(); drawBody();
+  /* ---- opening a sheet ---- */
+  /* ---- seats: whose sheet this is ----
+     Each panelist sits in one of nine seats. With a live project a panel
+     account is held to its own seat (the database refuses anything else);
+     an admin can open every seat. Offline, every seat is open. */
+  const seatsOf = p => (p.seats && p.seats.length === p.panelists.length) ? p.seats
+    : p.panelists.map((_, i) => F.panels.indexOf(p) * 3 + i + 1);
+  const nameOfSeat = seat => {
+    for (const p of F.panels) { const i = seatsOf(p).indexOf(+seat); if (i > -1) return p.panelists[i]; }
+    return "Seat " + seat;
+  };
+  let lock = { mode: "open", seat: null };          // open | own | none
+  function computeLock() {
+    const roster = PS().getRoster ? PS().getRoster() : null;
+    const u = window.MOCK && window.MOCK.auth.getCurrentUser();
+    const roles = u && window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [];
+    if (!roster || roles.includes("admin")) return { mode: "open", seat: null };
+    const mine = PS().mySeat();
+    return mine ? { mode: "own", seat: mine.seat, panel: mine.panel_letter } : { mode: "none", seat: null };
+  }
+  function fillPanelists(keepSeat) {
+    const seats = seatsOf(P);
+    selN.innerHTML = seats.map((seat, i) => `<option value="${seat}">${esc(P.panelists[i])}</option>`).join("");
+    if (lock.mode === "own") selN.value = String(lock.seat);
+    else if (keepSeat != null && seats.includes(+keepSeat)) selN.value = String(keepSeat);
+    const locked = lock.mode !== "open";
+    document.getElementById("sc-panel-fld").hidden = locked;
+    document.getElementById("sc-panelist-fld").hidden = locked;
+    document.getElementById("sc-me").hidden = !locked;
+    if (locked) {
+      document.getElementById("sc-me-name").textContent =
+        lock.mode === "own" ? nameOfSeat(lock.seat) : "No seat assigned";
+      document.getElementById("sc-me-panel").textContent =
+        lock.mode === "own" ? "Panel " + lock.panel : "Ask the STEP team";
+    }
   }
 
-  selS.addEventListener("change", load);
-  selP.addEventListener("change", load);
-  document.getElementById("sc-clear").addEventListener("click", () => {
-    marks = {}; notes = {}; pnotes = {}; openRow = -1; drawTabs(); drawBody();
+  /* ---- an admin changing someone's sheet is asked first ----
+     Once per sheet opened (session + seat): after "Yes", edits to that sheet
+     go through until the admin opens a different one. Panelists on their own
+     sheet are never asked. */
+  const saBox = document.getElementById("sa-confirm");
+  let saOkFor = null, saResolve = null;
+  const isAdminUser = () => {
+    const u = window.MOCK && window.MOCK.auth.getCurrentUser();
+    return !!u && (window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role]).includes("admin");
+  };
+  const sheetId = () => key ? key.session + "|" + key.seat : "";
+  function needsConfirm() {
+    if (!key || !isAdminUser()) return false;
+    const mine = PS().mySeat ? PS().mySeat() : null;
+    if (mine && mine.seat === key.seat) return false;           // an admin who also sits on the panel
+    return saOkFor !== sheetId();
+  }
+  function guard() {
+    if (!needsConfirm()) return Promise.resolve(true);
+    document.getElementById("sa-title").textContent = "Edit " + key.panelist + "’s score sheet?";
+    document.getElementById("sa-p1").innerHTML =
+      "This sheet belongs to <b>" + esc(key.panelist) + "</b> (Panel " + esc(key.panel) + ") for <b>" +
+      esc("Week " + S.week + " · " + S.title) + "</b>. Any score or comment you change here, and clearing or " +
+      "submitting the sheet, is saved to their sheet straight away and replaces what they entered.";
+    saBox.hidden = false;
+    document.body.classList.add("modal-open");
+    document.getElementById("sa-cancel").focus();
+    return new Promise(res => { saResolve = res; });
+  }
+  function saClose(ok) {
+    saBox.hidden = true;
+    document.body.classList.remove("modal-open");
+    if (ok) saOkFor = sheetId();
+    const r = saResolve; saResolve = null;
+    if (r) r(ok);
+  }
+  document.getElementById("sa-ok").addEventListener("click", () => saClose(true));
+  document.getElementById("sa-cancel").addEventListener("click", () => saClose(false));
+  saBox.addEventListener("click", e => { if (e.target === saBox) saClose(false); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !saBox.hidden) saClose(false); });
+
+  /* stop the edit before it starts: a score box or comment box asks on focus */
+  body.addEventListener("focusin", e => {
+    const el = e.target;
+    if (!(el.classList.contains("scin") || el.classList.contains("pnote") || el.id === "sc-note")) return;
+    if (!needsConfirm()) return;
+    const sel = el.classList.contains("scin") ? '.scin[data-i="' + el.dataset.i + '"]'
+              : el.classList.contains("pnote") ? '.pnote[data-i="' + el.dataset.i + '"]' : "#sc-note";
+    el.blur();
+    guard().then(ok => { if (ok) { const again = body.querySelector(sel); if (again) again.focus(); } });
   });
-  document.getElementById("sc-submit").addEventListener("click", () => {
+
+  async function openSheet() {
+    await flush();
+    const token = ++loadToken;
+    marks = {}; notes = {}; pnotes = {}; meta = {}; openRow = -1; cur = 0;
+    sheetEl.classList.toggle("noseat", lock.mode === "none");
+    btnSubmit.disabled = btnClear.disabled = lock.mode === "none";
+    if (lock.mode === "none") {
+      key = null;
+      drawTabs(); drawBody();
+      msg.textContent = "Your account has no panel seat yet. Ask the STEP team to assign you one.";
+      msg.className = "msg no"; setSave("");
+      return;
+    }
+    key = { session: S.code, panel: P.letter, seat: +selN.value, panelist: nameOfSeat(selN.value) };
+    drawTabs(); drawBody();
+    msg.textContent = "Opening " + key.panelist + "’s sheet…"; msg.className = "msg";
+    setSave("");
+    let res;
+    try { res = await PS().load(key); }
+    catch (err) {
+      if (token !== loadToken) return;
+      msg.textContent = "Could not open this sheet."; msg.className = "msg no";
+      setSave(String(err && err.message ? err.message : err), "err");
+      return;
+    }
+    if (token !== loadToken) return;              // another sheet was chosen meanwhile
+    live = res.live;
+    P.teams.forEach(t => {
+      const e = res.teams[t.team_id] || res.teams[t.team];
+      if (!e) return;
+      const sc = {};
+      Object.keys(e.scores || {}).forEach(i => { const v = parseFloat(e.scores[i]); if (!isNaN(v)) sc[i] = v; });
+      marks[t.team] = sc;
+      pnotes[t.team] = Object.assign({}, e.notes || {});
+      notes[t.team] = e.comment || "";
+      meta[t.team] = { status: e.status, submitted_at: e.submitted_at, updated_at: e.updated_at };
+    });
+    drawTabs(); drawBody();
+    const any = Object.keys(meta).length;
+    setSave(any ? (live ? "Saved to the STEP database" : "Saved in this browser") : "", any ? "ok" : "");
+  }
+
+  function load(keepSeat) {
+    lock = computeLock();
+    if (lock.mode === "own") selP.value = lock.panel;
+    S = scored.find(s => s.code === selS.value);
+    P = F.panels.find(p => p.letter === selP.value);
+    fillPanelists(keepSeat);
+    document.getElementById("sc-code").textContent = (S.tag || S.code) + " · Week " + S.week;
+    const titleEl = document.getElementById("sc-title");
+    titleEl.textContent = S.title;
+    titleEl.title = S.title;
+    document.getElementById("sc-meta").textContent =
+      S.tag ? S.tag + " panel · " + P.teams.length + " teams"
+            : "Saturday panel · " + P.teams.length + " teams · 35 min each";
+    return openSheet();
+  }
+
+  selS.addEventListener("change", () => load(selN.value));
+  selP.addEventListener("change", () => load(null));
+  selN.addEventListener("change", openSheet);
+
+  /* ---- clear: asked twice, because it erases a saved sheet ---- */
+  let clearArmed = null;
+  btnClear.addEventListener("click", async () => {
+    if (!clearArmed && !(await guard())) return;
+    if (!clearArmed) {
+      btnClear.textContent = "Click again to clear";
+      btnClear.classList.add("armed");
+      msg.textContent = "This erases " + nameOfSeat(selN.value) + "’s scores and comments for all " +
+        P.teams.length + " teams on this sheet.";
+      msg.className = "msg no";
+      clearArmed = setTimeout(() => {
+        clearArmed = null; btnClear.textContent = "Clear sheet"; btnClear.classList.remove("armed"); tally();
+      }, 4000);
+      return;
+    }
+    clearTimeout(clearArmed); clearArmed = null;
+    btnClear.textContent = "Clear sheet"; btnClear.classList.remove("armed");
+    Object.keys(timers).forEach(t => clearTimeout(timers[t])); pending.clear();
+    try {
+      await PS().clear(key);
+      marks = {}; notes = {}; pnotes = {}; meta = {}; openRow = -1;
+      drawTabs(); drawBody();
+      setSave("Sheet cleared", "ok");
+    } catch (err) {
+      setSave("Could not clear: " + (err && err.message ? err.message : err), "err");
+    }
+  });
+
+  /* ---- submit: every team scored, then stamp the whole sheet ---- */
+  btnSubmit.addEventListener("click", async () => {
     const missing = P.teams.filter(t => !totals(t.team).all);
-    if (!missing.length) {
-      msg.textContent = "Submitted. In the built site this would go to each team's My Team's Work page.";
-      msg.className = "msg ok";
-    } else {
+    if (!missing.length && !(await guard())) return;
+    if (missing.length) {
       pick(P.teams.indexOf(missing[0]));          // jump to the first one still open
       msg.textContent = "Still to finish: " + missing.map(t => t.team).join(", ") + ".";
       msg.className = "msg no";
+      return;
     }
+    btnSubmit.disabled = true;
+    try {
+      P.teams.forEach(t => pending.add(t.team));   // make sure every row exists
+      await flush();
+      const at = await PS().submit(key, P.teams.map(t => t.team_id || t.team));
+      P.teams.forEach(t => { meta[t.team] = Object.assign(meta[t.team] || {},
+        { status: "submitted", submitted_at: at, updated_at: at }); });
+      drawTabs(); tally();
+      setSave(live ? "Submitted to the STEP database" : "Submitted (saved in this browser)", "ok");
+    } catch (err) {
+      msg.textContent = "Could not submit: " + (err && err.message ? err.message : err);
+      msg.className = "msg no";
+    }
+    btnSubmit.disabled = false;
   });
+
+  /* signing in or out changes where sheets live, so reopen the one on screen */
+  let rosterSig = "";
+  window.addEventListener("stephub_roster", () => {
+    if (!S) return;
+    const next = computeLock();
+    const sig = JSON.stringify([next, F.panels.map(p => p.panelists)]);
+    if (sig === rosterSig) return;
+    rosterSig = sig;
+    const same = next.mode === lock.mode && next.seat === lock.seat;
+    if (same) {                                   // names only: relabel, keep the sheet open
+      const keep = selN.value; lock = next; fillPanelists(keep);
+      if (key) key.panelist = nameOfSeat(selN.value);
+      return;
+    }
+    load(selN.value);
+  });
+
+  window.addEventListener("stephub_auth_changed", async () => {
+    if (!S) return;
+    let nowLive = false;
+    try { nowLive = await PS().isLive(); } catch (e) {}
+    if (nowLive !== live) openSheet();
+  });
+
+  load(null);
+})();
+
+/* ---------- Panel: watch a team's output ----------
+   Same screening room the team sees on My Team's Work, for any team the
+   panelist picks. Files come from the private "submissions" bucket through
+   signed links; the database lets panel, mentor, trainer and admin accounts
+   read every team's hand-in. */
+(function () {
+  const selW = document.getElementById("po-week");
+  const pick = document.getElementById("po-team");
+  if (!selW || !pick) return;
+  const btn = document.getElementById("po-team-btn");
+  const list = document.getElementById("po-team-list");
+  let teamId = F.panels[0].teams[0].team_id;
+  let status = {};                  // team_id -> { video, slide, late } for the week on screen
+  let statusKnown = false;          // false offline: nothing to colour
+  let active = -1;                  // keyboard position in the open list
+  const SUB = () => window.STEP_SUBMISSIONS;
+  const view = document.getElementById("po-view"), empty = document.getElementById("po-empty");
+  const stateEl = document.getElementById("po-state");
+  const vid = document.getElementById("po-video");
+  let token = 0;
+
+  /* the weeks that have a team output, in order */
+  const weeks = [];
+  F.sessions.filter(s => s.assess.length && s.week >= 1).forEach(s => {
+    if (!weeks.some(w => w.week === s.week)) weeks.push({ week: s.week, title: s.title, code: s.code });
+  });
+  weeks.sort((a, b) => a.week - b.week);
+  selW.innerHTML = weeks.map(w => `<option value="${w.week}">Week ${w.week} · ${esc(w.title)}${
+    w.week === CUR ? " (this week)" : ""}</option>`).join("");
+  selW.value = String((weeks.find(w => w.week === CUR) || weeks.filter(w => w.week <= CUR).pop() || weeks[0]).week);
+
+  /* ---- the team picker: every team under its panel, coloured by hand-in ---- */
+  /* a team submits the video and the deck together, so it is either in or not */
+  const stateOf = id => {
+    if (!statusKnown) return "unknown";
+    const st = status[id];
+    if (!st || (!st.video && !st.slide)) return "out";
+    return st.late ? "late" : "in";
+  };
+  const TAG = { in: "Submitted", late: "Submitted late", out: "", unknown: "" };
+  const options = () => [...list.querySelectorAll('[role="option"]')];
+
+  function paintPicker() {
+    list.innerHTML = F.panels.map(p => {
+      const got = p.teams.filter(t => ["in", "late"].includes(stateOf(t.team_id))).length;
+      return `<li class="tp-grp" role="presentation">Panel ${esc(p.letter)}${
+          statusKnown ? `<span>${got} of ${p.teams.length} submitted</span>` : ""}</li>` +
+        p.teams.map(t => {
+          const st = stateOf(t.team_id);
+          return `<li role="option" id="po-opt-${esc(t.team_id)}" data-id="${esc(t.team_id)}" class="tp-opt ${st}"
+                      aria-selected="${t.team_id === teamId}">
+            <span class="tp-dot" aria-hidden="true"></span>
+            <span class="tp-name">${esc(t.team)}</span>
+            <span class="tp-tag">${TAG[st]}</span>
+          </li>`;
+        }).join("");
+    }).join("");
+    const st = stateOf(teamId);
+    btn.className = "tpick-btn " + st;
+    document.getElementById("po-team-name").textContent = teamName(teamId);
+    document.getElementById("po-team-tag").textContent = TAG[st];
+  }
+
+  function openList() {
+    list.hidden = false; btn.setAttribute("aria-expanded", "true");
+    active = options().findIndex(o => o.dataset.id === teamId);
+    focusOpt(); list.focus();
+  }
+  function closeList(back) {
+    list.hidden = true; btn.setAttribute("aria-expanded", "false");
+    list.removeAttribute("aria-activedescendant");
+    if (back) btn.focus();
+  }
+  function focusOpt() {
+    const o = options();
+    o.forEach((x, i) => x.classList.toggle("act", i === active));
+    if (o[active]) { list.setAttribute("aria-activedescendant", o[active].id); o[active].scrollIntoView({ block: "nearest" }); }
+  }
+  function choose(id) {
+    closeList(true);
+    if (id === teamId) return;
+    teamId = id; paintPicker(); load();
+  }
+  btn.addEventListener("click", () => list.hidden ? openList() : closeList(true));
+  btn.addEventListener("keydown", e => {
+    if (["ArrowDown", "ArrowUp", "Enter", " "].includes(e.key)) { e.preventDefault(); openList(); }
+  });
+  list.addEventListener("keydown", e => {
+    const n = options().length;
+    if (e.key === "ArrowDown") { e.preventDefault(); active = Math.min(n - 1, active + 1); focusOpt(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); active = Math.max(0, active - 1); focusOpt(); }
+    else if (e.key === "Home") { e.preventDefault(); active = 0; focusOpt(); }
+    else if (e.key === "End") { e.preventDefault(); active = n - 1; focusOpt(); }
+    else if (e.key === "Enter" || e.key === " ") { e.preventDefault(); const o = options()[active]; if (o) choose(o.dataset.id); }
+    else if (e.key === "Escape" || e.key === "Tab") { closeList(e.key === "Escape"); }
+  });
+  list.addEventListener("click", e => { const o = e.target.closest('[role="option"]'); if (o) choose(o.dataset.id); });
+  document.addEventListener("click", e => { if (!list.hidden && !pick.contains(e.target)) closeList(false); });
+
+  /* who has handed in for the week on screen */
+  async function refreshStatus() {
+    const week = +selW.value;
+    let live = false;
+    try { live = SUB() ? await SUB().isLive() : false; } catch (e) {}
+    if (live && SUB().weekStatus) {
+      try { status = await SUB().weekStatus(week); statusKnown = true; }
+      catch (e) { status = {}; statusKnown = false; }
+    } else { status = {}; statusKnown = false; }
+    if (+selW.value === week) paintPicker();
+  }
+
+  const teamName = id => { for (const p of F.panels) { const t = p.teams.find(x => x.team_id === id); if (t) return t.team; } return id; };
+  const size = n => !n ? "" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
+  const when = iso => new Date(iso).toLocaleString("en-PH",
+    { timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+
+  function showEmpty(title, sub) {
+    vid.pause(); vid.removeAttribute("src"); vid.load();
+    document.getElementById("po-deck").innerHTML = "";
+    document.getElementById("po-empty-t").textContent = title;
+    document.getElementById("po-empty-s").textContent = sub;
+    view.hidden = true; empty.hidden = false;
+  }
+
+  async function load() {
+    const t = ++token, week = +selW.value, name = teamName(teamId);
+    const w = weeks.find(x => x.week === week);
+    stateEl.textContent = "Loading…"; stateEl.className = "po-state";
+    let live = false;
+    try { live = SUB() ? await SUB().isLive() : false; } catch (e) {}
+    if (t !== token) return;
+    if (!live) {
+      stateEl.textContent = "";
+      showEmpty("Sign in to watch", "Team outputs are kept in the STEP database. Sign in with a panel account to watch " + name + "\u2019s Week " + week + " output.");
+      return;
+    }
+    let got = null;
+    try { got = await SUB().getWeek(teamId, week); } catch (e) {}
+    if (t !== token) return;
+    const v = got && got.video, d = got && got.slide;
+    if (!v && !d) {
+      stateEl.textContent = "Not submitted"; stateEl.className = "po-state no";
+      showEmpty("Nothing submitted yet", name + " has not submitted the Week " + week + (w ? " · " + w.title : "") + " output.");
+      return;
+    }
+    const at = (v && v.submitted_at) || (d && d.submitted_at);
+    const late = (v && v.status === "late") || (d && d.status === "late");
+    stateEl.textContent = (late ? "Submitted late · " : "Submitted · ") + (at ? when(at) : "");
+    stateEl.className = "po-state " + (late ? "late" : "ok");
+
+    if (v && v.url) { vid.src = v.url; } else { vid.removeAttribute("src"); vid.load(); }
+    document.getElementById("po-vcap").textContent = v ? v.name + (v.size ? " · " + size(v.size) : "") : "No video submitted";
+    const deck = document.getElementById("po-deck"), dl = document.getElementById("po-dl");
+    if (d && d.url) {
+      const isPdf = /\.pdf$/i.test(d.name || "") || d.type === "application/pdf";
+      deck.innerHTML = isPdf
+        ? `<iframe src="${d.url}#toolbar=0&view=FitH" title="${esc(name)}\u2019s slide deck"></iframe>`
+        : `<div class="od-none"><b>${esc(((d.name || "file").split(".").pop() || "file").toUpperCase())}</b>
+             <span>Preview opens in your slides app</span></div>`;
+      document.getElementById("po-dcap").textContent = d.name + (d.size ? " · " + size(d.size) : "");
+      dl.href = d.url; dl.setAttribute("download", d.name); dl.hidden = false;
+    } else {
+      deck.innerHTML = `<div class="od-none"><b>—</b><span>No slide deck submitted</span></div>`;
+      document.getElementById("po-dcap").textContent = "—";
+      dl.hidden = true;
+    }
+    empty.hidden = true; view.hidden = false;
+  }
+
+  selW.addEventListener("change", () => { refreshStatus(); load(); });
+  window.addEventListener("stephub_auth_changed", () => { refreshStatus(); load(); });
+  paintPicker();
+  refreshStatus();
   load();
 })();
 
@@ -729,26 +2331,43 @@ const io = new IntersectionObserver((entries) => {
 document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
 /* ---------- RBAC Access Guard for Faculty Portal ---------- */
+const ROLE_NAME = { participant: "Participant", trainer: "Trainer", mentor: "Mentor",
+                    panel: "Panelist", admin: "STEP Team / Admin", guest: "Guest" };
+const IS_MERGED = !!document.getElementById("route-myteam");
+
 window.__renderTrainers = function() {
   const user = window.MOCK ? window.MOCK.auth.getCurrentUser() : null;
   const gate = document.getElementById("trainers-locked-gate");
   const content = document.getElementById("trainers-content-wrap");
   if (!gate || !content) return;
 
-  if (!user || user.role === "guest" || user.role === "participant") {
+  const mayView = (window.MOCK && window.MOCK.auth.viewsFor) ? window.MOCK.auth.viewsFor(user) : [];
+  if (!mayView.length) {
     gate.hidden = false;
+    const signedIn = !!user && user.role !== "guest";
+    const label = signedIn ? (user.role_label || ROLE_NAME[user.role] || user.role) : "Not signed in";
+    const who = signedIn ? (user.name || user.full_name || user.email || "This account") : "";
     gate.innerHTML = `
       <div class="access-restricted-card">
         <div class="shield-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
         </div>
-        <h2>Faculty &amp; Staff Access Only</h2>
-        <p>The Trainers, Mentors, and Panel evaluation portal is restricted to program instructors, mentors, and panelists. Participants can access their team dashboard under <b>My Team's Work</b> and <b>Capstone</b>.</p>
+        <h2>${signedIn ? "This page is not open to your account" : "Please sign in"}</h2>
+        <p>Trainers, Mentors and Panel are three separate pages, and each one opens only for the
+           role it belongs to. ${!signedIn
+             ? "Sign in with an account that has one of those roles."
+             : user.role === "participant"
+             ? "As a participant you work under <b>My Team's Work</b> and <b>Capstone</b>."
+             : "Ask the STEP team to add the role to your account if you should have it."}</p>
         <div class="role-badge-row">
-          <span>Current Account: <b>${user ? (user.name + ' (' + user.role_label + ')') : 'Guest / Visitor'}</b></span>
+          <span>${signedIn ? "Signed in as <b>" + esc(who) + "</b> — " + esc(label) : "You are not signed in"}</span>
         </div>
-        <div>
-          <button class="btn solid" onclick="window.MOCK.openAuthModal()">Switch to Faculty or Admin Account</button>
+        <div class="gate-acts">
+          ${signedIn && user.role === "participant"
+            ? `<a class="btn solid" href="${IS_MERGED ? "#myteam" : "my-team.html"}">Go to My Team's Work</a>`
+            : ""}
+          <button class="btn ${signedIn ? "secondary" : "solid"}" onclick="window.MOCK.openAuthModal()">${
+            signedIn ? "Use a different account" : "Sign in"}</button>
         </div>
       </div>
     `;
@@ -756,6 +2375,7 @@ window.__renderTrainers = function() {
   } else {
     gate.hidden = true;
     content.hidden = false;
+    if (window.__faApplyRoles) window.__faApplyRoles();
   }
 };
 window.__renderTrainers();

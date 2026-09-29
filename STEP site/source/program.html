@@ -160,9 +160,9 @@
       </div>
       <div class="day key">
         <div class="d">Wed – Fri</div>
-        <div class="hrs">1<small>hr</small></div>
+        <div class="hrs">1.5<small>hrs</small></div>
         <div class="t">Mentoring</div>
-        <div class="s">One hour with your mentor, at a time your team picks.</div>
+        <div class="s">An hour and a half with your mentor, at a time your team picks.</div>
       </div>
       <div class="day key">
         <div class="d">Friday</div>
@@ -172,9 +172,9 @@
       </div>
       <div class="day key">
         <div class="d">Saturday</div>
-        <div class="hrs">20<small>min</small></div>
+        <div class="hrs">30<small>min</small></div>
         <div class="t">Your turn with the panel</div>
-        <div class="s">A 5-minute video, then 15 minutes of questions from the panel.</div>
+        <div class="s">A 5-minute video, then 25 minutes of questions from the panel.</div>
       </div>
     </div>
     <div class="weeknote reveal">
@@ -194,7 +194,7 @@
     </div>
 
     <div class="zig reveal">
-      <div class="zig-media"><img src="assets/photos/session.jpg" alt="Trainer presenting during an online STEP learning session"></div>
+      <div class="zig-media"><img src="assets/photos/online-learning-sessions.jpg" alt="Speaker at the podium during a STEP learning session" style="object-position:50% 22%"></div>
       <div>
         <span class="badge blue">Online · weekly</span>
         <h3 class="mt-3">Online learning sessions</h3>
@@ -215,7 +215,7 @@
         <span class="badge">Per team · weekly</span>
         <h3 class="mt-3">Mentoring sessions</h3>
         <p class="muted">Every team is paired with a mentor drawn from business practitioners and faculty.
-          One hour a week to work through the assignment, prepare for Saturday, and decide what to test next.</p>
+          An hour and a half a week to work through the assignment, prepare for Saturday, and decide what to test next.</p>
         <ul class="meta-list">
           <li><span class="k">When</span><span class="v">Any slot the team picks, Wednesday to Friday</span></li>
           <li><span class="k">Length</span><span class="v">1 hour, online</span></li>
@@ -230,18 +230,18 @@
         <span class="badge green">Saturdays · panels A, B and C</span>
         <h3 class="mt-3">Feedback sessions</h3>
         <p class="muted">Teams play a five-minute video of the week's output to a panel of three
-          entrepreneurs and faculty, then take fifteen minutes of questions. The comments become the team's
+          entrepreneurs and faculty, then take twenty-five minutes of questions. The comments become the team's
           short list for the week ahead — nothing to write up afterwards.</p>
         <ul class="meta-list">
-          <li><span class="k">Format</span><span class="v">5-minute video, then 15 minutes of Q&amp;A</span></li>
-          <li><span class="k">Your slot</span><span class="v">20 minutes — you do not sit through the whole morning</span></li>
+          <li><span class="k">Format</span><span class="v">5-minute video, then 25 minutes of Q&amp;A</span></li>
+          <li><span class="k">Your slot</span><span class="v">30 minutes — you do not sit through the whole morning</span></li>
           <li><span class="k">Panel</span><span class="v">3 panelists per session, rotating</span></li>
         </ul>
       </div>
     </div>
 
     <div class="zig flip reveal">
-      <div class="zig-media"><img src="assets/photos/workshop.jpg" alt="Teams working together during the on-site workshop"></div>
+      <div class="zig-media"><img src="assets/photos/onsite-workshops.jpg" alt="Participants building a structure together on the floor during the on-site workshop" style="object-position:50% 45%"></div>
       <div>
         <span class="badge purple">On site · two days</span>
         <h3 class="mt-3">On-site workshops</h3>
@@ -287,7 +287,7 @@
         <span class="rh-ic" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>
         </span>
-        <span><b>Every midweek</b>One hour of mentoring, at a time the team and mentor arrange</span>
+        <span><b>Every midweek</b>An hour and a half of mentoring, at a time the team and mentor arrange</span>
       </div>
       <div class="rh">
         <span class="rh-ic" aria-hidden="true">
@@ -301,8 +301,8 @@
     <div class="tl2" id="tl"></div>
   </section>
 
-  <!-- ===== Modules ===== -->
-  <section>
+  <!-- ===== Modules — hidden from the public page for now (kept for later) ===== -->
+  <section hidden>
     <div class="section-head">
       <div class="eyebrow">Curriculum</div>
       <h2>The 14 modules</h2>
@@ -312,8 +312,8 @@
     <div class="mods" id="mods"></div>
   </section>
 
-  <!-- ===== Assessment ===== -->
-  <section>
+  <!-- ===== Assessment — hidden from the public page for now (kept for later) ===== -->
+  <section hidden>
     <div class="section-head">
       <div class="eyebrow">Assessment</div>
       <h2>How teams are graded</h2>
@@ -369,9 +369,13 @@
         <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
     </div>
   </div>
-  <div class="wrap small" style="margin-top:var(--s5);opacity:.8">© 2027 Ateneo Intellectual Property Office</div>
+  <div class="wrap small" style="margin-top:var(--s5);opacity:.8">© <span class="yr">2026</span> Ateneo Intellectual Property Office</div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="site-clock.js"></script>
+<script src="supabase-client.js"></script>
+<script src="materials-data.js"></script>
 <script>
 /* ---------------------------------------------------------------
    Program content. Edit these two arrays to update the page.
@@ -466,14 +470,38 @@ document.getElementById("mods").innerHTML = MODULES.map(col => `
       <h3>${col.title}</h3>
     </header>
     ${col.items.map(m => `
-      <details class="mod">
+      <details class="mod" data-code="${m.c}">
         <summary><span class="code">${m.c}</span> ${m.t}</summary>
         <div class="body">
           <div class="hrs">${m.h}</div>
-          <div>${m.d}</div>
+          <div>${m.d}<span class="moddeck" data-code="${m.c}"></span></div>
         </div>
       </details>`).join("")}
   </div>`).join("");
+
+/* ---------- the trainer's deck, when there is a real project behind the page ----------
+   A deck posted on the Trainers page shows up here as a download for
+   anyone signed in. Signed-out visitors see the curriculum as before. */
+(async () => {
+  const MAT = window.STEP_MATERIALS;
+  if (!MAT) return;
+  let live = false;
+  try { live = await MAT.isLive(); } catch (e) { return; }
+  if (!live) return;
+  let decks = [];
+  try { decks = await MAT.listAll(); } catch (e) { return; }
+  const seen = new Set();
+  decks.forEach(d => {
+    if (!d.url || seen.has(d.code)) return;      // listAll is newest first
+    seen.add(d.code);
+    const slot = document.querySelector(`.moddeck[data-code="${d.code}"]`);
+    if (!slot) return;
+    slot.innerHTML = `<a class="mod-dl" href="${d.url}" download="${d.name}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+             stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+        Slides</a>`;
+  });
+})();
 
 /* ---------- reveal on scroll ---------- */
 const io = new IntersectionObserver((entries) => {

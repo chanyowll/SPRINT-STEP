@@ -95,7 +95,7 @@
          behind it.</p>
     </div>
 
-    <div class="card reveal">
+    <div class="card reveal subcard">
       <div class="due" id="due-bar"></div>
       <div id="upload-view">
       <p class="drops-lead">Two files, then one button. Drag each file onto its box, or click the box to
@@ -143,15 +143,20 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="m5 13 4 4L19 7"/></svg>
           </span>
           <div class="oh-t">
-            <h3 id="out-title">Your output is in</h3>
+            <h3 class="oh-h"><span id="out-title">Your output is in</span><span class="badge green" id="out-status">On time</span></h3>
             <p id="out-when">—</p>
           </div>
           <button class="btn secondary" id="btn-redo" type="button">Replace the files</button>
         </div>
         <div class="outgrid">
           <figure class="outvid">
-            <video id="out-video" controls playsinline preload="metadata"></video>
-            <figcaption id="out-vcap">—</figcaption>
+            <div class="od-head">
+              <span class="od-ic" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="6" width="13.5" height="12" rx="2"/><path d="m16 11 5.5-3v8L16 13z"/></svg>
+              </span>
+              <div><h4>Five-minute video</h4><p id="out-vcap">—</p></div>
+            </div>
+            <div class="ov-screen"><video id="out-video" controls playsinline preload="metadata"></video></div>
           </figure>
           <aside class="outdeck">
             <div class="od-head">
@@ -208,7 +213,7 @@
   <section>
     <div class="section-head">
       <div class="eyebrow">Performance</div>
-      <h2>How the panel has scored your outputs</h2>
+      <h2>Team scores and analytics</h2>
       <p class="lede">Each point is one weekly output. Panels score every criterion from 1.00 to 4.00; the
          point is the weighted average of that session's panel.</p>
     </div>
@@ -370,7 +375,7 @@
   <section id="themes">
     <div class="section-head">
       <div class="eyebrow">Thematic analysis</div>
-      <h2>What the panel keeps saying</h2>
+      <h2>What panelists and mentors keep saying</h2>
       <p class="lede" id="ta-method">—</p>
     </div>
     <div class="tw-ta">
@@ -422,11 +427,12 @@
            <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
       </div>
     </div>
-    <p class="small mb-0" style="margin-top:var(--s5)">© 2027 Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+    <p class="small mb-0" style="margin-top:var(--s5)">© <span class="yr">2026</span> Ateneo de Manila University · Ateneo Intellectual Property Office</p>
   </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="site-clock.js"></script>
 <script src="supabase-client.js"></script>
 <script src="myteam-data.js"></script>
 <script src="submissions-data.js"></script>
@@ -936,8 +942,9 @@ window.__renderMyTeam = function(targetTeamId) {
   const methodEl = document.getElementById("ta-method");
   if (methodEl) {
     methodEl.textContent =
-      (I.method || "Reflexive thematic analysis") + ". " + C.comments + " comments from " + C.panelists + " panelists across " +
-      C.sessions + " feedback sessions became " + C.codes + " codes and " + C.themes + " themes.";
+      (I.method || "Reflexive thematic analysis") + ". " + C.comments + " comments from " + C.panelists + " panelists and " +
+      (C.mentors ? C.mentors + (C.mentors === 1 ? " mentor" : " mentors") : "the team’s mentor") + " across " +
+      C.sessions + " feedback and mentoring sessions became " + C.codes + " codes and " + C.themes + " themes.";
   }
 
   const stripEl = document.getElementById("ta-strip");
@@ -1092,7 +1099,7 @@ window.__renderMyTeam = function(targetTeamId) {
   /* Submissions */
   const openSub = TW.submissions.find(s => s.status === "open") || TW.submissions[0];
   const due = new Date(openSub.due);
-  const days = Math.max(0, Math.ceil((due - new Date("2027-08-12T09:00:00+08:00")) / 86400000));
+  const days = Math.max(0, Math.ceil((due - new Date()) / 86400000));
   const dueBarHtml =
     `<span><strong>Week ${openSub.week} · ${openSub.module}</strong> — due ${helpers.fmtDate(openSub.due)}, 12:00 NN</span>
      <span class="badge gold">${days} day${days === 1 ? "" : "s"} left</span>`;
@@ -1265,9 +1272,13 @@ window.__renderMyTeam = function(targetTeamId) {
         : "Uploaded by the team" + (live ? "" : " in this browser") + ". Only this team, its mentor, its panel and the STEP team can open it.";
       uploadView.hidden = true;
       outView.hidden = false;
-      document.getElementById("due-bar").innerHTML =
-        `<span><strong>Week ${C.sub.week} · ${C.sub.module}</strong> — submitted, nothing further to do.</span>
-         <span class="badge green">On time</span>`;
+      /* the header above already says it is in; the due bar would only repeat it */
+      const bar = document.getElementById("due-bar");
+      bar.innerHTML = ""; bar.hidden = true;
+      const late = [v, d].some(x => x && x.status === "late");
+      const st = document.getElementById("out-status");
+      st.textContent = late ? "Submitted late" : "On time";
+      st.className = "badge " + (late ? "gold" : "green");
     }
 
     /* Already handed in? Then the card opens as the player — for the team
@@ -1279,6 +1290,7 @@ window.__renderMyTeam = function(targetTeamId) {
       try { live = await SUB().isLive(); } catch (e) { live = false; }
       const nothingYet = () => {
         outView.hidden = true;
+        document.getElementById("due-bar").hidden = false;
         document.getElementById("due-bar").innerHTML = C.canSubmit ? C.dueBar :
           `<span><strong>Week ${C.sub.week} · ${C.sub.module}</strong> — nothing handed in yet.</span>`;
         uploadView.hidden = !C.canSubmit;
@@ -1307,8 +1319,9 @@ window.__renderMyTeam = function(targetTeamId) {
         freeUrls();
         const now = new Date().toLocaleString("en-PH",
           { timeZone: "Asia/Manila", weekday: "short", hour: "numeric", minute: "2-digit" });
-        paintOutput({ url: mkUrl(v), name: v.name, size: v.size, type: v.type },
-                    { url: mkUrl(d), name: d.name, size: d.size, type: d.type },
+        const st = C.sub.due && new Date() > new Date(C.sub.due) ? "late" : "submitted";
+        paintOutput({ url: mkUrl(v), name: v.name, size: v.size, type: v.type, status: st },
+                    { url: mkUrl(d), name: d.name, size: d.size, type: d.type, status: st },
                     "handed in " + now, false);
         return;
       }
@@ -1362,6 +1375,7 @@ window.__renderMyTeam = function(targetTeamId) {
       showErr("");
       outView.hidden = true;
       uploadView.hidden = false;
+      document.getElementById("due-bar").hidden = false;
       document.getElementById("due-bar").innerHTML = C.dueBar;
     }
 
