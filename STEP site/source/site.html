@@ -6,6 +6,9 @@
 <title>SPRINT-STEP — Turning Filipino Researches into Business</title>
 <meta name="description" content="SPRINT-STEP is a DOST-PCIEERD program run by the Ateneo Intellectual Property Office that turns Filipino research teams into businesses.">
 <link rel="icon" href="assets/step-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="stephub-ui.css">
 <script>document.documentElement.classList.add("js")</script>
 </head>
@@ -67,11 +70,20 @@
 <div class="route" id="route-home" data-route="home">
 <!-- ===== Hero: one statement, nothing else =====
      Photo: SPRINT-STEP on-site session. Swap freely; keep the dark overlay so the text stays readable. -->
-<section class="hero-photo" id="hero" style="background-image:url('assets/photos/hero.jpg')">
+<section class="hero-photo" id="hero" style="background-image:url('assets/photos/hero-group.jpg')">
   <!-- first visit only: the STEP film plays once over the cover, then the cover returns -->
+  <!-- cover photos: slide to the next one every 10 seconds, after the last it loops to the first -->
+  <div class="hero-slides" id="hero-slides" aria-hidden="true">
+    <div class="hs-track">
+      <div class="hs" style="background-image:url('assets/photos/hero-group.jpg')"></div>
+      <div class="hs" style="background-image:url('assets/photos/hero-team-pitch.jpg');background-position:50% 35%"></div>
+      <div class="hs" style="background-image:url('assets/photos/hero-speaker.jpg');background-position:50% 30%"></div>
+      <div class="hs" style="background-image:url('assets/photos/hero-group.jpg')"></div>
+    </div>
+  </div>
   <video class="hero-video" id="hero-video" muted playsinline preload="none" aria-hidden="true" tabindex="-1" hidden></video>
   <div class="wrap">
-    <h1 class="hero-statement">Turning Filipino Researches into <em>Business</em></h1>
+    <h1 class="hero-statement">Turning<br> Filipino<br> researches<br> into<br> <em>business</em></h1>
   </div>
   <div class="scroll-cue" aria-hidden="true">Scroll<span>↓</span></div>
 </section>
@@ -81,10 +93,12 @@
 <section class="numbers">
   <div class="wrap">
     <p class="numbers-cap" data-stat="cycle">This cycle · SPRINT-STEP 3</p>
-    <div><div class="n" data-stat="teams">10</div><div class="l">Research teams</div></div>
-    <div><div class="n" data-stat="institutions">8</div><div class="l">Institutions</div></div>
-    <div><div class="n">12</div><div class="l">Weeks</div></div>
-    <div><div class="n">14</div><div class="l">Modules</div></div>
+    <div class="cstats">
+      <div class="cs"><b class="n" data-stat="teams">10</b><span class="k">Research teams</span></div>
+      <div class="cs"><b class="n" data-stat="institutions">8</b><span class="k">Institutions</span></div>
+      <div class="cs"><b class="n">12</b><span class="k">Weeks</span></div>
+      <div class="cs"><b class="n">14</b><span class="k">Modules</span></div>
+    </div>
   </div>
 </section>
 
@@ -708,7 +722,7 @@
   </div>
 </section>
 
-<main class="wrap page stack" style="gap:var(--s7)">
+<main class="wrap page stack gp-top" style="gap:var(--s7)">
 
   <!-- ===== Program brief ===== -->
   <section>
@@ -811,7 +825,7 @@
     </div>
 
     <div class="zig reveal">
-      <div class="zig-media"><img src="assets/photos/online-learning-sessions.jpg" alt="Speaker at the podium during a STEP learning session" style="object-position:50% 22%"></div>
+      <div class="zig-media"><img src="assets/photos/online-learning-zoom.jpg" alt="Participants and the STEP team together on a Zoom learning session" style="aspect-ratio:16/9;object-position:50% 50%"></div>
       <div>
         <span class="badge blue">Online · weekly</span>
         <h3 class="mt-3">Online learning sessions</h3>
@@ -891,7 +905,7 @@
   </section>
 
   <!-- ===== Timeline ===== -->
-  <section id="calendar">
+  <section id="calendar" class="gp-band">
     <div class="section-head">
       <div class="eyebrow">Previous cycle</div>
       <h2>How the 2025 cycle ran</h2>
@@ -1018,7 +1032,7 @@
   </div>
 </section>
 
-<main class="wrap page stack" style="gap:var(--s7)">
+<main class="wrap page stack gp-top" style="gap:var(--s7)">
 
   <!-- ===== The cohort, in plain light ===== -->
   <section>
@@ -2169,6 +2183,54 @@ try {
   if (p && p.catch) p.catch(finish);          // autoplay refused → straight to the cover
   setTimeout(function () { if (v.readyState < 2 && !done) finish(); }, 8000);   // too slow to load
 })();
+
+/* ---------- cover photos: every 10 seconds slide to the next; after the third, back to the first ---------- */
+(function () {
+  var box = document.getElementById("hero-slides");
+  if (!box) return;
+  var track = box.querySelector(".hs-track"), n = box.querySelectorAll(".hs").length - 1;   // last one repeats the first
+  var i = 0, busy = false;
+  var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function go() {
+    if (busy || document.hidden || !box.offsetWidth) return;
+    i++; busy = true;
+    if (still) { track.style.transition = "none"; }
+    track.style.transform = "translateX(" + (-100 * i) + "%)";
+    if (still) settle();
+  }
+  function settle() {
+    busy = false;
+    if (i >= n) {                                  // arrived on the repeat of the first: jump back unseen
+      track.style.transition = "none"; i = 0;
+      track.style.transform = "translateX(0)";
+      void track.offsetWidth; track.style.transition = "";
+    }
+  }
+  track.addEventListener("transitionend", function (e) { if (e.target === track && e.propertyName === "transform") settle(); });
+  setInterval(go, 10000);
+})();
+
+/* ---------- the headline starts exactly where the first number ("10") starts ---------- */
+(function () {
+  var h = document.querySelector(".hero-statement"), n = document.querySelector(".numbers .n"),
+      wrap = document.querySelector(".numbers .wrap");
+  if (!h || !n || !wrap) return;
+  function align() {
+    var wr = wrap.getBoundingClientRect();
+    if (!wr.width) return;                                   // home page not showing
+    var range = document.createRange(); range.selectNodeContents(n);
+    var nl = range.getBoundingClientRect().left;
+    var base = wr.left + parseFloat(getComputedStyle(wrap).paddingLeft || 0);
+    var fs = parseFloat(getComputedStyle(h).fontSize) || 0;
+    h.style.marginLeft = (nl - base - fs * 0.04).toFixed(1) + "px";   // 0.04em = the letter's own side gap
+  }
+  window.addEventListener("resize", align);
+  window.addEventListener("hashchange", function () { setTimeout(align, 60); });
+  window.addEventListener("load", align);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(align);
+  if (window.MutationObserver) new MutationObserver(align).observe(n, { childList: true, characterData: true, subtree: true });
+  align(); setTimeout(align, 400);
+})();
 })();
 } catch(e) { console.error('[STEP] Error in index.html script:', e); }
 /* ---- this-week.html ---- */
@@ -3015,8 +3077,10 @@ const REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const items = [...list.querySelectorAll(".rsx")];
 
   /* split the name so every letter can arrive on its own beat */
-  const letters = s => [...s].map((c, i) =>
-    `<span class="ch" style="--i:${i}">${c === " " ? "&nbsp;" : esc(c)}</span>`).join("");
+  /* letters stay grouped by word, so a long name wraps between words, never inside one */
+  const letters = s => { let i = 0; return s.split(" ").map(w =>
+    `<span class="wd">${[...w].map(c => `<span class="ch" style="--i:${i++}">${esc(c)}</span>`).join("")}</span>`
+  ).join(" "); };
 
   function moveMark(el) {
     mark.style.height = (el.offsetHeight - 10) + "px";

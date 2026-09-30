@@ -263,6 +263,9 @@ page = f"""<!doctype html>
 <title>SPRINT-STEP — Turning Filipino Researches into Business</title>
 <meta name="description" content="SPRINT-STEP is a DOST-PCIEERD program run by the Ateneo Intellectual Property Office that turns Filipino research teams into businesses.">
 <link rel="icon" href="assets/step-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="stephub-ui.css">
 <script>document.documentElement.classList.add("js")</script>
 </head>

@@ -5290,3 +5290,118 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
 /* ── No lone last words: hero notes balance their lines; body copy avoids orphans ── */
 #fa-note, .page-hero p, .section-head .lede { text-wrap: balance; }
 p, li, .mm, .muted { text-wrap: pretty; }
+
+/* =====================================================================
+   Type: Archivo, one family in two widths. Expanded (125) for headings
+   and display numbers, normal width for everything you read.
+   Loaded from Google Fonts in each page's <head>; falls back to Inter.
+   ===================================================================== */
+:root { --font: "Archivo", "Inter", "Segoe UI", system-ui, -apple-system, Arial, sans-serif; }
+body { font-stretch: 100%; }
+h1, h2, h3,
+.hero-statement, .numbers .n, .page-hero h1, .team-bar h1 { font-stretch: 125%; }
+h1, .hero-statement { font-weight: 800; letter-spacing: -.02em; }
+h2 { font-weight: 750; letter-spacing: -.012em; }
+h3 { letter-spacing: -.005em; }
+
+/* =====================================================================
+   Graph paper. Used only where the page is about the plan itself:
+   the home "This cycle" numbers, the top of Program and STEP Groups,
+   and behind the cycle calendar. Working pages stay plain.
+   ===================================================================== */
+:root { --grid-line: #e2e9f2; --grid-size: 24px; }
+body { overflow-x: clip; }
+.graph-paper, .numbers {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: -1px -1px;
+}
+/* full-width grid that fades out: the top of a page, or around one section */
+.gp-top, .gp-band { position: relative; isolation: isolate; }
+.gp-top::before, .gp-band::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  left: calc(50% - 50vw); width: 100vw;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: center -1px;
+}
+.gp-top::before {
+  top: 0; height: 560px;
+  -webkit-mask-image: linear-gradient(#000 45%, transparent);
+          mask-image: linear-gradient(#000 45%, transparent);
+}
+.gp-band::before {
+  top: -56px; bottom: -56px;
+  -webkit-mask-image: linear-gradient(transparent, #000 90px, #000 calc(100% - 90px), transparent);
+          mask-image: linear-gradient(transparent, #000 90px, #000 calc(100% - 90px), transparent);
+}
+
+/* STEP Groups showcase: team name a little smaller, wrapping between words only */
+.st-name { font-size: clamp(34px, 5.6vw, 76px); line-height: 1.02; }
+.st-name .wd { display: inline-block; white-space: nowrap; }
+
+/* Home headline, set like the redesign preview: Archivo Expanded 800,
+   sentence case, one colour, stacked a word or two per line */
+.hero-statement {
+  font-size: clamp(40px, 6.4vw, 88px); line-height: .98; font-weight: 800;
+  letter-spacing: -.025em; font-stretch: 125%;
+  width: min-content; max-width: none; text-wrap: wrap; /* one word per line */
+}
+
+.hero-statement em { font-style: normal; color: #9ccbf4; font-weight: inherit; }
+
+/* match the preview exactly: same axes, same size, same tracking */
+.hero-photo .hero-statement { font-variation-settings: "wdth" 125; font-stretch: 125%; font-weight: 700;
+  letter-spacing: -.025em; line-height: .98; text-shadow: none; text-transform: none; }
+
+/* Home: headline and the numbers share the page's left edge */
+.hero-photo > .wrap { width: 100%; }
+
+/* =====================================================================
+   Home "12 weeks" band: graph paper behind the blue infographic panel.
+   The grid carries on straight down from the numbers strip above.
+   ===================================================================== */
+.journey:has(.jr) {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: var(--grid-size) var(--grid-size);
+  background-position: -1px -1px;
+  color: var(--ink);
+}
+.journey:has(.jr) h2 { color: var(--navy); }
+.journey:has(.jr) .eyebrow { color: #a97c14; }
+.jr-stage { box-shadow: 0 24px 56px rgba(11, 60, 107, .22), inset 0 0 0 1px rgba(255,255,255,.08); }
+
+/* Home numbers: the same white card as the STEP Groups figures, on the grid */
+.numbers .wrap { display: block; padding-top: var(--s5); padding-bottom: var(--s6); }
+.numbers .wrap > .cstats { text-align: left; }
+.numbers .cs { text-align: left; }
+.numbers .cs b { font-size: 40px; font-weight: 800; letter-spacing: -.035em; font-stretch: 125%; }
+.numbers .cstats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+@media (max-width: 640px) { .numbers .cstats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+/* Home numbers: bigger figures, quieter light-grey labels, and the whole block sits lower
+   so the space above and below it is even */
+.numbers .wrap { padding-top: clamp(48px, 5.6vw, 80px); padding-bottom: 0; }
+.numbers .cs { padding: var(--s6) var(--s6) calc(var(--s6) - 2px); }
+.numbers .cs b { font-size: clamp(48px, 5vw, 72px); }
+.numbers .cs .k { font-size: 16px; font-weight: 400; color: #9aa5b1; margin-top: 14px; }
+@media (max-width: 640px) { .numbers .cs { padding: var(--s5); } .numbers .cs b { font-size: 44px; } }
+.numbers .cs b { font-size: clamp(46px, 3.8vw, 56px); }
+@media (max-width: 640px) { .numbers .cs b { font-size: 46px; } }
+.numbers .cs .k { font-size: 14px; color: #7b8794; margin-top: 8px; line-height: 1.3; }
+.numbers .cs { padding: 30px var(--s6) 26px; }
+@media (max-width: 640px) { .numbers .cs { padding: 22px var(--s5) 20px; } }
+
+/* Home cover: photos slide left every 10 seconds */
+.hero-photo > .hero-slides { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+.hs-track { display: flex; height: 100%; transition: transform 1.1s cubic-bezier(.7, 0, .25, 1); will-change: transform; }
+.hs { flex: 0 0 100%; height: 100%; background: var(--navy) center / cover no-repeat; }
+@media (prefers-reduced-motion: reduce) { .hs-track { transition: none; } }

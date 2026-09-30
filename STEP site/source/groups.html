@@ -6,6 +6,9 @@
 <title>STEP Groups · SPRINT-STEP</title>
 <meta name="description" content="The research teams in the SPRINT-STEP cohort, their institutions and a one-line description of what each team is working on.">
 <link rel="icon" href="assets/step-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
 <link rel="stylesheet" href="stephub-ui.css">
 <script>document.documentElement.classList.add("js")</script>
 </head>
@@ -119,7 +122,7 @@
   </div>
 </section>
 
-<main class="wrap page stack" style="gap:var(--s7)">
+<main class="wrap page stack gp-top" style="gap:var(--s7)">
 
   <!-- ===== The cohort, in plain light ===== -->
   <section>
@@ -223,8 +226,10 @@ const REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const items = [...list.querySelectorAll(".rsx")];
 
   /* split the name so every letter can arrive on its own beat */
-  const letters = s => [...s].map((c, i) =>
-    `<span class="ch" style="--i:${i}">${c === " " ? "&nbsp;" : esc(c)}</span>`).join("");
+  /* letters stay grouped by word, so a long name wraps between words, never inside one */
+  const letters = s => { let i = 0; return s.split(" ").map(w =>
+    `<span class="wd">${[...w].map(c => `<span class="ch" style="--i:${i++}">${esc(c)}</span>`).join("")}</span>`
+  ).join(" "); };
 
   function moveMark(el) {
     mark.style.height = (el.offsetHeight - 10) + "px";
