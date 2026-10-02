@@ -118,13 +118,20 @@ window.MOCK = (function () {
 
   const announcements = [];          // the real ones live in the announcements table
 
-  /* Panel score sheets by week, carried over from the STEP 2 sheets for the
-     same topic (criteria and weights unchanged): W3 beachhead, W4 competitive
-     advantage, W5 business model validation, W6 finance (presented at the
-     checkpoint), W7 go-to-market, W12 Demo Day. Selling (W8), pitching (W9),
-     technology roadmapping (W10) and the FASTRAC workshop (W11) are new
-     topics whose sheets are still to come. */
+  /* Panel score sheets, one per feedback session. W3 beachhead, W4
+     competitive advantage, W5 business model validation, W6 finance
+     (presented at the checkpoint), W7 go-to-market and W12 Demo Day carry
+     over the STEP 2 sheets for the same topic (criteria and weights
+     unchanged). W2 market mapping, W8 selling, W9 pitching, W10 technology
+     roadmapping and W11 the FASTRAC proposal are STEP 2.5 sheets written
+     from each week's stated outputs; weights add to 100. */
   const SCORE_SHEETS = {
+      W2: [
+          { label: "Has the group mapped the players in its technology’s ecosystem — suppliers, users, buyers, regulators, funders and competitors — and how value and money move between them?", weight: 30 },
+          { label: "Has the group identified the vertical markets where the technology could be applied?", weight: 25 },
+          { label: "Has the group identified the partners and gaps that matter most for reaching the market?", weight: 25 },
+          { label: "How clearly did the five-minute video walk the panel through the map?", weight: 20 },
+        ],
       W3: [
           { label: "Has the group identified 5 to 10 possible market opportunities?", weight: 25 },
           { label: "Has the group clearly prioritized these opportunities and identified a beachhead market?", weight: 25 },
@@ -152,6 +159,34 @@ window.MOCK = (function () {
           { label: "How complete and coherent was the Lean Canvas?", weight: 25 },
           { label: "How effectively did the team identify, prioritize, and justify their chosen channels for reaching the target market (Bullseye Framework)?", weight: 25 },
           { label: "How clear, feasible, and well-structured was the team’s Go-to-Market Gantt Chart?", weight: 25 },
+        ],
+      W8: [
+          { label: "Did the team open with the customer’s problem rather than with the technology?", weight: 20 },
+          { label: "Did the team ask and listen — drawing out how the customer handles the problem today and what it costs them?", weight: 20 },
+          { label: "Did the team show the value in the customer’s own numbers (the quantified value proposition)?", weight: 25 },
+          { label: "How well did the team handle the objections raised — price, risk, switching?", weight: 20 },
+          { label: "Did the team ask for a concrete next step — a trial, a visit or a letter of intent?", weight: 15 },
+        ],
+      W9: [
+          { label: "Structure — problem, solution, market, business model and evidence, ask: all present and in a logical order?", weight: 25 },
+          { label: "Delivery — within five minutes, confident, and understandable to a non-specialist?", weight: 25 },
+          { label: "Evidence — are the claims backed by the work of the earlier weeks (beachhead, competition, validation)?", weight: 20 },
+          { label: "The ask — specific, justified, and tied to what it will achieve?", weight: 15 },
+          { label: "Questions — did the team answer the panel directly, without losing the thread?", weight: 15 },
+        ],
+      W10: [
+          { label: "Has the team stated the technology’s current readiness level honestly, and the level the market needs?", weight: 25 },
+          { label: "Are the milestones in between clear — prototype, pilot, certification, first production?", weight: 25 },
+          { label: "Does each milestone carry a realistic timing and cost?", weight: 20 },
+          { label: "Are the risks on the way identified, with an owner for each?", weight: 15 },
+          { label: "Does the roadmap line up with the go-to-market plan and the financial projection?", weight: 15 },
+        ],
+      W11: [
+          { label: "Project profile and the case — complete, consistent, and drawn from the team’s earlier outputs?", weight: 20 },
+          { label: "Market and commercial viability — beachhead, competition, channels and a sales forecast a reviewer can follow?", weight: 20 },
+          { label: "The plan — methodology, technology roadmap, expected outputs and outcomes, clearly laid out?", weight: 20 },
+          { label: "Resources and budget — people, equipment and money by year, justified?", weight: 20 },
+          { label: "Readiness — how close is the draft to a proposal DOST could receive as it stands?", weight: 20 },
         ],
       W12: [
           { label: "Market Opportunity", weight: 20, hint: "Market Potential or Market Size & Opportunity (Highlights scope, growth potential, and demand.)" },
@@ -308,10 +343,9 @@ window.MOCK = (function () {
 
     /* The curriculum and the panel score sheets, one per program week.
        Titles, dates and modes come from the STEP 2.5 schedule. A week's
-       score sheet carries over the STEP 2 criteria for the same topic;
-       W2, W8, W9, W10 and W11 have no sheet yet (criteria_pending), so the
-       Panel page has nothing to score for them until one is added. Demo
-       Day (W12) uses the STEP 2 Demo Day sheet. */
+       score sheet carries over the STEP 2 criteria for the same topic, or
+       a STEP 2.5 sheet for the new topics; every feedback session and the
+       checkpoint has one. Demo Day (W12) uses the STEP 2 Demo Day sheet. */
     sessions: SCHED.weeks.map(w => ({
       code: w.code, week: w.week, title: w.title, short: w.short, topic: w.topic,
       tag: w.week === 12 ? "Demo Day" : undefined,
