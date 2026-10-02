@@ -77,7 +77,7 @@
   <div class="hero-slides" id="hero-slides" aria-hidden="true">
     <div class="hs-track">
       <div class="hs" style="background-image:url('assets/photos/hero-group.jpg')"></div>
-      <div class="hs" style="background-image:url('assets/photos/hero-team-pitch.jpg');background-position:50% 35%"></div>
+      <div class="hs" style="background-image:url('assets/photos/hero-team-pitch.jpg?v=2');background-position:50% 35%"></div>
       <div class="hs" style="background-image:url('assets/photos/hero-speaker.jpg');background-position:50% 30%"></div>
       <div class="hs" style="background-image:url('assets/photos/hero-group.jpg')"></div>
     </div>
@@ -93,12 +93,12 @@
      from the cycle's team list, so they follow it when it changes. ===== -->
 <section class="numbers">
   <div class="wrap">
-    <p class="numbers-cap" data-stat="cycle">This cycle · SPRINT-STEP 3</p>
+    <p class="numbers-cap" data-stat="cycle">This cycle · STEP 2.5 · Oct 12, 2026 – Jan 29, 2027</p>
     <div class="cstats">
       <div class="cs"><b class="n" data-stat="teams">10</b><span class="k">Research teams</span></div>
       <div class="cs"><b class="n" data-stat="institutions">8</b><span class="k">Institutions</span></div>
       <div class="cs"><b class="n">12</b><span class="k">Weeks</span></div>
-      <div class="cs"><b class="n">14</b><span class="k">Modules</span></div>
+      <div class="cs"><b class="n" data-stat="sessions">10</b><span class="k">Learning sessions</span></div>
     </div>
   </div>
 </section>
@@ -361,10 +361,10 @@
           <span class="jr-no">Phase 01<b>Weeks 1–4</b></span>
         </div>
         <h3>Find the market</h3>
-        <p>Choose the first customer, size the market and put a number on the value.</p>
+        <p>Launch on site, map the ecosystem, choose the first customer and size the market.</p>
         <div class="chips">
+          <span class="chip">Program launch</span><span class="chip">Ecosystem mapping</span>
           <span class="chip">Beachhead market</span><span class="chip">TAM · SAM · SOM</span>
-          <span class="chip">Measured value</span><span class="chip">VRIO &amp; CPM</span>
         </div>
       </article>
       <article class="jr-card p2">
@@ -376,11 +376,11 @@
           </span>
           <span class="jr-no">Phase 02<b>Weeks 5–8</b></span>
         </div>
-        <h3>Build the business</h3>
-        <p>Shape the business model, the route to market and the protection around the IP.</p>
+        <h3>Build the strategy</h3>
+        <p>Put a number on the value, know the competition, plan the route to market, and meet at the mid-program checkpoint.</p>
         <div class="chips">
-          <span class="chip">Lean canvas</span><span class="chip">Go-to-market</span>
-          <span class="chip">Patents &amp; FTO</span><span class="chip">DCF &amp; ROI</span>
+          <span class="chip">Quantified value</span><span class="chip">VRIO &amp; CPM</span>
+          <span class="chip">Go-to-market &amp; Lean Canvas</span><span class="chip">Market strategy</span>
         </div>
       </article>
       <article class="jr-card p3">
@@ -393,11 +393,11 @@
           </span>
           <span class="jr-no">Phase 03<b>Weeks 9–12</b></span>
         </div>
-        <h3>Pitch and propose</h3>
-        <p>Sell to customers, pitch to investors and write the DOST FASTRAC proposal.</p>
+        <h3>Validate, fund and pitch</h3>
+        <p>Validate the business model, get the finances, team and IP ready, and present on Demo Day.</p>
         <div class="chips">
-          <span class="chip">Selling skills</span><span class="chip">Investor pitch</span>
-          <span class="chip">Tech roadmap</span><span class="chip">FASTRAC draft</span>
+          <span class="chip">Business model validation</span><span class="chip">Finance, team &amp; IP</span>
+          <span class="chip">FASTRAC</span><span class="chip">Demo Day</span>
         </div>
       </article>
       </div>
@@ -452,7 +452,7 @@
           <li>TAM, SAM and SOM, with the reasoning behind each</li>
           <li>Quantified value proposition, Lean Canvas, go-to-market plan</li>
         </ul>
-        <span class="oc-foot">Weeks 1 to 6</span>
+        <span class="oc-foot">Weeks 2 to 9</span>
       </article>
 
       <article class="oc reveal" style="--d:110ms">
@@ -480,11 +480,11 @@
         <p>Where the technology can go and what stands in its way, written down while the people who
            can answer are still in the room.</p>
         <ul class="oc-list">
-          <li>Draft IP documentation or strategy</li>
-          <li>Freedom-to-Operate analysis of the real risks</li>
+          <li>An IP strategy for the technology</li>
+          <li>A spin-off team with clear roles</li>
           <li>A pitch deck built one slide a week</li>
         </ul>
-        <span class="oc-foot">Weeks 7 to 12</span>
+        <span class="oc-foot">Weeks 10 to 12</span>
       </article>
     </div>
 
@@ -553,6 +553,7 @@
 </footer>
 
 <script src="site-clock.js"></script>
+<script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script>
 /* ---------- this cycle's numbers, counted from the team list ---------- */
@@ -561,31 +562,36 @@
   const set = (k, v) => { const el = document.querySelector('[data-stat="' + k + '"]'); if (el) el.textContent = v; };
   set("teams", M.groups.length);
   set("institutions", new Set(M.groups.map(g => g.institution)).size);
-  if (M.cohort && M.cohort.name) set("cycle", "This cycle · " + M.cohort.name);
+  const S = window.STEP_SCHEDULE;
+  if (M.cohort && M.cohort.name) set("cycle", "This cycle · " + M.cohort.name +
+    (S ? " · " + S.fmtShort(S.cohort.starts_on) + ", " + S.cohort.starts_on.slice(0, 4) + " – " + S.fmtShort(S.cohort.ends_on) + ", " + S.cohort.ends_on.slice(0, 4) : ""));
+  if (S) set("sessions", S.learningCount());
 })();
   const { sessions, helpers } = window.MOCK;
 
-  /* ---------- articles and publications ---------- */
+  /* ---------- articles and publications: read from Supabase (public.articles) ---------- */
   (function () {
     const esc = t => String(t == null ? "" : t)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const day = iso => new Date(iso + "T00:00:00+08:00").toLocaleDateString("en-PH",
-      { timeZone: "Asia/Manila", day: "numeric", month: "long", year: "numeric" });
-    const all = window.MOCK.articles.slice()
-      .sort((a, b) => b.published_at.localeCompare(a.published_at));
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    const day = iso => iso ? new Date(String(iso).slice(0, 10) + "T00:00:00+08:00").toLocaleDateString("en-PH",
+      { timeZone: "Asia/Manila", day: "numeric", month: "long", year: "numeric" }) : "";
+    const safeUrl = u => /^https?:\/\//i.test(u || "") ? u : "#";
     const KIND = { article: "Article", publication: "Publication" };
     const DOC = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/></svg>`;
-
     const FILTERS = [
       { k: "all", label: "Everything" },
       { k: "article", label: "Articles" },
       { k: "publication", label: "Publications" },
     ];
-    const count = k => k === "all" ? all.length : all.filter(a => a.kind === k).length;
-    document.getElementById("pub-filter").innerHTML = FILTERS.map(f => `
-      <button role="tab" class="pf" data-k="${f.k}" aria-selected="${f.k === "all"}">
-        ${f.label}<span>${count(f.k)}</span></button>`).join("");
+    const img = a => a.image_url ? `<img src="${esc(safeUrl(a.image_url))}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove()">` : "";
+    let all = [];
 
+    function filters() {
+      const count = k => k === "all" ? all.length : all.filter(a => a.kind === k).length;
+      document.getElementById("pub-filter").innerHTML = FILTERS.map(f => `
+        <button role="tab" class="pf" data-k="${f.k}" aria-selected="${f.k === "all"}">
+          ${f.label}<span>${count(f.k)}</span></button>`).join("");
+    }
     function render(kind) {
       const list = kind === "all" ? all : all.filter(a => a.kind === kind);
       document.getElementById("pub-lede").textContent =
@@ -593,34 +599,37 @@
           ? "Peer-reviewed work and policy briefs that came out of the program."
           : kind === "article"
             ? "News and field notes from the cycles as they run."
-            : "Everything the program has published — news from the cycles, policy briefs and peer-reviewed work.";
+            : "Everything the program has published: news from the cycles, policy briefs and peer-reviewed work.";
+      const empty = document.getElementById("pub-empty");
       document.getElementById("readgrid").hidden = !list.length;
-      document.getElementById("pub-empty").hidden = !!list.length;
+      empty.hidden = !!list.length;
+      empty.textContent = all.length ? "Nothing filed under that yet." : "No articles yet. New ones appear here as soon as they are published.";
       if (!list.length) return;
 
       const [lead, ...rest] = list;
       const feat = document.getElementById("feat");
       feat.className = "feat reveal in " + lead.kind;
+      feat.href = safeUrl(lead.url); feat.target = "_blank"; feat.rel = "noopener";
       feat.innerHTML = `
-        <span class="cover"><img src="${lead.photo}" alt="" loading="lazy">
-          <span class="kind">${lead.kind === "publication" ? DOC : ""}${KIND[lead.kind]}</span></span>
+        <span class="cover">${img(lead)}
+          <span class="kind">${lead.kind === "publication" ? DOC : ""}${KIND[lead.kind] || "Article"}</span></span>
         <span class="fb">
-          <span class="tagline">${lead.tags.map(t => `<span class="tg">${esc(t)}</span>`).join("")}
-            <span class="dt">${day(lead.published_at)}</span></span>
+          <span class="tagline">${lead.site_name ? `<span class="tg">${esc(lead.site_name)}</span>` : ""}
+            <span class="dt">${day(lead.published_at || lead.created_at)}</span></span>
           <strong>${esc(lead.title)}</strong>
-          <span class="ex">${esc(lead.excerpt)}</span>
-          <span class="by">${esc(lead.author)}${lead.venue ? " · " + esc(lead.venue) : ""}${lead.read ? " · " + esc(lead.read) : ""}</span>
+          ${lead.excerpt ? `<span class="ex">${esc(lead.excerpt)}</span>` : ""}
+          ${lead.author ? `<span class="by">${esc(lead.author)}</span>` : ""}
         </span>`;
 
       document.getElementById("readlist").innerHTML = rest.map((a, i) => `
-        <a class="rd reveal in ${a.kind}" style="--d:${i * 60}ms" href="#">
-          <span class="th"><img src="${a.photo}" alt="" loading="lazy">
+        <a class="rd reveal in ${a.kind}" style="--d:${i * 60}ms" href="${esc(safeUrl(a.url))}" target="_blank" rel="noopener">
+          <span class="th">${img(a)}
             ${a.kind === "publication" ? `<span class="pin">${DOC}</span>` : ""}</span>
           <span class="rb">
-            <span class="tagline"><span class="tg">${esc(a.tags[0])}</span>
-              <span class="dt">${day(a.published_at)}</span></span>
+            <span class="tagline">${a.site_name ? `<span class="tg">${esc(a.site_name)}</span>` : ""}
+              <span class="dt">${day(a.published_at || a.created_at)}</span></span>
             <strong>${esc(a.title)}</strong>
-            <span class="by">${esc(a.author)}${a.venue ? " · " + esc(a.venue) : ""}${a.read ? " · " + esc(a.read) : ""}</span>
+            ${a.author ? `<span class="by">${esc(a.author)}</span>` : ""}
           </span>
           <span class="go" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
@@ -634,7 +643,12 @@
         x.setAttribute("aria-selected", x === b ? "true" : "false"));
       render(b.dataset.k);
     });
-    render("all");
+    async function load() {
+      all = window.STEP_ARTICLES ? await window.STEP_ARTICLES.list() : [];
+      filters(); render("all");
+    }
+    document.getElementById("readgrid").hidden = true;
+    load();
   })();
 
 

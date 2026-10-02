@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>This Week · SPRINT-STEP</title>
-<meta name="description" content="What is happening in SPRINT-STEP this week: the topic and its materials, the seven days, announcements from the STEP team, and the help desk.">
+<meta name="description" content="What is happening in STEP 2.5 this week: the week's topic and its materials, the seven days, announcements from the STEP team, and the group chat.">
 <link rel="icon" href="assets/step-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -95,7 +95,7 @@
     <div class="section-head">
       <div class="eyebrow">Learning session</div>
       <h2>Materials and session replay</h2>
-      <p class="lede">Everything from this week's Tuesday session in one place: the trainer's slides and
+      <p class="lede">Everything from this week's learning session in one place: the trainer's slides and
          worksheets to keep, and the recording to watch if you missed it or want a second look.</p>
     </div>
     <div class="matwrap reveal">
@@ -138,7 +138,7 @@
       <div class="tb">
         <div>
           <p class="lead" id="tp-brief">—</p>
-          <h4 class="mt-5">By Saturday you should be able to</h4>
+          <h4 class="mt-5" id="tp-able-h">By Saturday you should be able to</h4>
           <ul class="able" id="tp-able"></ul>
           <div class="outbox mt-4" id="tp-output"></div>
         </div>
@@ -147,9 +147,9 @@
   </section>
 
   <!-- ===== Saturday panel schedule (so participants see their slot) ===== -->
-  <section>
+  <section id="tw-panels">
     <div class="section-head">
-      <div class="eyebrow">Saturday feedback sessions</div>
+      <div class="eyebrow" id="tw-pnl-eyebrow">Saturday feedback sessions</div>
       <h2>Your panel schedule</h2>
       <p class="lede">Three panels run in parallel from 9:00 AM. Each team gets thirty-five minutes — a
          five-minute video, then questions.</p>
@@ -185,6 +185,9 @@
     </div>
   </section>
 
+  <!-- graph paper behind the week, day by day, through the group chat -->
+  <div class="gp-band stack" id="tw-grid">
+
   <!-- ===== The seven days ===== -->
   <section>
     <div class="section-head">
@@ -198,7 +201,7 @@
   <!-- ===== STEP Family group chat ===== -->
   <section>
     <div class="section-head">
-      <div class="eyebrow">STEP Family</div>
+      <div class="eyebrow">STEP Fam</div>
       <h2>Group chat</h2>
       <p class="lede">One room for the whole cohort — participants, trainers, mentors and the STEP team.
          Ask anything, answer each other; everyone sees every message.</p>
@@ -210,20 +213,22 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M2 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 11a3 3 0 1 0 0-6"/><path d="M19 20v-1a4.5 4.5 0 0 0-3-4.2"/></svg>
           </span>
           <div class="ch-t">
-            <h3>STEP Family · the whole cohort</h3>
+            <h3>STEP Fam · the whole cohort</h3>
             <p><i class="live" aria-hidden="true"></i><span id="ch-count">—</span></p>
           </div>
           <span class="ch-faces" id="ch-faces" aria-hidden="true"></span>
         </header>
+        <button class="ch-pin" id="ch-pin" type="button" hidden></button>
         <div class="thread" id="thread"></div>
+        <div class="msg-menu" id="msg-menu" role="menu" hidden></div>
         <form class="composer-wrap" id="composer">
           <div class="composer">
-            <input type="text" id="msg" placeholder="Message the STEP Family…" aria-label="Your message">
+            <input type="text" id="msg" placeholder="Message the STEP Fam…" aria-label="Your message">
             <button class="btn send" type="submit" aria-label="Send message">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 20 4l-7 16-2.5-6.5z"/></svg>
             </button>
           </div>
-          <p class="small muted mb-0">Design mockup — messages stay in your browser.</p>
+          <p class="small muted mb-0" id="ch-note">Design mockup — messages stay in your browser.</p>
         </form>
       </div>
       <div class="card reveal" style="--d:100ms">
@@ -232,6 +237,8 @@
       </div>
     </div>
   </section>
+
+  </div>
 
 </main>
 </div>
@@ -269,6 +276,11 @@
 <script src="site-clock.js"></script>
 <script src="supabase-client.js"></script>
 <script src="materials-data.js"></script>
+<script src="announcements-data.js"></script>
+<script src="chat-data.js"></script>
+<script src="panelplan-data.js"></script>
+<script src="panelsheets-data.js"></script>
+<script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script>
 const W = window.MOCK.thisWeek;
@@ -296,6 +308,12 @@ const daysAway = iso => {
 (function () {
   document.getElementById("wk-title").textContent =
     "Week " + W.week_no + " of " + W.weeks_total;
+  /* before the cycle starts, or over the Christmas break, say so plainly */
+  if (W.note) {
+    const el = document.getElementById("wk-due");
+    el.textContent = W.note;
+    el.hidden = false;
+  }
   /* today's date, plainly — the rail below already shows the week */
   document.getElementById("wk-tag").textContent =
     new Date().toLocaleDateString("en-PH", {
@@ -308,14 +326,16 @@ const daysAway = iso => {
 
 /* ---------- the one deadline that matters, carried in the week bar ---------- */
 (function () {
-  const deadline = W.days.find(d => d.kind === "deadline");
-  if (!deadline) return;
-  const h = Math.round((new Date(deadline.d + "T12:00:00+08:00") - NOW) / 3600000);
+  if (W.note) return;                                       // not started yet, or on the break
+  const S = window.STEP_SCHEDULE;
+  const due = S && S.dueOf(W.week_no);
+  if (!due) return;
+  const h = Math.round((new Date(due) - NOW) / 3600000);
   if (h < 0) return;                                        // already passed — the day rail shows it as done
   const left = h < 24 ? h + (h === 1 ? " hour" : " hours") + " left"
                       : Math.round(h / 24) + (Math.round(h / 24) === 1 ? " day" : " days") + " left";
   const el = document.getElementById("wk-due");
-  el.innerHTML = `Team output due ${esc(deadline.label)}, 12:00 NN — <b>${left}</b>`;
+  el.innerHTML = `Team output due ${esc(S.dayName(due.slice(0, 10)))}, 12:00 NN — <b>${left}</b>`;
   el.hidden = false;
 })();
 
@@ -323,16 +343,58 @@ const daysAway = iso => {
 (function () {
   const T = W.topic;
   /* the headline pair lives in the week banner; the section below just carries a quiet label */
-  document.getElementById("wk-tp-title").textContent = T.title;
+  const tpT = document.getElementById("wk-tp-title");
+  /* a hyphen inside a word ("Pre-Program") should never break the line */
+  tpT.textContent = T.title.replace(/(\w)-(\w)/g, "$1\u2011$2");
+  tpT.classList.toggle("long", T.title.length > 32 && T.title.length <= 64);
+  tpT.classList.toggle("xlong", T.title.length > 64);
+  /* fit the cover title: start from the stylesheet's size and step down
+     until it sits in two lines with no word running past the column */
+  (function fitTitle() {
+    const MAX_LINES = 2, MIN_PX = 24;
+    let busy = false;
+    function fit() {
+      if (busy) return;
+      busy = true;
+      tpT.style.fontSize = "";                       // back to the stylesheet size
+      let px = parseFloat(getComputedStyle(tpT).fontSize);
+      const lines = () => Math.round(tpT.getBoundingClientRect().height /
+                                     parseFloat(getComputedStyle(tpT).lineHeight));
+      while (px > MIN_PX && (lines() > MAX_LINES || tpT.scrollWidth > tpT.clientWidth + 1)) {
+        px -= 2;
+        tpT.style.fontSize = px + "px";
+      }
+      busy = false;
+    }
+    fit();
+    /* The web font (Archivo) usually arrives after the first measurement and
+       is wider than the stand-in font, so the title is measured again
+       whenever its box changes size - font swap, window resize, anything. */
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(tpT);
+    if (document.fonts) {
+      document.fonts.addEventListener("loadingdone", fit);
+      const fam = getComputedStyle(tpT).fontFamily.split(",")[0].replace(/["']/g, "").trim();
+      document.fonts.load("800 1em " + fam).then(fit, () => {});
+      document.fonts.ready.then(fit);
+    }
+    let t; window.addEventListener("resize", () => { clearTimeout(t); t = setTimeout(fit, 120); });
+  })();
   document.getElementById("wk-tp-tagline").textContent = T.tagline;
-  document.getElementById("wk-split").setAttribute("data-code", T.code);
-  document.getElementById("tp-eyebrow").textContent = "What this week is about";
-  document.getElementById("tp-title").textContent = T.title;
+  /* the big mark behind the week bar: the week number, W0–W12 */
+  document.getElementById("wk-split").setAttribute("data-code", "W" + W.week_no);
+  document.getElementById("tp-eyebrow").textContent = "Week " + W.week_no + " · what this week is about";
+  /* the banner carries the week's short name; here, the topic as the
+     STEP 2.5 schedule words it in full */
+  document.getElementById("tp-title").textContent = T.topic || T.title;
   document.getElementById("tp-brief").textContent = T.brief;
   document.getElementById("tp-able").innerHTML = T.able.map((a, i) =>
     `<li><span class="n">${i + 1}</span><span>${esc(a)}</span></li>`).join("");
+  const S = window.STEP_SCHEDULE, due = S && S.dueOf(W.week_no);
+  const fb = S && S.feedbackOf(W.week_no);
+  document.getElementById("tp-able-h").textContent = fb
+    ? "By " + S.dayName(fb.date) + " you should be able to" : "By the end of the week you should be able to";
   document.getElementById("tp-output").innerHTML =
-    `<b>What to produce by Friday</b>${esc(T.output)}`;
+    `<b>${due ? "What to produce by " + esc(S.dayName(due.slice(0, 10))) + ", 12:00 NN" : "What to produce"}</b>${esc(T.output)}`;
   const initialsOf = n => String(n || "").replace(/[^A-Za-z ]/g, "").split(/\s+/)
     .filter(Boolean).slice(0, 2).map(w => w[0].toUpperCase()).join("") || "S";
 
@@ -358,24 +420,50 @@ const daysAway = iso => {
       </div>
       <div class="rp-cap">
         <span class="kick">Session replay</span>
-        <h3>${esc(T.code)} ${esc(T.title)}</h3>
+        <h3>Week ${esc(T.week)} · ${esc(T.short)}</h3>
       </div>`;
+  }
+  /* the address a site's own player is embedded from, or null */
+  function embedOf(link) {
+    let u; try { u = new URL(link); } catch (e) { return null; }
+    const h = u.hostname.replace(/^www\.|^m\./, "");
+    if (h === "youtu.be") return "https://www.youtube-nocookie.com/embed/" + u.pathname.slice(1).split("/")[0];
+    if (h === "youtube.com") {
+      const id = u.searchParams.get("v") || (u.pathname.match(/^\/(?:embed|shorts|live)\/([^/?]+)/) || [])[1];
+      return id ? "https://www.youtube-nocookie.com/embed/" + id : null;
+    }
+    if (h === "vimeo.com") { const id = (u.pathname.match(/^\/(\d+)/) || [])[1]; return id ? "https://player.vimeo.com/video/" + id : null; }
+    if (h === "player.vimeo.com") return link;
+    if (h === "drive.google.com") {
+      const id = (u.pathname.match(/\/file\/d\/([^/]+)/) || [])[1] || u.searchParams.get("id");
+      return id ? "https://drive.google.com/file/d/" + id + "/preview" : null;
+    }
+    return null;
   }
   function paintReplayVideo(v) {
     if (!replay) return;
     const kb = n => !n ? "" : n < 1048576 ? Math.max(1, Math.round(n / 1024)) + " KB"
       : n < 1073741824 ? Math.round(n / 1048576) + " MB" : (n / 1073741824).toFixed(1) + " GB";
     const on = v.posted_at && !isNaN(new Date(v.posted_at)) ? "Posted " + fmtD(v.posted_at, { weekday: "short" }) : "";
+    const label = `Recording of the ${esc(T.title)} session`;
+    /* a link from Drive, YouTube or Vimeo plays in their own player here;
+       any other link opens in a new tab */
+    const embed = v.link ? embedOf(v.link) : null;
+    const player = !v.link
+      ? `<video controls preload="metadata" playsinline src="${esc(v.url)}" aria-label="${label}"></video>`
+      : embed
+        ? `<iframe src="${esc(embed)}" title="${label}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                   allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+                   style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+        : `<div class="rp-emptybox" style="height:100%;display:grid;place-content:center;justify-items:center;gap:12px;color:#fff"><b>Watch the recording</b>
+             <a class="btn solid" href="${esc(v.link)}" target="_blank" rel="noopener">Open the video ↗</a></div>`;
     replay.className = "replay rp-live";
     replay.innerHTML = `
-      <div class="rp-player">
-        <video controls preload="metadata" playsinline src="${v.url}"
-               aria-label="Recording of the ${esc(T.title)} session"></video>
-      </div>
+      <div class="rp-player"${embed ? ' style="position:relative;aspect-ratio:16/9"' : ""}>${player}</div>
       <div class="rp-cap">
         <span class="kick">Session replay</span>
-        <h3>${esc(T.code)} ${esc(T.title)}</h3>
-        <p class="meta">${[on, kb(v.size)].filter(Boolean).join(" · ")}</p>
+        <h3>${esc(v.title || ("Week " + T.week + " · " + T.short))}</h3>
+        <p class="meta">${[on, v.duration ? v.duration + " long" : "", v.link ? "" : kb(v.size)].filter(Boolean).join(" · ")}</p>
       </div>`;
   }
   paintReplayEmpty();
@@ -582,14 +670,14 @@ const daysAway = iso => {
         MAT.recordingFor ? MAT.recordingFor(T.code).catch(() => null) : Promise.resolve(null),
       ]);
     } catch (e) { return; }
-    if (rec && rec.url) paintReplayVideo(rec); else paintReplayEmpty();
+    if (rec && (rec.url || rec.link)) paintReplayVideo(rec); else paintReplayEmpty();
     const kb = n => !n ? "—" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
     const ext = n => (String(n || "file").split(".").pop() || "PDF").toUpperCase().slice(0, 4);
     const rows = [];
     if (deck && deck.url) rows.push({
       type: ext(deck.name),
       /* named after the week's topic, whatever the trainer called the file */
-      name: `${T.code} ${T.title} — slide deck`,
+      name: `Week ${T.week} ${T.short} — slide deck`,
       file: deck.name || "",
       isDeck: true,
       size: kb(deck.size),
@@ -618,6 +706,12 @@ const daysAway = iso => {
   const byTeam = Object.fromEntries(groups.map(t => [t.short, t]));
   const grid = document.getElementById("tw-pnl-grid");
   if (!grid || !panels) return;
+  /* only a week with a Saturday feedback session has a panel schedule */
+  const SCH = window.STEP_SCHEDULE, fbs = SCH && SCH.feedbackOf(W.week_no);
+  const sec = document.getElementById("tw-panels");
+  if (SCH && !fbs) { if (sec) sec.hidden = true; return; }
+  if (fbs) document.getElementById("tw-pnl-eyebrow").textContent =
+    "Feedback session · " + SCH.dayName(fbs.date) + ", " + SCH.fmtLong(fbs.date) + " · " + fbs.title;
 
   function initials(n) {
     const skip = /^(ms|mr|mrs|dr|engr|atty|prof|sir|maam)\.?$/i;
@@ -827,10 +921,9 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     cert:  `<svg ${S}><circle cx="12" cy="9" r="5"/><path d="M8.5 13.2 7 22l5-2.6L17 22l-1.5-8.8"/></svg>`,
     chart: `<svg ${S}><path d="M3 21h18"/><rect x="5" y="11" width="4" height="7" rx="1"/><rect x="11" y="6" width="4" height="12" rx="1"/><rect x="17" y="14" width="4" height="4" rx="1"/></svg>`,
   };
-  const list = W.announcements.slice()
-    .sort((a, b) => (b.pinned - a.pinned) || (new Date(b.at) - new Date(a.at)));
-
-  document.getElementById("ann").innerHTML = list.map((a, i) => `
+  function paint(items, note) {
+    const list = items.slice().sort((a, b) => (b.pinned - a.pinned) || (new Date(b.at) - new Date(a.at)));
+    document.getElementById("ann").innerHTML = list.length ? list.map((a, i) => `
     <article class="note ${a.pinned ? "pinned" : ""} ${a.priority} ${a.read ? "" : "unread"} reveal"
              style="--d:${i * 60}ms">
       <span class="ic" aria-hidden="true">${ICON[a.icon] || ICON.file}</span>
@@ -841,67 +934,270 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
         <div class="mt">${esc(a.by)} · ${fmtD(a.at, { weekday: "long" })}, ${fmtT(a.at)}</div>
       </div>
       ${a.read ? "" : '<span class="dot" title="New since you last looked"></span>'}
-    </article>`).join("");
+    </article>`).join("")
+      : `<p class="small muted" style="grid-column:1/-1;margin:0">${note || "No announcements right now. Anything the STEP team posts this week shows up here."}</p>`;
+    if (window.__stepObserve) window.__stepObserve(document.getElementById("ann"));
+    else requestAnimationFrame(() => document.querySelectorAll("#ann .reveal").forEach(el => el.classList.add("in")));
+    const unread = list.filter(a => !a.read).length;
+    const badge = document.getElementById("ann-new");
+    badge.hidden = !unread;
+    if (unread) badge.innerHTML = `<b>${unread}</b> new this week`;
+  }
 
-  const unread = list.filter(a => !a.read).length;
-  const badge = document.getElementById("ann-new");
-  if (unread) { badge.innerHTML = `<b>${unread}</b> new this week`; badge.hidden = false; }
+  /* the real board comes from the database; the sample one is only for
+     the ?demo=1 preview, or if the database can't be reached */
+  const DEMO = /[?&]demo=1(&|$)/.test(location.search);
+  const ANN = window.STEP_ANN;
+  if (DEMO || !ANN || !ANN.available()) { paint(W.announcements); return; }
+
+  let marked = false;
+  async function load() {
+    let rows, seen;
+    try { [rows, seen] = await Promise.all([ANN.list(), ANN.seenIds()]); }
+    catch (e) { paint(W.announcements); return; }
+    const now = Date.now();
+    /* guests have no record of what they have seen: a dot marks the last two days */
+    const items = rows.map(r => ANN.card(r, seen))
+      .filter(a => !a.scheduled && !a.expired)
+      .map(a => seen ? a : Object.assign(a, { read: !a.show_new || now - new Date(a.at) > 2 * 86400000 }));
+    paint(items);
+    /* the dot goes once each person has seen it — from their next visit on */
+    if (seen && !marked) { marked = true; ANN.markSeen(items.filter(a => !a.read).map(a => a.id)); }
+  }
+  document.getElementById("ann").innerHTML = "";
+  load();
+  window.addEventListener("stephub_auth_changed", () => { marked = false; load(); });
 })();
 
-/* ---------- help desk ---------- */
+/* ---------- STEP Family group chat ---------- */
 (function () {
   const thread = document.getElementById("thread");
+  const box = document.getElementById("msg"), form = document.getElementById("composer");
+  const sendBtn = form.querySelector("button[type=submit]"), note = document.getElementById("ch-note");
   const HONOURIFIC = /^(ms|mr|mrs|dr|engr|atty|prof|sir|maam)$/i;
   const initials = n => {
-    const parts = n.replace(/[^A-Za-z ]/g, "").split(/\s+/).filter(x => x && !HONOURIFIC.test(x));
+    const parts = String(n || "").replace(/[^A-Za-z ]/g, "").split(/\s+/).filter(x => x && !HONOURIFIC.test(x));
     if (!parts.length) return "?";
     return (parts[0][0] + (parts.length > 1 ? parts[parts.length - 1][0] : "")).toUpperCase();
   };
-  /* a chat room, not a ticket queue: one stream everyone can read, the
-     team's own messages on the right, and a chip for anyone who answers
-     with a STEP hat on */
-  const CHIP = { "STEP Team": "team", "Trainer": "trainer", "Mentor": "mentor" };
-  const render = () => {
-    const rows = W.helpdesk.map((m, i) => {
-      const prev = W.helpdesk[i - 1];
+  /* a chat room, not a ticket queue: one stream everyone can read, your own
+     messages on the right, and a chip for anyone who answers with a STEP hat on */
+  const CHIP = { "STEP Team": "team", "Trainer": "trainer", "Mentor": "mentor", "Panelist": "mentor", "Facilitator": "team" };
+  let MSGS = W.helpdesk.slice(), live = false, canModerate = false, editingId = null;
+  /* what this person may do with a message */
+  /* only on your own messages — nobody gets options on someone else's */
+  const optionsFor = m => {
+    if (!m.me) return [];
+    const o = [{ k: "edit", label: "Edit" }];
+    if (canModerate) o.push({ k: "pin", label: m.pinned ? "Unpin" : "Pin to the top" });
+    o.push({ k: "remove", label: "Remove", danger: true });
+    return o;
+  };
+  /* the one pinned message rides at the top of the room */
+  function paintPin() {
+    const bar = document.getElementById("ch-pin"); if (!bar) return;
+    const p = live ? MSGS.find(m => m.pinned) : null;
+    bar.hidden = !p;
+    if (p) bar.innerHTML = `<span class="pi" aria-hidden="true">📌</span><span class="pt"><b>Pinned${p.pinnedBy ? " by " + esc(p.pinnedBy) : ""}</b>
+      <span>${esc(p.who)}: ${esc(p.body)}</span></span><span class="go">View</span>`;
+    if (p) bar.dataset.id = p.id;
+  }
+
+  function render(stick) {
+    const nearBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
+    thread.innerHTML = MSGS.length ? MSGS.map((m, i) => {
+      const prev = MSGS[i - 1];
       const sameDay = prev && new Date(prev.at).toDateString() === new Date(m.at).toDateString();
       const day = sameDay ? "" : `<div class="daydiv"><span>${
         new Date(m.at).toDateString() === new Date().toDateString() ? "Today"
           : fmtD(m.at, { weekday: "long" })}</span></div>`;
       const chip = CHIP[m.role] ? ` <span class="rolechip ${CHIP[m.role]}">${esc(m.role)}</span>`
         : (m.role ? ` <span class="rolechip team-name">${esc(m.role)}</span>` : "");
-      const who = m.me ? "You" : esc(m.who);
-      return day + `<div class="msg-row${m.me ? " me" : ""}">
+      const opts = live && m.id ? optionsFor(m) : [];
+      const kebab = opts.length ? `<button class="kebab" type="button" data-menu="${esc(m.id)}" aria-label="Message options" aria-haspopup="menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg></button>` : "";
+      const editing = live && editingId === m.id;
+      const body = editing
+        ? `<div class="ed"><textarea id="ed-box" rows="2" aria-label="Edit your message">${esc(m.body)}</textarea>
+             <div class="ed-acts"><span>Enter to save · Esc to cancel</span><button type="button" class="ed-no">Cancel</button><button type="button" class="ed-ok">Save</button></div></div>`
+        : `<div class="bd">${esc(m.body)}</div>`;
+      return day + `<div class="msg-row${m.me ? " me" : ""}${m.pinned ? " pinned" : ""}" data-id="${esc(m.id || "")}">
         ${m.me ? "" : `<span class="av" aria-hidden="true">${esc(initials(m.who))}</span>`}
-        <div class="bubble">
-          <div class="who">${who}${chip}<span>${fmtT(m.at)}</span></div>
-          <div class="bd">${esc(m.body)}</div>
+        <div class="mcol">
+          <div class="who"><span class="nm">${m.me ? "You" : esc(m.who)}</span>${chip}<span class="tm">${fmtT(m.at)}${m.edited ? " · edited" : ""}${m.pinned ? " · 📌 pinned" : ""}</span></div>
+          <div class="bubble${opts.length ? " has-menu" : ""}">
+            ${body}
+            ${kebab}
+          </div>
         </div>
       </div>`;
-    }).join("");
-    thread.innerHTML = rows;
-    thread.scrollTop = thread.scrollHeight;
+    }).join("") : `<div class="ch-empty"><b>No messages yet</b><span>Say hello — everyone in the cohort will see it.</span></div>`;
+    if (stick || nearBottom) thread.scrollTop = thread.scrollHeight;
+    paintPin();
+    if (editingId) { const t = document.getElementById("ed-box"); if (t && document.activeElement !== t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
 
-    /* who is in the room, drawn from the people who have spoken */
+    /* who is in the room, drawn from the people who have spoken lately */
     const faces = [], seen = {};
-    W.helpdesk.forEach(m => {
-      if (m.me || seen[m.who]) return;
-      seen[m.who] = 1; faces.push(initials(m.who));
-    });
+    MSGS.slice().reverse().forEach(m => { if (m.me || seen[m.who]) return; seen[m.who] = 1; faces.push(initials(m.who)); });
     const facesEl = document.getElementById("ch-faces");
-    if (facesEl) facesEl.innerHTML = faces.slice(0, 4).map(f => `<span>${esc(f)}</span>`).join("")
-      + `<span class="more">+${Math.max(0, 48 - faces.slice(0, 4).length)}</span>`;
-    const cnt = document.getElementById("ch-count");
-    if (cnt) cnt.textContent = "48 members · participants, trainers and the STEP team";
-  };
-  render();
-  document.getElementById("composer").addEventListener("submit", e => {
+    if (facesEl) facesEl.innerHTML = faces.slice(0, 4).map(f => `<span>${esc(f)}</span>`).join("") +
+      (members > faces.slice(0, 4).length ? `<span class="more">+${members - faces.slice(0, 4).length}</span>` : "");
+  }
+  let members = 48;
+  function setCount(text) { const c = document.getElementById("ch-count"); if (c) c.textContent = text; }
+
+  /* ---- the sample room: only the ?demo=1 preview, or with no database ---- */
+  const DEMO = /[?&]demo=1(&|$)/.test(location.search);
+  const CH = window.STEP_CHAT;
+  if (DEMO || !CH || !CH.available()) {
+    render(true);
+    setCount("48 members · participants, trainers and the STEP team");
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const text = box.value.trim(); if (!text) return;
+      MSGS.push({ who: "You", role: "", me: true, at: new Date().toISOString(), body: text });
+      box.value = ""; render(true);
+    });
+    return;
+  }
+
+  /* ---- the real room ---- */
+  let meId = null, stop = null;
+  const toMsg = r => ({ id: r.id, who: r.author_name, role: r.author_role, at: r.created_at, body: r.body, me: r.user_id === meId,
+                        edited: !!r.edited_at, pinned: !!r.pinned, pinnedBy: r.pinned_by || "" });
+  function lockRoom() {
+    live = false; MSGS = [];
+    thread.innerHTML = `<div class="ch-empty"><b>Members only</b><span>Sign in with your STEP account to read and join the conversation.</span>
+      <button class="btn solid" type="button" id="ch-signin">Sign in</button></div>`;
+    const b = document.getElementById("ch-signin");
+    if (b) b.addEventListener("click", () => window.MOCK && window.MOCK.openAuthModal && window.MOCK.openAuthModal());
+    box.disabled = sendBtn.disabled = true;
+    box.placeholder = "Sign in to message the STEP Fam";
+    note.textContent = "Only people with a STEP account can read and post here.";
+    setCount("Participants, trainers, mentors and the STEP team");
+    document.getElementById("ch-faces").innerHTML = "";
+  }
+  async function resync() {
+    try { MSGS = (await CH.list()).map(toMsg); render(); } catch (e) {}
+  }
+  async function start() {
+    if (stop) { stop(); stop = null; }
+    const user = await CH.me();
+    if (!user) { lockRoom(); return; }
+    meId = user.id; live = true;
+    const u = window.MOCK && window.MOCK.auth ? window.MOCK.auth.getCurrentUser() : null;
+    const roles = u && window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [];
+    canModerate = roles.includes("admin");
+    box.disabled = sendBtn.disabled = false;
+    box.placeholder = "Message the STEP Fam…";
+    note.textContent = "Everyone in the cohort sees what you post here.";
+    thread.innerHTML = '<div class="ch-empty"><span>Loading the conversation…</span></div>';
+    try { MSGS = (await CH.list()).map(toMsg); }
+    catch (e) { thread.innerHTML = `<div class="ch-empty"><b>Couldn't load the chat</b><span>${esc(e.message || e)}</span></div>`; return; }
+    render(true);
+    CH.info().then(i => { if (i && i.members) { members = i.members; setCount(members + " members · participants, trainers, mentors and the STEP team"); render(); } });
+    stop = CH.subscribe(ev => {
+      if (ev.type === "resync") return resync();
+      if (ev.type === "insert" && ev.row && !MSGS.some(m => m.id === ev.row.id)) { MSGS.push(toMsg(ev.row)); render(ev.row.user_id === meId); }
+      if (ev.type === "update" && ev.row) {
+        const i = MSGS.findIndex(m => m.id === ev.row.id);
+        /* pinning one message unpins the others — the database tells us about each */
+        if (i > -1) { MSGS[i] = toMsg(ev.row); if (editingId !== ev.row.id) render(); }
+      }
+      if (ev.type === "delete" && ev.row) { MSGS = MSGS.filter(m => m.id !== ev.row.id); if (editingId === ev.row.id) editingId = null; render(); }
+    });
+  }
+
+  form.addEventListener("submit", async e => {
     e.preventDefault();
-    const box = document.getElementById("msg");
+    if (!live) return;
     const text = box.value.trim(); if (!text) return;
-    W.helpdesk.push({ who: "You", role: "", me: true, at: new Date().toISOString(), body: text });
-    box.value = ""; render();
+    box.disabled = sendBtn.disabled = true;
+    note.textContent = "Sending…";
+    try {
+      const row = await CH.send(text);
+      if (!MSGS.some(m => m.id === row.id)) MSGS.push(toMsg(row));
+      box.value = ""; render(true);
+      note.textContent = "Everyone in the cohort sees what you post here.";
+    } catch (err) {
+      note.textContent = "Couldn't send: " + (err.message || err);
+    } finally { box.disabled = sendBtn.disabled = false; box.focus(); }
   });
+  /* ---- the ⋮ menu: Edit · Pin · Remove ---- */
+  const menu = document.getElementById("msg-menu"), room = thread.closest(".chatroom");
+  let menuFor = null;
+  function closeMenu() {
+    menu.hidden = true; menuFor = null;
+    thread.querySelectorAll(".kebab[aria-expanded=true]").forEach(k => k.setAttribute("aria-expanded", "false"));
+  }
+  function openMenu(btn) {
+    const m = MSGS.find(x => x.id === btn.dataset.menu); if (!m) return;
+    if (menuFor === m.id) { closeMenu(); return; }
+    closeMenu();
+    menuFor = m.id;
+    menu.innerHTML = optionsFor(m).map(o => `<button type="button" role="menuitem" data-act="${o.k}"${o.danger ? ' class="danger"' : ""}>${o.label}</button>`).join("");
+    menu.hidden = false;
+    btn.setAttribute("aria-expanded", "true");
+    const r = btn.getBoundingClientRect(), rr = room.getBoundingClientRect();
+    const left = Math.min(r.right - rr.left - menu.offsetWidth, rr.width - menu.offsetWidth - 8);
+    let top = r.bottom - rr.top + 4;
+    if (top + menu.offsetHeight > rr.height - 8) top = r.top - rr.top - menu.offsetHeight - 4;   // open upwards near the bottom
+    menu.style.left = Math.max(8, left) + "px"; menu.style.top = top + "px";
+    const first = menu.querySelector("button"); if (first) first.focus();
+  }
+  thread.addEventListener("click", e => {
+    const k = e.target.closest(".kebab"); if (k) { e.stopPropagation(); openMenu(k); return; }
+    if (e.target.closest(".ed-no")) { editingId = null; render(); return; }
+    if (e.target.closest(".ed-ok")) saveEdit();
+  });
+  thread.addEventListener("scroll", closeMenu);
+  document.addEventListener("click", e => { if (!menu.hidden && !menu.contains(e.target)) closeMenu(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !menu.hidden) closeMenu(); });
+  menu.addEventListener("click", async e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const m = MSGS.find(x => x.id === menuFor); closeMenu(); if (!m) return;
+    try {
+      if (b.dataset.act === "edit") { editingId = m.id; render(); return; }
+      if (b.dataset.act === "pin") {
+        await CH.setPinned(m.id, !m.pinned);
+        MSGS.forEach(x => { if (x.id === m.id) { x.pinned = !m.pinned; } else if (!m.pinned) x.pinned = false; });
+        render(); note.textContent = m.pinned ? "Pinned to the top of the room." : "Unpinned.";
+        setTimeout(() => { note.textContent = "Everyone in the cohort sees what you post here."; }, 2500);
+        return;
+      }
+      if (b.dataset.act === "remove") {
+        if (!confirm("Remove this message for everyone?")) return;
+        await CH.remove(m.id); MSGS = MSGS.filter(x => x.id !== m.id); render();
+      }
+    } catch (err) { note.textContent = "Couldn't do that: " + (err.message || err); }
+  });
+  async function saveEdit() {
+    const t = document.getElementById("ed-box"); if (!t || !editingId) return;
+    const m = MSGS.find(x => x.id === editingId);
+    const text = t.value.trim();
+    if (!m || text === m.body) { editingId = null; render(); return; }
+    t.disabled = true;
+    try {
+      const row = await CH.edit(m.id, text);
+      const i = MSGS.findIndex(x => x.id === m.id); if (i > -1) MSGS[i] = toMsg(row);
+      editingId = null; render();
+    } catch (err) { t.disabled = false; note.textContent = "Couldn't save the edit: " + (err.message || err); }
+  }
+  thread.addEventListener("keydown", e => {
+    if (e.target.id !== "ed-box") return;
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); saveEdit(); }
+    if (e.key === "Escape") { e.preventDefault(); editingId = null; render(); }
+  });
+  /* the pinned bar takes you to the message */
+  document.getElementById("ch-pin").addEventListener("click", () => {
+    const id = document.getElementById("ch-pin").dataset.id;
+    const row = thread.querySelector(`.msg-row[data-id="${CSS.escape(id)}"]`); if (!row) return;
+    thread.scrollTop = row.offsetTop - thread.offsetTop - 12;
+    row.classList.remove("flash"); void row.offsetWidth; row.classList.add("flash");
+  });
+
+  start();
+  window.addEventListener("stephub_auth_changed", start);
 })();
 
 document.getElementById("hk").innerHTML = W.housekeeping.map(h =>

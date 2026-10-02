@@ -84,7 +84,7 @@
   </div>
 </section>
 
-<main class="wrap page stack" style="gap:var(--s7)">
+<main class="wrap page stack gp-after" style="gap:var(--s7)">
 
 
   <!-- ===================== TRAINERS ===================== -->
@@ -516,9 +516,11 @@
 <script src="supabase-client.js"></script>
 <script src="materials-data.js"></script>
 <script src="submissions-data.js"></script>
+<script src="panelplan-data.js"></script>
 <script src="panelsheets-data.js"></script>
 <script src="mentorreports-data.js"></script>
 <script src="mentorreport-pdf.js"></script>
+<script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script>
 const F = window.MOCK.faculty;
@@ -536,7 +538,7 @@ document.getElementById("fa-spec").innerHTML = `
     <div class="r"><dt>Trainers</dt><dd><b>${F.trainers.length}</b><em>across the tracks</em></dd></div>
     <div class="r"><dt>Mentors</dt><dd><b>${F.mentors.length}</b><em>one per team</em></dd></div>
     <div class="r"><dt>Panels</dt><dd><b>${F.panels.length}</b><em>running in parallel</em></dd></div>
-    <div class="r"><dt>Sessions</dt><dd><b>${F.sessions.filter(s => !s.special).length}</b><em>in the curriculum</em></dd></div>
+    <div class="r"><dt>Weeks</dt><dd><b>${F.sessions.length}</b><em>W0 to W12</em></dd></div>
   </dl>`;
 
 /* ---------- view switch (driven by nav dropdown, no toggle bar) ---------- */
@@ -650,24 +652,26 @@ document.getElementById("fa-spec").innerHTML = `
       <p class="ffocus">${esc(t.focus)}</p>
       <div class="fmods">
         ${t.modules.map(c => `<span class="mod" title="${esc(titleOf(c))}">${esc(c)}</span>`).join("")}
-        <span class="fmn">${t.modules.length} session${t.modules.length === 1 ? "" : "s"}</span>
+        <span class="fmn">${t.modules.length ? t.modules.length + " week" + (t.modules.length === 1 ? "" : "s")
+                                             : "Topic assignment to follow"}</span>
       </div>
     </article>`).join("");
 })();
 
 /* ---------- the curriculum, with what is done ---------- */
 (function () {
+  const SCH = window.STEP_SCHEDULE;
   const rows = F.sessions.slice().sort((a, b) => a.week - b.week || (a.special ? 1 : -1));
   document.getElementById("curr").innerHTML = rows.map(s => {
     const state = s.week < CUR ? "done" : s.week === CUR ? "now" : "next";
     const tag = state === "done" ? "Delivered" : state === "now" ? "This week" : "Upcoming";
     return `
     <div class="crow ${state} reveal">
-      <div class="cwk"><b>${s.special ? "—" : "Week " + s.week}</b><span class="code">${esc(s.code)}</span></div>
+      <div class="cwk"><b>${s.special ? "—" : "Week " + s.week}</b><span class="code">${esc(SCH ? SCH.fmtRange(SCH.byWeek(s.week).starts, SCH.byWeek(s.week).ends) : s.code)}</span></div>
       <div class="cbody">
         <div class="ctitle">${esc(s.title)}</div>
         <div class="cmeta">${esc(s.trainer)} · ${esc(s.mode)}</div>
-        <div class="ccov">${esc(s.coverage)}</div>
+        <div class="ccov">${String(s.coverage || "").split("\n").map(esc).join("<br>")}</div>
         ${s.deliverable && s.deliverable !== "—"
           ? `<div class="cdel"><span>Output</span>${esc(s.deliverable)}</div>` : ""}
         ${s.assess.length
@@ -675,7 +679,7 @@ document.getElementById("fa-spec").innerHTML = `
                <ul>${s.assess.map(a => a.group
                     ? `<li class="grp">${esc(a.group)}</li>`
                     : `<li><b>${a.weight}%</b> ${esc(a.label)}${a.hint ? `<small class="cass-h">${esc(a.hint)}</small>` : ""}</li>`).join("")}</ul>
-             </details>` : ""}
+             </details>` : s.criteria_pending ? `<div class="cdel"><span>Panel criteria</span>Score sheet to follow</div>` : ""}
       </div>
       <div class="cside"><span class="cstat ${state}">${tag}</span>
         <span class="cslides" data-code="${esc(s.code)}">${state === "done" ? "Slides posted" : "No slides yet"}</span>
@@ -764,7 +768,7 @@ document.getElementById("fa-spec").innerHTML = `
     const s = sessionOf(sel.value);
     const f = s ? deckFor(s.code) : null;
     topicEl.textContent = s ? s.title : "—";
-    subEl.textContent   = s ? ("Week " + s.week + " · " + s.code + (s.trainer ? " · " + s.trainer : "")) : "";
+    subEl.textContent   = s ? ("Week " + s.week + (s.trainer ? " · " + s.trainer : "")) : "";
     statEl.textContent  = f ? "Deck posted" : "No deck yet";
     statEl.className    = "dh-status" + (f ? " on" : "");
     if (note) {
@@ -880,7 +884,7 @@ document.getElementById("fa-spec").innerHTML = `
     const s = sessionOf(sel.value);
     if (!s) return;
     scTop.textContent  = s.title;
-    scWeek.textContent = "Week " + s.week + " · " + s.code;
+    scWeek.textContent = "Week " + s.week;
     scFile.innerHTML = picked
       ? `<span class="ft">${esc((String(picked.name).split(".").pop() || "file").toUpperCase().slice(0, 4))}</span>
          <span><b>${esc(picked.name)}</b> · ${esc(kb(picked.size))}</span>`
@@ -1229,6 +1233,8 @@ document.getElementById("fa-spec").innerHTML = `
   const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   function periodOf(week) {
     const w = week == null ? TW.week_no : week;
+    /* STEP 2.5 has real dates — the Christmas break is not a program week */
+    if (window.STEP_SCHEDULE && window.STEP_SCHEDULE.byWeek(w)) return window.STEP_SCHEDULE.periodOf(w);
     const base = new Date(TW.starts + "T00:00:00");
     const a = new Date(+base + (w - TW.week_no) * 7 * DAY), b = new Date(+a + 6 * DAY);
     const A = MONTHS[a.getMonth()] + " " + a.getDate();
@@ -1287,11 +1293,14 @@ document.getElementById("fa-spec").innerHTML = `
   function header() {
     const p = plan();
     const n = p.tasks.filter(t => !t.lead).length;
-    $("mr-code").textContent = (p.week == null ? "Catch-up" : "Week " + p.week) + " · " + (p.code === "CU" || p.code === "DDP" ? "Mentoring" : p.code);
+    $("mr-code").textContent = (p.week == null ? "Catch-up" : "Week " + p.week) + " · Mentoring";
     $("mr-topic").textContent = p.topic;
     $("mr-meta").textContent = n + " planned " + (n === 1 ? "activity" : "activities") +
       (p.topicLines && p.topicLines.length ? " · " + p.topicLines.map(t => t.replace(/^\d+\.\s*/, "")).join(" · ") : "");
-    $("mr-src").hidden = p.source !== "scoresheet";
+    $("mr-src").hidden = !p.source;
+    $("mr-src").textContent = p.source === "schedule"
+      ? "This topic is new in STEP 2.5, so these activities are drafted from the week’s topic in the STEP 2.5 schedule. Check them with the STEP team."
+      : "No STEP 2 mentors’ report exists for this week, so these activities are drafted from the week’s panel score sheet.";
   }
 
   const rich = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
@@ -1608,7 +1617,7 @@ function initials(n) {
    sheet submitted without clearing anything. */
 (function () {
   /* Every session with panel criteria, whatever week the cycle is in, plus
-     the Pre-Demo Day and Demo Day sheets — in calendar order. */
+     Demo Day (Week 12) — in calendar order. */
   const scored = F.sessions.filter(s => s.assess.length)
     .concat(F.panelSheets || [])
     .map((s, i) => ({ s, i }))
@@ -1636,8 +1645,10 @@ function initials(n) {
 
   selS.innerHTML = scored.map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}</option>`).join("");
   const topic = window.MOCK.thisWeek.topic.code;      // keep it in step with This Week
+  /* this week's sheet; in a week with nothing to score (orientation,
+     launch, or a sheet still to come) the next week that has one */
   selS.value = (scored.find(s => s.code === topic) || scored.find(s => s.week === CUR)
-                || scored[scored.length - 1]).code;
+                || scored.find(s => s.week > CUR) || scored[scored.length - 1]).code;
   selP.innerHTML = F.panels.map(p => `<option value="${esc(p.letter)}">Panel ${esc(p.letter)}</option>`).join("");
 
   const when = iso => {
@@ -1789,26 +1800,45 @@ function initials(n) {
       <span>${r.all ? "weighted total, out of 4.00" : r.filled + " of " + crit().length + " scored"}</span>`;
   }
 
+  /* a team's state on this sheet: scored, submitted, changed since submitting */
+  const isEdited = t => !!(meta[t.team] && meta[t.team].submitted_at && meta[t.team].updated_at &&
+    new Date(meta[t.team].updated_at) - new Date(meta[t.team].submitted_at) > 1500);
+  const names = list => list.map(t => t.team).join(", ");
   function tally() {
-    const done = P.teams.filter(t => totals(t.team).all).length;
-    const sub = P.teams.filter(t => meta[t.team] && meta[t.team].submitted_at);
-    const edited = sub.some(t => meta[t.team].updated_at &&
-      new Date(meta[t.team].updated_at) - new Date(meta[t.team].submitted_at) > 1500);
+    const ready = P.teams.filter(t => totals(t.team).all);
+    const sub = P.teams.filter(t => isSubmitted(t.team));
+    const edited = sub.filter(isEdited);
+    const toSend = ready.filter(t => !isSubmitted(t.team) || isEdited(t));
+    const unscored = P.teams.filter(t => !totals(t.team).all);
     let text, cls = "";
-    if (sub.length === P.teams.length && !edited) {
-      text = "Submitted " + when(sub[0] && meta[sub[0].team].submitted_at) + ". You can still edit and submit again.";
-      cls = " ok";
-    } else if (sub.length && edited) {
-      text = "Changed since you submitted. Submit again to update the record.";
+    if (edited.length) {
+      text = "Changed since you submitted: " + names(edited) + ". Submit again to update the record.";
       cls = " no";
+    } else if (sub.length && !toSend.length) {
+      text = sub.length === P.teams.length
+        ? "✓ All " + sub.length + " teams submitted " + when(meta[sub[0].team].submitted_at) + ". You can still edit and submit again."
+        : "✓ Submitted: " + names(sub) + "." + (unscored.length ? " Still to score: " + names(unscored) + "." : "");
+      cls = " ok";
+    } else if (!ready.length) {
+      text = "Nothing scored yet.";
     } else {
-      text = done === 0 ? "Nothing scored yet."
-        : done === P.teams.length ? "All " + done + " teams scored. Submit when you are ready."
-        : done + " of " + P.teams.length + " teams fully scored.";
-      cls = done === P.teams.length ? " ok" : "";
+      text = ready.length === P.teams.length ? "All " + ready.length + " teams scored. Submit when you are ready."
+        : ready.length + " of " + P.teams.length + " teams fully scored — you can submit those now and the rest later.";
+      cls = ready.length === P.teams.length ? " ok" : "";
     }
     msg.textContent = text;
     msg.className = "msg" + cls;
+    /* the button says what it will do — and that it has been done */
+    let noSeat = false;
+    try { noSeat = lock.mode === "none"; } catch (e) {}   // before the seat is known
+    if (noSeat) return;
+    const done = sub.length > 0 && !toSend.length;
+    btnSubmit.classList.toggle("is-done", done);
+    btnSubmit.disabled = done || !ready.length;
+    btnSubmit.textContent = done ? "Submitted ✓"
+      : toSend.length === P.teams.length ? "Submit all scores"
+      : toSend.length ? "Submit " + toSend.length + " team" + (toSend.length > 1 ? "s" : "")
+      : "Submit scores";
   }
 
   function pick(i) {
@@ -1937,7 +1967,9 @@ function initials(n) {
     const roles = u && window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [];
     if (!roster || roles.includes("admin")) return { mode: "open", seat: null };
     const mine = PS().mySeat();
-    return mine ? { mode: "own", seat: mine.seat, panel: mine.panel_letter } : { mode: "none", seat: null };
+    /* a seat left off every panel this week has no sheet to fill */
+    return mine && mine.panel_letter && F.panels.some(p => p.letter === mine.panel_letter)
+      ? { mode: "own", seat: mine.seat, panel: mine.panel_letter } : { mode: "none", seat: null };
   }
   function fillPanelists(keepSeat) {
     const seats = seatsOf(P);
@@ -2056,7 +2088,7 @@ function initials(n) {
     S = scored.find(s => s.code === selS.value);
     P = F.panels.find(p => p.letter === selP.value);
     fillPanelists(keepSeat);
-    document.getElementById("sc-code").textContent = (S.tag || S.code) + " · Week " + S.week;
+    document.getElementById("sc-code").textContent = (S.tag ? S.tag + " · " : "") + "Week " + S.week;
     const titleEl = document.getElementById("sc-title");
     titleEl.textContent = S.title;
     titleEl.title = S.title;
@@ -2098,41 +2130,57 @@ function initials(n) {
     }
   });
 
-  /* ---- submit: every team scored, then stamp the whole sheet ---- */
+  /* ---- submit: the fully scored teams are stamped; the rest can follow ---- */
   btnSubmit.addEventListener("click", async () => {
-    const missing = P.teams.filter(t => !totals(t.team).all);
-    if (!missing.length && !(await guard())) return;
-    if (missing.length) {
-      pick(P.teams.indexOf(missing[0]));          // jump to the first one still open
-      msg.textContent = "Still to finish: " + missing.map(t => t.team).join(", ") + ".";
+    const ready = P.teams.filter(t => totals(t.team).all);
+    const unscored = P.teams.filter(t => !totals(t.team).all);
+    if (!ready.length) {
+      if (unscored.length) pick(P.teams.indexOf(unscored[0]));
+      msg.textContent = "Score every criterion for at least one team before submitting.";
       msg.className = "msg no";
       return;
     }
+    if (!(await guard())) return;
+    if (unscored.length && !confirm("Submit the scores for " + names(ready) + "?\n\n" +
+        "Not finished yet: " + names(unscored) + ". You can score and submit " +
+        (unscored.length > 1 ? "them" : "it") + " later.")) return;
     btnSubmit.disabled = true;
+    btnSubmit.textContent = "Submitting…";
     try {
-      P.teams.forEach(t => pending.add(t.team));   // make sure every row exists
+      ready.forEach(t => pending.add(t.team));     // make sure every row exists
       await flush();
-      const at = await PS().submit(key, P.teams.map(t => t.team_id || t.team));
-      P.teams.forEach(t => { meta[t.team] = Object.assign(meta[t.team] || {},
+      const at = await PS().submit(key, ready.map(t => t.team_id || t.team));
+      ready.forEach(t => { meta[t.team] = Object.assign(meta[t.team] || {},
         { status: "submitted", submitted_at: at, updated_at: at }); });
       drawTabs(); tally();
-      setSave(live ? "Submitted to the STEP database" : "Submitted (saved in this browser)", "ok");
+      setSave(live ? "✓ Submitted to the STEP database" : "✓ Submitted (saved in this browser)", "ok");
     } catch (err) {
       msg.textContent = "Could not submit: " + (err && err.message ? err.message : err);
       msg.className = "msg no";
+      btnSubmit.disabled = false;
+      btnSubmit.textContent = "Submit scores";
     }
-    btnSubmit.disabled = false;
   });
 
   /* signing in or out changes where sheets live, so reopen the one on screen */
-  let rosterSig = "";
+  let rosterSig = "", rosterShape = JSON.stringify(F.panels.map(p => [p.letter, p.seats, p.teams.map(t => t.team_id)]));
   window.addEventListener("stephub_roster", () => {
     if (!S) return;
     const next = computeLock();
     const sig = JSON.stringify([next, F.panels.map(p => p.panelists)]);
-    if (sig === rosterSig) return;
+    /* the groupings saved from the tech console can change the panels
+       themselves — their letters, their seats, the teams they hear */
+    const shape = JSON.stringify(F.panels.map(p => [p.letter, p.seats, p.teams.map(t => t.team_id)]));
+    const reshaped = shape !== rosterShape;
+    rosterShape = shape;
+    if (reshaped) {
+      const keepP = selP.value;
+      selP.innerHTML = F.panels.map(p => `<option value="${esc(p.letter)}">Panel ${esc(p.letter)}</option>`).join("");
+      selP.value = F.panels.some(p => p.letter === keepP) ? keepP : (F.panels[0] || {}).letter;
+    }
+    if (sig === rosterSig && !reshaped) return;
     rosterSig = sig;
-    const same = next.mode === lock.mode && next.seat === lock.seat;
+    const same = !reshaped && next.mode === lock.mode && next.seat === lock.seat;
     if (same) {                                   // names only: relabel, keep the sheet open
       const keep = selN.value; lock = next; fillPanelists(keep);
       if (key) key.panelist = nameOfSeat(selN.value);
@@ -2322,6 +2370,8 @@ function initials(n) {
 
   selW.addEventListener("change", () => { refreshStatus(); load(); });
   window.addEventListener("stephub_auth_changed", () => { refreshStatus(); load(); });
+  /* a saved grouping can move teams between panels — regroup the picker */
+  window.addEventListener("stephub_roster", () => paintPicker());
   paintPicker();
   refreshStatus();
   load();

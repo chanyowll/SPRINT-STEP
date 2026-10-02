@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Capstone · SPRINT-STEP</title>
-<meta name="description" content="A SPRINT-STEP team's two capstone deliverables: the DOST FASTRAC proposal filled in item by item across the cycle, and the pitch deck assembled one slide per module.">
+<meta name="description" content="A SPRINT-STEP team's two capstone deliverables: the DOST FASTRAC proposal filled in item by item across the cycle, and the pitch deck assembled one slide per week.">
 <link rel="icon" href="assets/step-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -241,7 +241,12 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="site-clock.js"></script>
+<script src="supabase-client.js"></script>
+<script src="myteam-data.js"></script>
+<script src="capstone-data.js"></script>
+<script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script>
 let { capstone: CAP, teams } = window.MOCK;
@@ -571,6 +576,50 @@ function recalcBudget(f) {
 }
 
 let current = null;
+
+/* ---------- saving (real accounts) ----------
+   Every edit is saved a moment after the team stops typing; submitting
+   saves at once. Anyone else allowed to see the team gets a read-only copy. */
+const CAPDB = () => window.STEP_CAPSTONE;
+let CAP_LIVE = false, CAP_EDIT = false, CAP_TEAM = null, capToken = 0;
+const saveTimers = {};
+function savedLine(text, tone) {
+  const el = document.getElementById("saved"); if (!el) return;
+  el.textContent = text;
+  el.classList.toggle("on", tone !== "busy");
+  el.style.color = tone === "bad" ? "#a63d40" : "";
+}
+function queueSave(f, wait) {
+  if (!CAP_LIVE || !CAP_EDIT || !CAPDB()) return;
+  const team = CAP_TEAM;
+  clearTimeout(saveTimers[f.n]);
+  if (current === f.n) savedLine("Saving…", "busy");
+  saveTimers[f.n] = setTimeout(async () => {
+    try {
+      await CAPDB().saveItem(team, f, hasContent(f));
+      if (current === f.n && team === CAP_TEAM) savedLine("Saved", "ok");
+    } catch (e) {
+      if (current === f.n) savedLine("Couldn't save — " + (e.message || e), "bad");
+    }
+  }, wait == null ? 800 : wait);
+}
+/* put what the team saved onto the blank proposal */
+function hydrate(saved) {
+  Object.values(saved.items).forEach(r => {
+    const f = F(r.item_n); if (!f) return;
+    ["draft", "value", "attachments", "parts"].forEach(k => { if (r.data && r.data[k] !== undefined) f[k] = r.data[k]; });
+    f.submitted = !!r.submitted;
+    f.submitted_iso = r.submitted_at || null;
+    f.submitted_at = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString("en-PH",
+      { timeZone: "Asia/Manila", day: "numeric", month: "long" }) : (r.data && r.data.submitted_at) || undefined;
+  });
+  Object.values(saved.slides).forEach(r => {
+    const d = DECK.find(x => x.n === r.slide_n); if (!d) return;
+    const isImg = /^image\//.test(r.mime_type || "") || /\.(png|jpe?g)$/i.test(r.file_name || "");
+    d.file = { name: r.file_name, size: r.file_size ? sizeOf(r.file_size) : "", url: isImg ? r.url : null, href: r.url, saved: true };
+    d.status = "in";
+  });
+}
 function openItem(n) {
   current = n;
   const f = FORM.find(x => x.n === n);
@@ -645,6 +694,7 @@ function openItem(n) {
   function afterEdit() {
     if (f.submitted) { f.submitted = false; }
     paintState();
+    queueSave(f);
   }
   paintState();
   const btnSub = document.getElementById("fa-submit");
@@ -652,8 +702,10 @@ function openItem(n) {
     if (!hasContent(f)) return;
     f.submitted = true;
     f.submitted_at = subDate();
+    f.submitted_iso = new Date().toISOString();
     shown = null;
     paintState();
+    queueSave(f, 0);
   });
 
   if (isProse) {
@@ -667,7 +719,7 @@ function openItem(n) {
       syncSheet(f.n, false);
       clearTimeout(t); saved.classList.remove("on");
       afterEdit();
-      t = setTimeout(() => { saved.classList.add("on"); refreshCounts(); }, 700);
+      t = setTimeout(() => { if (!CAP_LIVE) saved.classList.add("on"); refreshCounts(); }, 700);
     });
   }
 
@@ -720,6 +772,7 @@ function openItem(n) {
       if (f.kind === "personnel") f.value.push({ position: "", pct: "", resp: "" });
       if (f.kind === "budget")    f.value.rows.push({ label: "Year " + (f.value.rows.length + 1), ps: 0, mooe: 0, eo: 0 });
       if (f.kind === "projects")  f.value.rows.push({ title: "", agency: "", role: "" });
+      queueSave(f);
       openItem(n);
     });
   }
@@ -734,6 +787,11 @@ function openItem(n) {
       `Sub-items (${f.parts.filter(p => p.done).length} of ${f.parts.length} done)`;
   });
 
+  if (CAP_LIVE && !CAP_EDIT) {
+    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add]").forEach(x => { x.disabled = true; });
+    const sv = document.getElementById("saved");
+    if (sv) { sv.textContent = "View only — only the team can edit"; sv.classList.add("on"); }
+  }
   syncSheet(n, true);                 // follow the team to the item they just opened
 }
 document.getElementById("itembar").addEventListener("click", e => {
@@ -786,7 +844,7 @@ function frameInner(d) {
   if (filled) return slideSVG(d);
   return `<svg viewBox="0 0 480 270" aria-hidden="true"><text x="240" y="132" text-anchor="middle"
       font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="15" font-weight="650"
-      fill="${d.status === "due" ? "#c99a2e" : "#9aa6b2"}">${d.status === "due" ? "Due this week" : "Week " + d.week}</text></svg>`;
+      fill="${d.status === "due" ? "#c99a2e" : "#9aa6b2"}">${d.status === "due" ? (d.week < CAP.week_no ? "Ready to add" : "Due this week") : "Week " + d.week}</text></svg>`;
 }
 
 function renderFilm() {
@@ -826,12 +884,19 @@ function renderFilm() {
 function takeFile(i, file) {
   const d = DECK[i];
   if (!file || d.status === "locked") return false;
+  if (CAP_LIVE && !CAP_EDIT) { alertLine("View only — only the team can add slides."); return false; }
   if (!OK_TYPES.test(file.name)) { alertLine("That file type is not accepted — use PDF, PPTX, PNG or JPG."); return false; }
   if (d.file && d.file.url) URL.revokeObjectURL(d.file.url);
   d.file = { name: file.name, size: sizeOf(file.size),
              url: /^image\//.test(file.type) ? URL.createObjectURL(file) : null };
   d.status = "in";
   renderFilm(); refreshCounts(); showSlide(i);
+  if (CAP_LIVE && CAPDB()) {
+    const team = CAP_TEAM;
+    CAPDB().putSlide(team, d.n, file)
+      .then(r => { if (team === CAP_TEAM && d.file) { d.file.href = r.url; d.file.saved = true; } })
+      .catch(e => alertLine("Couldn't save slide " + d.n + ": " + (e.message || e)));
+  }
   return true;
 }
 function alertLine(msg) {
@@ -864,8 +929,10 @@ function wireFrames() {
       e.preventDefault(); e.stopPropagation();
       const d = DECK[i];
       if (d.file && d.file.url) URL.revokeObjectURL(d.file.url);
+      if (CAP_LIVE && !CAP_EDIT) return;
       d.file = null;
-      d.status = d.n <= 11 ? "in" : (d.n === 12 ? "due" : "locked");   // back to how the week left it
+      d.status = d._st0 || (d.n <= 11 ? "in" : (d.n === 12 ? "due" : "locked"));   // back to how the week left it
+      if (CAP_LIVE && CAPDB()) CAPDB().removeSlide(CAP_TEAM, d.n).catch(err => alertLine("Couldn't remove slide " + d.n + ": " + (err.message || err)));
       renderFilm(); refreshCounts(); showSlide(Math.min(i, DECK.length - 1));
     });
   });
@@ -895,7 +962,22 @@ renderFilm();
 let slideAt = 0;
 function showSlide(i) {
   const filledIdx = DECK.map((d, k) => d.status === "in" ? k : -1).filter(k => k >= 0);
-  if (!filledIdx.length) return;
+  if (!filledIdx.length) {
+    /* nothing in the deck yet — say so rather than keep an old slide up */
+    document.getElementById("stage-screen").innerHTML =
+      `<svg viewBox="0 0 480 270" role="img" aria-label="No slides added yet">
+         <rect width="480" height="270" fill="#f6f8fa"/>
+         <rect x="24" y="24" width="432" height="222" rx="10" fill="none" stroke="#cfd8e1" stroke-width="2" stroke-dasharray="8 7"/>
+         <text x="240" y="128" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
+           font-size="20" font-weight="700" fill="#0b3c6b">No slides added yet</text>
+         <text x="240" y="156" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
+           font-size="13" fill="#5a6470">Drop a slide onto any open frame below to start the deck.</text>
+       </svg>`;
+    document.getElementById("stage-who").innerHTML = `Your pitch deck<small>${DECK.length} slides to build across the cycle</small>`;
+    document.getElementById("slide-prev").disabled = true;
+    document.getElementById("slide-next").disabled = true;
+    return;
+  }
   slideAt = Math.max(0, Math.min(DECK.length - 1, i));
   if (DECK[slideAt].status !== "in") slideAt = filledIdx[filledIdx.length - 1];
   const d = DECK[slideAt];
@@ -928,7 +1010,7 @@ document.getElementById("film").addEventListener("click", e => {
        <text x="240" y="128" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
          font-size="20" font-weight="700" fill="#0b3c6b">${d.title}</text>
        <text x="240" y="156" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
-         font-size="13" fill="#5a6470">${d.status === "due" ? "Due this week" : "Opens in Week " + d.week}</text>
+         font-size="13" fill="#5a6470">${d.status === "due" ? (d.week < CAP.week_no ? "Ready to add" : "Due this week") : "Opens in Week " + d.week}</text>
      </svg>`;
   document.getElementById("stage-who").innerHTML =
     `Slide ${d.n} · ${d.title}<small>Not made yet — comes from ${d.source} in Week ${d.week}</small>`;
@@ -1260,6 +1342,10 @@ window.__renderCapstone = function(targetTeamId) {
   const teams = window.MOCK.teams;
   TEAM = teams.find(t => t.id === activeId) || teams[0];
   CAP = window.MOCK.getCapstone(activeId);
+  /* a real account starts from its own blank proposal — never the sample
+     team's drafts, budget or scores */
+  if (window.MOCK.isLiveUser && window.MOCK.isLiveUser() && window.STEP_MYTEAM)
+    CAP = window.STEP_MYTEAM.blankCapstone(CAP, (window.MOCK.thisWeek || {}).week_no);
   FORM = CAP.form;
   DECK = CAP.deck;
   seedSubmitted();
@@ -1297,15 +1383,34 @@ window.__renderCapstone = function(targetTeamId) {
     }
   }
 
-  refreshCounts();
-  renderItemBar();
-  renderItemList();
-  const openItemObj = FORM.find(f => f.status === "open") || FORM[0];
-  openItem(openItemObj.n);
-  renderFilm();
-  const firstIn = DECK.filter(d => d.status === "in").length - 1;
-  showSlide(firstIn >= 0 ? firstIn : 0);
-  if (sheetOpen) buildSheet();
+  /* real account: who may edit, and what the team has saved */
+  const live = !!(window.MOCK.isLiveUser && window.MOCK.isLiveUser() && CAPDB());
+  const token = ++capToken;
+  CAP_LIVE = live; CAP_TEAM = activeId;
+  if (live) {
+    const roles = auth.rolesOf ? auth.rolesOf(user) : [user.role];
+    CAP_EDIT = roles.includes("admin") || (user.role === "participant" && user.team_id === activeId);
+  } else CAP_EDIT = true;
+
+  function paintAll(keepItem) {
+    refreshCounts();
+    renderItemBar();
+    renderItemList();
+    const openItemObj = (keepItem && F(keepItem)) || FORM.find(f => f.status === "open") || FORM[0];
+    openItem(openItemObj.n);
+    renderFilm();
+    const firstIn = DECK.filter(d => d.status === "in").length - 1;
+    showSlide(firstIn >= 0 ? firstIn : 0);
+    if (sheetOpen) buildSheet();
+  }
+  paintAll();
+  if (live) {
+    CAPDB().load(activeId).then(saved => {
+      if (token !== capToken) return;                   // a newer team or account took over
+      hydrate(saved);
+      paintAll(current);
+    }).catch(e => { if (token === capToken) alertLine("Couldn't load the saved proposal: " + (e.message || e)); });
+  }
 };
 
 window.addEventListener("stephub_auth_changed", () => {

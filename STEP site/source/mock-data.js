@@ -1,13 +1,15 @@
 /* =====================================================================
-   STEP Hub — shared mock data for SPRINT-STEP cohort.
+   STEP Hub — shared data for the STEP 2.5 cohort.
+   The weeks, dates and topics come from schedule-data.js (the STEP 2.5
+   Master Tracker); the team-level sample numbers below only answer the
+   offline preview (?demo=1).
    Includes official STEP Groups, Faculty, Predefined Demo Users,
    RBAC permission models, and dynamic team dashboards.
    ===================================================================== */
 window.MOCK = (function () {
-  const cohort = {
-    code: "STEP3", name: "SPRINT-STEP 3", timezone: "Asia/Manila",
-    starts_on: "2027-06-15", ends_on: "2027-11-30", current_week: 8,
-  };
+  const SCHED = window.STEP_SCHEDULE;
+  const NOW_AT = SCHED.current(new Date());          // where the program is today
+  const cohort = Object.assign({}, SCHED.cohort, { current_week: NOW_AT.week });
 
   /* ---------------------------------------------------------------------
      STEP Groups / Teams — the 10 official teams in SPRINT-STEP.
@@ -98,37 +100,80 @@ window.MOCK = (function () {
   const teams = groups;
 
   /* ---------------------------------------------------------------------
-     Curriculum Modules & Sessions
+     Program weeks (W0–W12) & sessions
      --------------------------------------------------------------------- */
-  const modules = [
-    { code: "M1E", week_no: 0, title: "Pathway Ideation Workshop", session_hours: 2.5, off_session_hours: 0, trainer: "Engr. Benjamin N. Mirasol" },
-    { code: "M2", week_no: 1, title: "Beachhead Markets and Customer Segments", session_hours: 3, off_session_hours: 2, trainer: "Mr. Antonio Feria" },
-    { code: "M3A", week_no: 2, title: "Market Size Estimation and Market Research", session_hours: 3, off_session_hours: 1.5, trainer: "Mr. Antonio Feria" },
-    { code: "M3B", week_no: 3, title: "From Understanding Use to Measured Value", session_hours: 3, off_session_hours: 1.5, trainer: "Mr. Antonio Feria" },
-    { code: "M4", week_no: 4, title: "Competitive Advantage (VRIO, CPM)", session_hours: 3, off_session_hours: 2, trainer: "Mr. G. Quitoriano" },
-    { code: "M5", week_no: 5, title: "Go-to-Market Plan and Lean Canvas", session_hours: 3, off_session_hours: 3, trainer: "Mr. G. Quitoriano" },
-    { code: "M6", week_no: 6, title: "Business Model Validation", session_hours: 3, off_session_hours: 4, trainer: "Mr. G. Quitoriano" },
-    { code: "M8", week_no: 7, title: "Overview of IP & Basics of Patents", session_hours: 3, off_session_hours: 0, trainer: "Dr. Proceso “Jon” Fernandez, with IPOPHL" },
-    { code: "M10", week_no: 9, title: "Discounted Cash Flow, ROI, 5-year Projection", session_hours: 3, off_session_hours: 2, trainer: "Mr. M. Santos" },
-    { code: "M11", week_no: 8, title: "Selling Skill", session_hours: 3, off_session_hours: 1.5, trainer: "Mr. G. Quitoriano" },
-    { code: "M12", week_no: 10, title: "Pitching Skill", session_hours: 3, off_session_hours: 2, trainer: "Ms. D. Reyes" },
-    { code: "M14", week_no: 11, title: "FASTRAC Proposal Writing Workshop", session_hours: 2, off_session_hours: 3, trainer: "AIPO Ideation Support" },
-  ];
+  /* one entry per program week, W0–W12 — the same rows as the modules
+     table in the database */
+  const modules = SCHED.weeks.map(w => ({
+    code: w.code, week_no: w.week, title: w.title, short: w.short,
+    trainer: w.week === 0 ? "STEP Team" : "Trainer to be announced",
+  }));
 
-  const sessions = [
-    { id: "s1", type: "learning", title: "Learning Session 4 · Competitive Advantage", week_no: 4, starts_at: "2027-07-13T09:00:00+08:00", ends_at: "2027-07-13T12:00:00+08:00", mode: "online", meeting_url: "#", status: "scheduled" },
-    { id: "s2", type: "feedback", title: "Feedback Session 4 · Panels A/B/C", week_no: 4, starts_at: "2027-07-17T09:00:00+08:00", ends_at: "2027-07-17T12:00:00+08:00", mode: "online", meeting_url: "#", status: "scheduled" },
-    { id: "s3", type: "learning", title: "Learning Session 5 · Go-to-Market Plan", week_no: 5, starts_at: "2027-07-20T09:00:00+08:00", mode: "online", status: "scheduled" },
-    { id: "s4", type: "onsite_workshop", title: "On-site Workshop · IP, Finance, Team Formation", week_no: 7, starts_at: "2027-08-03T08:00:00+08:00", mode: "onsite", venue: "Ateneo de Manila University", status: "scheduled", is_public: true },
-    { id: "s5", type: "demo_day", title: "Demo Day & Graduation", week_no: 12, starts_at: "2027-09-14T08:00:00+08:00", mode: "onsite", venue: "Ateneo de Manila University", status: "scheduled", is_public: true },
-  ];
+  /* every dated session of the cycle, in calendar order */
+  const sessions = SCHED.timeline().map((x, i) => ({
+    id: "s" + (i + 1), type: x.kind, title: x.title, week_no: x.week, code: x.code,
+    starts_at: x.date + "T09:00:00+08:00", mode: x.mode, status: "scheduled",
+    is_public: x.kind === "onsite" || x.kind === "orientation",
+  }));
 
-  const announcements = [
-    { id: "a1", title: "Week 4 outputs due Friday 12:00 NN", body_md: "Upload your CPM and VRIO analysis plus the 5-minute video link before the deadline.", week_no: 4, priority: "important", is_pinned: true, publish_at: "2027-07-13T08:00:00+08:00", read: false, author: "STEP Team" },
-    { id: "a2", title: "Panel assignments for Saturday", body_md: "Panel A: POSTE, SINAG, BRICKS, Halal Blockchain. Panel B: Zeoskin, CAPPS, SPArC. Panel C: meSHM, SFRSCC, LASER.", week_no: 4, priority: "normal", is_pinned: false, publish_at: "2027-07-12T16:30:00+08:00", read: false, author: "STEP Team" },
-    { id: "a3", title: "Certificates of Appearance now downloadable", body_md: "Government-employed participants can download their certificates from the Help Desk.", week_no: 3, priority: "normal", is_pinned: false, publish_at: "2027-07-08T10:00:00+08:00", read: true, author: "STEP Team" },
-    { id: "a4", title: "Session moved: typhoon signal no. 2", body_md: "Tuesday's learning session moves to Thursday, same time. Deadlines shift by two days.", week_no: 2, priority: "urgent", is_pinned: false, publish_at: "2027-06-29T06:00:00+08:00", read: true, author: "STEP Team" },
-  ];
+  const announcements = [];          // the real ones live in the announcements table
+
+  /* Panel score sheets by week, carried over from the STEP 2 sheets for the
+     same topic (criteria and weights unchanged). */
+  const SCORE_SHEETS = {
+      W3: [
+          { label: "Has the group identified 5 to 10 possible market opportunities?", weight: 25 },
+          { label: "Has the group clearly prioritized these opportunities and identified a beachhead market?", weight: 25 },
+          { label: "Has the group developed a clear and coherent Problem-Solution Fit Canvas for their beachhead segment?", weight: 25 },
+          { label: "Has the group articulated a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas?", weight: 25 },
+        ],
+      W4: [
+          { label: "Has the group identified their beachhead market opportunity?", weight: 20 },
+          { label: "Has the group clearly defined their Value Proposition for the beachhead market?", weight: 20 },
+          { label: "Has the group estimated the market size for their beachhead market, including TAM, SAM, and SOM?", weight: 20 },
+          { label: "Has the group identified potential follow-on markets?", weight: 20 },
+          { label: "Has the group estimated the market size for each follow-on market, including TAM, SAM, and SOM?", weight: 20 },
+        ],
+      W5: [
+          { label: "Has the team clearly identified and detailed their product’s full life cycle use case, showing how it will be used from start to end?", weight: 30 },
+          { label: "How well did the team create a compelling customer pitch using either a concept board or a brochure, demonstrating the value and appeal of their product?", weight: 30 },
+          { group: "Quantified Value Proposition (Total: 40%)" },
+          { label: "Relevant Metrics – Has the team identified 2–3 relevant and meaningful metrics for their customer?", weight: 10 },
+          { label: "Baseline vs. Improvement – Has the team estimated the baseline performance versus the expected improvement?", weight: 10 },
+          { label: "Benefit Calculation – Has the team accurately calculated the potential $ or % benefit to the customer?", weight: 10 },
+          { label: "One-Sentence Value Proposition – How well did the team draft a clear and persuasive one-sentence Quantified Value Proposition?", weight: 10 },
+        ],
+      W6: [
+          { label: "Has the group identified their Competitive Advantage using the Competitive Profile Matrix?", weight: 35 },
+          { label: "Is this sustainable? (VRIO)", weight: 35 },
+          { label: "How was the group's Lean Canvas Model?", weight: 30 },
+        ],
+      W7: [
+          { label: "How well did the team develop their Strategy Canvas?", weight: 25 },
+          { label: "How complete and coherent was the Lean Canvas?", weight: 25 },
+          { label: "How effectively did the team identify, prioritize, and justify their chosen channels for reaching the target market (Bullseye Framework)?", weight: 25 },
+          { label: "How clear, feasible, and well-structured was the team’s Go-to-Market Gantt Chart?", weight: 25 },
+        ],
+      W9: [
+          { label: "Has the group refined their Lean Canvas?", weight: 35 },
+          { label: "How's the group transitioned their Business Model Canvas from startup to scale-up?", weight: 35 },
+          { label: "Has the group reconfigured their Go-to-Market Gantt Chart for the weeks up to Demo Day, in preparation for their final pitch?", weight: 30 },
+        ],
+      W11: [
+          { label: "Ratio Interpretation and Application", weight: 25, hint: "Assess the accuracy and relevance of the financial ratios presented (e.g., liquidity, profitability, efficiency). Consider how well the presenters interpret the results and connect them to the financial health and operational performance of the business." },
+          { label: "Capital Budgeting Analysis", weight: 25, hint: "Review the clarity and correctness of capital budgeting calculations such as Payback Period and Internal Rate of Return (IRR). Examine whether the evaluation of investment feasibility is well-reasoned and aligned with the startup’s strategic goals." },
+          { label: "Cost-Benefit and Breakeven Analysis", weight: 25, hint: "Assess how effectively the cost-benefit analysis and breakeven points are calculated and explained. Consider whether the presenters clearly demonstrate the relationship between costs, revenues, and profitability thresholds." },
+          { label: "Analytical Reasoning and Financial Insight", weight: 25, hint: "Evaluate the depth of financial insight and analytical thinking reflected in the overall output. Consider how well the team uses data to draw conclusions, support decision-making, and reflect on the financial viability of the venture." },
+        ],
+      W12: [
+          { label: "Market Opportunity", weight: 20, hint: "Market Potential or Market Size & Opportunity (Highlights scope, growth potential, and demand.)" },
+          { label: "Financial Viability", weight: 20, hint: "Financial Sustainability or Business Viability (Focuses on revenue model, cost structure, and path to profitability.)" },
+          { label: "Customer Understanding and Business Model", weight: 10, hint: "Customer Insight & Business Model (Emphasizes clarity of customer needs and how the business delivers value.)" },
+          { label: "Pitching and Selling Skills", weight: 10, hint: "Pitch Delivery & Persuasion or Communication & Selling Ability (Captures clarity, confidence, storytelling, and salesmanship.)" },
+          { label: "Team Composition", weight: 10, hint: "Team Strength or Team Capability (Assesses skill diversity, experience, commitment, and execution capacity.)" },
+          { label: "Potential adopter/Nearness to commercialization", weight: 30, hint: "Readiness for Adoption or Market Entry (Evaluates the product’s maturity, user validation, adaptability, and potential for real-world implementation or commercialization.)" },
+        ]
+  };
 
   /* ---------------------------------------------------------------------
      Trainers, Mentors and Panelists (Faculty)
@@ -140,23 +185,22 @@ window.MOCK = (function () {
     ],
     scaleNote: "Decimals allowed to one place — 3.7, 2.6 and so on.",
 
+    /* The STEP 2.5 trainers, from the Master Tracker. Which topic each one
+       takes is not assigned yet, so every topic reads "Trainer to be
+       announced" until it is. */
     trainers: [
-      { id: "tr1", name: "Mr. Antonio Feria", short: "Sir Tony", initials: "AF", org: "AIPO · Marketing track",
-        focus: "Markets, customers and value", modules: ["M2", "M3A", "M3B"] },
-      { id: "tr2", name: "Mr. G. Quitoriano", short: "Sir GQ", initials: "GQ", org: "AIPO · Strategy track",
-        focus: "Competitive advantage through to selling", modules: ["M4", "M5", "M6", "M11"] },
-      { id: "tr3", name: "Mr. M. Santos", short: "Sir Mike", initials: "MS", org: "AIPO · Finance track",
-        focus: "Costing, financial models and returns", modules: ["M10"] },
-      { id: "tr4", name: "Dr. Proceso “Jon” Fernandez", short: "Doc Jon", initials: "PF", org: "Ateneo · with IPOPHL",
-        focus: "Intellectual property and prior art", modules: ["M8"] },
-      { id: "tr5", name: "Engr. Benjamin N. Mirasol", short: "Engr. Mirasol", initials: "BM", org: "AIPO",
-        focus: "Commercialization pathways", modules: ["M1E"] },
-      { id: "tr6", name: "Ms. D. Reyes", short: "Ms. Reyes", initials: "DR", org: "AIPO",
-        focus: "Pitching and investor readiness", modules: ["M12"] },
-      { id: "tr7", name: "Dr. Ma. Corazon Halili-Dichosa", short: "Dr. Corieh", initials: "CH", org: "Guest lecturer",
-        focus: "Tax incentives for spin-offs", modules: ["SP1"] },
-      { id: "tr8", name: "AIPO Ideation Support", short: "AIPO", initials: "AI", org: "Ateneo Intellectual Property Office",
-        focus: "FASTRAC proposal writing", modules: ["M14"] },
+      { id: "tr1", name: "Mr. Antonio P. Feria Jr.", short: "Sir Tony", initials: "AF", org: "Ateneo de Manila University",
+        focus: "Topics to be announced", modules: [] },
+      { id: "tr2", name: "Mr. George Omer Denis S. Quitoriano", short: "Sir GQ", initials: "GQ", org: "Ateneo de Manila University",
+        focus: "Topics to be announced", modules: [] },
+      { id: "tr3", name: "Mr. Mike Tan", short: "Sir Mike", initials: "MT", org: "Ateneo de Manila University",
+        focus: "Topics to be announced", modules: [] },
+      { id: "tr4", name: "Engr. Benjamin N. Mirasol", short: "Sir Benjie", initials: "BM", org: "Ateneo de Manila University",
+        focus: "Topics to be announced", modules: [] },
+      { id: "tr5", name: "Dr. Proceso “Jon” Fernandez", short: "Doc Jon", initials: "JF", org: "Ateneo de Manila University",
+        focus: "Topics to be announced", modules: [] },
+      { id: "tr6", name: "Mr. Steve Chavez", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
+        focus: "Topics to be announced", modules: [] },
     ],
 
     mentors: [
@@ -184,72 +228,78 @@ window.MOCK = (function () {
       title: "SPRINT-STEP MENTORS ACCOMPLISHMENTS REPORT",
       endorsedBy: "May Ann A. Udtojan-Albis", endorsedRole: "Project Leader",
     },
+    /* One plan per program week (W1–W12). Where a STEP 2 mentors' report
+       covered the same topic, its activities are carried over word for
+       word. Weeks with a topic that is new in STEP 2.5 (W1, W2, W8, W10)
+       are drafted from the schedule itself and marked source: "schedule";
+       W11's activities are drafted from that week's panel score sheet. */
     mentorPlans: [
-      { code: "M2", week: 1, topic: "Beachhead Markets and Customer Segments", tasks: [
+      { code: "W1", week: 1, topic: "Program Launch and Mentor Introduction", source: "schedule", tasks: [
+        { text: "Meet the team at the program launch and agree on a regular weekly mentoring slot (Wednesday to Friday)." },
+        { text: "Support the team in choosing the commercialization pathway they will test first." },
+      ] },
+      { code: "W2", week: 2, topic: SCHED.byWeek(2).title, source: "schedule", tasks: [
+        { text: "Guide the team in mapping the ecosystem around their technology — suppliers, users, buyers, regulators, funders and competitors." },
+        { text: "Help the team list the vertical markets where their technology could be applied." },
+        { text: "Help the team identify the partners and gaps that matter most for reaching the market." },
+      ] },
+      { code: "W3", week: 3, topic: SCHED.byWeek(3).title, tasks: [
         { text: "Guide the group in identifying 5 to 10 possible market opportunities." },
         { text: "Support the group in prioritizing these opportunities and identifying a beachhead market." },
         { text: "Help the group develop a clear and coherent Problem-Solution Fit Canvas for their beachhead segment." },
         { text: "Assist the group in articulating a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas." },
       ] },
-      { code: "M3A", week: 2, topic: "Market Size Estimation and Market Research", tasks: [
+      { code: "W4", week: 4, topic: SCHED.byWeek(4).title, tasks: [
         { text: "Assist the team in\n(a) continuing to identify/ideate on feasible market opportunities for their technology\n(b) evaluating and assessing these candidates, and\n(c) finally settling on a viable, realistic, and strong beachhead opportunity." },
         { text: "Help the team evaluate the realism of their TAM/SAM/SOM analysis **for their beachhead market**, including the logic/soundness of their market estimates. Encourage them to consider current and emerging market trends that could affect their opportunity sizing." },
         { text: "Help the team evaluate the realism of their TAM/SAM/SOM analysis **for their other candidate market opportunities** (which they could attack after success in their beachhead market), including the logic/soundness of their market estimates. Encourage them to consider current and emerging market trends that could affect their opportunity sizing." },
       ] },
-      { code: "M3B", week: 3, topic: "From Understanding Use to Measured Value",
+      { code: "W5", week: 5, topic: SCHED.byWeek(5).title,
         topicLines: ["1. Understanding your Product's Full Life Cycle Use Case", "2. Developing your High-Level Product Specification", "3. Quantifying Your Value Proposition"],
         tasks: [
         { text: "Help the team to detail their product’s full life cycle use case" },
         { text: "Guide the team in creating their customer pitch either using a concept board or a brochure." },
         { text: "For the teams' product/technology, help them:\n- Identify 2–3 relevant metrics for their customer\n- Estimate baseline vs. improvement\n- Calculate $ or % benefit\n- Draft a one-sentence Quantified Value Proposition" },
       ] },
-      { code: "CU", week: null, label: "Catch-up week", topic: "Catch Up Mentoring Session", tasks: [
-        { text: "Meet with the team to catch up on the progress of their technology." },
-      ] },
-      { code: "M4", week: 4, topic: "Competitive Advantage",
+      { code: "W6", week: 6, topic: SCHED.byWeek(6).title,
         topicLines: ["VRIO Analysis", "Competitor Profile matrix", "Conceptualize Value proposition"],
         tasks: [
         { text: "Help the group identify their Competitive Advantage using the Competitive Profile Matrix." },
         { text: "Guide the group in making their Competitive Advantage sustainable (VRIO)." },
         { text: "Help the group in creating their Lean Canvas Model." },
       ] },
-      { code: "M5", week: 5, topic: "Go-to-Market Plan and Lean Canvas", tasks: [
+      { code: "W7", week: 7, topic: SCHED.byWeek(7).title, tasks: [
         { text: "Help the team develop their Strategy Canvas" },
         { text: "Help the team complete their Lean Canvas" },
         { text: "Guide the group in creating their Bullseye Framework" },
         { text: "Guide the group in developing their Go-to-Market Gantt Chart" },
       ] },
-      { code: "M6", week: 6, topic: "Business Model Validation", tasks: [
+      { code: "W8", week: 8, topic: SCHED.byWeek(8).title, source: "schedule", tasks: [
+        { text: "Help the team position their venture in its ecosystem — partners, channels and competitors." },
+        { text: "Guide the team in stating a market strategy that ties their beachhead, value proposition and go-to-market plan together." },
+        { text: "Help the team prepare their technology review and refined pitch for the Mid-Program Checkpoint." },
+      ] },
+      { code: "CU", week: null, label: "Catch-up week", topic: "Catch Up Mentoring Session", tasks: [
+        { text: "Meet with the team to catch up on the progress of their technology." },
+      ] },
+      { code: "W9", week: 9, topic: SCHED.byWeek(9).title, tasks: [
         { text: "Help the team refine their Lean Canvas" },
         { text: "Guide the group in transitioning their Business Model Canvas from startup to scale-up." },
-        { text: "Assist the group in reconfiguring their Go-to-Market Gantt Chart for the next five weeks in preparation for their final pitch" },
+        { text: "Assist the group in reconfiguring their Go-to-Market Gantt Chart for the weeks up to Demo Day" },
       ] },
-      { code: "M8", week: 7, topic: "Overview of IP and Basics of Patents", source: "scoresheet", tasks: [
-        { text: "Guide the team in completing their Patent Search Report:", lead: true },
-        { text: "Search strategy and methodology — databases, keywords, classifications and filters" },
-        { text: "Relevance and quality of the patent documents and prior art selected" },
-        { text: "Analysis and interpretation — novelty, inventiveness and potential infringement risks" },
-        { text: "Report structure and clarity" },
+      { code: "W10", week: 10, topic: SCHED.byWeek(10).title, source: "schedule", tasks: [
+        { text: "Help the team estimate the costs and revenues behind their business model." },
+        { text: "Guide the team in setting out their spin-off's roles, responsibilities and equity." },
+        { text: "Help the team outline an IP strategy for their technology." },
       ] },
-      { code: "M11", week: 8, topic: "Selling Skills", tasks: [
-        { text: "Guide the team in completing the following outputs:", lead: true },
-        { text: "Rejection Therapy" },
-        { text: "Prospect List" },
-        { text: "Elevator Pitch (30 - 120s)" },
-        { text: "Sales Presentation" },
-        { text: "Battle Cards/ FAQs" },
-      ] },
-      { code: "M10", week: 9, topic: "Discounted Cash Flow, ROI, 5-year Projection", source: "scoresheet", tasks: [
+      { code: "W11", week: 11, topic: SCHED.byWeek(11).title, source: "scoresheet", tasks: [
         { text: "Guide the team in completing their Financial Analysis:", lead: true },
         { text: "Ratio interpretation and application — liquidity, profitability, efficiency" },
         { text: "Capital budgeting analysis — Payback Period and IRR" },
         { text: "Cost-benefit and breakeven analysis" },
         { text: "Analytical reasoning and financial insight drawn from the model" },
       ] },
-      { code: "M12", week: 10, topic: "Pitching Skills", tasks: [
-        { text: "Provide guidance and support to the team as they prepare for their pitch at the STEP Pre-Demo Day" },
-      ] },
-      { code: "DDP", week: 11, topic: "Preparation for Demo Day", tasks: [
+      { code: "W12", week: 12, topic: "Preparation for Demo Day", tasks: [
         { text: "Provide guidance and support to the team as they prepare for their final pitch at the STEP Demo Day" },
       ] },
     ],
@@ -268,131 +318,26 @@ window.MOCK = (function () {
         teams: [{ team: "meSHM", team_id: "g8", at: "09:00" }, { team: "SFRSCC", team_id: "g9", at: "09:35" }, { team: "LASER", team_id: "g10", at: "10:10" }] },
     ],
 
-    sessions: [
-      { code: "M1E", week: 0, title: "Pathway Ideation Workshop", trainer: "Engr. Benjamin N. Mirasol", mode: "On site",
-        coverage: "Introduction to STEP · Why spin off? · Technology commercialization pathways", deliverable: "Chosen commercialization pathway", assess: [] },
-      { code: "M2", week: 1, title: "Beachhead Markets and Customer Segments", trainer: "Mr. Antonio Feria", mode: "Online",
-        coverage: "Market opportunity identification · Segmentation · Problem-Solution Fit Canvas",
-        deliverable: "List of 5–10 market opportunities, prioritized, with a Value Proposition Statement",
-        assess: [
-          { label: "Has the group identified 5 to 10 possible market opportunities?", weight: 25 },
-          { label: "Has the group clearly prioritized these opportunities and identified a beachhead market?", weight: 25 },
-          { label: "Has the group developed a clear and coherent Problem-Solution Fit Canvas for their beachhead segment?", weight: 25 },
-          { label: "Has the group articulated a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas?", weight: 25 },
-        ] },
-      { code: "M3A", week: 2, title: "Market Size Estimation and Market Research", trainer: "Mr. Antonio Feria", mode: "Online",
-        coverage: "TAM, SAM and SOM · Primary and secondary research", deliverable: "TAM SAM SOM estimate",
-        assess: [
-          { label: "Has the group identified their beachhead market opportunity?", weight: 20 },
-          { label: "Has the group clearly defined their Value Proposition for the beachhead market?", weight: 20 },
-          { label: "Has the group estimated the market size for their beachhead market, including TAM, SAM, and SOM?", weight: 20 },
-          { label: "Has the group identified potential follow-on markets?", weight: 20 },
-          { label: "Has the group estimated the market size for each follow-on market, including TAM, SAM, and SOM?", weight: 20 },
-        ] },
-      { code: "M3B", week: 3, title: "From Understanding of Use to Measured Value", trainer: "Mr. Antonio Feria", mode: "Online",
-        coverage: "Full life cycle use case · Customer pitch · Quantified value proposition",
-        deliverable: "Concept board or brochure, and a quantified value proposition",
-        assess: [
-          { label: "Has the team clearly identified and detailed their product’s full life cycle use case, showing how it will be used from start to end?", weight: 30 },
-          { label: "How well did the team create a compelling customer pitch using either a concept board or a brochure, demonstrating the value and appeal of their product?", weight: 30 },
-          { group: "Quantified Value Proposition (Total: 40%)" },
-          { label: "Relevant Metrics – Has the team identified 2–3 relevant and meaningful metrics for their customer?", weight: 10 },
-          { label: "Baseline vs. Improvement – Has the team estimated the baseline performance versus the expected improvement?", weight: 10 },
-          { label: "Benefit Calculation – Has the team accurately calculated the potential $ or % benefit to the customer?", weight: 10 },
-          { label: "One-Sentence Value Proposition – How well did the team draft a clear and persuasive one-sentence Quantified Value Proposition?", weight: 10 },
-        ] },
-      { code: "M4", week: 4, title: "Competitive Advantage (VRIO, CPM)", trainer: "Mr. G. Quitoriano", mode: "Online",
-        coverage: "VRIO analysis · Competitor profile matrix · Conceptualizing the value proposition",
-        deliverable: "Refined value proposition",
-        assess: [
-          { label: "Has the group identified their Competitive Advantage using the Competitive Profile Matrix?", weight: 35 },
-          { label: "Is this sustainable? (VRIO)", weight: 35 },
-          { label: "How was the group's Lean Canvas Model?", weight: 30 },
-        ] },
-      { code: "SP1", week: 5, title: "Tax Incentives for Spin-Offs", trainer: "Dr. Ma. Corazon Halili-Dichosa", mode: "On site",
-        coverage: "Guest lecture · Incentives available to research spin-offs", deliverable: "—", assess: [], special: true },
-      { code: "M5", week: 5, title: "Go-to-Market Plan and Lean Canvas", trainer: "Mr. G. Quitoriano", mode: "On site",
-        coverage: "Lean Canvas · Go-to-market plan · Validation through product-market fit activities",
-        deliverable: "Lean Canvas, go-to-market plan and market validation",
-        assess: [
-          { label: "How well did the team develop their Strategy Canvas?", weight: 25 },
-          { label: "How complete and coherent was the Lean Canvas?", weight: 25 },
-          { label: "How effectively did the team identify, prioritize, and justify their chosen channels for reaching the target market (Bullseye Framework)?", weight: 25 },
-          { label: "How clear, feasible, and well-structured was the team’s Go-to-Market Gantt Chart?", weight: 25 },
-        ] },
-      { code: "M6", week: 6, title: "Business Model Validation", trainer: "Mr. G. Quitoriano", mode: "Online",
-        coverage: "Team organization · Team formation and spin-off simulation · Business model validation",
-        deliverable: "Team composition and roles, validated business model",
-        assess: [
-          { label: "Has the group refined their Lean Canvas?", weight: 35 },
-          { label: "How's the group transitioned their Business Model Canvas from startup to scale-up?", weight: 35 },
-          { label: "Has the group reconfigured their Go-to-Market Gantt Chart for the next five weeks in preparation for their final pitch?", weight: 30 },
-        ] },
-      { code: "M8", week: 7, title: "Overview of IP and Basics of Patents", trainer: "Dr. Proceso “Jon” Fernandez, with IPOPHL", mode: "On site",
-        coverage: "Overview of intellectual property · Basics of patents · Prior art search",
-        deliverable: "Draft IP documentation and draft Freedom to Operate analysis",
-        assess: [
-          { label: "Search Strategy and Methodology", weight: 25, hint: "Assess the clarity and rigor of the search strategy used, including the selection of databases, keywords, classifications, and filters. Consider how systematically and thoroughly the prior art search was conducted." },
-          { label: "Relevance and Quality of Results", weight: 25, hint: "Evaluate the relevance, accuracy, and quality of the patent documents or prior art selected. Determine whether the identified results are closely aligned with the claimed invention or technical features." },
-          { label: "Analysis and Interpretation", weight: 25, hint: "Assess the team’s ability to analyze the search results critically. Consider the clarity of comparisons made between the target invention and prior art, including novelty, inventiveness, and potential infringement risks." },
-          { label: "Report Structure and Clarity", weight: 25, hint: "Evaluate the overall organization, formatting, and clarity of the report. Consider how well the information is presented, whether conclusions are well-supported, and if the report is accessible to both technical and non-technical readers." },
-        ] },
-      { code: "M10", week: 9, title: "Discounted Cash Flow, ROI, 5-year Projection", trainer: "Mr. M. Santos", mode: "Online",
-        coverage: "Basics of finance · Project and development cost estimates · Cost-benefit analysis · Break-even",
-        deliverable: "Validated financial model",
-        assess: [
-          { label: "Ratio Interpretation and Application", weight: 25, hint: "Assess the accuracy and relevance of the financial ratios presented (e.g., liquidity, profitability, efficiency). Consider how well the presenters interpret the results and connect them to the financial health and operational performance of the business." },
-          { label: "Capital Budgeting Analysis", weight: 25, hint: "Review the clarity and correctness of capital budgeting calculations such as Payback Period and Internal Rate of Return (IRR). Examine whether the evaluation of investment feasibility is well-reasoned and aligned with the startup’s strategic goals." },
-          { label: "Cost-Benefit and Breakeven Analysis", weight: 25, hint: "Assess how effectively the cost-benefit analysis and breakeven points are calculated and explained. Consider whether the presenters clearly demonstrate the relationship between costs, revenues, and profitability thresholds." },
-          { label: "Analytical Reasoning and Financial Insight", weight: 25, hint: "Evaluate the depth of financial insight and analytical thinking reflected in the overall output. Consider how well the team uses data to draw conclusions, support decision-making, and reflect on the financial viability of the venture." },
-        ] },
-      { code: "M11", week: 8, title: "Selling Skills", trainer: "Mr. G. Quitoriano", mode: "Online",
-        coverage: "Qualifying a prospect · Opening with the problem · Handling objections · Closing for a next step",
-        deliverable: "Prospect list, battle card and a five-minute video",
-        assess: [
-          { label: "Rejection Therapy", weight: 20 },
-          { label: "Prospect List", weight: 20 },
-          { label: "Elevator Pitch (30 - 120s)", weight: 20 },
-          { label: "Sales Presentation", weight: 20 },
-          { label: "Battle Cards/ FAQs", weight: 20 },
-        ] },
-      { code: "M12", week: 10, title: "Pitching Skills", trainer: "Ms. D. Reyes", mode: "Online",
-        coverage: "Investor pitch structure · Storyline · Delivery", deliverable: "Improved pitch deck",
-        /* STEP 2 "Pitch Deck Presentation (In preparation for Pre-Demo Day)" score sheet */
-        assess: [
-          { label: "Content", weight: 30, hint: "• Clarity of Problem Statement and Solution (10%): A clear identification of the problem the business is solving is crucial. Judges should assess how well the problem is defined and how well the proposed solution addresses it.\n• Market Opportunity and Size (10%): Understanding the market opportunity and its size is essential for the success of any business. Judges should evaluate the thoroughness of market research and the potential for growth in the target market.\n• Business Model (10%): A well-defined and sustainable business model is fundamental. Judges should assess the viability, scalability, and profitability of the proposed business model." },
-          { label: "Presentation Skills", weight: 25, hint: "• Communication and Delivery (15%): Effective communication is key in conveying the value proposition. Judges should evaluate the clarity, coherence, and persuasiveness of the presentation, including the use of visuals and language.\n• Engagement with the Audience (10%): Engaging the audience helps create a connection and ensures that the message is well-received. Judges should assess how well the presenters involve the audience through questions, interactions, and overall presentation style." },
-          { label: "Viability and Scalability", weight: 25, hint: "• Financial Projections and ROI (15%): Judges should evaluate the realism and accuracy of financial projections. This includes revenue forecasts, cost structures, and the overall return on investment (ROI).\n• Scalability of the Business Model (10%): Scalability is crucial for long-term success. Judges should assess how well the business can grow and handle increased demand without a proportional increase in costs." },
-          { label: "Innovation and Uniqueness", weight: 20, hint: "• Uniqueness of the Product/Service (10%): Assessing the uniqueness of the product or service helps determine its market differentiation. Judges should evaluate how innovative and distinctive the offering is compared to competitors.\n• Competitive Edge (10%): Judges should consider the business's competitive advantage, whether it's through technology, unique features, pricing strategy, or other factors. This criterion evaluates the sustainability of the business in a competitive landscape." },
-        ] },
-      { code: "M14", week: 11, title: "FASTRAC Proposal Writing Workshop", trainer: "AIPO Ideation Support", mode: "On site",
-        coverage: "Technology roadmapping · DOST FASTRAC Form 2", deliverable: "Completed FASTRAC proposal", assess: [] },
-    ],
-    /* Panel score sheets that are not tied to a curriculum session: the
-       Pre-Demo Day video pitch and Demo Day itself. The Panel page lists
-       them after the weekly sessions. Criteria and weights follow the STEP 2
-       score sheets; on the Demo Day sheet the explanations for Financial
-       Viability and Customer Understanding were in each other's rows and are
-       paired with the right criterion here. */
-    panelSheets: [
-      { code: "PDD", tag: "Pre-Demo Day", week: 11, title: "Pre-Demo Day — Video Pitch Deck",
-        assess: [
-          { label: "Market Opportunity", weight: 20, hint: "Market Potential or Market Size & Opportunity (Highlights scope, growth potential, and demand.)" },
-          { label: "Customer Understanding and Business Model", weight: 20, hint: "Customer Insight & Business Model (Emphasizes clarity of customer needs and how the business delivers value.)" },
-          { label: "Financial Viability", weight: 20, hint: "Financial Sustainability or Business Viability (Focuses on revenue model, cost structure, and path to profitability.)" },
-          { label: "Pitching and Selling Skills", weight: 20, hint: "Pitch Delivery & Persuasion or Communication & Selling Ability (Captures clarity, confidence, storytelling, and salesmanship.)" },
-          { label: "Team Composition", weight: 20, hint: "Team Strength or Team Capability (Assesses skill diversity, experience, commitment, and execution capacity.)" },
-        ] },
-      { code: "DD", tag: "Demo Day", week: 12, title: "Demo Day",
-        assess: [
-          { label: "Market Opportunity", weight: 20, hint: "Market Potential or Market Size & Opportunity (Highlights scope, growth potential, and demand.)" },
-          { label: "Financial Viability", weight: 20, hint: "Financial Sustainability or Business Viability (Focuses on revenue model, cost structure, and path to profitability.)" },
-          { label: "Customer Understanding and Business Model", weight: 10, hint: "Customer Insight & Business Model (Emphasizes clarity of customer needs and how the business delivers value.)" },
-          { label: "Pitching and Selling Skills", weight: 10, hint: "Pitch Delivery & Persuasion or Communication & Selling Ability (Captures clarity, confidence, storytelling, and salesmanship.)" },
-          { label: "Team Composition", weight: 10, hint: "Team Strength or Team Capability (Assesses skill diversity, experience, commitment, and execution capacity.)" },
-          { label: "Potential adopter/Nearness to commercialization", weight: 30, hint: "Readiness for Adoption or Market Entry (Evaluates the product’s maturity, user validation, adaptability, and potential for real-world implementation or commercialization.)" },
-        ] },
-    ],
+    /* The curriculum and the panel score sheets, one per program week.
+       Titles, dates and modes come from the STEP 2.5 schedule. A week's
+       score sheet carries over the STEP 2 criteria for the same topic;
+       W2, W8 and W10 are new topics whose score sheets are still to come
+       (criteria_pending), so the Panel page has nothing to score for them
+       yet. Demo Day (W12) uses the STEP 2 Demo Day sheet. */
+    sessions: SCHED.weeks.map(w => ({
+      code: w.code, week: w.week, title: w.title, short: w.short, topic: w.topic,
+      tag: w.week === 12 ? "Demo Day" : undefined,
+      trainer: w.week === 0 ? "STEP Team" : "Trainer to be announced",
+      mode: Array.from(new Set(w.sessions.filter(x => x.kind !== "holiday").map(x => x.mode))).join(" + "),
+      coverage: w.sessions.map(x => SCHED.dayName(x.date).slice(0, 3) + (x.end ? "–" + SCHED.dayName(x.end).slice(0, 3) : "") + " " + SCHED.fmtRange(x.date, x.end) + " · " +
+        ({ learning: x.adjusted ? "Adjusted learning session" : "Learning session", feedback: "Feedback session",
+           orientation: "Online orientation", onsite: "On site", holiday: "Holiday" }[x.kind]) + ": " + x.title).join("\n"),
+      deliverable: w.output || w.week === 12 ? w.produce : "—",
+      assess: SCORE_SHEETS[w.code] || [],
+      criteria_pending: !!w.output && !SCORE_SHEETS[w.code],
+    })),
+    /* every score sheet now belongs to a week (Demo Day is W12) */
+    panelSheets: [],
   };
 
   /* ---------------------------------------------------------------------
@@ -689,21 +634,31 @@ window.MOCK = (function () {
     const t = groups.find(x => x.id === tid) || groups[0];
     const p = teamWorkProfiles[t.id] || teamWorkProfiles.g1;
 
-    const outputs = [
-      { code: "M2",  axis: "Beachhead\nmarkets", full: "Beachhead markets and customer segments", week: 1, score: p.scores[0], panel: t.panel_letter, scored_on: "2027-06-26" },
-      { code: "M3A", axis: "Market\nsize", full: "Market size estimation and market research", week: 2, score: p.scores[1], panel: t.panel_letter, scored_on: "2027-07-03" },
-      { code: "M3B", axis: "Measured\nvalue", full: "From understanding use to measured value", week: 3, score: p.scores[2], panel: t.panel_letter, scored_on: "2027-07-10" },
-      { code: "M4",  axis: "Competitive\nadvantage", full: "Competitive advantage (VRIO, CPM)", week: 4, score: p.scores[3], panel: t.panel_letter, scored_on: "2027-07-17" },
-      { code: "M5",  axis: "Go-to-market\nplan", full: "Go-to-market plan and lean canvas", week: 5, score: p.scores[4], panel: t.panel_letter, scored_on: "2027-07-24" },
-      { code: "M6",  axis: "Business model\nvalidation", full: "Business model validation", week: 6, score: p.scores[5], panel: t.panel_letter, scored_on: "2027-07-31" },
-      { code: "M10", axis: "Financial\nanalysis", full: "Discounted cash flow, ROI, 5-year projection", week: 7, score: p.scores[6], panel: t.panel_letter, scored_on: "2027-08-07" },
-    ];
+    /* the sample team's scored weeks: every week with a score sheet so far */
+    const SCORED = ["W3", "W4", "W5", "W6", "W7"];
+    const outputs = SCORED.map((c, i) => {
+      const w = SCHED.byCode(c), fb = SCHED.feedbackOf(w.week);
+      return { code: c, axis: w.axis, full: w.title, week: w.week, score: p.scores[i],
+               panel: t.panel_letter, scored_on: fb ? fb.date : w.ends };
+    });
+    const DEMO_WEEK = 9;                       // the preview shows the cycle at Week 9
 
     const att_grid = {};
     p.members.forEach((m, idx) => {
-      // 14 sessions attendance profile
+      // 14 sessions attendance profile (W2–W8, learning and feedback)
       att_grid[m.initials] = [1, 1, 1, 1, (idx % 2 === 0 ? 1 : 0), 1, 1, 1, 1, 1, 1, 1, 1, 1];
     });
+
+    const slug = t.short.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const subOf = n => {
+      const w = SCHED.byWeek(n), o = outputs.find(x => x.week === n), due = SCHED.dueOf(n);
+      const at = (h, m) => due.slice(0, 10) + "T" + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":00+08:00";
+      if (n === DEMO_WEEK) return { week: n, code: w.code, module: w.title, due, status: "open", files: [] };
+      if (n === 5) return { week: n, code: w.code, module: w.title, due, status: "missing", files: [] };
+      return { week: n, code: w.code, module: w.title, due, status: o ? "scored" : "submitted", score: o ? o.score : undefined,
+        files: [{ kind: "video", name: `${slug}-w${n}.mp4`, size: (138 + n * 7) + " MB", at: at(9, 20 + n) },
+                { kind: "slides", name: `${t.short}_W${n}.pdf`, size: (3 + n / 2).toFixed(1) + " MB", at: at(9, 30 + n) }] };
+    };
 
     return {
       team_id: t.id,
@@ -711,65 +666,33 @@ window.MOCK = (function () {
       technology_title: t.technology_title,
       implementing_agency: t.implementing_agency,
       region: t.region,
-      week_no: 8,
+      week_no: DEMO_WEEK,
       weeks_total: 12,
       members: p.members,
       outputs,
-      sessions_held: [
-        { n: 1, label: "W1 Learning" }, { n: 2, label: "W1 Feedback" },
-        { n: 3, label: "W2 Learning" }, { n: 4, label: "W2 Feedback" },
-        { n: 5, label: "W3 Learning" }, { n: 6, label: "W3 Feedback" },
-        { n: 7, label: "W4 Learning" }, { n: 8, label: "W4 Feedback" },
-        { n: 9, label: "W5 Learning" }, { n: 10, label: "W5 Feedback" },
-        { n: 11, label: "W6 Learning" }, { n: 12, label: "W6 Feedback" },
-        { n: 13, label: "W7 Learning" }, { n: 14, label: "W7 Feedback" },
-      ],
+      sessions_held: [2, 3, 4, 5, 6, 7, 8].flatMap((w, i) => [
+        { n: i * 2 + 1, label: "W" + w + " Learning" }, { n: i * 2 + 2, label: "W" + w + " Feedback" }]),
       attendance_grid: att_grid,
-      submissions: [
-        { week: 8, module: "M11 · Selling skills", due: "2027-08-13T12:00:00+08:00", status: "open", files: [] },
-        { week: 7, module: "M10 · Financial analysis", due: "2027-08-06T12:00:00+08:00", status: "scored", score: p.scores[6],
-          files: [{ kind: "video", name: `${t.short.toLowerCase()}-w7-pitch.mp4`, size: "184 MB", at: "2027-08-06T11:42:00+08:00" },
-                  { kind: "slides", name: `${t.short}_W7_Financials.pdf`, size: "6.2 MB", at: "2027-08-06T11:44:00+08:00" }] },
-        { week: 6, module: "M6 · Business model validation", due: "2027-07-30T12:00:00+08:00", status: "scored", score: p.scores[5],
-          files: [{ kind: "video", name: `${t.short.toLowerCase()}-w6-validation.mp4`, size: "201 MB", at: "2027-07-30T10:08:00+08:00" },
-                  { kind: "slides", name: `${t.short}_W6_BMV.pptx`, size: "11.4 MB", at: "2027-07-30T10:10:00+08:00" }] },
-        { week: 5, module: "M5 · Go-to-market plan", due: "2027-07-23T12:00:00+08:00", status: "scored", score: p.scores[4],
-          files: [{ kind: "video", name: `${t.short.toLowerCase()}-w5-gtm.mp4`, size: "176 MB", at: "2027-07-23T13:05:00+08:00", late: true },
-                  { kind: "slides", name: `${t.short}_W5_LeanCanvas.pdf`, size: "4.8 MB", at: "2027-07-23T11:58:00+08:00" }] },
-        { week: 4, module: "M4 · Competitive advantage", due: "2027-07-16T12:00:00+08:00", status: "scored", score: p.scores[3],
-          files: [{ kind: "video", name: `${t.short.toLowerCase()}-w4-vrio.mp4`, size: "162 MB", at: "2027-07-16T08:47:00+08:00" },
-                  { kind: "slides", name: `${t.short}_W4_VRIO.pdf`, size: "5.1 MB", at: "2027-07-16T08:52:00+08:00" }] },
-        { week: 3, module: "M3B · Understanding use to measured value", due: "2027-07-09T12:00:00+08:00", status: "missing",
-          files: [] },
-        { week: 2, module: "M3A · Market size estimation", due: "2027-07-02T12:00:00+08:00", status: "scored", score: p.scores[1],
-          files: [{ kind: "video", name: `${t.short.toLowerCase()}-w2-market.mp4`, size: "145 MB", at: "2027-07-02T10:55:00+08:00" },
-                  { kind: "slides", name: `${t.short}_W2_TAM.pdf`, size: "3.8 MB", at: "2027-07-02T11:02:00+08:00" }] },
-        { week: 1, module: "M2 · Beachhead markets", due: "2027-06-25T12:00:00+08:00", status: "scored", score: p.scores[0],
-          files: [{ kind: "video", name: `${t.short.toLowerCase()}-w1-beachhead.mp4`, size: "138 MB", at: "2027-06-25T09:20:00+08:00" },
-                  { kind: "slides", name: `${t.short}_W1_Segments.pdf`, size: "4.2 MB", at: "2027-06-25T09:24:00+08:00" }] },
-      ],
+      submissions: [9, 8, 7, 6, 5, 4, 3, 2].map(subOf),
       trajectory: outputs.map(o => ({ week: o.week, code: o.code, score: o.score })),
       handin_kinds: [
         { key: "video", label: "Five-minute video" },
         { key: "slides", label: "Slide deck" },
         { key: "report", label: "Feedback application report" },
       ],
-      handins: [
-        { week: 1, code: "M2", due: "2027-06-25T12:00:00+08:00", video: { state: "on_time", at: "2027-06-25T09:20:00+08:00" }, slides: { state: "on_time", at: "2027-06-25T09:24:00+08:00" }, report: { state: "on_time", at: "2027-06-27T20:10:00+08:00" } },
-        { week: 2, code: "M3A", due: "2027-07-02T12:00:00+08:00", video: { state: "on_time", at: "2027-07-02T10:55:00+08:00" }, slides: { state: "on_time", at: "2027-07-02T11:02:00+08:00" }, report: { state: "on_time", at: "2027-07-04T18:40:00+08:00" } },
-        { week: 3, code: "M3B", due: "2027-07-09T12:00:00+08:00", video: { state: "on_time", at: "2027-07-09T11:31:00+08:00" }, slides: { state: "late", at: "2027-07-10T08:15:00+08:00", late_days: 1 }, report: { state: "missed" } },
-        { week: 4, code: "M4", due: "2027-07-16T12:00:00+08:00", video: { state: "on_time", at: "2027-07-16T08:47:00+08:00" }, slides: { state: "on_time", at: "2027-07-16T08:52:00+08:00" }, report: { state: "on_time", at: "2027-07-18T21:05:00+08:00" } },
-        { week: 5, code: "M5", due: "2027-07-23T12:00:00+08:00", video: { state: "late", at: "2027-07-23T13:05:00+08:00", late_days: 1 }, slides: { state: "on_time", at: "2027-07-23T11:58:00+08:00" }, report: { state: "on_time", at: "2027-07-25T19:30:00+08:00" } },
-        { week: 6, code: "M6", due: "2027-07-30T12:00:00+08:00", video: { state: "on_time", at: "2027-07-30T10:08:00+08:00" }, slides: { state: "on_time", at: "2027-07-30T10:10:00+08:00" }, report: { state: "missed" } },
-        { week: 7, code: "M10", due: "2027-08-06T12:00:00+08:00", video: { state: "on_time", at: "2027-08-06T11:42:00+08:00" }, slides: { state: "on_time", at: "2027-08-06T11:44:00+08:00" }, report: { state: "on_time", at: "2027-08-08T17:12:00+08:00" } },
-        { week: 8, code: "M11", due: "2027-08-13T12:00:00+08:00", video: { state: "open" }, slides: { state: "open" }, report: { state: "open" } },
-      ],
+      handins: [2, 3, 4, 5, 6, 7, 8, 9].map(n => {
+        const due = SCHED.dueOf(n), d = due.slice(0, 10);
+        const ok = (h, m) => ({ state: "on_time", at: d + "T" + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":00+08:00" });
+        if (n === 9) return { week: n, code: "W9", due, video: { state: "open" }, slides: { state: "open" }, report: { state: "open" } };
+        if (n === 5) return { week: n, code: "W5", due, video: ok(11, 31), slides: { state: "late", at: SCHED.addDays(d, 1) + "T08:15:00+08:00", late_days: 1 }, report: { state: "missed" } };
+        return { week: n, code: "W" + n, due, video: ok(9, 10 + n), slides: ok(9, 20 + n), report: ok(20, 10) };
+      }),
       insight: {
         method: "Reflexive thematic analysis — every panel and mentor comment coded, codes grouped into themes",
         claim: p.claim,
-        based_on: 23, weeks: "Weeks 1–7", reviewed_by: "Ms. May Ann Albis, STEP team", reviewed_on: "2027-08-11",
+        based_on: 23, weeks: "Weeks 2–8", reviewed_by: "Ms. May Ann Albis, STEP team", reviewed_on: "2027-01-06",
         corpus: { comments: 23, panelists: 6, sessions: 7, codes: 9, themes: 4 },
-        saturation: "No new code appeared after Week 6 — the code book has settled.",
+        saturation: "No new code appeared after Week 7 — the code book has settled.",
         phases: [
           { n: 1, name: "Familiarisation", note: "Read all panel feedback transcripts end-to-end." },
           { n: 2, name: "Coding", note: "Assign descriptive labels to every meaningful comment." },
@@ -796,7 +719,7 @@ window.MOCK = (function () {
         next: [
           `Express value proposition as clear ROI metrics for ${t.institution} partners.`,
           "Freeze competitor benchmark comparison matrix.",
-          "Open Week 8 pitch with customer pain point rather than technical specifications."
+          "Open the Week 9 pitch with the customer's pain point rather than technical specifications."
         ]
       }
     };
@@ -814,9 +737,9 @@ window.MOCK = (function () {
     const form = [
       { n: 1, group: "Project profile", title: "Project profile", kind: "profile",
         guide: "Program and project title, project leader and sex, duration with start and end dates, implementing agency, and the full address.",
-        week: 0, source: "Kick-off", status: "reviewed",
+        week: 1, source: "Program Launch", status: "reviewed",
         value: {
-          program: `SPRINT-STEP Commercialization Program — ${t.name}`,
+          program: `STEP 2.5 Commercialization Program — ${t.name}`,
           title: `${t.name} — ${t.technology_title}`,
           leader: lead.name, sex: "M", months: "24",
           start: "2028-01-15", end: "2030-01-14",
@@ -826,12 +749,12 @@ window.MOCK = (function () {
       },
       { n: 2, group: "Project profile", title: "Cooperating agency/ies", kind: "prose",
         guide: "Agencies that support the project as collaborator, co-grantor, committed adopter of the resulting technology, or potential investor.",
-        week: 0, source: "Kick-off", status: "reviewed",
+        week: 1, source: "Program Launch", status: "reviewed",
         draft: `Local Government Unit of ${t.city} (committed adopter); Regional DOST Office (${t.region}); Industry Partners.`
       },
       { n: 3, group: "Project profile", title: "Site(s) of implementation", kind: "sites",
         guide: "Location/s where the project will be conducted.",
-        week: 0, source: "Kick-off", status: "reviewed",
+        week: 1, source: "Program Launch", status: "reviewed",
         value: [
           { country: "Philippines", region: t.region, province: t.city, district: "1st", municipality: t.city, barangay: "Poblacion" },
           { country: "Philippines", region: t.region, province: t.city, district: "2nd", municipality: t.city, barangay: "Industrial Zone" }
@@ -839,17 +762,17 @@ window.MOCK = (function () {
       },
       { n: 4, group: "Project profile", title: "Type of research", kind: "choice",
         guide: "Pre-commercialization — activities that bridge R&D and commercialization.",
-        week: 0, source: "Kick-off", status: "reviewed",
+        week: 1, source: "Program Launch", status: "reviewed",
         value: { precommercialization: true }
       },
       { n: 5, group: "Project profile", title: "R&D priority area, program and SDG", kind: "agenda",
         guide: "Which HNRDA agenda the project falls under and which SDGs it addresses.",
-        week: 0, source: "Kick-off", status: "reviewed",
+        week: 1, source: "Program Launch", status: "reviewed",
         value: { area: "Industry & Emerging Tech", commodity: t.short, priorityTopic: t.technology_title, sectorIndustry: "Manufacturing & Infrastructure", sectorBasic: "Applied Science", sdg: "SDG 9 (Industry, Innovation & Infrastructure) & SDG 11 (Sustainable Cities)" }
       },
       { n: 6, group: "The case", title: "Executive summary and startup background", kind: "prose",
         guide: "Briefly discusses what the proposal is about, founders, value proposition, and IP status.",
-        week: 3, revisit: 9, source: "M3B · Measured value", status: "submitted", limit: 200,
+        week: 5, revisit: 11, source: "Product Use Case Mapping", status: "submitted", limit: 200,
         draft: `${t.name} is a university spin-off from ${t.implementing_agency} founded by ${lead.name} and research co-inventors. The team developed ${t.technology_title}. Field validation in ${t.city} demonstrates substantial cost reduction and operational advantage over imported solutions. IP protection includes a Philippine patent / utility model application. Grant funds will deploy industrial-scale pilot units across target partner sites.`
       },
       /* Item 7 has three parts on DOST Form 2 — 7.1 Rationale/Significance
@@ -857,70 +780,70 @@ window.MOCK = (function () {
          7.3 Objectives (General and Specific) — so it is filled part by part. */
       { n: 7, group: "The case", title: "Introduction — rationale, scientific basis, objectives", kind: "intro",
         guide: "Rationale, scientific framework, and general and specific objectives.",
-        week: 11, source: "M14 · FASTRAC writeshop", status: "locked", limit: 300,
+        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked", limit: 300,
         value: { rationale: "", framework: "", general: "", specific: "" }
       },
       { n: 8, group: "The case", title: "Review of literature & Prior Art", kind: "prose",
         guide: "State of the art, prior art search, patent novelty, and freedom-to-operate.",
-        week: 7, source: "On-site · M8 IP and patents", status: "reviewed",
+        week: 10, source: "Team Organization, IP Strategy & Finance", status: "locked",
         draft: `Prior art search with IPOPHL confirmed no blocking patents in the Philippines for ${t.short}'s specialized formulation and architecture. Prototype validation completed successfully in 2026.`
       },
       { n: 9, group: "The case", title: "Marketing and commercial viability", kind: "prose",
         guide: "Competitor matrix, production requirements, target distribution, sales forecast.",
-        week: 2, revisit: 7, source: "M3A, M4, M5, M10", status: "draft",
+        week: 4, revisit: 7, source: "Market Size Estimation, Competitive Advantage and Go-to-Market Plan", status: "draft",
         draft: `Target beachhead market consists of industrial and municipal clients in ${t.region}. Competitive analysis indicates ${t.name} delivers 35% cost savings with domestic fabrication and immediate technical support.`
       },
       { n: 10, group: "Plan", title: "Methodology", kind: "prose",
         guide: "Parameters measured, experimental procedure, scale-up strategy.",
-        week: 6, source: "M6 · Business model validation", status: "draft",
+        week: 9, source: "Business Model and Market Validation", status: "draft",
         draft: `Phase 1 (Months 1–6): Pilot fabrication and QA calibration. Phase 2 (Months 7–18): Field deployment across 3 pilot sites in ${t.region}. Phase 3 (Months 19–24): Long-term durability and unit economics verification.`
       },
       { n: 11, group: "Plan", title: "Technology roadmap", kind: "prose",
         guide: "Milestones matching technology maturity to market validation.",
-        week: 10, source: "M13 · Technology roadmapping", status: "locked"
+        week: 11, source: "Financial Projection", status: "locked"
       },
       { n: 12, group: "Plan", title: "Expected outputs (6Ps)", kind: "prose",
         guide: "Publication, Patent, Product, People, Place/Partnership, Policy.",
-        week: 8, source: "M11 · Selling skills", status: "open"
+        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
       },
       { n: 13, group: "Plan", title: "Potential outcomes", kind: "prose",
         guide: "Long-term results delivered 3 years after grant conclusion.",
-        week: 6, source: "M6 · Business model validation", status: "submitted",
+        week: 9, source: "Business Model and Market Validation", status: "submitted",
         draft: `Within three years: commercial deployment of ${t.short} across national facilities, generating sustained revenue, sustainable local manufacturing, and regional employment.`
       },
       { n: 14, group: "Plan", title: "Potential impacts (2Is)", kind: "prose",
         guide: "Social and economic impact dimensions.",
-        week: 10, source: "M13 · Technology roadmapping", status: "locked"
+        week: 11, source: "Financial Projection", status: "locked"
       },
       { n: 15, group: "Plan", title: "Target beneficiaries", kind: "prose",
         guide: "Direct and indirect beneficiary groups.",
-        week: 1, source: "M2 · Beachhead markets", status: "reviewed",
+        week: 3, source: "Customer Segments & Beachhead Markets", status: "reviewed",
         draft: `Direct: Partner cooperatives, LGUs, and industrial facilities in ${t.region}. Indirect: Surrounding communities benefiting from improved safety, resource efficiency, and local technology self-reliance.`
       },
       { n: 16, group: "Plan", title: "Sustainability plan", kind: "prose",
         guide: "Post-grant commercial viability and revenue model.",
-        week: 7, source: "On-site · M9 Tax incentives for spin-offs", status: "revise",
+        week: 10, source: "Team Organization, IP Strategy & Finance", status: "locked",
         draft: `Revenue generated via equipment sales and service maintenance agreements. Registration as an approved DOST spin-off under the Philippine Innovative Startup Act.`
       },
       { n: 17, group: "Compliance", title: "Gender and Development (GAD) score", kind: "prose",
         guide: "GAD checklist score and gender equality integrations.",
-        week: 11, source: "M14 · FASTRAC writeshop", status: "locked"
+        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
       },
       { n: 18, group: "Compliance", title: "Limitations of the project", kind: "prose",
         guide: "Constraints and boundary limits of the project.",
-        week: 11, source: "M14 · FASTRAC writeshop", status: "locked"
+        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
       },
       { n: 19, group: "Compliance", title: "Risks, assumptions and risk management plan", kind: "prose",
         guide: "Key risks and mitigation measures.",
-        week: 11, source: "M14 · FASTRAC writeshop", status: "locked"
+        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
       },
       { n: 20, group: "Compliance", title: "Literature cited", kind: "prose",
         guide: "Full bibliography and technical citations.",
-        week: 11, source: "M14 · FASTRAC writeshop", status: "locked"
+        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
       },
       { n: 21, group: "Resources", title: "Personnel requirement", kind: "personnel",
         guide: "Team roles and percent time dedicated.",
-        week: 7, source: "On-site · M7 Team organisation", status: "submitted",
+        week: 10, source: "Team Organization, IP Strategy & Finance", status: "locked",
         value: p.members.map((m, idx) => ({
           position: `${m.name} (${m.role})`,
           pct: idx === 0 ? "50" : "40",
@@ -929,7 +852,7 @@ window.MOCK = (function () {
       },
       { n: 22, group: "Resources", title: "Budget by implementing agency", kind: "budget",
         guide: "Personnel Services, MOOE, and Equipment Outlay per year.",
-        week: 7, source: "On-site · M10 Financial analysis", status: "draft",
+        week: 11, source: "Financial Projection", status: "locked",
         value: {
           rows: [
             { label: "Year 1", ps: 1800000, mooe: 2100000, eo: 1500000 },
@@ -941,7 +864,7 @@ window.MOCK = (function () {
       },
       { n: 23, group: "Resources", title: "Other ongoing projects of the project leader", kind: "projects",
         guide: "Current active research grants handled by project leader.",
-        week: 11, source: "M14 · FASTRAC writeshop", status: "locked",
+        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked",
         value: { count: "", rows: [{ title: "", agency: "", role: "" }] }
       },
       { n: 24, group: "Attachments", title: "Other supporting documents", kind: "attachments",
@@ -958,112 +881,76 @@ window.MOCK = (function () {
     ];
 
     const deck = [
-      { n: 1,  title: t.name, sub: "Title and team", week: 0, source: "Kick-off", kind: "title", status: "in" },
-      { n: 2,  title: "The problem", sub: `Unmet market pain addressed by ${t.short}`, week: 1, source: "M2", kind: "statement", status: "in", score: p.scores[0] },
-      { n: 3,  title: "Beachhead market", sub: `Primary customers in ${t.region}`, week: 1, source: "M2", kind: "bullets", status: "in", score: p.scores[0] },
-      { n: 4,  title: "Market size", sub: "TAM, SAM, SOM for the Philippines", week: 2, source: "M3A", kind: "chart", status: "in", score: p.scores[1] },
-      { n: 5,  title: "Value proposition", sub: "Measurable customer ROI and performance", week: 3, source: "M3B", kind: "statement", status: "in", score: p.scores[2] },
-      { n: 6,  title: "Competitive advantage", sub: "VRIO and Competitive Profile Matrix", week: 4, source: "M4", kind: "table", status: "in", score: p.scores[3] },
-      { n: 7,  title: "Go-to-market", sub: "Distribution and customer acquisition plan", week: 5, source: "M5", kind: "grid", status: "in", score: p.scores[4] },
-      { n: 8,  title: "Validation evidence", sub: `Field trials and pilot testing in ${t.city}`, week: 6, source: "M6", kind: "chart", status: "in", score: p.scores[5] },
-      { n: 9,  title: "Team and spin-off", sub: `${t.implementing_agency} commercialization team`, week: 7, source: "M7", kind: "grid", status: "in" },
-      { n: 10, title: "IP strategy", sub: "Patents, utility models and trade secrets", week: 7, source: "M8", kind: "bullets", status: "in" },
-      { n: 11, title: "Financial model", sub: "5-year projection, payback and unit economics", week: 7, source: "M10", kind: "chart", status: "in", score: p.scores[6] },
-      { n: 12, title: "The ask", sub: "DOST FASTRAC funding request and milestones", week: 8, source: "M11", kind: "statement", status: "due" },
-      { n: 13, title: "Technology roadmap", sub: "Scale-up timeline through 2030", week: 10, source: "M13", kind: "timeline", status: "locked" },
-      { n: 14, title: "Summary and contact", sub: `Connect with ${t.name}`, week: 9, source: "M12", kind: "title", status: "locked" }
+      { n: 1,  title: t.name, sub: "Title and team", week: 1, source: "Program Launch", kind: "title", status: "in" },
+      { n: 2,  title: "The problem", sub: `Unmet market pain addressed by ${t.short}`, week: 3, source: "Customer Segments & Beachhead Markets", kind: "statement", status: "in", score: p.scores[0] },
+      { n: 3,  title: "Beachhead market", sub: `Primary customers in ${t.region}`, week: 3, source: "Customer Segments & Beachhead Markets", kind: "bullets", status: "in", score: p.scores[0] },
+      { n: 4,  title: "Market size", sub: "TAM, SAM, SOM for the Philippines", week: 4, source: "Market Size Estimation", kind: "chart", status: "in", score: p.scores[1] },
+      { n: 5,  title: "Value proposition", sub: "Measurable customer ROI and performance", week: 5, source: "Product Use Case Mapping", kind: "statement", status: "in", score: p.scores[2] },
+      { n: 6,  title: "Competitive advantage", sub: "VRIO and Competitive Profile Matrix", week: 6, source: "Competitive Advantage", kind: "table", status: "in", score: p.scores[3] },
+      { n: 7,  title: "Go-to-market", sub: "Distribution and customer acquisition plan", week: 7, source: "Go-to-Market Plan", kind: "grid", status: "in", score: p.scores[4] },
+      { n: 8,  title: "Validation evidence", sub: `Field trials and pilot testing in ${t.city}`, week: 9, source: "Business Model and Market Validation", kind: "chart", status: "due" },
+      { n: 9,  title: "Team and spin-off", sub: `${t.implementing_agency} commercialization team`, week: 10, source: "Team Organization, IP Strategy & Finance", kind: "grid", status: "locked" },
+      { n: 10, title: "IP strategy", sub: "Patents, utility models and trade secrets", week: 10, source: "Team Organization, IP Strategy & Finance", kind: "bullets", status: "locked" },
+      { n: 11, title: "Financial model", sub: "5-year projection, payback and unit economics", week: 11, source: "Financial Projection", kind: "chart", status: "locked" },
+      { n: 12, title: "The ask", sub: "DOST FASTRAC funding request and milestones", week: 11, source: "Financial Projection (FASTRAC orientation)", kind: "statement", status: "locked" },
+      { n: 13, title: "Technology roadmap", sub: "Scale-up timeline through 2030", week: 12, source: "Demo Day technology roadmap", kind: "timeline", status: "locked" },
+      { n: 14, title: "Summary and contact", sub: `Connect with ${t.name}`, week: 12, source: "Demo Day", kind: "title", status: "locked" }
     ];
 
     return {
       team_id: t.id,
       team_name: t.name,
       technology_title: t.technology_title,
-      week_no: 8,
+      week_no: 9,
       weeks_total: 12,
-      demo_day: "2027-09-14",
+      demo_day: "2027-01-28",
       form,
       deck
     };
   }
 
   /* ---------------------------------------------------------------------
-     Cohort This Week Data
+     This Week — the program week we are actually in, from the schedule.
+     Before Oct 12 it is Week 0 (the orientation coming up); over the
+     Christmas break it is Week 9, the week sessions resume.
      --------------------------------------------------------------------- */
+  const WK = SCHED.byWeek(NOW_AT.week);
   const thisWeek = {
-    week_no: 8, weeks_total: 12,
-    today: "2027-08-12T14:30:00+08:00",
-    starts: "2027-08-10", ends: "2027-08-16",
+    week_no: WK.week, weeks_total: SCHED.cohort.weeks_total, code: WK.code,
+    status: NOW_AT.status, note: NOW_AT.note,
+    today: new Date().toISOString(),
+    starts: WK.starts, ends: WK.ends,
     topic: {
-      code: "M11", title: "Selling skills",
-      tagline: "Turning a good technology into a conversation someone says yes to.",
-      brief: "Most research teams can explain what their technology does and still lose the room. This week is about the other half of the job: finding the people who can actually buy, opening with the problem they already feel, and closing with a specific next step instead of a polite goodbye.",
-      able: [
-        "Qualify a prospect on budget, authority and timing before spending a meeting on them",
-        "Open a pitch with the buyer's problem rather than your technology",
-        "Answer the objection you actually get, using a battle card you prepared",
-      ],
-      output: "A prospect list of at least fifteen qualified names, a one-page battle card for your two closest competitors, and a five-minute video of your team running the conversation end to end.",
-      materials: [
-        { name: "M11 Selling skills — slide deck", type: "PDF", size: "4.2 MB", by: "Mr. G. Quitoriano", at: "2027-08-09T16:20:00+08:00" },
-        { name: "Prospect qualification worksheet", type: "XLSX", size: "82 KB", by: "Mr. G. Quitoriano", at: "2027-08-09T16:22:00+08:00" },
-        { name: "Tuesday session recording", type: "Video", size: "1 h 52 m", by: "STEP Team", at: "2027-08-10T14:10:00+08:00" },
-        { name: "Battle card template", type: "DOCX", pending: "Expected Friday" },
-      ],
+      code: WK.code, week: WK.week, title: WK.title, short: WK.short, topic: WK.topic,
+      tagline: WK.tagline, brief: WK.brief, able: WK.able, output: WK.produce,
+      review: WK.review || "",
+      /* sample files for the offline preview only — signed in, the list is
+         whatever the trainer has really posted for this week */
+      materials: WK.output ? [
+        { name: "Week " + WK.week + " " + WK.short + " — slide deck", type: "PDF", size: "4.2 MB", by: "Trainer", at: (SCHED.learningOf(WK.week) || WK.sessions[0]).date + "T16:20:00+08:00" },
+        { name: WK.short + " worksheet", type: "XLSX", size: "82 KB", by: "Trainer", at: (SCHED.learningOf(WK.week) || WK.sessions[0]).date + "T16:22:00+08:00" },
+        { name: "Output template", type: "DOCX", pending: "Expected Friday" },
+      ] : [],
     },
-    days: [
-      { d: "2027-08-10", label: "Tuesday", kind: "session", title: "Learning session · M11 Selling skills", time: "9:00 AM – 12:00 NN", where: "Zoom", note: "Recording posted the same afternoon.", action: "recording" },
-      { d: "2027-08-11", label: "Wednesday", kind: "window", title: "Mentoring window opens", time: "Wednesday to Friday", note: "An hour and a half with your mentor, arranged directly." },
-      { d: "2027-08-12", label: "Thursday", kind: "window", title: "Mentoring continues", time: "Any slot your team booked", note: "Nothing scheduled by STEP team today." },
-      { d: "2027-08-13", label: "Friday", kind: "deadline", title: "Team output due", time: "12:00 NN", note: "Prospect list, battle card and five-minute video.", action: "submit" },
-      { d: "2027-08-14", label: "Saturday", kind: "panel", title: "Feedback session · Panels A, B and C", time: "9:00 AM – 12:00 NN", where: "Zoom", note: "Five-minute video, then twenty-five minutes of questions.", action: "join" },
-      { d: "2027-08-15", label: "Sunday", kind: "rest", title: "No session", note: "Rest and regroup." },
-      { d: "2027-08-16", label: "Monday", kind: "info", title: "Week 9 materials posted", note: "M12 Pitching skills opens on Program page." },
-    ],
+    days: SCHED.daysOf(WK.week),
+    /* sample board for the offline preview; the live board is the
+       announcements table */
     announcements: [
-      { id: "w8a", icon: "alert", pinned: true, priority: "important", title: "Saturday panels start at 9:00 AM sharp",
-        body: "Panel assignments: Panel A (POSTE, SINAG, BRICKS, Halal Blockchain), Panel B (Zeoskin, CAPPS, SPArC), Panel C (meSHM, SFRSCC, LASER).",
-        by: "Ms. May Ann Albis", at: "2027-08-11T08:30:00+08:00", read: false },
-      { id: "w8b", icon: "file", pinned: false, priority: "normal", title: "Week 8 materials are up",
-        body: "Slide deck and worksheet are posted.",
-        by: "STEP Team", at: "2027-08-09T16:25:00+08:00", read: false },
-      { id: "w8c", icon: "cert", pinned: false, priority: "normal", title: "Certificates of Appearance for August",
-        body: "Government-employed participants can download certificates from the help desk.",
-        by: "STEP Team", at: "2027-08-10T09:15:00+08:00", read: true },
-      { id: "w8d", icon: "chart", pinned: false, priority: "normal", title: "Week 7 results released",
-        body: "Financial analysis scores and panel comments are now visible on My Team's Work.",
-        by: "STEP Team", at: "2027-08-09T11:00:00+08:00", read: true },
+      { id: "wa", icon: "alert", pinned: true, priority: "important", title: "Week " + WK.week + " · " + WK.short,
+        body: WK.tagline, by: "STEP Team", at: WK.starts + "T08:30:00+08:00", read: false },
     ],
-    helpdesk: [
-      { who: "Ms. May Ann Albis", role: "STEP Team", me: false, at: "2027-08-12T09:02:00+08:00",
-        body: "Good morning po! Reminder lang, bukas 12 NN ang deadline ng Week 8 output. The battle card template will be up by 10 AM tomorrow." },
-      { who: "Ms. Michelle Yu", role: "POSTE", me: false, at: "2027-08-12T09:40:00+08:00",
-        body: "Ma'am, pwede po bang two competitors lang sa battle card? Yung third namin hindi pa confirmed." },
-      { who: "Ms. May Ann Albis", role: "STEP Team", me: false, at: "2027-08-12T09:51:00+08:00",
-        body: "Yes, two is fine. Better two you can defend than three you are guessing at." },
-      { who: "Mr. G. Quitoriano", role: "Trainer", me: false, at: "2027-08-12T11:30:00+08:00",
-        body: "Not at all. What the panel wants is evidence you had the conversation — even a note of what the customer said counts." },
-    ],
+    helpdesk: [],
     housekeeping: [
       { title: "How the panels work", note: "Five-minute video, twenty-five minutes of questions, three panelists." },
       { title: "Missed the session?", note: "Every learning session is recorded and posted the same afternoon." },
     ],
-    game: {
-      title: "Put the sales conversation in order",
-      prompt: "From first contact to closing a next step. Drag the cards into the order you would run them.",
-      steps: [
-        { order: 1, label: "Warm open & trigger event", why: "Reference the buyer's current problem before talking about your solution." },
-        { order: 2, label: "Diagnose & qualify budget/authority", why: "Ensure they have decision authority before pitching specifics." },
-        { order: 3, label: "Tailored value proposition", why: "Show how your technology uniquely addresses their pain point." },
-        { order: 4, label: "Handle objections with battle card", why: "Address competitor comparisons with prepared evidence." },
-        { order: 5, label: "Commitment to a concrete next step", why: "Lock in a trial, demo date or proposal review instead of a polite exit." },
-      ],
-    },
+    game: WK.game,
   };
 
   const articles = [
-    { slug: "step-3-kickoff", photo: "assets/photos/teams.jpg", kind: "article", title: "Ten research teams begin SPRINT-STEP 3",
+    { slug: "step-3-kickoff", photo: "assets/photos/teams.jpg", kind: "article", title: "Ten research teams begin STEP 2.5",
       excerpt: "Teams from Luzon, the Visayas and Mindanao opened the cycle with a two-day kick-off at the Ateneo campus.",
-      published_at: "2027-06-16", author: "AIPO Communications", read: "4 min read",
+      published_at: "2026-10-20", author: "AIPO Communications", read: "4 min read",
       tags: ["Program news"], cover_color: "#dfeefc" },
     { slug: "spinoff-policy-brief", photo: "assets/photos/panel.jpg", kind: "publication", title: "What slows down university spin-offs in the Philippines",
       excerpt: "Evidence from two STEP cycles on fairness opinion boards, licensing timelines and equity rules, with five recommendations for HEIs.",
@@ -1101,7 +988,7 @@ window.MOCK = (function () {
   const panelScores = {};
   groups.forEach(g => {
     const p = teamWorkProfiles[g.id] || teamWorkProfiles.g1;
-    panelScores[g.id] = { M2: p.scores[0], M3A: p.scores[1], M3B: p.scores[2], M4: p.scores[3] };
+    panelScores[g.id] = { W3: p.scores[0], W4: p.scores[1], W5: p.scores[2], W6: p.scores[3] };
   });
 
   const attendance = groups.map((g, i) => ({
@@ -1113,8 +1000,8 @@ window.MOCK = (function () {
   }));
 
   const submissions = [
-    { assignment_id: "as1", assignment_title: "Week 4 Team Output · CPM & VRIO", assignment_type: "team_output", week_no: 4, due_at: "2027-07-16T12:00:00+08:00", team_id: "g1", status: "draft", timeliness: "pending", late_days: 0, score: null, max_points: 10 },
-    { assignment_id: "as2", assignment_title: "Week 4 Discussion Post", assignment_type: "discussion_post", week_no: 4, due_at: "2027-07-15T23:59:00+08:00", team_id: "g1", status: "submitted", timeliness: "on_time", late_days: 0, score: null, max_points: 5 },
+    { assignment_id: "as1", assignment_title: "Week 6 Team Output · CPM & VRIO", assignment_type: "team_output", week_no: 6, due_at: "2026-11-27T12:00:00+08:00", team_id: "g1", status: "draft", timeliness: "pending", late_days: 0, score: null, max_points: 10 },
+    { assignment_id: "as2", assignment_title: "Week 6 Discussion Post", assignment_type: "discussion_post", week_no: 6, due_at: "2026-11-26T23:59:00+08:00", team_id: "g1", status: "submitted", timeliness: "on_time", late_days: 0, score: null, max_points: 5 },
   ];
 
   // ── MOCK object is assembled at the end, after all functions are defined ──
@@ -1125,7 +1012,41 @@ window.MOCK = (function () {
      --------------------------------------------------------------------- */
 
   /* ── Cached live user (from Supabase profile) ── */
-  let _liveUser = null;
+  /* Someone who is already signed in should see their own view the moment
+     a page opens, not a guest view that changes a second later. Their
+     profile is remembered in this browser (only while their sign-in is
+     still there) and used straight away; the database then confirms it,
+     and if anything about them changed the page refreshes itself once. */
+  const PROFILE_CACHE = "stephub_profile_cache";
+  function _sessionUserId() {
+    try {
+      const key = Object.keys(localStorage).find(k => /^sb-.+-auth-token$/.test(k));
+      if (!key) return null;
+      const sess = JSON.parse(localStorage.getItem(key) || "null");
+      return (sess && sess.user && sess.user.id) || (sess && sess.currentSession && sess.currentSession.user && sess.currentSession.user.id) || null;
+    } catch (e) { return null; }
+  }
+  function _readCachedUser() {
+    try {
+      const cached = JSON.parse(localStorage.getItem(PROFILE_CACHE) || "null");
+      return cached && cached.id && cached.id === _sessionUserId() ? cached : null;
+    } catch (e) { return null; }
+  }
+  function _cacheUser(u) {
+    try { if (u && u.id) localStorage.setItem(PROFILE_CACHE, JSON.stringify(u)); else localStorage.removeItem(PROFILE_CACHE); } catch (e) {}
+  }
+  const _sig = u => u ? JSON.stringify([u.id, u.role, u.roles || [], u.team_id || null, u.teams || [], u.full_name || ""]) : "";
+  /* refresh at most once every few seconds, so a hiccup can never loop */
+  function _reloadOnce() {
+    try {
+      const last = +sessionStorage.getItem("stephub_auto_reload") || 0;
+      if (Date.now() - last < 8000) return false;
+      sessionStorage.setItem("stephub_auto_reload", String(Date.now()));
+      location.reload();
+      return true;
+    } catch (e) { return false; }
+  }
+  let _liveUser = _readCachedUser();
 
   /** Get the effective current user: Supabase live user → mock user → guest */
   function getEffectiveUser() {
@@ -1345,7 +1266,7 @@ window.MOCK = (function () {
     // If there's a live Supabase user, sign them out first
     if (_liveUser && window.STEP_SUPABASE) {
       window.STEP_SUPABASE.signOut();
-      _liveUser = null;
+      _liveUser = null; _cacheUser(null);
     }
     auth.setCurrentUser(userId);
     closeAuthModal();
@@ -1355,7 +1276,7 @@ window.MOCK = (function () {
   function signOutUser() {
     if (_liveUser && window.STEP_SUPABASE) {
       window.STEP_SUPABASE.signOut();
-      _liveUser = null;
+      _liveUser = null; _cacheUser(null);
     }
     auth.logout();
     closeAuthModal();
@@ -1429,9 +1350,15 @@ window.MOCK = (function () {
         }
 
         console.log('[STEP] Live user set:', _liveUser);
-        closeAuthModal();
-        updateAuthChrome();
-        window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: _liveUser } }));
+        _cacheUser(_liveUser);
+        try { sessionStorage.setItem("stephub_auto_reload", String(Date.now())); } catch (e) {}
+        /* start the site afresh as this person — every page then loads their
+           own data from the beginning (the session survives the reload) */
+        btn.textContent = "Signed in — loading your view…";
+        setTimeout(() => { try { location.reload(); } catch (e) {
+          closeAuthModal(); updateAuthChrome();
+          window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: _liveUser } }));
+        } }, 150);
       } else {
         if (errBox) { errBox.textContent = "Sign in succeeded but no user data returned. Please try again."; errBox.style.display = "block"; }
         btn.disabled = false; btn.textContent = "Sign In";
@@ -1449,7 +1376,10 @@ window.MOCK = (function () {
       await window.STEP_SUPABASE.signOut();
     }
     _liveUser = null;
+    _cacheUser(null);
     auth.logout();
+    /* refresh on the way out too, so nothing private stays on the screen */
+    try { location.reload(); return; } catch (e) {}
     closeAuthModal();
     updateAuthChrome();
     window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: null } }));
@@ -1478,14 +1408,25 @@ window.MOCK = (function () {
     if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) { _settleAuth(); return; }
     try {
       const profile = await window.STEP_SUPABASE.getCurrentUser();
+      const before = _sig(_liveUser);
       if (profile) {
         _liveUser = {
           ...profile,
           name: profile.full_name || profile.email,
           team_name: profile.team_id ? (window.MOCK.groups.find(g => g.id === profile.team_id) || {}).name || profile.team_id : null
         };
+        _cacheUser(_liveUser);
+        /* the page was drawn for someone else (a guest, or an older copy of
+           this account) — start it afresh as who they really are */
+        if (before !== _sig(_liveUser) && _reloadOnce()) return;
         updateAuthChrome();
         window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: _liveUser } }));
+      } else if (_liveUser) {
+        /* the remembered sign-in has ended — show the guest view */
+        _liveUser = null; _cacheUser(null);
+        if (_reloadOnce()) return;
+        updateAuthChrome();
+        window.dispatchEvent(new CustomEvent("stephub_auth_changed", { detail: { user: null } }));
       }
     } catch (err) {
       console.warn("[STEP] Session check failed:", err);
@@ -1523,6 +1464,8 @@ window.MOCK = (function () {
     get capstone() { return getCapstone(); },
     openAuthModal,
     closeAuthModal,
+    /* true only for a real STEP account — the page then shows real data */
+    isLiveUser: () => !!_liveUser,
     selectUser,
     signOutUser,
     _doSignIn,

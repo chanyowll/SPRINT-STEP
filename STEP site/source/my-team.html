@@ -71,6 +71,7 @@
 
 <!-- ===== Team identity bar ===== -->
 <div id="myteam-locked-gate" class="wrap" hidden></div>
+<div id="myteam-loading" class="wrap tw-loading" hidden role="status" aria-live="polite"><span class="tw-spin" aria-hidden="true"></span>Loading your team's numbers…</div>
 <div id="myteam-content-wrap">
 <div id="team-switcher-slot" class="wrap" style="padding-top: var(--s4);"></div>
 <section class="team-bar">
@@ -87,7 +88,7 @@
   </div>
 </section>
 
-<main class="wrap page stack" style="gap:var(--s7)">
+<main class="wrap page stack gp-after" style="gap:var(--s7)">
 
   <!-- ===== Submit this week (moved to top for immediate visibility) ===== -->
   <section id="submit">
@@ -439,6 +440,7 @@
 <script src="supabase-client.js"></script>
 <script src="myteam-data.js"></script>
 <script src="submissions-data.js"></script>
+<script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script>
 const MAXS = 4;
@@ -511,12 +513,47 @@ function pair(frontId, backId, onShow) {
   }
 }
 
+/* An empty panel says what will appear there and when — it never borrows
+   sample numbers to look full. */
+function emptyIn(host, title, note) {
+  if (!host) return;
+  host._draw = null; host._paint = null;
+  const old = host.querySelector("svg"); if (old) old.remove();
+  let e = host.querySelector(".tw-empty");
+  if (!e) { e = document.createElement("div"); e.className = "tw-empty"; host.prepend(e); }
+  e.innerHTML = `<b>${esc(title)}</b><span>${note}</span>`;
+}
+function clearEmpty(host) {
+  const e = host && host.querySelector(".tw-empty");
+  if (e) e.remove();
+}
+const setTxt = (id, t) => { const el = document.getElementById(id); if (el) el.textContent = t; };
+
+/* real accounts read the database; the cache is per team and is dropped
+   whenever something the dashboard counts has changed */
+window.__liveTW = window.__liveTW || {};
+window.__refreshMyTeamLive = function (teamId) {
+  const redraw = () => { if (typeof window.__renderMyTeam === "function") window.__renderMyTeam(window.__selectedTeamId); };
+  if (!teamId || !window.__liveTW[teamId] || !window.STEP_MYTEAM) {
+    if (teamId) delete window.__liveTW[teamId]; else window.__liveTW = {};
+    return redraw();
+  }
+  /* the page stays as it is while the new numbers load, then redraws */
+  const W8 = (window.MOCK && window.MOCK.thisWeek) || {};
+  const team = ((window.MOCK && window.MOCK.teams) || []).find(t => t.id === teamId) || {};
+  window.STEP_MYTEAM.loadTeamWork(teamId, { team, weekNo: W8.week_no, weeksTotal: W8.weeks_total })
+    .then(tw => { window.__liveTW[teamId] = tw; if (window.__selectedTeamId === teamId) redraw(); })
+    .catch(() => {});
+};
+
 window.__renderMyTeam = function(targetTeamId) {
   const gate = document.getElementById("myteam-locked-gate");
   const content = document.getElementById("myteam-content-wrap");
   if (!gate || !content) return;
 
   const auth = window.MOCK && window.MOCK.auth;
+  const loading = document.getElementById("myteam-loading");
+  if (loading) loading.hidden = true;
   if (!auth || !auth.canAccess("myteam")) {
     gate.hidden = false;
     content.hidden = true;
@@ -546,9 +583,38 @@ window.__renderMyTeam = function(targetTeamId) {
 
   const teams = window.MOCK.teams;
   const TEAM = teams.find(t => t.id === activeId) || teams[0];
-  const TW = window.MOCK.getTeamWork(activeId);
-  const CAP = window.MOCK.getCapstone(activeId);
   const helpers = window.MOCK.helpers;
+  const LIVE = !!(window.MOCK.isLiveUser && window.MOCK.isLiveUser() &&
+                  window.STEP_MYTEAM && window.STEP_MYTEAM.isLive());
+  let TW, CAP;
+  if (LIVE) {
+    const cache = window.__liveTW;
+    if (!cache[activeId]) {
+      /* first look at this team: fetch, then draw — the sample numbers are
+         never shown in the meantime */
+      content.hidden = true;
+      if (loading) loading.hidden = false;
+      if (!cache["_p" + activeId]) {
+        const W8 = window.MOCK.thisWeek || {};
+        cache["_p" + activeId] = window.STEP_MYTEAM.loadTeamWork(activeId,
+            { team: TEAM, weekNo: W8.week_no, weeksTotal: W8.weeks_total })
+          .then(tw => { cache[activeId] = tw; })
+          .catch(err => { console.warn("[STEP] team data failed:", err); })
+          .finally(() => {
+            delete cache["_p" + activeId];
+            if (cache[activeId] && window.__selectedTeamId === activeId) window.__renderMyTeam(activeId);
+            else if (loading && window.__selectedTeamId === activeId)
+              loading.textContent = "Your team's numbers could not be loaded. Please refresh the page.";
+          });
+      }
+      return;
+    }
+    TW = cache[activeId];
+    CAP = window.STEP_MYTEAM.blankCapstone(window.MOCK.getCapstone(activeId), TW.week_no);
+  } else {
+    TW = window.MOCK.getTeamWork(activeId);
+    CAP = window.MOCK.getCapstone(activeId);
+  }
 
   // Render team switcher
   const slot = document.getElementById("team-switcher-slot");
@@ -600,7 +666,8 @@ window.__renderMyTeam = function(targetTeamId) {
     tbRoster.innerHTML = TW.members.map(m => `<span class="avatar" title="${esc(m.name)} · ${esc(m.role)}">${esc(m.initials)}</span>`).join("");
   }
   const tbRosterCap = document.getElementById("tb-rostercap");
-  if (tbRosterCap) tbRosterCap.textContent = TW.members.length + " members";
+  if (tbRosterCap) tbRosterCap.textContent = TW.members.length
+    ? TW.members.length + " members" : "Team roster not set up yet";
 
   /* Radar Chart */
   const O = TW.outputs, N = O.length;
@@ -608,7 +675,14 @@ window.__renderMyTeam = function(targetTeamId) {
   const rTip = document.getElementById("radar-tip");
   let rGeo = null;
 
-  fitChart(rWrap, (W, H) => {
+  if (N < 3) {
+    emptyIn(rWrap, N ? "Not enough scores for the web-chart yet" : "No scores yet",
+      N ? "It draws once three weekly outputs are scored. Scored so far: " +
+          O.map(o => `<b>Week ${o.week}</b> ${fx2(o.score)}`).join(" · ") + "."
+        : "Your panel's score for each weekly output appears here after its feedback session.");
+  } else clearEmpty(rWrap);
+
+  if (N >= 3) fitChart(rWrap, (W, H) => {
     const tight = W < 520;
     const mx = tight ? 48 : 112, my = tight ? 50 : 74, LAB = tight ? 18 : 30;
     const R = Math.max(70, Math.min((W - mx * 2) / 2, (H - my * 2) / 2));
@@ -675,7 +749,7 @@ window.__renderMyTeam = function(targetTeamId) {
       const o = O[+el.dataset.i], [x, y] = rGeo.pt(+el.dataset.i, rGeo.rOf(o.score));
       const box = rWrap.getBoundingClientRect(), svg = rWrap.querySelector("svg").getBoundingClientRect();
       tipAt(rTip, rWrap, svg.left - box.left + x, svg.top - box.top + y,
-        `<b>Week ${o.week} · ${o.code}</b>${esc(o.full)}<br>
+        `<b>Week ${o.week}</b>${esc(o.full)}<br>
          <span class="sc">${fx2(o.score)} / 4.00</span> · Panel ${o.panel}`);
     });
     rWrap.addEventListener("mouseout", e => {
@@ -684,15 +758,20 @@ window.__renderMyTeam = function(targetTeamId) {
   }
 
   const scores = O.map(o => o.score);
-  const avg = scores.reduce((a, b) => a + b, 0) / N;
-  const best = O[scores.indexOf(Math.max(...scores))];
-  const low  = O[scores.indexOf(Math.min(...scores))];
-  document.getElementById("rd-avg").textContent  = fx2(avg);
-  document.getElementById("rd-best").textContent = fx2(best.score);
-  document.getElementById("rd-low").textContent  = fx2(low.score);
-  document.getElementById("rd-best-n").textContent = " · " + best.axis.replace("\n", " ");
-  document.getElementById("rd-low-n").textContent  = " · " + low.axis.replace("\n", " ");
-  document.getElementById("rd-weeks").textContent = N + " scored outputs";
+  if (N) {
+    const avg = scores.reduce((a, b) => a + b, 0) / N;
+    const best = O[scores.indexOf(Math.max(...scores))];
+    const low  = O[scores.indexOf(Math.min(...scores))];
+    setTxt("rd-avg", fx2(avg));
+    setTxt("rd-best", fx2(best.score));
+    setTxt("rd-low", fx2(low.score));
+    setTxt("rd-best-n", " · " + best.axis.replace("\n", " "));
+    setTxt("rd-low-n", " · " + low.axis.replace("\n", " "));
+  } else {
+    ["rd-avg", "rd-best", "rd-low"].forEach(id => setTxt(id, "—"));
+    setTxt("rd-best-n", ""); setTxt("rd-low-n", "");
+  }
+  setTxt("rd-weeks", N ? N + " scored output" + (N === 1 ? "" : "s") : "No scores yet");
 
   const scoreRowsEl = document.getElementById("score-rows");
   if (scoreRowsEl) {
@@ -702,7 +781,7 @@ window.__renderMyTeam = function(targetTeamId) {
       const txt = d === null ? "—" : (d > 0 ? "▲ +" : d < 0 ? "▼ " : "– ") + Math.abs(d).toFixed(2);
       return `<tr>
         <td>Week ${o.week}</td>
-        <td><strong>${o.code}</strong> · ${esc(o.full)}</td>
+        <td><strong>${esc(o.full)}</strong></td>
         <td>Panel ${o.panel}</td>
         <td>${helpers.fmtDate(o.scored_on + "T09:00:00+08:00")}</td>
         <td><span class="${heat(o.score)}">${fx2(o.score)}</span></td>
@@ -722,13 +801,14 @@ window.__renderMyTeam = function(targetTeamId) {
   const rows = H.map(h => {
     const missing = missingWeeks.includes(h.week);
     // a week the tracker counts as missing has no hand-in time to show
-    return { week: h.week, code: h.code, at: missing ? null : h.video.at,
+    return { week: h.week, code: h.code, due: h.due, at: missing ? null : h.video.at,
              state: missing ? "missed" : h.video.state };
   });
   const done = rows.filter(r => r.state !== "open");
   const onTime = done.filter(r => r.state === "on_time").length;
 
-  document.getElementById("hi-pill").textContent = onTime + " of " + done.length + " on time";
+  document.getElementById("hi-pill").textContent = done.length
+    ? onTime + " of " + done.length + " on time" : "Nothing due yet";
   /* "Not due yet" is left out of the key: an empty dashed block says it,
      and naming it invites a team to read a week that has not arrived as a
      state of their own work. */
@@ -750,7 +830,9 @@ window.__renderMyTeam = function(targetTeamId) {
   const hiHost = document.getElementById("hi-bars"), hiTip = document.getElementById("hi-tip");
   let hiGeo = null;
 
-  if (hiHost) fitChart(hiHost, (W, H) => {
+  if (hiHost && !rows.length) emptyIn(hiHost, "Nothing handed in yet", "Each week's output shows here once it is due.");
+  else clearEmpty(hiHost);
+  if (hiHost && rows.length) fitChart(hiHost, (W, H) => {
     const padL = 24, padR = 8, padT = 12, padB = 38;
     const slot = (W - padL - padR) / rows.length, bw = Math.min(30, slot * 0.64);
     const top = padT, base = H - padB, bh = base - top;
@@ -775,9 +857,9 @@ window.__renderMyTeam = function(targetTeamId) {
       const hit = e.target.closest(".tw-bar-hit"), geo = hiHost._geo; if (!hit || !geo) return;
       const r = geo.rows[+hit.dataset.i], st = HSTATE[r.state] || HSTATE.open;
       tipAt(hiTip, hiHost, geo.bx(+hit.dataset.i) + geo.bw / 2, geo.top,
-        `<b>Week ${r.week} · ${esc(r.code)}</b><span class="big">${st.label}</span>` +
+        `<b>Week ${r.week}</b><span class="big">${st.label}</span>` +
         (r.at ? `<br>${helpers.fmtDate(r.at)} ${helpers.fmtTime(r.at)}`
-              : r.state === "open" ? "<br>Due Friday, 12:00 NN" : "<br>Nothing handed in"));
+              : r.state === "open" ? "<br>Due " + (r.due ? helpers.fmtDate(r.due) : "Friday") + ", 12:00 NN" : "<br>Nothing handed in"));
     });
     hiHost.addEventListener("mouseleave", () => hiTip.classList.remove("on"));
   }
@@ -820,11 +902,15 @@ window.__renderMyTeam = function(targetTeamId) {
 
   /* Trajectory */
   const T = TW.trajectory, NOW = TW.week_no;
-  const lastWk = Math.max(NOW, T[T.length - 1].week), lastT = T[T.length - 1];
+  const lastT = T[T.length - 1] || { week: NOW, score: 0 };
+  const lastWk = Math.max(2, NOW, lastT.week);
   const tjHost = document.getElementById("tj-plot"), tjTip = document.getElementById("tj-tip");
   let tjGeo = null;
 
-  const repaintTrajectory = fitChart(tjHost, (W, H) => {
+  if (!T.length) emptyIn(tjHost, "No scores yet", "Your weighted average at each feedback session is plotted here, week by week.");
+  else clearEmpty(tjHost);
+
+  const repaintTrajectory = !T.length ? null : fitChart(tjHost, (W, H) => {
     const padL = 36, padR = 30, padT = 14, padB = 40;
     const x = wk => padL + ((wk - 1) / (lastWk - 1)) * (W - padL - padR);
     const y = v  => padT + ((MAXS - v) / (MAXS - 1)) * (H - padT - padB);
@@ -844,7 +930,7 @@ window.__renderMyTeam = function(targetTeamId) {
     for (let wk = 1; wk <= lastWk; wk++) {
       const r = T.find(t => t.week === wk);
       g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 18}" text-anchor="middle" ${r ? "" : 'style="fill:#96a2ad"'}>W${wk}</text>`;
-      if (!r) g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 31}" text-anchor="middle" style="fill:#96a2ad;font-weight:700">now</text>`;
+      if (!r && wk === NOW) g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 31}" text-anchor="middle" style="fill:#96a2ad;font-weight:700">now</text>`;
     }
     T.forEach(r => {
       g += `<circle class="tw-dot" cx="${x(r.week)}" cy="${y(r.score)}" r="4.5"/>`;
@@ -867,19 +953,24 @@ window.__renderMyTeam = function(targetTeamId) {
       tjHost.classList.add("on");
       const d = i ? r.score - T[i - 1].score : null;
       tipAt(tjTip, tjHost, tjGeo.x(r.week), tjGeo.y(r.score),
-        `<b>Week ${r.week} · ${r.code}</b><span class="big">${fx2(r.score)}</span> / 4.00` +
+        `<b>Week ${r.week}</b><span class="big">${fx2(r.score)}</span> / 4.00` +
         (d === null ? "<br>your first scored output" : `<br>${d >= 0 ? "+" : ""}${d.toFixed(2)} on the week before`));
     });
     tjHost.addEventListener("mouseleave", () => { tjTip.classList.remove("on"); tjHost.classList.remove("on"); });
   }
 
-  const chg = lastT.score - (T[T.length - 2] ? T[T.length - 2].score : lastT.score);
-  const bestT = T.reduce((a, b) => (b.score > a.score ? b : a));
-  document.getElementById("tj-now").textContent   = fx2(lastT.score);
-  document.getElementById("tj-nowk").textContent  = " · Week " + lastT.week;
-  document.getElementById("tj-chg").textContent   = (chg >= 0 ? "+" : "") + chg.toFixed(2);
-  document.getElementById("tj-best").textContent  = fx2(bestT.score);
-  document.getElementById("tj-bestk").textContent = " · Week " + bestT.week;
+  if (T.length) {
+    const chg = lastT.score - (T[T.length - 2] ? T[T.length - 2].score : lastT.score);
+    const bestT = T.reduce((a, b) => (b.score > a.score ? b : a));
+    setTxt("tj-now", fx2(lastT.score));
+    setTxt("tj-nowk", " · Week " + lastT.week);
+    setTxt("tj-chg", T.length > 1 ? (chg >= 0 ? "+" : "") + chg.toFixed(2) : "—");
+    setTxt("tj-best", fx2(bestT.score));
+    setTxt("tj-bestk", " · Week " + bestT.week);
+  } else {
+    ["tj-now", "tj-chg", "tj-best"].forEach(id => setTxt(id, "—"));
+    setTxt("tj-nowk", ""); setTxt("tj-bestk", "");
+  }
 
   pair("face-radar", "face-trend", repaintTrajectory);
   pair("face-video", "face-fastrac");
@@ -888,21 +979,22 @@ window.__renderMyTeam = function(targetTeamId) {
   /* KPIs */
   const G = TW.attendance_grid, SES = TW.sessions_held;
   const tScores = T.map(r => r.score);
-  const tAvg = tScores.reduce((a, b) => a + b, 0) / tScores.length;
-  const lastScore = T[T.length - 1], prevScore = T[T.length - 2] || lastScore;
-  const kpiChg = lastScore.score - prevScore.score;
-  const out = TW.outputs.find(o => o.week === lastScore.week) || {};
+  const tAvg = tScores.length ? tScores.reduce((a, b) => a + b, 0) / tScores.length : 0;
+  const lastScore = T[T.length - 1] || null, prevScore = T[T.length - 2] || lastScore;
+  const kpiChg = lastScore ? lastScore.score - prevScore.score : 0;
+  const out = (lastScore && TW.outputs.find(o => o.week === lastScore.week)) || {};
 
   const count = { on_time: 0, late: 0, missed: 0, open: 0 };
-  TW.handins.forEach(h => TW.handin_kinds.forEach(k => count[h[k.key].state]++));
+  TW.handins.forEach(h => TW.handin_kinds.forEach(k => { if (h[k.key]) count[h[k.key].state]++; }));
   const dueTotal = count.on_time + count.late + count.missed;
 
-  const perSession = SES.map((_, i) => TW.members.reduce((s, m) => s + G[m.initials][i], 0));
+  const perSession = SES.map((_, i) => TW.members.reduce((s, m) => s + ((G[m.initials] || [])[i] || 0), 0));
   const presentTot = perSession.reduce((a, b) => a + b, 0);
   const seats = perSession.length * TW.members.length;
   const met = perSession.filter(c => c >= 3).length;
 
   const spark = (vals) => {
+    if (vals.length < 2) return "";
     const w = 120, h = 34, lo = 1, hi = 4;
     const px = i => (i / (vals.length - 1)) * w;
     const py = v => h - ((v - lo) / (hi - lo)) * h;
@@ -916,34 +1008,48 @@ window.__renderMyTeam = function(targetTeamId) {
   document.getElementById("tw-kpis").innerHTML = `
     <div class="tw-kpi hero reveal">
       <div class="k-lab">Average</div>
-      <div class="k-val">${fx2(tAvg)}<small>/ 4.00</small></div>
-      <p class="k-note">Across <b>${tScores.length}</b> scored outputs, Weeks 1 to ${lastScore.week}.</p>
+      <div class="k-val">${tScores.length ? fx2(tAvg) + "<small>/ 4.00</small>" : "—"}</div>
+      <p class="k-note">${tScores.length
+        ? `Across <b>${tScores.length}</b> scored output${tScores.length === 1 ? "" : "s"}, Weeks ${T[0].week} to ${lastScore.week}.`
+        : "No outputs scored yet. Scores appear after each feedback session."}</p>
       ${spark(tScores)}
     </div>
     <div class="tw-kpi reveal" style="--d:60ms">
       <div class="k-lab">Latest score</div>
-      <div class="k-val">${fx2(lastScore.score)}<small>/ 4.00</small></div>
-      <p class="k-note"><span class="tw-delta ${kpiChg >= 0 ? "up" : "down"}">${kpiChg >= 0 ? "▲ +" : "▼ "}${Math.abs(kpiChg).toFixed(2)}</span>
-         on Week ${prevScore.week} · ${esc((out.axis || "").replace("\n", " "))}</p>
+      <div class="k-val">${lastScore ? fx2(lastScore.score) + "<small>/ 4.00</small>" : "—"}</div>
+      <p class="k-note">${!lastScore ? "Waiting for the first panel score."
+        : T.length < 2 ? `Week ${lastScore.week} · ${esc((out.axis || "").replace("\n", " "))}`
+        : `<span class="tw-delta ${kpiChg >= 0 ? "up" : "down"}">${kpiChg >= 0 ? "▲ +" : "▼ "}${Math.abs(kpiChg).toFixed(2)}</span>
+         on Week ${prevScore.week} · ${esc((out.axis || "").replace("\n", " "))}`}</p>
     </div>
     <div class="tw-kpi reveal" style="--d:120ms">
       <div class="k-lab">Submission</div>
-      <div class="k-val">${dueTotal > 0 ? Math.round(count.on_time / dueTotal * 100) : 100}<small>%</small></div>
-      <p class="k-note"><b>${count.on_time} of ${dueTotal}</b> deliverables due so far${
-        count.late ? ` · ${count.late} late` : ""}${count.missed ? ` · ${count.missed} missed` : ""}</p>
+      <div class="k-val">${dueTotal > 0 ? Math.round(count.on_time / dueTotal * 100) + "<small>%</small>" : "—"}</div>
+      <p class="k-note">${dueTotal > 0 ? `<b>${count.on_time} of ${dueTotal}</b> deliverables due so far${
+        count.late ? ` · ${count.late} late` : ""}${count.missed ? ` · ${count.missed} missed` : ""}`
+        : "Nothing has come due yet."}</p>
     </div>
     <div class="tw-kpi reveal" style="--d:180ms">
       <div class="k-lab">Attendance %</div>
-      <div class="k-val">${seats > 0 ? Math.round(presentTot / seats * 100) : 100}<small>%</small></div>
-      <p class="k-note"><b>${met} of ${perSession.length}</b> sessions met the three-member minimum${
-        met < perSession.length ? ` · short in ${perSession.length - met}` : ""}</p>
+      <div class="k-val">${seats > 0 ? Math.round(presentTot / seats * 100) + "<small>%</small>" : "—"}</div>
+      <p class="k-note">${seats > 0 ? `<b>${met} of ${perSession.length}</b> sessions met the three-member minimum${
+        met < perSession.length ? ` · short in ${perSession.length - met}` : ""}`
+        : "No attendance recorded yet."}</p>
     </div>`;
 
   /* Insights / Thematic Analysis */
   const I = TW.insight || {};
   const C = I.corpus || { comments: 0, panelists: 0, sessions: 0, codes: 0, themes: 0 };
+  const hasThemes = !!(I.themes && I.themes.length);
   const methodEl = document.getElementById("ta-method");
-  if (methodEl) {
+  const claimBox = document.querySelector("#themes .tw-claim");
+  if (claimBox) claimBox.hidden = !I.claim;
+  const nextCard = document.getElementById("ins-next") && document.getElementById("ins-next").closest(".tw-card");
+  if (nextCard) nextCard.hidden = !(I.next && I.next.length);
+  if (methodEl && !hasThemes) {
+    methodEl.textContent = "No panel or mentor comments have been coded for this team yet. " +
+      "Once the STEP team codes the feedback from the sessions, the recurring themes appear here.";
+  } else if (methodEl) {
     methodEl.textContent =
       (I.method || "Reflexive thematic analysis") + ". " + C.comments + " comments from " + C.panelists + " panelists and " +
       (C.mentors ? C.mentors + (C.mentors === 1 ? " mentor" : " mentors") : "the team’s mentor") + " across " +
@@ -1022,9 +1128,11 @@ window.__renderMyTeam = function(targetTeamId) {
     });
   }
 
-  document.getElementById("ins-next").innerHTML = I.next.map(n => `<li>${esc(n)}</li>`).join("");
+  document.getElementById("ins-next").innerHTML = (I.next || []).map(n => `<li>${esc(n)}</li>`).join("");
   const insNote = document.querySelector("#ins-note span");
-  if (insNote) {
+  if (insNote && !I.reviewed_by) {
+    insNote.textContent = I.based_on ? `Coded from ${I.based_on} panel and mentor comments (${I.weeks}). Advisory only — it does not affect your grade.` : "";
+  } else if (insNote) {
     insNote.textContent =
       `Coded by the STEP AI assistant from ${I.based_on} panel comments (${I.weeks}), then checked and released by ` +
       `${I.reviewed_by} on ${helpers.fmtDate(I.reviewed_on + "T09:00:00+08:00")}. Advisory only — it does not affect your grade.`;
@@ -1032,7 +1140,7 @@ window.__renderMyTeam = function(targetTeamId) {
 
   /* Attendance */
   const nSes = SES.length;
-  const avgPresent = perSession.reduce((a, b) => a + b, 0) / nSes;
+  const avgPresent = nSes ? perSession.reduce((a, b) => a + b, 0) / nSes : 0;
   const maxM = TW.members.length;
   const attHost = document.getElementById("att-bars"), attTip = document.getElementById("att-tip");
   let attGeo = null;
@@ -1043,7 +1151,10 @@ window.__renderMyTeam = function(targetTeamId) {
             L${x0 + w - r},${y0} Q${x0 + w},${y0} ${x0 + w},${y0 + r} L${x0 + w},${y0 + h} Z`;
   };
 
-  fitChart(attHost, (W, H) => {
+  if (!nSes) emptyIn(attHost, "No attendance recorded yet", "Each learning and feedback session appears here once attendance is taken.");
+  else clearEmpty(attHost);
+
+  if (nSes) fitChart(attHost, (W, H) => {
     const padL = 24, padR = 8, padT = 12, padB = 38;
     const slot = (W - padL - padR) / nSes, bw = Math.min(30, slot * 0.64);
     const y = v => padT + ((maxM - v) / maxM) * (H - padT - padB);
@@ -1074,7 +1185,7 @@ window.__renderMyTeam = function(targetTeamId) {
     attHost.addEventListener("mousemove", e => {
       const hit = e.target.closest(".tw-bar-hit"), geo = attHost._geo; if (!hit || !geo) return;
       const i = +hit.dataset.i, v = geo.perSession[i];
-      const away = geo.members.filter(m => !geo.G[m.initials][i]).map(m => m.name.split(" ").slice(-1)[0]);
+      const away = geo.members.filter(m => !(geo.G[m.initials] || [])[i]).map(m => m.name.split(" ").slice(-1)[0]);
       tipAt(attTip, attHost, geo.bx(i) + geo.bw / 2, geo.y(v),
         `<b>${geo.SES[i].label}</b><span class="big">${v} of ${geo.maxM}</span> present<br>` +
         (away.length ? "Away: " + away.join(", ") : "Everyone attended") +
@@ -1083,24 +1194,33 @@ window.__renderMyTeam = function(targetTeamId) {
     attHost.addEventListener("mouseleave", () => attTip.classList.remove("on"));
   }
 
-  document.getElementById("att-pill").textContent =
+  document.getElementById("att-pill").textContent = !nSes ? "No sessions yet" :
     met === nSes ? "Every session compliant" : (nSes - met) + " session" + (nSes - met > 1 ? "s" : "") + " short";
 
   const attHead = `<thead><tr><th class="who">Member</th>${
     SES.map(s => `<th title="${s.label}">${s.label.split(" ")[0].replace("W", "")}<br>${s.label.split(" ")[1][0]}</th>`).join("")
   }<th>Total</th></tr></thead>`;
   const attBody = `<tbody>${TW.members.map(m => {
-    const row = G[m.initials], surname = m.name.split(" ").slice(-1)[0];
+    const row = G[m.initials] || SES.map(() => 0), surname = m.name.split(" ").slice(-1)[0];
     return `<tr><td class="who" title="${esc(m.name)} · ${esc(m.role)}">${esc(surname)}</td>${
       row.map((v, i) => `<td><i class="mark ${v ? "yes" : "no"}" title="${SES[i].label}: ${v ? "present" : "absent"}"></i></td>`).join("")
     }<td><strong>${row.reduce((a, b) => a + b, 0)}/${nSes}</strong></td></tr>`;
   }).join("")}</tbody>`;
-  document.getElementById("att-table").innerHTML = attHead + attBody;
-  document.getElementById("att-foot-n").textContent =
-    `${nSes} sessions so far · ${avgPresent.toFixed(1)} members present on average`;
+  document.getElementById("att-table").innerHTML = nSes ? attHead + attBody
+    : `<tbody><tr><td class="who" style="text-align:left;padding:14px">No sessions recorded yet.</td></tr></tbody>`;
+  document.getElementById("att-foot-n").textContent = nSes
+    ? `${nSes} session${nSes === 1 ? "" : "s"} so far · ${avgPresent.toFixed(1)} members present on average`
+    : "Nothing recorded yet";
 
   /* Submissions */
-  const openSub = TW.submissions.find(s => s.status === "open") || TW.submissions[0];
+  /* nothing handed in yet: point at the next week that has an output */
+  const SCH = window.STEP_SCHEDULE;
+  const nextOut = SCH ? (SCH.teachingWeeks().find(w => w.week >= TW.week_no) || SCH.teachingWeeks()[0]) : null;
+  const openSub = TW.submissions.find(s => s.status === "open") || TW.submissions[0] || {
+    week: nextOut ? nextOut.week : TW.week_no, code: nextOut ? nextOut.code : "",
+    module: nextOut ? nextOut.title : "This week's output",
+    due: nextOut ? SCH.dueOf(nextOut.week) : new Date().toISOString(),
+    status: "open", files: [] };
   const due = new Date(openSub.due);
   const days = Math.max(0, Math.ceil((due - new Date()) / 86400000));
   const dueBarHtml =
@@ -1291,6 +1411,8 @@ window.__renderMyTeam = function(targetTeamId) {
       if (!SUB()) return;
       let live = false;
       try { live = await SUB().isLive(); } catch (e) { live = false; }
+      /* on the real site the files do go to the database: drop the mockup note */
+      if (live) document.querySelectorAll("#submit .mockup-note").forEach(n => n.remove());
       const nothingYet = () => {
         outView.hidden = true;
         document.getElementById("due-bar").hidden = false;
@@ -1342,6 +1464,7 @@ window.__renderMyTeam = function(targetTeamId) {
         setProg(1, "Done");
         upBar.hidden = true;
         await loadExisting();
+        if (window.__refreshMyTeamLive) window.__refreshMyTeamLive(C.teamId);
       } catch (err) {
         subBtn.disabled = false;
         upBar.hidden = true;
@@ -1372,6 +1495,7 @@ window.__renderMyTeam = function(targetTeamId) {
       document.getElementById("out-deck").innerHTML = "";
       freeUrls();
       try { if (SUB() && await SUB().isLive()) await SUB().clearWeek(C.teamId, C.sub.week); } catch (e) {}
+      if (window.__refreshMyTeamLive) setTimeout(() => window.__refreshMyTeamLive(C.teamId), 0);
       picked.video = null; picked.slides = null;
       renderDrop("video"); renderDrop("slides");
       subBtn.disabled = true;
@@ -1410,6 +1534,7 @@ window.__renderMyTeam = function(targetTeamId) {
 
 /* Listen for global auth or team change */
 window.addEventListener("stephub_auth_changed", () => {
+  window.__liveTW = {};
   if (typeof window.__renderMyTeam === "function") window.__renderMyTeam();
 });
 

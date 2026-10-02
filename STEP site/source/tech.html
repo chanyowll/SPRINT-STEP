@@ -1,0 +1,2043 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Tech console · SPRINT-STEP</title>
+<link rel="icon" href="assets/step-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<!--
+  TECH CONSOLE: UI PREVIEW
+  Only for the tech team (cperote@ateneo.edu, joshguico@gmail.com). Reached by double-clicking
+  the STEP logo on the site while signed in as one of them. Everything here runs on sample
+  data and nothing is saved yet; each section is wired to Supabase in the next pass.
+
+  Look: a back end, not the public site. The public site uses Archivo Expanded on light paper;
+  the console uses the same family condensed, on a slate sidebar with dense ruled tables.
+-->
+<style>
+:root {
+  --side: #0c1a2b; --side-2: #13253b; --side-ink: #c7d3e2; --side-dim: #7f93ab;
+  --work: #edf1f5; --panel: #ffffff; --rule: #d6dee7; --rule-2: #e7ecf2;
+  --ink: #15253a; --ink-2: #4d5e74; --ink-3: #7a889b;
+  --blue: #1f6fb2; --blue-2: #e4eef9; --ok: #1e7a52; --ok-2: #e3f3ea;
+  --warn: #a8660b; --warn-2: #fcf0dc; --bad: #a63d40; --bad-2: #fbe9ea; --live: #e0a61a;
+  --font: "Archivo", "Inter", "Segoe UI", system-ui, Arial, sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --r: 6px;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; }
+body { font-family: var(--font); font-size: 14px; line-height: 1.45; color: var(--ink); background: var(--work);
+  font-variant-numeric: tabular-nums; -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+a { color: var(--blue); }
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+.cond { font-stretch: 80%; }
+
+/* ---------- frame ---------- */
+.app { display: grid; grid-template-columns: 244px minmax(0, 1fr); min-height: 100vh; }
+.side { background: var(--side); color: var(--side-ink); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
+.side-head { display: flex; align-items: center; gap: 10px; padding: 18px 18px 16px; border-bottom: 1px solid var(--side-2); }
+.side-head img { width: 34px; height: 34px; object-fit: contain; }
+.side-head b { display: block; color: #fff; font-size: 15px; font-weight: 700; font-stretch: 80%; letter-spacing: .01em; }
+.side-head span { display: block; font-size: 12px; color: var(--side-dim); }
+.nav { padding: 12px 10px; display: flex; flex-direction: column; gap: 2px; flex: 1; overflow-y: auto; }
+.nav .grp { font-size: 11.5px; color: var(--side-dim); padding: 14px 10px 6px; font-weight: 600; }
+.nav button { all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 11px; width: 100%; cursor: pointer;
+  padding: 9px 10px; border-radius: var(--r); font-size: 14px; font-weight: 550; font-stretch: 85%; color: var(--side-ink); }
+.nav button svg { width: 17px; height: 17px; flex: none; opacity: .75; }
+.nav button:hover { background: var(--side-2); color: #fff; }
+.nav button[aria-current="page"] { background: #1c3350; color: #fff; box-shadow: inset 3px 0 0 #5aa7ea; }
+.nav button[aria-current="page"] svg { opacity: 1; color: #8fc6f4; }
+.nav .ct { margin-left: auto; font-size: 11.5px; color: var(--side-dim); font-weight: 600; }
+.nav .ct.hot { color: #0c1a2b; background: var(--live); border-radius: 999px; padding: 1px 7px; }
+.side-foot { border-top: 1px solid var(--side-2); padding: 14px 16px; font-size: 12.5px; }
+.who { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.who i { width: 30px; height: 30px; border-radius: 50%; background: #25476e; color: #fff; display: grid; place-items: center; font-style: normal; font-weight: 700; font-size: 12px; }
+.who b { display: block; color: #fff; font-weight: 600; }
+.who span { color: var(--side-dim); }
+.side-foot a { color: var(--side-ink); text-decoration: none; display: inline-flex; gap: 6px; align-items: center; }
+.side-foot a:hover { color: #fff; text-decoration: underline; }
+
+.main { min-width: 0; }
+.top { position: sticky; top: 0; z-index: 5; background: rgba(237, 241, 245, .92); backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--rule); display: flex; align-items: center; gap: 14px; padding: 12px 28px; }
+.crumb { font-size: 13px; color: var(--ink-3); }
+.crumb b { color: var(--ink); font-weight: 600; }
+.top .sp { flex: 1; }
+.env { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; color: var(--warn);
+  background: var(--warn-2); border: 1px solid #efd7a8; padding: 4px 10px; border-radius: 999px; }
+.env::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--warn); }
+.cycle { border: 1px solid var(--rule); background: var(--panel); border-radius: var(--r); padding: 5px 10px; font-size: 13px; }
+
+.page { padding: 24px 28px 64px; max-width: 1320px; }
+.sec[hidden] { display: none; }
+.sec-head { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 24px; margin-bottom: 18px; }
+.sec-head h1 { margin: 0; font-size: 26px; line-height: 1.1; font-weight: 750; font-stretch: 80%; letter-spacing: -.005em; }
+.sec-head p { margin: 4px 0 0; color: var(--ink-2); max-width: 70ch; }
+.sec-head .acts { margin-left: auto; display: flex; gap: 8px; }
+
+/* ---------- controls ---------- */
+.btn { display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--rule); background: var(--panel); color: var(--ink);
+  padding: 7px 13px; border-radius: var(--r); font-size: 13.5px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.btn:hover { border-color: #b5c3d3; background: #f7f9fb; }
+.btn.pri { background: var(--blue); border-color: var(--blue); color: #fff; }
+.btn.pri:hover { background: #185d96; }
+.btn.ghost { background: transparent; border-color: transparent; color: var(--ink-2); }
+.btn.ghost:hover { background: var(--rule-2); }
+.btn.sm { padding: 4px 9px; font-size: 12.5px; }
+.btn svg { width: 15px; height: 15px; }
+.field { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.field > span { font-size: 12.5px; font-weight: 600; color: var(--ink-2); }
+.field > small { color: var(--ink-3); font-size: 12px; }
+.in, select.in, textarea.in { border: 1px solid var(--rule); background: #fff; border-radius: var(--r); padding: 7px 10px; font-size: 14px; width: 100%; min-width: 0; }
+textarea.in { resize: vertical; min-height: 90px; }
+.in:focus { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px rgba(31, 111, 178, .14); }
+.mono { font-family: var(--mono); font-size: 12.5px; }
+.seg { display: inline-flex; border: 1px solid var(--rule); border-radius: var(--r); background: #fff; overflow: hidden; }
+.seg button { all: unset; cursor: pointer; padding: 6px 12px; font-size: 13px; font-weight: 600; color: var(--ink-2); border-left: 1px solid var(--rule); }
+.seg button:first-child { border-left: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+.toolbar { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-end; margin-bottom: 14px; }
+.toolbar .field { width: auto; }
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 14px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.split { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+
+/* ---------- panels and tables ---------- */
+.card { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; }
+.card > header { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-bottom: 1px solid var(--rule-2); }
+.card > header h2 { margin: 0; font-size: 15px; font-weight: 700; font-stretch: 85%; }
+.card > header .sub { color: var(--ink-3); font-size: 12.5px; }
+.card > header .r { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.card .body { padding: 16px; }
+.card .foot { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-top: 1px solid var(--rule-2); background: #fafbfc; border-radius: 0 0 8px 8px; }
+.card .foot .sp { flex: 1; }
+table.t { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.t th { text-align: left; font-weight: 600; font-size: 12px; color: var(--ink-3); padding: 9px 12px; border-bottom: 1px solid var(--rule); background: #f7f9fb; white-space: nowrap; position: sticky; top: 0; }
+.t td { padding: 9px 12px; border-bottom: 1px solid var(--rule-2); vertical-align: middle; }
+.t tr:last-child td { border-bottom: 0; }
+.t tbody tr:hover td { background: #fafcfe; }
+.t .num { text-align: right; }
+.t .team-row td { background: #f3f6f9; font-weight: 700; font-size: 12.5px; color: var(--ink-2); padding-top: 7px; padding-bottom: 7px; }
+.scroll { overflow-x: auto; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.pill.ok { color: var(--ok); background: var(--ok-2); }
+.pill.warn { color: var(--warn); background: var(--warn-2); }
+.pill.bad { color: var(--bad); background: var(--bad-2); }
+.pill.idle { color: var(--ink-3); background: var(--rule-2); }
+.pill.live { color: #6b4c00; background: #fbefc9; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; background: var(--rule); border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; margin-bottom: 16px; }
+.stat { background: var(--panel); padding: 12px 16px; }
+.stat b { display: block; font-size: 24px; font-weight: 750; font-stretch: 80%; line-height: 1.1; }
+.stat span { color: var(--ink-3); font-size: 12.5px; }
+.att { display: inline-flex; border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; }
+.att button { all: unset; cursor: pointer; font-size: 12px; font-weight: 700; width: 58px; text-align: center; padding: 4px 0; color: var(--ink-3); border-left: 1px solid var(--rule); }
+.att button:first-child { border-left: 0; }
+.att button[aria-pressed="true"][data-v="present"] { background: var(--ok); color: #fff; }
+.att button[aria-pressed="true"][data-v="late"] { background: var(--warn); color: #fff; }
+.att button[aria-pressed="true"][data-v="absent"] { background: var(--bad); color: #fff; }
+.rm-m { all: unset; cursor: pointer; margin-left: 6px; color: var(--ink-3); font-size: 15px; line-height: 1; padding: 0 4px; border-radius: 4px; opacity: 0; }
+tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
+.rm-m:hover { color: var(--bad); background: var(--bad-2); }
+.add-row td { background: #fbfcfe; }
+.dv-tabs { margin-bottom: 14px; flex-wrap: wrap; }
+.dv-table td { vertical-align: middle; }
+.dv-table .sccell b { display: block; font-size: 15px; font-weight: 700; }
+.dv-table .sccell small { display: block; color: var(--ink-3); font-size: 11.5px; white-space: nowrap; max-width: 150px; overflow: hidden; text-overflow: ellipsis; margin-left: auto; }
+.dv-table .sccell em { display: inline-block; font-style: normal; font-size: 10.5px; font-weight: 700; color: var(--ink-3); background: var(--rule-2); border-radius: 99px; padding: 0 6px; margin-top: 2px; }
+.dv-table .is-draft, .dv-table .is-draft b { color: #9aa6b4; }
+.dv-row:hover td { background: #f7fafd; }
+.dv-row.open td { background: var(--blue-2); }
+.dv-detail > td { background: #fbfcfe; padding: 12px 16px 16px; }
+.t.mini { font-size: 13px; background: #fff; border: 1px solid var(--rule-2); border-radius: 6px; }
+.t.mini th, .t.mini td { padding: 6px 10px; }
+.t.mini tr.tot td { border-top: 1px solid var(--rule); }
+.dv-quote { margin: 10px 0 0; padding: 8px 12px; border-left: 3px solid var(--rule); color: var(--ink-2); font-size: 13px; }
+.sqrow { display: grid; grid-template-columns: repeat(12, 12px); gap: 3px; }
+.sq { display: inline-block; width: 12px; height: 12px; border-radius: 3px; background: var(--rule-2); border: 1px solid var(--rule); }
+.sq.sub { background: var(--ok); border-color: var(--ok); }
+.sq.draft { background: #f3d9a6; border-color: var(--warn); }
+.legend-sq { display: inline-flex; align-items: center; gap: 6px; }
+.legend-sq .sq { margin-left: 6px; }
+.att-status { font-size: 13px; color: var(--ink-3); display: inline-flex; align-items: center; gap: 8px; }
+.att-status.ok { color: var(--ok); font-weight: 600; }
+.att-status.busy { color: var(--ink-2); }
+.att-status.warn { color: var(--warn); }
+.att-status.bad { color: var(--bad); font-weight: 600; }
+.att-status .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--rule); border-top-color: var(--blue); animation: attspin .8s linear infinite; }
+@keyframes attspin { to { transform: rotate(360deg); } }
+.drop.over { border-color: var(--blue, #1f6fb2); background: #eef5fc; }
+.drop.filled { border-style: solid; border-color: var(--ok); background: #f3faf6; }
+.drop .btn + .btn { margin-left: 6px; }
+.upbar { display: grid; gap: 6px; }
+.upbar .track { height: 8px; border-radius: 99px; background: var(--rule-2); overflow: hidden; }
+.upbar .track i { display: block; height: 100%; width: 0; background: var(--ok); transition: width .2s; }
+.rec-now { border: 1px solid var(--rule); border-radius: 8px; padding: 12px 14px; background: #fbfcfe; display: grid; gap: 6px; }
+.rec-now .rn-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rec-now .rn-acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+.btn.danger { color: var(--bad); }
+.t tr.sel td { background: #eef5fc; }
+.btn:disabled { opacity: .5; cursor: default; }
+.bar { height: 6px; background: var(--rule-2); border-radius: 3px; overflow: hidden; min-width: 70px; }
+.bar i { display: block; height: 100%; background: var(--blue); }
+.bar.ok i { background: var(--ok); } .bar.warn i { background: var(--warn); } .bar.bad i { background: var(--bad); }
+.cellbar { display: flex; align-items: center; gap: 8px; }
+.cellbar span { width: 44px; text-align: right; }
+.drop { border: 1.5px dashed #aebfd2; border-radius: 8px; background: #f7fafd; padding: 22px; text-align: center; color: var(--ink-2); }
+.drop b { display: block; color: var(--ink); font-size: 14.5px; }
+.drop .or { margin: 10px 0; font-size: 12px; color: var(--ink-3); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; border: 1px solid var(--rule); border-radius: var(--r); padding: 6px; background: #fff; }
+.chip { display: inline-flex; align-items: center; gap: 6px; background: var(--blue-2); color: #174e80; font-size: 12.5px; font-weight: 600; padding: 3px 4px 3px 9px; border-radius: 4px; }
+.chip button { all: unset; cursor: pointer; width: 16px; height: 16px; display: grid; place-items: center; border-radius: 3px; }
+.chip button:hover { background: #cfe0f3; }
+.chips input { border: 0; outline: 0; flex: 1; min-width: 140px; font-size: 13.5px; padding: 3px; }
+.checks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px 12px; }
+.checks label { display: flex; gap: 8px; align-items: center; font-size: 13.5px; padding: 3px 0; }
+.note { font-size: 12.5px; color: var(--ink-3); }
+.warnline { font-size: 12.5px; color: var(--bad); font-weight: 600; }
+.okline { font-size: 12.5px; color: var(--ok); font-weight: 600; }
+.wk-strip { display: grid; grid-template-columns: repeat(13, minmax(0, 1fr)); gap: 4px; margin-bottom: 16px; }
+.wk-strip button { all: unset; cursor: pointer; text-align: center; padding: 7px 0 6px; border-radius: 5px; background: var(--panel); border: 1px solid var(--rule); font-size: 12px; color: var(--ink-3); }
+.wk-strip button b { display: block; font-size: 15px; color: var(--ink); font-stretch: 80%; }
+.wk-strip button i { display: block; width: 6px; height: 6px; border-radius: 50%; margin: 4px auto 0; background: var(--rule); }
+.wk-strip button.has i { background: var(--ok); } .wk-strip button.miss i { background: var(--bad); }
+.wk-strip button[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.wk-strip button.now b::after { content: " •"; color: var(--live); }
+
+/* announcement preview, drawn like the This Week banner it becomes */
+.flash { border-radius: 10px; padding: 14px 16px; background: #0b3c6b; color: #fff; display: flex; gap: 12px; align-items: flex-start; }
+.flash .ic { width: 30px; height: 30px; border-radius: 8px; background: rgba(255,255,255,.14); display: grid; place-items: center; flex: none; }
+.flash b { display: block; font-size: 15px; }
+.flash p { margin: 3px 0 0; color: #cfe0f2; font-size: 13.5px; }
+.flash.important { background: #7a2f1d; }
+.flash.important .ic { background: rgba(255,255,255,.18); }
+.preview-lbl { font-size: 12px; font-weight: 600; color: var(--ink-3); margin-bottom: 8px; }
+
+/* link card (articles, games) */
+.lcard { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 14px; align-items: center; }
+.lcard .th { aspect-ratio: 16 / 10; border-radius: 6px; background: #dbe5ef center / cover no-repeat; }
+.lcard b { display: block; font-size: 15px; line-height: 1.3; }
+.lcard .src { font-size: 12px; color: var(--ink-3); margin-top: 4px; }
+.lcard p { margin: 6px 0 0; font-size: 13px; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.thumb { display: block; width: 64px; height: 40px; border-radius: 4px; background: #dbe5ef center / cover no-repeat; }
+.skel { background: linear-gradient(90deg, #e6ecf2 25%, #f3f6f9 50%, #e6ecf2 75%); background-size: 200% 100%; animation: sk 1.1s linear infinite; border-radius: 4px; }
+@keyframes sk { to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+
+/* panels board */
+.pboard { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 14px; align-items: start; }
+.pcol { background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; padding: 12px; }
+.pcol header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding: 2px 2px 10px; border-bottom: 1px solid var(--rule-2); margin-bottom: 8px; }
+.pcol header b { font-size: 16px; font-stretch: 80%; }
+.pcol header .btn { margin-left: auto; }
+.plbl { font-size: 11.5px; font-weight: 600; color: var(--ink-3); margin: 8px 2px 5px; }
+.pzone { display: flex; flex-direction: column; gap: 5px; min-height: 38px; padding: 4px; border-radius: 6px; border: 1px dashed transparent; transition: background .15s, border-color .15s; }
+.pzone.over { background: var(--blue-2); border-color: #9cc2e6; }
+.pitem { display: flex; align-items: center; gap: 8px; background: #f7f9fb; border: 1px solid var(--rule-2); border-radius: 5px; padding: 6px 8px; font-size: 13px; cursor: grab; }
+.pitem:hover { border-color: #b9c8d8; background: #fff; }
+.pitem.dragging { opacity: .4; }
+.pitem .grip { color: #a9b6c5; font-size: 11px; letter-spacing: -2px; }
+.pitem.tm { background: #fff; }
+.pitem .tt { flex: 1; font-weight: 600; }
+.pitem .tt small { display: block; font-weight: 400; color: var(--ink-3); font-size: 11.5px; }
+.pitem .time { font-size: 12px; color: var(--ink-2); }
+.pitem.pl { flex-wrap: nowrap; }
+.pitem .x { all: unset; cursor: pointer; margin-left: auto; width: 18px; height: 18px; border-radius: 3px; display: grid; place-items: center; color: var(--ink-3); }
+.pitem .x:hover { background: var(--rule-2); color: var(--ink); }
+.pin { border: 1px dashed var(--rule); border-radius: 5px; padding: 6px 8px; font-size: 13px; background: transparent; }
+.pin:focus { outline: none; border-color: var(--blue); border-style: solid; background: #fff; }
+.pempty { font-size: 12.5px; color: var(--ink-3); text-align: center; padding: 10px; }
+.pitem .tt small.mtag { color: var(--blue); font-weight: 600; }
+.pitem.bad { border-color: #e2a9ab; background: var(--bad-2); }
+.pitem.bad .tt small, .pitem.bad .tt small.mtag { color: var(--bad); font-weight: 600; }
+.pcol.has-bad { border-color: #e2a9ab; }
+.pzone.no { background: repeating-linear-gradient(135deg, #fbe9ea 0 8px, #fff 8px 16px); border-color: #e2a9ab; cursor: not-allowed; }
+.pb-rule { display: flex; align-items: center; gap: 14px; border: 1px solid #e2a9ab; background: var(--bad-2); color: var(--bad);
+  border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
+.pb-rule[hidden] { display: none; }
+.pb-rule div { flex: 1; display: grid; gap: 2px; }
+.pb-rule span { color: var(--ink-2); font-size: 13px; }
+.pb-rule .btn { flex: none; }
+
+/* announcements: composer + a faithful copy of the This Week board */
+.ann-split { display: grid; grid-template-columns: minmax(320px, 400px) minmax(0, 1fr); gap: 20px; align-items: start; }
+.ann-split > .card { position: sticky; top: 64px; }
+@media (max-width: 1100px) { .ann-split { grid-template-columns: minmax(0, 1fr); } .ann-split > .card { position: static; } }
+.icopick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.icopick button { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: 1px solid var(--rule); border-radius: 6px; font-size: 11.5px; color: var(--ink-2); background: #fff; }
+.icopick button svg { width: 20px; height: 20px; color: #1f6fb2; }
+.icopick button[aria-pressed="true"] { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); background: var(--blue-2); color: var(--ink); }
+.tick { display: flex; gap: 9px; align-items: flex-start; font-size: 13px; color: var(--ink-2); }
+.tick input { margin-top: 3px; }
+.tick b { color: var(--ink); font-weight: 600; }
+.sitepv { --navy: #0b3c6b; --blue: #1f6fb2; --blue-100: #e8f1fa; --gold: #c99a2e; --gold-100: #fbf3e2; --line: #d9e0e7; --surface: #fff; --ink: #1e2a36; --ink-soft: #5a6470;
+  background: #f6f8fa; border: 1px solid var(--rule); border-radius: 10px; padding: 26px; font-size: 15px; color: var(--ink); font-variant-numeric: normal; }
+.sitepv .ann-top { display: flex; flex-wrap: wrap; gap: 12px 16px; align-items: flex-end; justify-content: space-between; }
+.sitepv .eyebrow { font-size: 12.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+.sitepv h2 { margin: 0; font-size: 21px; font-weight: 700; color: var(--navy); font-stretch: 125%; }
+.sitepv .newcount { background: var(--blue-100); color: var(--blue); font-size: 12.5px; font-weight: 650; padding: 6px 13px; border-radius: 999px; white-space: nowrap; }
+.sitepv .newcount[hidden] { display: none; }
+.sitepv .anngrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 24px; }
+.sitepv .note { position: relative; display: flex; flex-direction: column; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 24px;
+  box-shadow: 0 1px 2px rgba(16,32,48,.06), 0 4px 14px rgba(16,32,48,.06); font-size: inherit; color: inherit; }
+.sitepv .note .ic { flex: none; width: 38px; height: 38px; border-radius: 11px; display: grid; place-items: center; background: var(--blue-100); color: var(--blue); }
+.sitepv .note .ic svg { width: 19px; height: 19px; }
+.sitepv .note .nb { display: flex; flex-direction: column; gap: 6px; flex: 1 1 auto; min-width: 0; }
+.sitepv .note h4 { margin: 0; font-size: 16px; line-height: 1.35; color: var(--navy); }
+.sitepv .note p { margin: 0; font-size: 14px; line-height: 1.6; color: var(--ink-soft); }
+.sitepv .note .mt { margin-top: auto; padding-top: 11px; font-size: 12.5px; color: #8d98a4; }
+.sitepv .note .dot { position: absolute; top: 15px; right: 15px; width: 9px; height: 9px; border-radius: 50%; background: var(--blue); box-shadow: 0 0 0 3px rgba(31,111,178,.18); }
+.sitepv .note.unread { background: #f9fcff; border-color: #cfe2f5; }
+.sitepv .note.important .ic { background: var(--gold-100); color: #8a6412; }
+.sitepv .note.pinned { grid-column: 1 / -1; flex-direction: row; gap: 24px; align-items: flex-start; border-color: #eddcb2; border-left: 5px solid var(--gold);
+  background: linear-gradient(180deg, #fffdf6 0%, var(--surface) 62%); }
+.sitepv .note.pinned .ic { width: 46px; height: 46px; border-radius: 13px; background: var(--gold); color: #2e2003; }
+.sitepv .note.pinned .ic svg { width: 23px; height: 23px; }
+.sitepv .note.pinned h4 { font-size: 20px; letter-spacing: -.01em; }
+.sitepv .note.pinned p { font-size: 15.5px; color: var(--ink); max-width: 88ch; }
+.sitepv .ntag { font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; font-weight: 800; color: #8a6412; }
+.sitepv .note.draft { outline: 2px dashed #6aa6dc; outline-offset: 3px; }
+.sitepv .dtag { position: absolute; top: -11px; left: 18px; background: #1f6fb2; color: #fff; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px; font-family: var(--font); }
+.sitepv .tools { position: absolute; top: 10px; right: 30px; display: flex; gap: 4px; opacity: 0; transition: opacity .15s; }
+.sitepv .note:hover .tools, .sitepv .note:focus-within .tools { opacity: 1; }
+.sitepv .tools button { all: unset; cursor: pointer; font-family: var(--font); font-size: 12px; font-weight: 600; padding: 3px 9px; border-radius: 5px; background: var(--side); color: #fff; }
+.sitepv .tools button:hover { background: #1f6fb2; }
+.sitepv .tools button[data-act="del"]:hover { background: var(--bad); }
+@media (max-width: 620px) { .sitepv .note.pinned { flex-direction: column; gap: 12px; } .sitepv { padding: 16px; } }
+
+.gate { max-width: 460px; margin: 18vh auto; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; padding: 28px; text-align: center; }
+.gate h1 { font-size: 20px; font-stretch: 85%; margin: 0 0 8px; }
+.gate p { color: var(--ink-2); margin: 0 0 18px; }
+.toast { position: fixed; bottom: 20px; left: 50%; transform: translate(-50%, 20px); opacity: 0; transition: .25s ease; background: var(--ink); color: #fff;
+  padding: 10px 16px; border-radius: 8px; font-size: 13.5px; box-shadow: 0 10px 30px rgba(12, 26, 43, .3); z-index: 50; pointer-events: none; }
+.toast.on { opacity: 1; transform: translate(-50%, 0); }
+
+@media (max-width: 1100px) { .split, .grid2 { grid-template-columns: minmax(0, 1fr); } .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 820px) {
+  .app { grid-template-columns: minmax(0, 1fr); }
+  .side { position: static; height: auto; }
+  .nav { flex-direction: row; overflow-x: auto; padding: 8px; }
+  .nav .grp, .side-foot { display: none; }
+  .nav button { width: auto; white-space: nowrap; }
+  .top, .page { padding-left: 16px; padding-right: 16px; }
+  .grid3 { grid-template-columns: minmax(0, 1fr); }
+  .wk-strip { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .lcard { grid-template-columns: 96px minmax(0, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate" hidden>
+  <h1>This page is for the STEP tech team</h1>
+  <p id="gate-msg">Sign in on the site with a tech team account, then double-click the STEP logo to open the console.</p>
+  <a class="btn pri" href="site.html">Go to the site</a>
+</div>
+
+<div class="app" id="app" hidden>
+  <aside class="side">
+    <div class="side-head">
+      <img src="assets/step-logo-mark-white.png" alt="">
+      <div><b>Tech console</b><span id="side-cohort">STEP 2.5</span></div>
+    </div>
+    <nav class="nav" id="nav" aria-label="Sections">
+      <div class="grp">Sessions</div>
+      <button data-s="attendance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v7a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9"/></svg>Attendance<span class="ct" id="ct-att"></span></button>
+      <button data-s="recordings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="14" height="14" rx="2"/><path d="M16 10l6-3v10l-6-3"/></svg>Session recordings<span class="ct" id="ct-rec"></span></button>
+      <button data-s="panels"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M15 14.5c.6-.3 1.3-.5 2-.5 2.8 0 5 2.2 5 5"/></svg>Panels<span class="ct" id="ct-pan"></span></button>
+      <div class="grp">This Week and Home</div>
+      <button data-s="announcements"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6a8 8 0 0 1 0 12"/></svg>Announcements<span class="ct hot" id="ct-ann"></span></button>
+      <button data-s="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8" fill="currentColor"/><circle cx="18" cy="13.5" r=".8" fill="currentColor"/></svg>Games<span class="ct" id="ct-game"></span></button>
+      <button data-s="articles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M18 8h2v10a2 2 0 0 1-2 2"/><path d="M8 8h6M8 12h6M8 16h4"/></svg>Articles<span class="ct" id="ct-art"></span></button>
+      <div class="grp">Reports</div>
+      <button data-s="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Team data</button>
+    </nav>
+    <div class="side-foot">
+      <div class="who"><i id="who-i">CP</i><div><b id="who-n">C. Perote</b><span id="who-e">cperote@ateneo.edu</span></div></div>
+      <a href="site.html"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>Back to the site</a>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="top">
+      <div class="crumb">Tech console / <b id="crumb">Attendance</b></div>
+    </div>
+
+    <div class="page">
+
+      <!-- ===================== 1. Attendance ===================== -->
+      <section class="sec" data-sec="attendance">
+        <div class="sec-head">
+          <div><h1>Attendance</h1><p>Record who joined each learning session and Saturday feedback session. Totals feed the team data report.</p></div>
+          <div class="acts"><button class="btn" data-toast="Preview: a CSV of this sheet would download.">Import Zoom report</button></div>
+        </div>
+        <div class="wk-strip" id="att-weeks"></div>
+        <div class="toolbar">
+          <label class="field"><span>Session</span>
+            <div class="seg" id="att-kind"></div>
+          </label>
+          <label class="field"><span>Date</span><input class="in" id="att-date" type="date" style="width:170px"></label>
+          <label class="field" style="flex:1;min-width:200px"><span>Find a participant</span><input class="in" id="att-q" placeholder="Name or team"></label>
+        </div>
+        <div class="stats" id="att-stats"></div>
+        <div class="card">
+          <header><h2 id="att-title">Attendance</h2><span class="sub" id="att-mod"></span>
+            <div class="r"><button class="btn sm" id="att-all">Mark everyone present</button><button class="btn pri sm" id="att-submit">Submit attendance</button></div></header>
+          <div class="scroll"><table class="t"><thead><tr><th>Participant</th><th>Role</th><th>Status</th><th>Joined</th><th>Note</th></tr></thead><tbody id="att-body"></tbody></table></div>
+          <div class="foot"><span class="note" id="att-foot"></span><span class="sp"></span><span class="att-status" id="att-status" role="status" aria-live="polite">Nothing to submit</span></div>
+        </div>
+      </section>
+
+      <!-- ===================== 2. Session recordings ===================== -->
+      <section class="sec" data-sec="recordings" hidden>
+        <div class="sec-head">
+          <div><h1>Session recordings</h1><p>Upload each week's learning session recording. It appears on the This Week tab under the session, for every team.</p></div>
+        </div>
+        <div class="wk-strip" id="rec-weeks"></div>
+        <div class="split">
+          <div class="card">
+            <header><h2 id="rec-title">Recording</h2><span class="sub" id="rec-mod"></span></header>
+            <div class="body" style="display:grid;gap:14px">
+              <div class="rec-now" id="rec-now" hidden></div>
+              <div class="drop" id="rec-drop">
+                <input type="file" id="rec-file" accept="video/*,.mp4,.mov,.m4v,.webm" hidden>
+                <b id="rec-drop-t">Drop the MP4 recording here</b>
+                <span class="note" id="rec-drop-n">The Zoom cloud recording file works as it is.</span>
+                <div class="or">or</div>
+                <button class="btn" id="rec-pick" type="button">Choose a file</button>
+                <button class="btn" id="rec-clear" type="button" hidden>Remove file</button>
+              </div>
+              <div class="upbar" id="rec-prog" hidden><div class="track"><i></i></div><span class="note"></span></div>
+              <label class="field"><span>Or paste a video link</span><input class="in mono" id="rec-link" placeholder="https://drive.google.com/… or https://youtu.be/…"><small>Google Drive (shared with anyone who has the link), YouTube (unlisted) or Vimeo.</small></label>
+              <div class="grid2">
+                <label class="field"><span>Title shown on This Week</span><input class="in" id="rec-name"></label>
+                <label class="field"><span>Length</span><input class="in" id="rec-len" placeholder="2:58:10"></label>
+              </div>
+              <label class="field"><span>Visible to</span>
+                <div class="seg" id="rec-vis"><button aria-pressed="true" data-v="all">All teams</button><button aria-pressed="false" data-v="staff">Trainers and admins only</button></div></label>
+            </div>
+            <div class="foot"><span class="note" id="rec-foot">Teams see it as soon as you publish.</span><span class="sp"></span><button class="btn" id="rec-draft">Save as draft</button><button class="btn pri" id="rec-pub">Publish recording</button></div>
+          </div>
+          <div class="card">
+            <header><h2>All recordings</h2><span class="sub" id="rec-sum"></span></header>
+            <div class="scroll"><table class="t"><thead><tr><th>Week</th><th>Topic</th><th>Status</th><th class="num">Views</th></tr></thead><tbody id="rec-body"></tbody></table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 3. Panels ===================== -->
+      <section class="sec" data-sec="panels" hidden>
+        <div class="sec-head">
+          <div><h1>Panels</h1><p>Set who sits on each Saturday panel and which teams it hears. Drag a team or a panelist to another panel to move them. A mentor can't sit on the panel that hears their own team — the board won't allow it. What you save here is the grouping the Panel tab shows.</p></div>
+          <div class="acts"><button class="btn" id="pb-shuffle">Shuffle teams</button><button class="btn" id="pb-add">Add a panel</button></div>
+        </div>
+        <div class="toolbar">
+          <label class="field"><span>Applies to</span><select class="in" id="pb-week" style="width:230px"></select></label>
+          <label class="field"><span>&nbsp;</span>
+            <div class="seg" id="pb-scope"><button aria-pressed="false" data-v="only">This week only</button><button aria-pressed="true" data-v="onward">This week onward</button></div></label>
+          <span class="note" style="margin-left:auto;align-self:center;text-align:right"><span id="pb-sum"></span><br><span id="pb-src"></span></span>
+        </div>
+        <div class="pb-rule" id="pb-rule" role="alert" hidden></div>
+        <div class="pboard" id="pboard"></div>
+        <div class="card" style="margin-top:16px">
+          <div class="foot" style="border-top:0;border-radius:8px">
+            <span class="note">Every panel, including any you add, gets its own score sheet with the same criteria as the others. Its panelists fill it in on the Panel tab.</span>
+            <span class="sp"></span><button class="btn" id="pb-reset">Undo changes</button>
+            <button class="btn pri" id="pb-save">Save panels</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 4. Announcements ===================== -->
+      <section class="sec" data-sec="announcements" hidden>
+        <div class="sec-head">
+          <div><h1>Announcements</h1><p>Write an announcement and see it on the This Week board exactly as teams will. Add as many as you need; pin one to lead the board.</p></div>
+        </div>
+        <div class="ann-split">
+          <div class="card" id="an-form">
+            <header><h2 id="an-form-h">New announcement</h2><span class="r"><button class="btn ghost sm" id="an-cancel" hidden>Cancel editing</button></span></header>
+            <div class="body" style="display:grid;gap:14px">
+              <div class="field"><span>Icon</span><div class="icopick" id="an-ico"></div></div>
+              <label class="field"><span>Headline</span><input class="in" id="an-t" maxlength="90" placeholder="e.g. Week 9 outputs are due Friday at 12:00 NN"></label>
+              <label class="field"><span>Message</span><textarea class="in" id="an-b" placeholder="One or two sentences. Say what teams should do."></textarea></label>
+              <div class="grid2">
+                <label class="field"><span>Posted by</span><input class="in" id="an-by" value="STEP Team"></label>
+                <label class="field"><span>Date and time shown</span><input class="in" type="datetime-local" id="an-at"></label>
+              </div>
+              <label class="field"><span>Take it down on</span><input class="in" type="datetime-local" id="an-to"><small>Leave empty to keep it until the week ends.</small></label>
+              <div style="display:grid;gap:8px">
+                <label class="tick"><input type="checkbox" id="an-pin"> <span><b>Pin to the top</b> · leads the board across the full width. Only one announcement is pinned at a time.</span></label>
+                <label class="tick"><input type="checkbox" id="an-imp"> <span><b>Mark as important</b> · gold icon.</span></label>
+                <label class="tick"><input type="checkbox" id="an-new" checked> <span><b>Show the "new" dot</b> until each person has seen it.</span></label>
+              </div>
+            </div>
+            <div class="foot"><span class="note" id="an-msg"></span><span class="sp"></span><button class="btn pri" id="an-save">Add announcement</button></div>
+          </div>
+          <div>
+            <div class="preview-lbl">This Week · Announcements, as teams see it. Hover a card to edit, pin or remove it.</div>
+            <div class="sitepv"><div class="ann-top"><div><div class="eyebrow">From the STEP team</div><h2>Announcements</h2></div><span class="newcount" id="an-count" hidden></span></div>
+              <div class="anngrid" id="an-board"></div></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 5. Games ===================== -->
+      <section class="sec" data-sec="games" hidden>
+        <div class="sec-head">
+          <div><h1>Games</h1><p>Set the game teams play on the This Week tab. One game per week; it replaces last week's automatically.</p></div>
+        </div>
+        <div class="wk-strip" id="game-weeks"></div>
+        <div class="split">
+          <div class="card">
+            <header><h2 id="game-title">This week's game</h2></header>
+            <div class="body" style="display:grid;gap:14px">
+              <div class="grid2">
+                <label class="field"><span>Game title</span><input class="in" id="g-name" value=""></label>
+                <label class="field"><span>Platform</span><select class="in"><option>Wordwall</option><option>Kahoot!</option><option>Quizizz</option><option selected>Built into the site</option><option>Other link</option></select></label>
+              </div>
+              <label class="field"><span>Game link or embed code</span><input class="in mono" placeholder="Leave empty to use the game built into the site"></label>
+              <label class="field"><span>One line for teams</span><input class="in" id="g-line" value=""></label>
+              <div class="grid2">
+                <label class="field"><span>Opens</span><input class="in" type="datetime-local"></label>
+                <label class="field"><span>Closes</span><input class="in" type="datetime-local"></label>
+              </div>
+              <label style="display:flex;gap:8px;align-items:center;font-size:13.5px"><input type="checkbox" checked> Show a leaderboard by team</label>
+            </div>
+            <div class="foot"><span class="sp"></span><button class="btn" data-toast="Preview: the game would open in a new tab.">Test the link</button><button class="btn pri" data-toast="Preview: the game would go live on This Week.">Publish game</button></div>
+          </div>
+          <div class="card">
+            <header><h2>Games by week</h2></header>
+            <div class="scroll"><table class="t"><thead><tr><th>Week</th><th>Game</th><th>Platform</th><th>Status</th></tr></thead><tbody id="game-body"></tbody></table></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===================== 6. Articles (live) ===================== -->
+      <section class="sec" data-sec="articles" hidden>
+        <div class="sec-head">
+          <div><h1>Articles <span class="pill ok" style="vertical-align:middle;font-size:12px">Live</span></h1><p>Paste the link to a published article. The site reads its title, picture and summary; check them, then add it. It appears under Articles and publications on the Home tab straight away.</p></div>
+        </div>
+        <div class="card" style="margin-bottom:18px">
+          <header><h2>Add an article</h2></header>
+          <div class="body">
+            <form id="art-form" style="display:flex;gap:10px;flex-wrap:wrap">
+              <input class="in mono" id="art-url" type="url" required style="flex:1;min-width:260px" placeholder="https://www.ateneo.edu/news/…">
+              <button class="btn pri" id="art-fetch" type="submit">Read the link</button>
+            </form>
+            <div id="art-res" style="margin-top:16px"></div>
+          </div>
+        </div>
+        <div class="card">
+          <header><h2>On the Home tab</h2><span class="sub" id="art-sum"></span><div class="r"><button class="btn sm" id="art-reload">Refresh</button></div></header>
+          <div class="scroll"><table class="t"><thead><tr><th style="width:96px">Order</th><th style="width:80px"></th><th>Title</th><th>Source</th><th>Published</th><th>Label</th><th>Shown on Home</th><th></th></tr></thead><tbody id="art-body"></tbody></table></div>
+        </div>
+      </section>
+
+      <!-- ===================== 7. Team data ===================== -->
+      <section class="sec" data-sec="data" hidden>
+        <div class="sec-head">
+          <div><h1>Team data</h1><p>Every team in one place, from the real records: each panelist's scores, the weekly outputs handed in, attendance and the FASTRAC proposal.</p></div>
+          <div class="acts"><button class="btn" id="d-refresh">Refresh</button><button class="btn" id="d-csv">Download CSV</button></div>
+        </div>
+        <div class="seg dv-tabs" id="d-view" role="group" aria-label="What to show">
+          <button aria-pressed="true" data-v="overview">Overview</button><button aria-pressed="false" data-v="scores">Panel scores</button><button aria-pressed="false" data-v="outputs">Submitted outputs</button><button aria-pressed="false" data-v="att">Attendance</button><button aria-pressed="false" data-v="fastrac">FASTRAC proposal</button>
+        </div>
+        <div class="toolbar">
+          <label class="field" id="d-sess-f" hidden><span>Session</span><select class="in" id="d-sess" style="width:300px"></select></label>
+          <label class="field" id="d-week-f"><span>Up to week</span><select class="in" id="d-week" style="width:130px"></select></label>
+          <label class="field"><span>Region</span><select class="in" id="d-reg" style="width:140px"><option value="">All</option><option>Luzon</option><option>Visayas</option><option>Mindanao</option></select></label>
+          <label class="field"><span>Panel</span><select class="in" id="d-pan" style="width:120px"><option value="">All</option><option>A</option><option>B</option><option>C</option><option>D</option></select></label>
+          <span class="note" id="d-asof" style="margin-left:auto;align-self:center"></span>
+        </div>
+        <div class="stats" id="d-stats"></div>
+        <div class="card">
+          <header><h2 id="d-title">Team data</h2><span class="sub" id="d-sub"></span></header>
+          <div class="scroll"><table class="t dv-table" id="d-table"><thead id="d-head"></thead><tbody id="d-body"></tbody></table></div>
+          <div class="foot"><span class="note" id="d-foot"></span></div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="supabase-client.js"></script>
+<script src="site-clock.js"></script>
+<script src="schedule-data.js"></script>
+<script src="mock-data.js"></script>
+<script src="materials-data.js"></script>
+<script src="panelplan-data.js"></script>
+<script src="announcements-data.js"></script>
+<script src="capstone-data.js"></script>
+<script src="articles-data.js"></script>
+<script src="tech-access.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const M = window.MOCK || {};
+  const G = (M.groups || []).map(g => ({ id: g.id, name: String(g.name).replace(/\s*\(.*\)$/, ""), inst: g.abbr || g.short || "", region: g.region }));
+  const PANELS = (M.faculty && M.faculty.panels) || [];
+  const panelOf = id => (PANELS.find(p => p.teams.some(t => t.team_id === id)) || {}).letter || "";
+  /* STEP 2.5 runs by week number, W0–W12 (schedule-data.js) */
+  const SCH = window.STEP_SCHEDULE;
+  const MODS = M.modules || [];
+  const modOf = w => MODS.find(m => m.week_no === w) || { code: "", title: "" };
+  const NOW = M.thisWeek && M.thisWeek.week_no != null ? M.thisWeek.week_no : 0;
+  const WEEKS = Array.from({ length: 13 }, (_, i) => i);
+  if (M.cohort && M.cohort.name) { const sc = document.getElementById("side-cohort"); if (sc) sc.textContent = M.cohort.name; }
+  const rnd = (seed => () => (seed = (seed * 16807) % 2147483647) / 2147483647)(20260930);
+
+  /* ---------------- access ---------------- */
+  const demo = /[?&]demo=1(&|$)/.test(location.search);
+  function currentUser() { try { return M.auth ? M.auth.getCurrentUser() : null; } catch (e) { return null; } }
+  function decide() {
+    const u = currentUser(), email = (u && u.email || "").toLowerCase();
+    const ok = demo || (window.STEP_TECH && window.STEP_TECH.isTech(email));
+    $("#gate").hidden = ok; $("#app").hidden = !ok;
+    if (u && email) {
+      $("#who-n").textContent = u.name || u.full_name || email;
+      $("#who-e").textContent = email;
+      $("#who-i").textContent = (u.initials || (u.name || email).split(/\s+/).map(s => s[0]).join("")).slice(0, 2).toUpperCase();
+    }
+    if (!ok && email) $("#gate-msg").textContent = "You're signed in as " + email + ", which isn't on the tech team.";
+    return ok;
+  }
+  let decided = false;
+  function settle() { if (!decided) { decided = true; } decide(); }
+  window.addEventListener("stephub_auth_settled", settle);
+  window.addEventListener("stephub_auth_changed", decide);
+  setTimeout(settle, 1500);
+  if (window.__authSettled) settle();
+  decide();
+
+  /* ---------------- shell ---------------- */
+  const TITLES = { attendance: "Attendance", recordings: "Session recordings", panels: "Panels", announcements: "Announcements", games: "Games", articles: "Articles", data: "Team data" };
+  function show(s) {
+    if (!TITLES[s]) s = "attendance";
+    $$(".sec").forEach(el => el.hidden = el.dataset.sec !== s);
+    $$("#nav button").forEach(b => b.setAttribute("aria-current", b.dataset.s === s ? "page" : "false"));
+    $("#crumb").textContent = TITLES[s];
+    if (location.hash.slice(1) !== s) history.replaceState(null, "", "#" + s);
+    window.scrollTo(0, 0);
+  }
+  $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-s]"); if (b) show(b.dataset.s); });
+  window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+  let tt;
+  function toast(msg) { const t = $("#toast"); t.textContent = msg; t.classList.add("on"); clearTimeout(tt); tt = setTimeout(() => t.classList.remove("on"), 2600); }
+  document.addEventListener("click", e => {
+    const a = e.target.closest("[data-toast]"); if (a) { e.preventDefault(); toast(a.dataset.toast); }
+    const sb = e.target.closest(".seg button"); if (sb && !sb.closest("#att-kind")) { sb.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === sb)); }
+  });
+  function weekStrip(el, marks, onPick, sel) {
+    el.innerHTML = WEEKS.map(w => `<button data-w="${w}" class="${marks[w] || ""}${w === NOW ? " now" : ""}" aria-pressed="${w === sel}"><b>${w}</b>Week<i></i></button>`).join("");
+    el.onclick = e => { const b = e.target.closest("button[data-w]"); if (!b) return; el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); onPick(+b.dataset.w); };
+  }
+
+  /* ---------------- 1. attendance ----------------
+     Signed in with a real account → the roster is each team's members
+     (team_members) and every mark is saved to the attendance table, one
+     row per person per session. Nothing is pre-filled: a person stays
+     "not marked" until someone marks them.
+     The ?demo=1 preview keeps its made-up roster and is never saved. */
+  const SBC = () => (window.STEP_SUPABASE && window.STEP_SUPABASE.getClient ? window.STEP_SUPABASE.getClient() : null);
+  const attLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
+  const SAMPLE = [];
+  const leads = (M.users || []).filter(u => u.role === "participant");
+  G.forEach((g, gi) => {
+    const lead = leads.find(u => u.team_id === g.id);
+    const n = 3 + (gi % 3);
+    for (let i = 0; i < n; i++) SAMPLE.push({ team: g, name: i === 0 && lead ? lead.name : "Team member " + (i + 1), role: i === 0 ? "Project lead" : i === 1 ? "Business lead" : "Researcher" });
+  });
+  let ROSTER = SAMPLE;
+  let attWeek = NOW;
+  /* the sessions held that week, from the schedule: learning and feedback
+     sessions, and the orientation, on-site days, Demo Day and graduation */
+  const attSessions = w => SCH ? SCH.attendanceSessions(w) : [{ key: "LS", code: "W" + w + "-LS", short: "Learning session" }, { key: "FB", code: "W" + w + "-FB", short: "Feedback session" }];
+  let attKind = (attSessions(attWeek)[0] || { key: "LS" }).key;
+  const attSess = () => attSessions(attWeek).find(x => x.key === attKind) || attSessions(attWeek)[0] || null;
+  function paintKinds() {
+    const list = attSessions(attWeek);
+    if (!list.some(x => x.key === attKind)) attKind = (list[0] || { key: "LS" }).key;
+    $("#att-kind").innerHTML = list.length
+      ? list.map(x => `<button aria-pressed="${x.key === attKind}" data-v="${esc(x.key)}">${esc(x.label)}</button>`).join("")
+      : `<span class="note">No session this week</span>`;
+  }
+  const attState = {}, attNote = {}, attSaved = {};
+  let attDirty = false, attBusy = false, attWeeksWith = new Set(), addingFor = null;
+  const sessCode = () => "W" + attWeek + "-" + attKind;
+  function attKey(p) { return attWeek + attKind + p.team.id + p.name; }
+  function attDefault(p, i) { const r = (i * 7 + attWeek * 3) % 17; return r === 0 ? "absent" : r === 5 ? "late" : "present"; }
+
+  /* the day the session is held, from the schedule */
+  function sessDate() {
+    const x = attSess();
+    if (x && x.date) return x.date;
+    const wkStart = window.STEP_CLOCK ? window.STEP_CLOCK.weekStart(new Date()) : new Date();
+    const d = new Date(wkStart.getFullYear(), wkStart.getMonth(), wkStart.getDate() - (NOW - attWeek) * 7 + (attKind === "LS" ? 1 : 5));
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  }
+
+  async function loadRoster() {
+    const { data, error } = await SBC().from("team_members").select("id, team_id, name, role, sort_order").order("sort_order");
+    if (error) throw error;
+    ROSTER = [];
+    G.forEach(g => (data || []).filter(r => r.team_id === g.id)
+      .forEach(r => ROSTER.push({ id: r.id, team: g, name: r.name, role: r.role || "Member", sort: r.sort_order || 0 })));
+  }
+  async function loadSession() {
+    const code = sessCode();
+    const { data, error } = await SBC().from("attendance").select("team_id, member_name, status, present, note, session_date, updated_at").eq("session_code", code);
+    if (error) throw error;
+    ROSTER.forEach(p => { const k = attKey(p); delete attState[k]; delete attNote[k]; delete attSaved[k]; });
+    let date = "";
+    /* what the database holds for this session: every saved row, including
+       people since removed from the roster, who no longer show on screen */
+    attDb = (data || []).map(r => ({ team_id: r.team_id, member_name: r.member_name }));
+    attOrphans = attDb.filter(r => !ROSTER.some(p => p.team.id === r.team_id && p.name === r.member_name)).length;
+    (data || []).forEach(r => {
+      const k = attWeek + attKind + r.team_id + r.member_name;
+      attState[k] = r.status || (r.present ? "present" : "absent");
+      attNote[k] = r.note || "";
+      attSaved[k] = r.updated_at;
+      if (r.session_date) date = r.session_date;
+    });
+    $("#att-date").value = date || sessDate();
+    attDirty = false;
+    paintSubmit();
+  }
+  async function loadWeeksWith() {
+    const { data } = await SBC().from("attendance").select("session_code");
+    attWeeksWith = new Set((data || []).map(r => +((String(r.session_code).match(/^W(\d+)/) || [])[1])).filter(n => !isNaN(n)));
+  }
+  function paintWeeks() {
+    const marks = {};
+    WEEKS.forEach(w => marks[w] = attLive()
+      ? (attWeeksWith.has(w) ? "has" : w <= NOW ? "miss" : "")
+      : (w < NOW ? "has" : w === NOW ? "miss" : ""));
+    weekStrip($("#att-weeks"), marks, async w => { if (!leaveOk()) return; attWeek = w; paintKinds(); await refreshAtt(); }, attWeek);
+  }
+  async function refreshAtt() {
+    if (attLive()) {
+      try { await loadSession(); }
+      catch (e) { toast("Couldn't load attendance: " + (e.message || e)); }
+    } else {
+      $("#att-date").value = sessDate();
+    }
+    renderAtt();
+  }
+
+  function renderAtt() {
+    const live = attLive();
+    const q = $("#att-q").value.trim().toLowerCase();
+    const m = modOf(attWeek);
+    const ax = attSess();
+    $("#att-title").textContent = "Week " + attWeek + " · " + (ax ? ax.label : "no session");
+    $("#att-mod").textContent = ax ? ax.title : m.title;
+    const th = $$("#att-body")[0].closest("table").querySelectorAll("thead th");
+    if (th[3]) th[3].textContent = live ? "Saved" : "Joined";
+    let html = "", counts = { present: 0, late: 0, absent: 0, none: 0 };
+    G.forEach(g => {
+      const people = ROSTER.filter(p => p.team.id === g.id);
+      const shown = people.filter(p => !q || (p.name + " " + p.team.name).toLowerCase().includes(q));
+      people.forEach((p, i) => {
+        const k = attKey(p);
+        if (!live && !(k in attState)) attState[k] = attDefault(p, ROSTER.indexOf(p));
+        counts[attState[k] || "none"]++;
+      });
+      if (q && !shown.length && !g.name.toLowerCase().includes(q)) return;
+      html += `<tr class="team-row"><td colspan="5">${esc(g.name)} · ${esc(g.inst)}${live
+        ? ` <button class="btn sm" data-add="${esc(g.id)}" style="float:right;margin:-3px 0">+ Add member</button>` : ""}</td></tr>`;
+      if (live && addingFor === g.id) {
+        html += `<tr class="add-row" data-team="${esc(g.id)}"><td><input class="in" id="am-name" placeholder="Full name, e.g. Dr. Maria Santos"></td>
+          <td><input class="in" id="am-role" placeholder="Role, e.g. Project lead"></td>
+          <td colspan="3"><button class="btn pri sm" data-am-save="${esc(g.id)}">Add to roster</button>
+          <button class="btn sm" data-am-cancel>Cancel</button></td></tr>`;
+      }
+      if (live && !people.length && addingFor !== g.id) {
+        html += `<tr><td colspan="5" class="note">No one on this team's roster yet — add the members to start taking attendance.</td></tr>`;
+      }
+      (q ? shown : people).forEach(p => {
+        const k = attKey(p), v = attState[k] || "";
+        const joined = live
+          ? (attSaved[k] ? new Date(attSaved[k]).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—")
+          : (v === "absent" ? "—" : v === "late" ? (attKind === "LS" ? "9:24 AM" : "10:12 AM") : (attKind === "LS" ? "8:57 AM" : "9:58 AM"));
+        html += `<tr><td>${esc(p.name)}${live ? ` <button class="rm-m" data-rm="${esc(p.id)}" title="Remove ${esc(p.name)} from the roster" aria-label="Remove ${esc(p.name)} from the roster">×</button>` : ""}</td>
+          <td class="note">${esc(p.role)}</td>
+          <td><span class="att" data-k="${esc(k)}">${["present", "late", "absent"].map(s => `<button data-v="${s}" aria-pressed="${v === s}">${s[0].toUpperCase() + s.slice(1)}</button>`).join("")}</span></td>
+          <td class="mono" data-saved="${esc(k)}">${joined}</td><td><input class="in att-note" data-k="${esc(k)}" style="padding:4px 8px;font-size:13px" placeholder="—" value="${esc(attNote[k] || "")}"></td></tr>`;
+      });
+    });
+    $("#att-body").innerHTML = html || `<tr><td colspan="5" class="note">No one matches “${esc(q)}”.</td></tr>`;
+    const tot = ROSTER.length;
+    const teamsIn = new Set(ROSTER.filter(p => { const s = attState[attKey(p)]; return s === "present" || s === "late"; }).map(p => p.team.id)).size;
+    const cells = [[counts.present, "present"], [counts.late, "late"], [counts.absent, "absent"]];
+    if (live) cells.push([counts.none, "not marked yet"]);
+    cells.push([teamsIn + " / " + G.length, "teams represented"]);
+    $("#att-stats").innerHTML = cells.map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+    const marked = counts.present + counts.late + counts.absent;
+    $("#att-foot").textContent = !tot ? "No one is on a roster yet — add each team's members with “+ Add member”."
+      : (marked ? Math.round((counts.present + counts.late) / marked * 100) + "% attended of " + marked + " marked · " : "Nobody marked yet · ")
+        + tot + " participants on the roster";
+    $("#ct-att").textContent = "W" + NOW;
+    if (!live) setStatus("Preview — nothing is saved", ""); else paintSubmit();
+    if (live && addingFor) { const n = $("#am-name"); if (n && document.activeElement !== n && !n.value) n.focus(); }
+  }
+
+  /* ---- nothing is saved until "Submit attendance" is pressed ----
+     Marks and notes are kept on screen only; Submit writes the whole session
+     in one go: everyone marked is saved, and any saved row for this session
+     that is no longer marked (cleared, or for someone removed from the
+     roster) is deleted. Switching week or session throws away unsubmitted
+     marks, after a warning. ---- */
+  const savedAt = iso => new Date(iso).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
+  function setStatus(text, tone) {
+    const el = $("#att-status"); if (!el) return;
+    el.className = "att-status" + (tone ? " " + tone : "");
+    el.innerHTML = text;
+  }
+  let me = null, attDb = [], attOrphans = 0, submitting = false;
+  function rowFor(p) {
+    const k = attKey(p), st = attState[k];
+    return { team_id: p.team.id, member_name: p.name, session_code: sessCode(),
+             session_label: "W" + attWeek + " " + ({ LS: "Learning", FB: "Feedback", OR: "Orientation", OS: "On-site", DD: "Demo Day", GR: "Graduation" }[attKind] || attKind),
+             session_type: (attSess() || {}).type || (attKind === "FB" ? "feedback" : "learning"),
+             status: st, present: st !== "absent", note: (attNote[k] || "").trim() || null,
+             session_date: $("#att-date").value || sessDate(),
+             recorded_by: me, updated_at: new Date().toISOString() };
+  }
+  /* the rows Submit would delete: saved for this session, but not marked now */
+  function toDelete() {
+    return attDb.filter(r => {
+      const p = ROSTER.find(x => x.team.id === r.team_id && x.name === r.member_name);
+      return !p || !attState[attKey(p)];
+    });
+  }
+  function paintSubmit() {
+    const btn = $("#att-submit"); if (!btn) return;
+    const live = attLive();
+    btn.hidden = !live;
+    if (!live) return;
+    const marked = ROSTER.filter(p => attState[attKey(p)]).length, del = toDelete().length;
+    const dirty = attDirty || del > 0;
+    btn.disabled = submitting || !dirty;
+    if (submitting) return;
+    if (!dirty) { setStatus("✓ Everything shown matches what is saved", "ok"); return; }
+    const parts = [];
+    if (marked) parts.push(marked + " mark" + (marked === 1 ? "" : "s") + " to save");
+    if (del) parts.push(del + " saved row" + (del === 1 ? "" : "s") + " to remove" + (attOrphans ? " (" + attOrphans + " for people no longer on the roster)" : ""));
+    setStatus("Not submitted yet — " + parts.join(", ") + ". Press <b>Submit attendance</b>.", "warn");
+  }
+  function markDirty() { attDirty = true; paintSubmit(); }
+  async function submitAttendance() {
+    if (!attLive() || submitting) return;
+    const rows = ROSTER.filter(p => attState[attKey(p)]).map(rowFor);
+    const del = toDelete();
+    if (del.length && !confirm("Submit attendance for " + sessCode() + "?\n\n" + rows.length + " mark" + (rows.length === 1 ? "" : "s") + " will be saved and " + del.length + " saved row" + (del.length === 1 ? "" : "s") + " will be removed:\n" + del.map(r => "  – " + r.member_name + " (" + ((G.find(g => g.id === r.team_id) || {}).name || r.team_id) + ")").join("\n"))) return;
+    submitting = true; $("#att-submit").disabled = true;
+    setStatus('<span class="spin" aria-hidden="true"></span>Submitting…', "busy");
+    try {
+      if (!me) { try { const { data } = await SBC().auth.getUser(); me = data && data.user ? data.user.id : null; } catch (e) {} rows.forEach(r => r.recorded_by = me); }
+      if (rows.length) {
+        const { error } = await SBC().from("attendance").upsert(rows, { onConflict: "team_id,session_code,member_name" });
+        if (error) throw error;
+      }
+      for (const r of del) {
+        const { error } = await SBC().from("attendance").delete().eq("session_code", sessCode()).eq("team_id", r.team_id).eq("member_name", r.member_name);
+        if (error) throw error;
+      }
+      const now = new Date().toISOString();
+      rows.forEach(r => { attSaved[attWeek + attKind + r.team_id + r.member_name] = now; });
+      attDb = rows.map(r => ({ team_id: r.team_id, member_name: r.member_name }));
+      attOrphans = 0; attDirty = false;
+      if (rows.length && !attWeeksWith.has(attWeek)) attWeeksWith.add(attWeek);
+      if (!rows.length) { await loadWeeksWith(); }
+      paintWeeks(); renderAtt();
+      setStatus("✓ Submitted " + rows.length + " mark" + (rows.length === 1 ? "" : "s") + (del.length ? ", removed " + del.length : "") + " · " + savedAt(now), "ok");
+      $("#att-submit").disabled = true;
+    } catch (e) {
+      setStatus("Couldn\'t submit — " + esc(e.message || String(e)) + ' <button class="btn sm" id="att-retry">Try again</button>', "bad");
+      $("#att-submit").disabled = false;
+    } finally { submitting = false; }
+  }
+  /* keeps the old name so the rest of the console needs no change: a
+     change on screen now only marks the session as unsubmitted */
+  function persist() { markDirty(); }
+  $("#att-submit").addEventListener("click", submitAttendance);
+  /* leaving the page with unsubmitted marks */
+  window.addEventListener("beforeunload", e => { if (attLive() && attDirty) { e.preventDefault(); e.returnValue = ""; } });
+  const personOf = k => ROSTER.find(p => attKey(p) === k);
+  /* only marks changed on screen count as unsubmitted work; leftover rows for
+     people removed from the roster can wait until someone submits */
+  const leaveOk = () => !attLive() || !attDirty
+    || confirm("You have attendance marks that were not submitted.\n\nLeave this session and discard them?");
+
+  async function addMember(teamId) {
+    const name = ($("#am-name").value || "").trim(), role = ($("#am-role").value || "").trim();
+    if (!name) { $("#am-name").focus(); return; }
+    if (ROSTER.some(p => p.team.id === teamId && p.name.toLowerCase() === name.toLowerCase())) { toast(name + " is already on this team."); return; }
+    const sort = Math.max(0, ...ROSTER.filter(p => p.team.id === teamId).map(p => p.sort)) + 1;
+    const initials = name.replace(/^(Dr|Engr|Mr|Ms|Mrs|Prof|Atty)\.?\s+/i, "").replace(/[^A-Za-z ]/g, " ").trim().split(/\s+/).slice(0, 2).map(s => s[0].toUpperCase()).join("");
+    const { error } = await SBC().from("team_members").insert({ team_id: teamId, name, role: role || "Member", initials, sort_order: sort });
+    if (error) { toast("Couldn't add: " + error.message); return; }
+    addingFor = null;
+    await loadRoster(); renderAtt();
+    toast(name + " added to " + (G.find(g => g.id === teamId) || {}).name);
+  }
+
+  $("#att-body").addEventListener("click", async e => {
+    const b = e.target.closest(".att button");
+    if (b) {
+      const k = b.parentElement.dataset.k;
+      if (attState[k] === b.dataset.v) delete attState[k]; else attState[k] = b.dataset.v;   // same button again clears the mark
+      renderAtt();
+      const p = personOf(k); if (p) persist([p]);
+      return;
+    }
+    const add = e.target.closest("[data-add]");
+    if (add) { addingFor = addingFor === add.dataset.add ? null : add.dataset.add; renderAtt(); return; }
+    if (e.target.closest("[data-am-cancel]")) { addingFor = null; renderAtt(); return; }
+    const sv = e.target.closest("[data-am-save]");
+    if (sv) { sv.disabled = true; await addMember(sv.dataset.amSave); return; }
+    const rm = e.target.closest("[data-rm]");
+    if (rm) {
+      const p = ROSTER.find(x => String(x.id) === rm.dataset.rm); if (!p) return;
+      if (!confirm("Remove " + p.name + " from " + p.team.name + "'s roster?\n\nAttendance already submitted for them is removed the next time this session is submitted.")) return;
+      const { error } = await SBC().from("team_members").delete().eq("id", p.id);
+      if (error) { toast("Couldn't remove: " + error.message); return; }
+      await loadRoster(); renderAtt(); toast(p.name + " removed from the roster");
+    }
+  });
+  $("#att-body").addEventListener("keydown", e => {
+    if (e.key !== "Enter" || !e.target.closest(".add-row")) return;
+    e.preventDefault(); addMember(e.target.closest(".add-row").dataset.team);
+  });
+  $("#att-body").addEventListener("input", e => {
+    const n = e.target.closest(".att-note"); if (!n) return;
+    const k = n.dataset.k; attNote[k] = n.value;
+    if (!attLive()) return;
+    if (!attState[k]) { setStatus("Mark them Present, Late or Absent — the note is submitted with the mark.", "warn"); return; }
+    markDirty();
+  });
+  /* a different date applies to everyone already marked for this session */
+  $("#att-date").addEventListener("change", () => { renderAtt(); persist(ROSTER.filter(p => attState[attKey(p)])); });
+  $("#att-kind").addEventListener("click", async e => {
+    const b = e.target.closest("button"); if (!b) return;
+    if (!leaveOk()) return;
+    $$("#att-kind button").forEach(x => x.setAttribute("aria-pressed", x === b)); attKind = b.dataset.v; await refreshAtt();
+  });
+  $("#att-q").addEventListener("input", renderAtt);
+  $("#att-all").addEventListener("click", () => {
+    const other = ROSTER.filter(p => ["late", "absent"].includes(attState[attKey(p)])).length;
+    if (other && !confirm("Mark everyone present?\n\n" + other + (other === 1 ? " person is" : " people are") + " marked Late or Absent — they will be changed to Present.")) return;
+    ROSTER.forEach(p => attState[attKey(p)] = "present"); renderAtt(); persist(ROSTER);
+  });
+  document.addEventListener("click", e => { if (e.target.closest("#att-retry")) submitAttendance(); });   // tries the whole submit again
+
+  /* the real roster arrives once the account is known */
+  let attWentLive = false;
+  async function goLive() {
+    if (attWentLive || !attLive()) return;
+    attWentLive = true;
+    try { await loadRoster(); await loadWeeksWith(); }
+    catch (e) { toast("Couldn't load the rosters: " + (e.message || e)); }
+    paintWeeks(); await refreshAtt();
+  }
+  window.addEventListener("stephub_auth_settled", goLive);
+  window.addEventListener("stephub_auth_changed", goLive);
+  if (window.__authSettled) goLive();
+  paintKinds();
+  paintWeeks();
+  if (attLive()) goLive(); else refreshAtt();
+
+  /* ---------------- 2. recordings ----------------
+     Signed in with a real account → a recording is uploaded to the
+     materials bucket (or saved as a Drive / YouTube / Vimeo link) against
+     that week's session, and This Week plays it for every team as soon
+     as it is published. One recording per session: a new one replaces
+     the old. The ?demo=1 preview keeps its sample table. */
+  const MAT = () => window.STEP_MATERIALS;
+  const recLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!MAT() && !!SBC();
+  let recWeek = NOW, recFile = null, recBusy = false, RECS = [];
+  const recOf = w => RECS.find(r => r.code === modOf(w).code) || null;      // newest first
+  const sampleState = w => w < NOW - 1 ? "pub" : w === NOW - 1 ? "proc" : w === NOW ? "missing" : "later";
+  function stateOf(w) {
+    if (!recLive()) return sampleState(w);
+    const r = recOf(w);
+    if (!r) return w <= NOW ? "missing" : "later";
+    return r.status === "draft" ? "draft" : r.visibility === "staff" ? "staff" : "pub";
+  }
+  const PILL = { pub: '<span class="pill ok">Published</span>', staff: '<span class="pill warn">Trainers only</span>',
+    draft: '<span class="pill idle">Draft</span>', proc: '<span class="pill warn">Processing</span>',
+    missing: '<span class="pill bad">Missing</span>', later: '<span class="pill idle">Not yet held</span>' };
+  const mb = n => !n ? "" : n < 1073741824 ? Math.round(n / 1048576) + " MB" : (n / 1073741824).toFixed(2) + " GB";
+  const when = iso => iso ? new Date(iso).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—";
+
+  function recWeeks() {
+    const marks = {};
+    WEEKS.forEach(w => marks[w] = { pub: "has", staff: "has", draft: "has", proc: "has", missing: "miss" }[stateOf(w)] || "");
+    weekStrip($("#rec-weeks"), marks, w => { recWeek = w; renderRec(); }, recWeek);
+  }
+  function recVis() { return ($("#rec-vis button[aria-pressed=true]") || {}).dataset ? $("#rec-vis button[aria-pressed=true]").dataset.v : "all"; }
+  function paintDrop() {
+    $("#rec-drop").classList.toggle("filled", !!recFile);
+    $("#rec-drop-t").textContent = recFile ? recFile.name : "Drop the MP4 recording here";
+    $("#rec-drop-n").textContent = recFile ? mb(recFile.size) + " · ready to upload" : "The Zoom cloud recording file works as it is. Large files take a while — a Drive or YouTube link works too.";
+    $("#rec-pick").textContent = recFile ? "Choose a different file" : "Choose a file";
+    $("#rec-clear").hidden = !recFile;
+    const ready = !!recFile || !!$("#rec-link").value.trim();
+    $("#rec-pub").disabled = recBusy || !ready;
+    $("#rec-draft").disabled = recBusy || !ready;
+  }
+  function renderRec() {
+    const w = recWeek, m = modOf(w), live = recLive();
+    $("#rec-title").textContent = "Week " + w + " recording";
+    $("#rec-mod").textContent = m.title;
+    if (!$("#rec-name").dataset.touched) $("#rec-name").value = m.title ? "Recording: " + m.title : "";
+    const r = live ? recOf(w) : null, box = $("#rec-now");
+    box.hidden = !r;
+    if (r) {
+      const src = r.link ? `<a href="${esc(r.link)}" target="_blank" rel="noopener" class="mono">${esc(r.link.length > 54 ? r.link.slice(0, 54) + "…" : r.link)}</a>`
+                         : `${esc(r.name)}${r.size ? " · " + mb(r.size) : ""}`;
+      box.innerHTML = `<div class="rn-top">${PILL[stateOf(w)]}<b>${esc(r.title || "Session recording")}</b></div>
+        <div class="note">${src}${r.duration ? " · " + esc(r.duration) : ""} · posted ${when(r.posted_at)}</div>
+        <div class="rn-acts">
+          <button class="btn sm" data-rn="preview">Preview</button>
+          ${r.status === "draft" ? '<button class="btn sm pri" data-rn="publish">Publish now</button>' : '<button class="btn sm" data-rn="draft">Move back to draft</button>'}
+          <button class="btn sm" data-rn="vis">${r.visibility === "staff" ? "Show to all teams" : "Trainers and admins only"}</button>
+          <button class="btn sm danger" data-rn="remove">Remove</button>
+        </div>
+        <p class="note" style="margin:8px 0 0">Uploading a new file or link below replaces this one.</p>`;
+    }
+    $("#rec-foot").textContent = !live ? "Teams see it as soon as you publish."
+      : w !== NOW ? "This Week shows the current week's recording (Week " + NOW + ")."
+      : "Published recordings appear on This Week straight away.";
+    paintDrop();
+    renderRecTable();
+  }
+  function renderRecTable() {
+    const live = recLive();
+    const th = $("#rec-body").closest("table").querySelectorAll("thead th");
+    if (th[3]) { th[3].textContent = live ? "Posted" : "Views"; th[3].className = live ? "" : "num"; }
+    $("#rec-body").innerHTML = WEEKS.map(w => {
+      const s = stateOf(w), m = modOf(w), r = live ? recOf(w) : null;
+      const last = live ? `<td class="note">${r ? when(r.posted_at) : "—"}</td>` : `<td class="num">${s === "pub" ? 12 + ((w * 13) % 29) : "—"}</td>`;
+      return `<tr data-w="${w}" style="cursor:pointer"${w === recWeek ? ' class="sel"' : ""}><td>Week ${w}</td><td>${esc(m.title)}</td><td>${PILL[s]}</td>${last}</tr>`;
+    }).join("");
+    const pubN = WEEKS.filter(w => stateOf(w) === "pub").length;
+    const missN = WEEKS.filter(w => stateOf(w) === "missing").length;
+    $("#rec-sum").textContent = pubN + " published" + (missN ? " · " + missN + " missing" : "");
+    $("#ct-rec").textContent = pubN + "/" + NOW;
+  }
+  async function loadRecs() {
+    try { RECS = await MAT().listRecordings(); } catch (e) { RECS = []; toast("Couldn't load recordings: " + (e.message || e)); }
+  }
+  function setProg(f, txt) {
+    const bar = $("#rec-prog"); bar.hidden = f == null;
+    if (f != null) { bar.querySelector("i").style.width = Math.round(f * 100) + "%"; bar.querySelector("span").textContent = txt || ""; }
+  }
+
+  async function postRec(status) {
+    if (!recLive()) { toast(status === "draft" ? "Preview: the recording would be saved as a draft." : "Preview: the recording would be published to This Week."); return; }
+    const w = recWeek, m = modOf(w), link = $("#rec-link").value.trim();
+    if (!m.code) { toast("There is no session in Week " + w + "."); return; }
+    if (!recFile && !link) { toast("Choose a file or paste a link first."); return; }
+    const old = RECS.filter(r => r.code === m.code);
+    if (old.length && !confirm("Replace the Week " + w + " recording?\n\nThe one there now (" + (old[0].title || old[0].name || "recording") + ") will be deleted.")) return;
+    const opts = { moduleCode: m.code, week: w, title: $("#rec-name").value.trim() || ("Recording: " + m.title),
+                   duration: $("#rec-len").value.trim(), visibility: recVis(), status };
+    recBusy = true; paintDrop();
+    try {
+      if (recFile) {
+        setProg(0, "Uploading… 0%");
+        await MAT().putRecording(Object.assign({ file: recFile, onProgress: f => setProg(f, "Uploading… " + Math.round(f * 100) + "%") }, opts));
+      } else {
+        await MAT().putRecordingLink(Object.assign({ link }, opts));
+      }
+      /* one recording per session: the new one replaces the old */
+      for (const r of old) { try { await MAT().remove(r.id, r.path); } catch (e) {} }
+      recFile = null; $("#rec-link").value = ""; $("#rec-len").value = ""; delete $("#rec-name").dataset.touched;
+      await loadRecs(); recWeeks(); renderRec();
+      toast(status === "draft" ? "Saved as a draft — teams can't see it yet." :
+            opts.visibility === "staff" ? "Published for trainers and admins only." :
+            w === NOW ? "Published — it's on This Week now." : "Published for Week " + w + ".");
+    } catch (e) {
+      toast("Couldn't save the recording: " + (e.message || e));
+    } finally { recBusy = false; setProg(null); paintDrop(); }
+  }
+
+  $("#rec-pick").addEventListener("click", () => $("#rec-file").click());
+  $("#rec-clear").addEventListener("click", () => { recFile = null; $("#rec-file").value = ""; paintDrop(); });
+  $("#rec-file").addEventListener("change", e => { if (e.target.files[0]) { recFile = e.target.files[0]; paintDrop(); } });
+  const dz = $("#rec-drop");
+  dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("over"); });
+  dz.addEventListener("dragleave", () => dz.classList.remove("over"));
+  dz.addEventListener("drop", e => {
+    e.preventDefault(); dz.classList.remove("over");
+    const f = e.dataTransfer.files[0]; if (!f) return;
+    if (!/^video\//.test(f.type) && !/\.(mp4|mov|m4v|webm)$/i.test(f.name)) { toast("That isn't a video file — use MP4 or MOV."); return; }
+    recFile = f; paintDrop();
+  });
+  $("#rec-link").addEventListener("input", paintDrop);
+  $("#rec-name").addEventListener("input", e => { e.target.dataset.touched = "1"; });
+  $("#rec-pub").addEventListener("click", () => postRec("published"));
+  $("#rec-draft").addEventListener("click", () => postRec("draft"));
+  $("#rec-body").addEventListener("click", e => {
+    const tr = e.target.closest("tr[data-w]"); if (!tr) return;
+    recWeek = +tr.dataset.w; recWeeks(); renderRec();
+  });
+  $("#rec-now").addEventListener("click", async e => {
+    const b = e.target.closest("[data-rn]"); if (!b) return;
+    const r = recOf(recWeek); if (!r) return;
+    try {
+      if (b.dataset.rn === "preview") {
+        const url = r.link || await MAT().signedUrl(r.path);
+        if (url) window.open(url, "_blank", "noopener"); else toast("Couldn't open the file.");
+        return;
+      }
+      if (b.dataset.rn === "remove") {
+        if (!confirm("Remove the Week " + recWeek + " recording?\n\nIt disappears from This Week and the file is deleted.")) return;
+        await MAT().remove(r.id, r.path); toast("Recording removed.");
+      }
+      if (b.dataset.rn === "publish") { await MAT().updateRecording(r.id, { status: "published" }); toast("Published."); }
+      if (b.dataset.rn === "draft")   { await MAT().updateRecording(r.id, { status: "draft" }); toast("Moved back to draft — teams can't see it."); }
+      if (b.dataset.rn === "vis")     { await MAT().updateRecording(r.id, { visibility: r.visibility === "staff" ? "all" : "staff" }); toast("Visibility changed."); }
+      await loadRecs(); recWeeks(); renderRec();
+    } catch (err) { toast(err.message || String(err)); }
+  });
+
+  let recWentLive = false;
+  async function recGoLive() {
+    if (recWentLive || !recLive()) return;
+    recWentLive = true;
+    await loadRecs(); recWeeks(); renderRec();
+  }
+  window.addEventListener("stephub_auth_settled", recGoLive);
+  window.addEventListener("stephub_auth_changed", recGoLive);
+  recWeeks(); renderRec();
+  if (window.__authSettled || recLive()) recGoLive();
+
+  /* ---------------- 3. panels: the Saturday groupings ----------------
+     The rule: a mentor never sits on the panel that hears their own team.
+     Who mentors whom is the official assignment — the mentors' accounts
+     (each mentor's team) once signed in, the programme list until then.
+     The board refuses any move that would break the rule, flags any
+     grouping that already does, and "Fix conflicts" swaps teams between
+     panels until none is left. Panelists stay where they are. */
+  let PB0 = PANELS.map(p => ({ letter: p.letter, at: (p.teams[0] || {}).at || "09:00", panelists: p.panelists.slice(), teams: p.teams.map(t => t.team_id) }));
+  let PB = JSON.parse(JSON.stringify(PB0));
+  const PB_BUILTIN = JSON.parse(JSON.stringify(PB0));
+  let SEATS = [];                       // live: [{ seat, panel_letter, display_name }]
+  let seatByName = {};                  // name -> seat
+  /* a seat is matched on the name as written, numbers included — only
+     case and spacing are ignored (normName drops digits, which once made
+     "Industry Panel 1, 2, 3" one person) */
+  const seatKey = n => String(n || "").toLowerCase().replace(/\s+/g, " ").trim();
+  let pbWeek = null, pbPlan = null, pbBusy = false;
+  const teamName = id => (G.find(g => g.id === id) || {}).name || id;
+  const teamInst = id => (G.find(g => g.id === id) || {}).inst || "";
+  /* only weeks with a Saturday feedback session (or Demo Day) have panels */
+  const PB_WEEKS = WEEKS.filter(w => !SCH || (SCH.byWeek(w) && (SCH.byWeek(w).output || w === 12)));
+  const pbStart = PB_WEEKS.find(w => w >= NOW) || PB_WEEKS[PB_WEEKS.length - 1];
+  $("#pb-week").innerHTML = PB_WEEKS.map(w => `<option value="${w}" ${w === pbStart ? "selected" : ""}>Week ${w} · ${esc((SCH && SCH.byWeek(w).short) || modOf(w).title)}</option>`).join("");
+  pbWeek = pbStart;
+  function slot(start, i) { const [h, m] = start.split(":").map(Number), t = h * 60 + m + i * 35; return `${((Math.floor(t / 60) + 11) % 12) + 1}:${String(t % 60).padStart(2, "0")} ${t >= 720 ? "PM" : "AM"}`; }
+
+  /* "Dr. Proceso 'Jon' Fernandez" and "Dr. Jon Fernandez" are one person:
+     names are compared without titles, quotes or punctuation, and a
+     first-and-last match is enough */
+  const TITLES_RE = /\b(dr|engr|mr|ms|mrs|prof|atty|sir|madam)\b\.?/g;
+  const normName = n => String(n || "").toLowerCase().replace(/[“”"'‘’()]/g, " ").replace(TITLES_RE, " ")
+    .replace(/[^a-z ]/g, " ").replace(/\s+/g, " ").trim();
+  let MENTORS = [];      // [{ name, key, words, teams: [ids] }]
+  function setMentors(list) {
+    MENTORS = list.filter(x => x.name && x.teams.length).map(x => {
+      const key = normName(x.name);
+      return { name: x.name, key, words: key.split(" "), teams: x.teams };
+    });
+  }
+  setMentors(((M.faculty && M.faculty.mentors) || []).map(x => ({ name: x.name, teams: [x.team_id].filter(Boolean) })));
+  function mentorFor(panelist) {
+    const k = normName(panelist); if (!k) return null;
+    const w = k.split(" ");
+    return MENTORS.find(m => m.key === k) ||
+           MENTORS.find(m => m.words.length > 1 && w.length > 1 && m.words[m.words.length - 1] === w[w.length - 1] &&
+                             (w.includes(m.words[0]) || m.words.includes(w[0]))) || null;
+  }
+  /* the panelists on panel p who mentor team id */
+  const clashes = (p, id) => p.panelists.filter(n => { const m = mentorFor(n); return m && m.teams.includes(id); });
+  function allConflicts() {
+    const out = [];
+    PB.forEach((p, pi) => p.teams.forEach(id => clashes(p, id).forEach(n => out.push({ pi, id, who: n }))));
+    return out;
+  }
+  const short = n => String(n).replace(/\s*\(.*\)$/, "");
+  const ruleMsg = (who, id, letter) => `${who} mentors ${short(teamName(id))}, so they can't sit on the panel that hears it (Panel ${letter}).`;
+
+  /* would this move break the rule? → the reason, or "" */
+  function blockReason(kind, fromP, idx, toP) {
+    if (fromP === toP) return "";
+    const target = PB[toP];
+    if (kind === "tm") {
+      const id = PB[fromP].teams[idx], who = clashes(target, id)[0];
+      return who ? ruleMsg(who, id, target.letter) : "";
+    }
+    const name = PB[fromP].panelists[idx], m = mentorFor(name);
+    const hit = m && target.teams.find(id => m.teams.includes(id));
+    return hit ? ruleMsg(name, hit, target.letter) : "";
+  }
+
+  /* swap teams between panels until no mentor hears their own team */
+  function fixConflicts() {
+    let moves = 0;
+    for (let guard = 0; guard < 60; guard++) {
+      const c = allConflicts()[0]; if (!c) break;
+      const a = PB[c.pi], ia = a.teams.indexOf(c.id);
+      let done = false;
+      /* first choice: a straight swap with a team that is safe in panel a */
+      for (let bi = 0; bi < PB.length && !done; bi++) {
+        if (bi === c.pi || clashes(PB[bi], c.id).length) continue;
+        const b = PB[bi];
+        for (let j = 0; j < b.teams.length; j++) {
+          const u = b.teams[j];
+          if (clashes(a, u).length) continue;
+          a.teams[ia] = u; b.teams[j] = c.id; done = true; moves++; break;
+        }
+      }
+      /* otherwise move it to the smallest panel where it is safe */
+      if (!done) {
+        const ok = PB.map((p, i) => i).filter(i => i !== c.pi && !clashes(PB[i], c.id).length)
+          .sort((x, y) => PB[x].teams.length - PB[y].teams.length);
+        if (!ok.length) break;               // every panel has this team's mentor — nothing to swap with
+        a.teams.splice(ia, 1); PB[ok[0]].teams.push(c.id); moves++;
+      }
+    }
+    return moves;
+  }
+
+  function renderPB() {
+    const bad = allConflicts();
+    const badTeam = new Set(bad.map(c => c.pi + ":" + c.id)), badPl = new Set(bad.map(c => c.pi + ":" + c.who));
+    $("#pboard").innerHTML = PB.map((p, pi) => `
+      <div class="pcol${bad.some(c => c.pi === pi) ? " has-bad" : ""}" data-p="${pi}">
+        <header><b>Panel ${p.letter}</b><span class="note">${p.teams.length} team${p.teams.length === 1 ? "" : "s"} · starts ${slot(p.at, 0)}</span>
+          ${PB0[pi] ? "" : `<button class="btn ghost sm" data-delp="${pi}" aria-label="Remove panel ${p.letter}">Remove</button>`}</header>
+        <div class="plbl">Panelists</div>
+        <div class="pzone" data-kind="pl" data-p="${pi}">
+          ${p.panelists.map((n, i) => {
+            const m = mentorFor(n), isBad = badPl.has(pi + ":" + n);
+            return `<div class="pitem pl${isBad ? " bad" : ""}" draggable="true" data-kind="pl" data-p="${pi}" data-i="${i}"
+                 ${isBad ? `title="${esc(ruleMsg(n, m.teams.find(id => p.teams.includes(id)), p.letter))}"` : ""}>
+              <span class="grip" aria-hidden="true">⋮⋮</span><span class="tt">${esc(n)}${m ? `<small class="mtag">Mentor · ${esc(m.teams.map(id => short(teamName(id))).join(", "))}</small>` : ""}</span>
+              <button class="x" data-rmpl="${pi}:${i}" aria-label="Remove ${esc(n)}">×</button></div>`;
+          }).join("")}
+          <input class="pin" data-addpl="${pi}" placeholder="Add a panelist, then Enter">
+        </div>
+        <div class="plbl">Teams, in order</div>
+        <div class="pzone" data-kind="tm" data-p="${pi}">
+          ${p.teams.map((id, i) => {
+            const isBad = badTeam.has(pi + ":" + id), who = isBad ? clashes(p, id)[0] : "";
+            return `<div class="pitem tm${isBad ? " bad" : ""}" draggable="true" data-kind="tm" data-p="${pi}" data-i="${i}">
+              <span class="grip" aria-hidden="true">⋮⋮</span><span class="tt">${esc(teamName(id))}<small>${
+                isBad ? `⚠ Its mentor, ${esc(who)}, is on this panel` : esc(teamInst(id))}</small></span><span class="time">${slot(p.at, i)}</span></div>`;
+          }).join("") || '<div class="pempty">Drop teams here</div>'}
+        </div>
+      </div>`).join("");
+    const n = PB.reduce((a, p) => a + p.teams.length, 0);
+    const changed = JSON.stringify(PB) !== JSON.stringify(PB0);
+    $("#pb-sum").innerHTML = `${PB.length} panels · ${n} of ${G.length} teams placed` + (changed ? ' · <b style="color:var(--warn)">unsaved changes</b>' : "");
+    const warn = $("#pb-rule");
+    warn.hidden = !bad.length;
+    if (bad.length) {
+      warn.innerHTML = `<div><b>${bad.length} mentor${bad.length === 1 ? " is" : "s are"} on the panel that hears their own team.</b>
+        <span>${bad.map(c => `${esc(c.who)} → ${esc(short(teamName(c.id)))} (Panel ${PB[c.pi].letter})`).join(" · ")}</span></div>
+        <button class="btn pri sm" id="pb-fix">Fix conflicts</button>`;
+    }
+    $("#pb-save").disabled = !!bad.length || (typeof pbBusy !== "undefined" && pbBusy);
+    $("#pb-save").title = bad.length ? "Fix the conflicts first — a mentor can't panel their own team." : "";
+    $("#ct-pan").textContent = PB.length;
+  }
+
+  let drag = null;
+  $("#pboard").addEventListener("dragstart", e => {
+    const it = e.target.closest(".pitem"); if (!it) return;
+    drag = { kind: it.dataset.kind, p: +it.dataset.p, i: +it.dataset.i };
+    it.classList.add("dragging"); e.dataTransfer.effectAllowed = "move"; e.dataTransfer.setData("text/plain", "x");
+    /* show at once which panels this one cannot go to */
+    $$(".pzone").forEach(z => {
+      if (z.dataset.kind === drag.kind && blockReason(drag.kind, drag.p, drag.i, +z.dataset.p)) z.classList.add("no");
+    });
+  });
+  $("#pboard").addEventListener("dragend", () => { drag = null; $$(".pzone.over, .pzone.no").forEach(z => z.classList.remove("over", "no")); renderPB(); });
+  $("#pboard").addEventListener("dragover", e => {
+    const z = e.target.closest(".pzone"); if (!z || !drag || z.dataset.kind !== drag.kind) return;
+    if (z.classList.contains("no")) { e.dataTransfer.dropEffect = "none"; return; }
+    e.preventDefault(); $$(".pzone.over").forEach(x => x !== z && x.classList.remove("over")); z.classList.add("over");
+  });
+  $("#pboard").addEventListener("drop", e => {
+    const z = e.target.closest(".pzone"); if (!z || !drag || z.dataset.kind !== drag.kind) return;
+    e.preventDefault();
+    const to = +z.dataset.p, why = blockReason(drag.kind, drag.p, drag.i, to);
+    if (why) { toast(why); drag = null; renderPB(); return; }
+    const key = drag.kind === "tm" ? "teams" : "panelists";
+    const [moved] = PB[drag.p][key].splice(drag.i, 1);
+    const over = e.target.closest(".pitem");
+    let at = PB[to][key].length;
+    if (over && +over.dataset.p === to) { const r = over.getBoundingClientRect(); at = +over.dataset.i + (e.clientY > r.top + r.height / 2 ? 1 : 0); if (to === drag.p && drag.i < at) at--; }
+    PB[to][key].splice(at, 0, moved); drag = null; renderPB();
+  });
+  $("#pboard").addEventListener("click", e => {
+    const r = e.target.closest("[data-rmpl]"); if (r) { const [p, i] = r.dataset.rmpl.split(":").map(Number); PB[p].panelists.splice(i, 1); renderPB(); return; }
+    const d = e.target.closest("[data-delp]"); if (d) {
+      const pi = +d.dataset.delp, orphans = PB[pi].teams; PB.splice(pi, 1);
+      /* each orphan goes to the smallest panel where its mentor isn't sitting */
+      orphans.forEach(id => {
+        const ok = PB.filter(p => !clashes(p, id).length).sort((a, b) => a.teams.length - b.teams.length);
+        (ok[0] || PB.slice().sort((a, b) => a.teams.length - b.teams.length)[0]).teams.push(id);
+      });
+      renderPB();
+    }
+  });
+  $("#pboard").addEventListener("keydown", e => {
+    const inp = e.target.closest("[data-addpl]"); if (!inp || e.key !== "Enter" || !inp.value.trim()) return;
+    e.preventDefault();
+    const pi = +inp.dataset.addpl, name = inp.value.trim(), m = mentorFor(name);
+    const hit = m && PB[pi].teams.find(id => m.teams.includes(id));
+    if (hit) { toast(ruleMsg(name, hit, PB[pi].letter)); return; }
+    PB[pi].panelists.push(name); renderPB();
+    const again = document.querySelector(`[data-addpl="${pi}"]`); if (again) again.focus();
+  });
+  $("#pb-add").addEventListener("click", () => {
+    const letter = String.fromCharCode(65 + PB.length);
+    PB.push({ letter, at: "13:00", panelists: [], teams: [] }); renderPB();
+    toast("Panel " + letter + " added. Drag teams and panelists into it.");
+  });
+  $("#pb-shuffle").addEventListener("click", () => {
+    /* deal the teams out evenly, never to a panel their mentor sits on */
+    const all = PB.flatMap(p => p.teams);
+    let best = null;
+    for (let tries = 0; tries < 200 && !best; tries++) {
+      for (let i = all.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [all[i], all[j]] = [all[j], all[i]]; }
+      const deal = PB.map(() => []), cap = Math.ceil(all.length / PB.length);
+      const ok = all.every(id => {
+        const opts = PB.map((p, i) => i).filter(i => deal[i].length < cap && !clashes(PB[i], id).length)
+          .sort((x, y) => deal[x].length - deal[y].length);
+        if (!opts.length) return false;
+        deal[opts[0]].push(id); return true;
+      });
+      if (ok) best = deal;
+    }
+    if (!best) { toast("Couldn't find a shuffle that keeps every mentor off their own team's panel — move a panelist first."); return; }
+    PB.forEach((p, i) => p.teams = best[i]); renderPB();
+    toast("Teams shuffled across " + PB.length + " panels — no mentor hears their own team. Panelists stay where they are.");
+  });
+  $("#pb-rule").addEventListener("click", e => {
+    if (!e.target.closest("#pb-fix")) return;
+    const n = fixConflicts(), left = allConflicts().length;
+    renderPB();
+    toast(left ? "Fixed what could be fixed — " + left + " left. Move a panelist to clear it."
+               : "Done — " + n + " team" + (n === 1 ? "" : "s") + " swapped. No mentor hears their own team now.");
+  });
+  /* ---- saving: what is saved here is what the Panel tab and This Week show ---- */
+  const pbLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC() && !!window.STEP_PANELPLAN;
+  const pbScope = () => (($("#pb-scope button[aria-pressed=true]") || {}).dataset || {}).v || "onward";
+  async function pbLoad(w) {
+    const PP = window.STEP_PANELPLAN;
+    const { data } = await SBC().rpc("panel_roster");
+    SEATS = data || [];
+    PP.invalidate();
+    pbPlan = await PP.forWeek(w);
+    seatByName = {};
+    SEATS.forEach(r => { if (r.display_name) seatByName[seatKey(r.display_name)] = r.seat; });
+    if (pbPlan) {
+      const built = PP.build(pbPlan, SEATS);
+      built.forEach(p => p.panelists.forEach((n, i) => { if (p.seats[i] != null) seatByName[seatKey(n)] = p.seats[i]; }));
+      PB0 = built.map((p, i) => ({ letter: p.letter, at: (pbPlan.panels[i] || {}).at || "09:00", panelists: p.panelists, teams: p.teams.map(t => t.team_id) }));
+    } else {
+      /* nothing saved yet: the programme's panels, with the seats' real names */
+      PB0 = PB_BUILTIN.map(p => {
+        const mine = SEATS.filter(r => r.panel_letter === p.letter).sort((a, b) => a.seat - b.seat);
+        return Object.assign({}, p, { panelists: mine.length ? mine.map(r => r.display_name) : p.panelists.slice() });
+      });
+    }
+    PB = JSON.parse(JSON.stringify(PB0));
+    pbWeek = w;
+    renderPB();
+    const src = pbPlan
+      ? "Saved " + new Date(pbPlan.saved_at).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) +
+        (pbPlan.week_to == null ? " · Week " + pbPlan.week_from + " onward" : pbPlan.week_from === pbPlan.week_to ? " · Week " + pbPlan.week_from + " only" : "")
+      : "Nothing saved for this week yet — showing the programme's panels";
+    $("#pb-src").textContent = src;
+  }
+  $("#pb-week").addEventListener("change", async e => {
+    const w = +e.target.value;
+    if (JSON.stringify(PB) !== JSON.stringify(PB0) && !confirm("You have unsaved changes to Week " + pbWeek + ". Drop them and open Week " + w + "?")) {
+      e.target.value = String(pbWeek); return;
+    }
+    if (pbLive()) { try { await pbLoad(w); } catch (err) { toast("Couldn't load Week " + w + ": " + (err.message || err)); } }
+    else pbWeek = w;
+  });
+  $("#pb-save").addEventListener("click", async () => {
+    if (allConflicts().length) { toast("Fix the conflicts first — a mentor can't panel their own team."); return; }
+    if (!pbLive()) { toast("Preview: the Panel tab would show these groupings."); return; }
+    if (PB.some(p => !p.panelists.length)) { toast("Every panel needs at least one panelist."); return; }
+    const seen = {}, twice = [];
+    PB.forEach(p => p.panelists.forEach(n => { const k = seatKey(n); if (seen[k]) twice.push(n); seen[k] = 1; }));
+    if (twice.length) { toast("A panelist can sit on only one panel — " + [...new Set(twice)].join(", ") + " is on more than one."); return; }
+    const onward = pbScope() === "onward";
+    const payload = PB.map(p => ({
+      letter: p.letter, at: p.at || "09:00", teams: p.teams.slice(),
+      panelists: p.panelists.map(n => ({ seat: seatByName[seatKey(n)] != null ? seatByName[seatKey(n)] : null, name: n })),
+    }));
+    pbBusy = true; $("#pb-save").disabled = true; $("#pb-save").textContent = "Saving…";
+    try {
+      await window.STEP_PANELPLAN.save(pbWeek, onward ? null : pbWeek, payload);
+      await pbLoad(pbWeek);
+      toast("Saved — the Panel tab shows these panels for Week " + pbWeek + (onward ? " onward." : " only."));
+    } catch (err) {
+      toast("Couldn't save: " + (err.message || err));
+    } finally { pbBusy = false; $("#pb-save").textContent = "Save panels"; renderPB(); }
+  });
+  (async function pbGoLive() {
+    for (let i = 0; i < 15 && !pbLive(); i++) await new Promise(r => setTimeout(r, 400));
+    if (!pbLive()) return;
+    try { await pbLoad(pbStart); } catch (err) { toast("Couldn't load the saved panels: " + (err.message || err)); }
+  })();
+  $("#pb-reset").addEventListener("click", () => { PB = JSON.parse(JSON.stringify(PB0)); renderPB(); });
+  renderPB();
+
+  /* the official assignment: each mentor's own account says which team is theirs */
+  (async function loadMentors() {
+    const wait = () => new Promise(r => setTimeout(r, 400));
+    for (let i = 0; i < 15 && !(M.isLiveUser && M.isLiveUser()); i++) await wait();
+    const sb = typeof SBC === "function" ? SBC() : null;
+    if (demo || !sb || !(M.isLiveUser && M.isLiveUser())) return;
+    const { data, error } = await sb.from("profiles").select("full_name, role, roles, team_id, teams");
+    if (error || !data) return;
+    const list = data.filter(p => p.role === "mentor" || (p.roles || []).includes("mentor"))
+      .map(p => ({ name: p.full_name, teams: [p.team_id].concat(p.teams || []).filter(Boolean) }));
+    if (list.length) { setMentors(list); renderPB(); }
+  })();
+
+  /* ---------------- 4. announcements: the This Week board ---------------- */
+  const pad = n => String(n).padStart(2, "0"), d0 = new Date();
+  const dt = (d, h) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(h == null ? d.getHours() : h)}:${h == null ? pad(d.getMinutes()) : "00"}`;
+  if (!$("#att-date").value) $("#att-date").value = dt(d0, 9).slice(0, 10);
+  const IS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"';
+  const ICON = {
+    alert: `<svg ${IS}><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>`,
+    file:  `<svg ${IS}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>`,
+    cert:  `<svg ${IS}><circle cx="12" cy="9" r="5"/><path d="M8.5 13.2 7 22l5-2.6L17 22l-1.5-8.8"/></svg>`,
+    chart: `<svg ${IS}><path d="M3 21h18"/><rect x="5" y="11" width="4" height="7" rx="1"/><rect x="11" y="6" width="4" height="12" rx="1"/><rect x="17" y="14" width="4" height="4" rx="1"/></svg>`,
+  };
+  const ICON_NAME = { alert: "Alert", file: "Document", cert: "Certificate", chart: "Results" };
+  const W = M.thisWeek || {};
+  let ANN = (W.announcements || []).map(a => ({ ...a, until: "" }));
+  let editing = null, icoSel = "file", annBusy = false;
+  /* signed in for real → the board is the database's: what is saved here
+     is what This Week shows. The ?demo=1 preview stays a sandbox. */
+  const AN = () => window.STEP_ANN;
+  const annLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!AN() && AN().available();
+  async function annLoad() {
+    try {
+      const rows = await AN().list();
+      ANN = rows.map(r => AN().card(r, null)).filter(a => !a.expired)
+        .map(a => Object.assign(a, { read: !a.show_new }));
+    } catch (e) { toast("Couldn't load the announcements: " + (e.message || e)); }
+    renderBoard();
+  }
+  const fmtWhen = iso => { const d = new Date(iso); if (isNaN(d)) return ""; return d.toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric" }) + ", " + d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }); };
+  $("#an-ico").innerHTML = Object.keys(ICON).map(k => `<button type="button" data-ico="${k}" aria-pressed="${k === icoSel}" title="${ICON_NAME[k]}">${ICON[k]}<span>${ICON_NAME[k]}</span></button>`).join("");
+  $("#an-ico").addEventListener("click", e => { const b = e.target.closest("[data-ico]"); if (!b) return; icoSel = b.dataset.ico; $$("#an-ico button").forEach(x => x.setAttribute("aria-pressed", x === b)); renderBoard(); });
+  function draft() {
+    return { id: editing || "draft", icon: icoSel, title: $("#an-t").value.trim(), body: $("#an-b").value.trim(), by: $("#an-by").value.trim() || "STEP Team",
+      at: $("#an-at").value ? new Date($("#an-at").value).toISOString() : new Date().toISOString(), until: $("#an-to").value,
+      pinned: $("#an-pin").checked, priority: $("#an-imp").checked ? "important" : "normal", read: !$("#an-new").checked,
+      scheduled: !!$("#an-at").value && new Date($("#an-at").value) > new Date() };
+  }
+  function cardHtml(a, isDraft) {
+    return `<article class="note ${a.pinned ? "pinned" : ""} ${a.priority} ${a.read ? "" : "unread"}${isDraft ? " draft" : ""}" data-id="${esc(a.id)}">
+      <span class="ic" aria-hidden="true">${ICON[a.icon] || ICON.file}</span>
+      <div class="nb">${a.pinned ? '<span class="ntag">Pinned by the STEP team</span>' : ""}
+        <h4>${esc(a.title) || '<span style="opacity:.45">Your headline</span>'}</h4>
+        <p>${esc(a.body) || '<span style="opacity:.45">Your message</span>'}</p>
+        <div class="mt">${esc(a.by)} · ${fmtWhen(a.at)}</div></div>
+      ${a.read ? "" : '<span class="dot"></span>'}
+      ${a.scheduled && !isDraft ? `<span class="dtag">Scheduled · shows ${esc(fmtWhen(a.at))}</span>` : ""}
+      ${isDraft ? '<span class="dtag">Draft · not added yet</span>' : `<span class="tools">
+        <button data-act="edit">Edit</button><button data-act="pin">${a.pinned ? "Unpin" : "Pin"}</button><button data-act="del">Remove</button></span>`}
+    </article>`;
+  }
+  function renderBoard() {
+    const d = draft(), showDraft = !editing && (d.title || d.body);
+    let list = ANN.map(a => editing === a.id ? { ...d, id: a.id } : a);
+    if (showDraft) list = list.concat([d]);
+    if (list.some(a => a.pinned)) { const p = (editing && d.pinned) ? (editing) : (showDraft && d.pinned ? "draft" : null); if (p) list = list.map(a => ({ ...a, pinned: a.id === p })); }
+    list.sort((a, b) => (b.pinned - a.pinned) || (new Date(b.at) - new Date(a.at)));
+    $("#an-board").innerHTML = list.map(a => cardHtml(a, a.id === "draft")).join("") || '<p class="note">No announcements yet.</p>';
+    const unread = list.filter(a => !a.read).length, c = $("#an-count");
+    c.hidden = !unread; c.innerHTML = `<b>${unread}</b> new this week`;
+    $("#ct-ann").textContent = ANN.length;
+  }
+  ["#an-t", "#an-b", "#an-by", "#an-at", "#an-pin", "#an-imp", "#an-new"].forEach(s => $(s).addEventListener("input", renderBoard));
+  function resetForm() {
+    editing = null; icoSel = "file"; $$("#an-ico button").forEach(x => x.setAttribute("aria-pressed", x.dataset.ico === "file"));
+    $("#an-t").value = ""; $("#an-b").value = ""; $("#an-by").value = "STEP Team"; $("#an-at").value = dt(new Date()); $("#an-to").value = "";
+    $("#an-pin").checked = false; $("#an-imp").checked = false; $("#an-new").checked = true;
+    $("#an-form-h").textContent = "New announcement"; $("#an-save").textContent = "Add announcement"; $("#an-cancel").hidden = true;
+    renderBoard();
+  }
+  $("#an-save").addEventListener("click", async () => {
+    const d = draft();
+    if (!d.title) { $("#an-msg").innerHTML = '<span class="warnline">Add a headline first.</span>'; $("#an-t").focus(); return; }
+    $("#an-msg").textContent = "";
+    if (d.until && new Date(d.until) <= new Date(d.at)) { $("#an-msg").innerHTML = '<span class="warnline">The take-down date has to come after the date shown.</span>'; return; }
+    if (annLive()) {
+      if (annBusy) return;
+      annBusy = true; $("#an-save").disabled = true;
+      try {
+        await AN().save({ id: editing || null, icon: d.icon, title: d.title, body: d.body, by: d.by, at: d.at,
+          until: d.until ? new Date(d.until).toISOString() : null, pinned: d.pinned,
+          important: d.priority === "important", show_new: !d.read });
+        const was = editing;
+        resetForm(); await annLoad();
+        toast(was ? "Saved — This Week shows the change now."
+          : d.scheduled ? "Scheduled — it appears on This Week " + fmtWhen(d.at) + "."
+          : "Posted — it's on This Week now.");
+      } catch (e) { $("#an-msg").innerHTML = '<span class="warnline">Couldn\'t save: ' + esc(e.message || e) + '</span>'; }
+      finally { annBusy = false; $("#an-save").disabled = false; }
+      return;
+    }
+    if (d.pinned) ANN.forEach(a => a.pinned = false);
+    if (editing) { ANN = ANN.map(a => a.id === editing ? { ...d, id: editing } : a); toast("Announcement updated. (Preview: not saved.)"); }
+    else { ANN.push({ ...d, id: "n" + Date.now() }); toast("Announcement added to the board. (Preview: not saved.)"); }
+    resetForm();
+  });
+  $("#an-cancel").addEventListener("click", resetForm);
+  $("#an-board").addEventListener("click", async e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const id = b.closest(".note").dataset.id, a = ANN.find(x => x.id === id); if (!a) return;
+    if (annLive() && b.dataset.act !== "edit") {
+      try {
+        if (b.dataset.act === "del") {
+          if (!confirm("Remove “" + a.title + "” from This Week?\n\nIt is deleted for everyone.")) return;
+          await AN().remove(id); if (editing === id) resetForm();
+          toast("Removed from This Week.");
+        }
+        if (b.dataset.act === "pin") { await AN().setPinned(id, !a.pinned); toast(a.pinned ? "Unpinned." : "Pinned — it leads the This Week board."); }
+        await annLoad();
+      } catch (err) { toast("Couldn't change it: " + (err.message || err)); }
+      return;
+    }
+    if (b.dataset.act === "del") { ANN = ANN.filter(x => x.id !== id); if (editing === id) resetForm(); else renderBoard(); toast("Removed. (Preview: not saved.)"); }
+    if (b.dataset.act === "pin") { const on = !a.pinned; ANN.forEach(x => x.pinned = false); a.pinned = on; renderBoard(); }
+    if (b.dataset.act === "edit") {
+      editing = id; icoSel = a.icon || "file"; $$("#an-ico button").forEach(x => x.setAttribute("aria-pressed", x.dataset.ico === icoSel));
+      $("#an-t").value = a.title; $("#an-b").value = a.body; $("#an-by").value = a.by || "STEP Team";
+      $("#an-at").value = dt(new Date(a.at)); $("#an-to").value = a.until && !isNaN(new Date(a.until)) ? dt(new Date(a.until)) : "";
+      $("#an-pin").checked = !!a.pinned; $("#an-imp").checked = a.priority === "important"; $("#an-new").checked = !a.read;
+      $("#an-form-h").textContent = "Edit announcement"; $("#an-save").textContent = "Save changes"; $("#an-cancel").hidden = false;
+      renderBoard(); $("#an-t").focus(); window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  });
+  resetForm();
+  (async function annGoLive() {
+    for (let i = 0; i < 15 && !annLive(); i++) await new Promise(r => setTimeout(r, 400));
+    if (annLive()) await annLoad();
+  })();
+
+  /* ---------------- 5. games ---------------- */
+  /* every week has the ordering game built into the site (schedule-data.js) */
+  const GAMES = {};
+  WEEKS.forEach(w => { const g = SCH && SCH.byWeek(w) && SCH.byWeek(w).game; if (g) GAMES[w] = [g.title, "Built into the site", g.prompt]; });
+  const gameMarks = {}; WEEKS.forEach(w => gameMarks[w] = GAMES[w] ? "has" : w === NOW + 1 ? "miss" : "");
+  const pickGame = w => { $("#game-title").textContent = "Week " + w + " game"; $("#g-name").value = GAMES[w] ? GAMES[w][0] : ""; $("#g-line").value = GAMES[w] ? GAMES[w][2] : ""; };
+  weekStrip($("#game-weeks"), gameMarks, pickGame, NOW);
+  pickGame(NOW);
+  $("#game-body").innerHTML = WEEKS.map(w => {
+    const g = GAMES[w];
+    const st = !g ? (w === NOW + 1 ? '<span class="pill bad">Needed by Mon</span>' : '<span class="pill idle">Not set</span>') : w === NOW ? '<span class="pill live">Live</span>' : w < NOW ? '<span class="pill ok">Played</span>' : '<span class="pill idle">Ready</span>';
+    return `<tr><td>Week ${w}</td><td>${g ? esc(g[0]) : '<span class="note">—</span>'}</td><td class="note">${g ? g[1] : ""}</td><td>${st}</td></tr>`;
+  }).join("");
+  $("#ct-game").textContent = "W" + NOW;
+
+  /* ---------------- 6. articles (live: Supabase public.articles) ---------------- */
+  const A = window.STEP_ARTICLES;
+  let ARTS = [], artDraft = null;
+  const host = u => { try { return new URL(u).hostname.replace(/^www\./, ""); } catch (e) { return ""; } };
+  const isoDay = d => d ? String(d).slice(0, 10) : "";
+  const niceDay = d => d ? new Date(isoDay(d) + "T00:00:00").toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "—";
+  function artMsg(html) { $("#art-body").innerHTML = `<tr><td colspan="8" class="note">${html}</td></tr>`; }
+  async function loadArts() {
+    if (!A) return artMsg("The articles module didn't load. Reload the page.");
+    artMsg("Loading…");
+    try { ARTS = await A.listAll(); renderArts(); }
+    catch (e) { artMsg(esc(e.message) + (demo ? " Sign in as a tech team account to manage articles." : "")); $("#ct-art").textContent = ""; }
+  }
+  function renderArts() {
+    $("#art-sum").textContent = ARTS.length ? `${ARTS.filter(a => a.shown).length} shown · ${ARTS.filter(a => !a.shown).length} hidden · in Home order, top one is the big article` : "";
+    $("#ct-art").textContent = ARTS.filter(a => a.shown).length;
+    if (!ARTS.length) return artMsg("No articles yet. Paste a link above to add the first one.");
+    const lead = (ARTS.find(a => a.shown) || {}).id;
+    $("#art-body").innerHTML = ARTS.map((a, i) => `<tr data-id="${a.id}">
+      <td style="white-space:nowrap"><span class="grip" draggable="true" title="Drag to reorder" style="cursor:grab;color:var(--mute,#8a94a3);padding:0 6px;user-select:none">⋮⋮</span><button class="btn ghost sm" data-up="${a.id}" ${i === 0 ? "disabled" : ""} aria-label="Move up">↑</button><button class="btn ghost sm" data-dn="${a.id}" ${i === ARTS.length - 1 ? "disabled" : ""} aria-label="Move down">↓</button></td>
+      <td><span class="thumb" style="background-image:url('${esc(a.image_url || "")}')"></span></td>
+      <td><a href="${esc(a.url)}" target="_blank" rel="noopener" style="color:var(--ink);font-weight:600;text-decoration:none">${esc(a.title)}</a>${a.id === lead ? '<div style="margin-top:4px"><span class="pill live">Big article on Home</span></div>' : ""}</td>
+      <td class="note">${esc(a.site_name || host(a.url))}</td>
+      <td><input class="in" type="date" data-f="published_at" value="${isoDay(a.published_at)}" style="width:150px;padding:4px 8px"></td>
+      <td><select class="in" data-f="kind" style="width:130px;padding:4px 8px"><option value="article" ${a.kind === "article" ? "selected" : ""}>Article</option><option value="publication" ${a.kind === "publication" ? "selected" : ""}>Publication</option></select></td>
+      <td><label style="display:inline-flex;gap:6px;align-items:center"><input type="checkbox" data-f="shown" ${a.shown ? "checked" : ""}> ${a.shown ? "Shown" : "Hidden"}</label></td>
+      <td class="num" style="white-space:nowrap">${a.shown && a.id !== lead ? `<button class="btn sm" data-top="${a.id}">Make biggest</button> ` : ""}<button class="btn ghost sm" data-del="${a.id}">Remove</button></td></tr>`).join("");
+  }
+  /* ---- ordering: arrows, drag, or "Make biggest" ---- */
+  async function moveTo(id, to) {
+    const from = ARTS.findIndex(a => a.id === id); if (from < 0 || to < 0 || to >= ARTS.length || to === from) return;
+    const [a] = ARTS.splice(from, 1); ARTS.splice(to, 0, a); renderArts();
+    try { await A.reorder(ARTS.map(x => x.id)); ARTS.forEach((x, i) => x.sort_order = i + 1); toast("Order saved. Home shows it now."); }
+    catch (err) { toast(err.message); loadArts(); }
+  }
+  let dragId = null;
+  $("#art-body").addEventListener("dragstart", e => {
+    const g = e.target.closest(".grip"); if (!g) return;
+    const tr = g.closest("tr"); dragId = tr.dataset.id; e.dataTransfer.effectAllowed = "move";
+    try { e.dataTransfer.setData("text/plain", dragId); e.dataTransfer.setDragImage(tr, 20, 20); } catch (x) {}
+    tr.style.opacity = ".45";
+  });
+  $("#art-body").addEventListener("dragend", () => { dragId = null; renderArts(); });
+  $("#art-body").addEventListener("dragover", e => { if (dragId && e.target.closest("tr[data-id]")) e.preventDefault(); });
+  $("#art-body").addEventListener("drop", e => {
+    const tr = e.target.closest("tr[data-id]"); if (!dragId || !tr) return; e.preventDefault();
+    const id = dragId; dragId = null; moveTo(id, ARTS.findIndex(a => a.id === tr.dataset.id));
+  });
+  $("#art-body").addEventListener("click", e => {
+    const up = e.target.closest("[data-up]"), dn = e.target.closest("[data-dn]"), top = e.target.closest("[data-top]");
+    if (up) moveTo(up.dataset.up, ARTS.findIndex(a => a.id === up.dataset.up) - 1);
+    else if (dn) moveTo(dn.dataset.dn, ARTS.findIndex(a => a.id === dn.dataset.dn) + 1);
+    else if (top) moveTo(top.dataset.top, ARTS.findIndex(a => a.shown));
+  });
+  $("#art-body").addEventListener("change", async e => {
+    const f = e.target.dataset.f, tr = e.target.closest("tr[data-id]"); if (!f || !tr) return;
+    const v = f === "shown" ? e.target.checked : (e.target.value || null);
+    try { const row = await A.update(tr.dataset.id, { [f]: v }); ARTS = ARTS.map(a => a.id === row.id ? row : a); renderArts(); toast("Saved. Home shows the change now."); }
+    catch (err) { toast(err.message); loadArts(); }
+  });
+  $("#art-body").addEventListener("click", async e => {
+    const b = e.target.closest("[data-del]"); if (!b) return;
+    const a = ARTS.find(x => x.id === b.dataset.del);
+    if (!confirmRemove(b, a)) return;
+    try { await A.remove(a.id); ARTS = ARTS.filter(x => x.id !== a.id); renderArts(); toast("Removed from Home."); }
+    catch (err) { toast(err.message); }
+  });
+  function confirmRemove(btn, a) {
+    if (btn.dataset.sure) return true;
+    btn.dataset.sure = "1"; btn.textContent = "Click again to remove"; btn.classList.add("pri");
+    setTimeout(() => { if (btn.isConnected) { delete btn.dataset.sure; btn.textContent = "Remove"; btn.classList.remove("pri"); } }, 4000);
+    return false;
+  }
+  $("#art-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    const url = $("#art-url").value.trim(), res = $("#art-res");
+    if (!/^https?:\/\/\S+\.\S+/i.test(url)) { res.innerHTML = `<p class="warnline">Paste the full link, starting with https://</p>`; return; }
+    if (ARTS.some(a => a.url === url)) { res.innerHTML = `<p class="warnline">That article is already on the list below.</p>`; return; }
+    $("#art-fetch").disabled = true; $("#art-fetch").textContent = "Reading…";
+    res.innerHTML = `<div class="lcard"><div class="th skel"></div><div><div class="skel" style="height:16px;width:70%"></div><div class="skel" style="height:12px;width:30%;margin-top:8px"></div><div class="skel" style="height:12px;width:90%;margin-top:10px"></div></div></div>`;
+    let p;
+    try { p = await A.preview(url); }
+    catch (err) {
+      p = { url, title: "", excerpt: "", image_url: "", site_name: host(url), published_at: null };
+      res.dataset.err = err.message;
+    } finally { $("#art-fetch").disabled = false; $("#art-fetch").textContent = "Read the link"; }
+    artDraft = { url, title: p.title || "", excerpt: p.excerpt || "", image_url: p.image_url || "", site_name: p.site_name || host(url), author: p.author || "", published_at: p.published_at || "", kind: "article" };
+    const err = res.dataset.err; delete res.dataset.err;
+    res.innerHTML = `
+      ${err ? `<p class="warnline" style="margin:0 0 12px">Couldn't read the page automatically (${esc(err)}). Fill in the details below.</p>` : ""}
+      <div class="lcard"><div class="th" id="ad-th" style="background-image:url('${esc(artDraft.image_url)}')"></div>
+        <div><b id="ad-tl">${esc(artDraft.title) || '<span class="note">No title found</span>'}</b><div class="src mono">${esc(artDraft.site_name)}</div><p id="ad-ex">${esc(artDraft.excerpt)}</p></div></div>
+      <div class="grid2" style="margin-top:14px">
+        <label class="field"><span>Title on Home</span><input class="in" data-d="title" value="${esc(artDraft.title)}" required></label>
+        <label class="field"><span>Source shown</span><input class="in" data-d="site_name" value="${esc(artDraft.site_name)}"></label>
+      </div>
+      <label class="field" style="margin-top:12px"><span>Summary</span><textarea class="in" data-d="excerpt" style="min-height:70px">${esc(artDraft.excerpt)}</textarea></label>
+      <div class="grid3" style="margin-top:12px">
+        <label class="field"><span>Picture link</span><input class="in mono" data-d="image_url" value="${esc(artDraft.image_url)}" placeholder="https://…jpg"></label>
+        <label class="field"><span>Published</span><input class="in" type="date" data-d="published_at" value="${esc(artDraft.published_at)}"></label>
+        <label class="field"><span>Label</span><select class="in" data-d="kind"><option value="article">Article</option><option value="publication">Publication</option></select></label>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:14px;align-items:center"><button class="btn pri" id="ad-add">Add to Home</button><button class="btn ghost" id="ad-cancel">Cancel</button><span class="note" id="ad-msg"></span></div>`;
+  });
+  $("#art-res").addEventListener("input", e => {
+    const k = e.target.dataset.d; if (!k || !artDraft) return;
+    artDraft[k] = e.target.value;
+    if (k === "title") $("#ad-tl").textContent = e.target.value;
+    if (k === "excerpt") $("#ad-ex").textContent = e.target.value;
+    if (k === "image_url") $("#ad-th").style.backgroundImage = `url('${e.target.value.replace(/'/g, "%27")}')`;
+  });
+  $("#art-res").addEventListener("click", async e => {
+    if (e.target.id === "ad-cancel") { artDraft = null; $("#art-res").innerHTML = ""; return; }
+    if (e.target.id !== "ad-add" || !artDraft) return;
+    if (!artDraft.title.trim()) { $("#ad-msg").innerHTML = '<span class="warnline">Add a title first.</span>'; return; }
+    e.target.disabled = true; $("#ad-msg").textContent = "Adding…";
+    const row = { ...artDraft, shown: true, sort_order: Math.max(ARTS.length, ...ARTS.map(a => a.sort_order || 0)) + 1 }; ["image_url", "published_at", "author", "excerpt", "site_name"].forEach(k => { if (!String(row[k] || "").trim()) row[k] = null; });
+    try {
+      const saved = await A.add(row); ARTS = ARTS.concat(saved); renderArts();
+      artDraft = null; $("#art-res").innerHTML = ""; $("#art-url").value = "";
+      toast("Added. It's on the Home tab now.");
+    } catch (err) { e.target.disabled = false; $("#ad-msg").innerHTML = `<span class="warnline">${esc(err.message)}</span>`; }
+  });
+  $("#art-reload").addEventListener("click", loadArts);
+  window.addEventListener("stephub_auth_settled", loadArts);
+  window.addEventListener("stephub_auth_changed", loadArts);
+  loadArts();
+
+  /* ---------------- 7. team data ----------------
+     Every figure here comes from the database: the panel sheets (each
+     panelist's own scores — an average uses submitted sheets only, a
+     draft is shown greyed), the hand-ins, attendance and the Capstone
+     proposal. Five views, one set of filters, a CSV of whatever is shown. */
+  const SESS = ((M.faculty && M.faculty.sessions) || []).filter(s => (s.assess || []).some(a => !a.group));
+  const critOf = code => ((SESS.find(s => s.code === code) || {}).assess || []).filter(a => !a.group);
+  const sessOf = code => SESS.find(s => s.code === code) || { code, week: 0, title: code };
+  const sessLabel = code => { const s = sessOf(code); return (s.tag || "Week " + s.week) + " · " + s.title; };
+  const FORM_META = (M.getCapstone ? (M.getCapstone("g1").form || []) : []).map(f => ({ n: f.n, title: f.title, group: f.group }));
+  const DECK_N = M.getCapstone ? (M.getCapstone("g1").deck || []).length : 14;
+  const dLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
+  const fx = n => (n == null || isNaN(n)) ? "—" : Number(n).toFixed(2);
+  const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
+  const wkOfCode = c => +((String(c).match(/^W(\d+)/) || [])[1] || 0);
+  const isFb = c => /FB/i.test(c);
+  /* session kinds in the order they happen within a week */
+  const SES_KIND = { OR: ["Orientation", 0], LS: ["Learning", 1], OS: ["On-site", 2], FB: ["Feedback", 3], DD: ["Demo Day", 4], GR: ["Graduation", 5] };
+  const sesKey = c => (String(c).split("-")[1] || "LS").toUpperCase();
+  const sesName = c => (SES_KIND[sesKey(c)] || [sesKey(c)])[0];
+  const sesRank = c => (SES_KIND[sesKey(c)] || [0, 9])[1];
+  let DV = "overview", D = null, dOpen = new Set(), CSV = [];
+
+  $("#d-week").innerHTML = WEEKS.filter(w => w <= NOW).map(w => `<option value="${w}" ${w === NOW ? "selected" : ""}>Week ${w}</option>`).join("");
+  $("#d-sess").innerHTML = SESS.map(s => `<option value="${esc(s.code)}">${esc(sessLabel(s.code))}</option>`).join("");
+  $("#d-sess").value = (SESS.find(s => s.code === modOf(NOW).code) || SESS.filter(s => s.week <= NOW).pop() || SESS[0] || {}).code || "";
+
+  /* when week w's team output is due — from the schedule (12:00 NN the
+     day before that week's feedback session) */
+  const outputWeek = w => !SCH || !SCH.byWeek(w) ? w >= 1 : !!SCH.byWeek(w).output;
+  function dueOf(w) {
+    if (SCH && SCH.dueOf(w)) return new Date(SCH.dueOf(w));
+    const mon = window.STEP_CLOCK ? window.STEP_CLOCK.weekStart(new Date()) : new Date();
+    const f = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() - (NOW - w) * 7 + 4);
+    return new Date(`${f.getFullYear()}-${String(f.getMonth() + 1).padStart(2, "0")}-${String(f.getDate()).padStart(2, "0")}T12:00:00+08:00`);
+  }
+
+  async function dLoad() {
+    if (!dLive()) { D = null; renderData(); return; }
+    $("#d-asof").textContent = "Loading…";
+    const sb = SBC();
+    const q = async p => { const { data, error } = await p; if (error) throw error; return data || []; };
+    try {
+      const [sheets, subs, att, mem, roster, cap, plans] = await Promise.all([
+        q(sb.from("panel_sheets").select("session_code, seat, panelist, panel_letter, team_id, scores, general_comment, total, complete, status, submitted_at, updated_at")),
+        q(sb.from("submissions").select("team_id, week_no, kind, status, submitted_at")),
+        q(sb.from("attendance").select("team_id, member_name, session_code, status, present")),
+        q(sb.from("team_members").select("team_id, name")),
+        q(sb.rpc("panel_roster")),
+        window.STEP_CAPSTONE ? window.STEP_CAPSTONE.summary() : Promise.resolve({ items: [], slides: [] }),
+        q(sb.from("panel_plans").select("week_from, week_to, panels, saved_at").order("saved_at", { ascending: false })),
+      ]);
+      /* the panels come from the Panel console: the grouping in force in a
+         given week is the newest save that covers that week */
+      const planFor = w => plans.find(p => p.week_from <= w && (p.week_to == null || p.week_to >= w)) || null;
+      const panelOfTeam = (id, w) => {
+        const pl = planFor(w);
+        if (pl) { const p = (pl.panels || []).find(x => (x.teams || []).includes(id)); return p || null; }
+        const L = panelOf(id);
+        return L ? { letter: L, panelists: roster.filter(r => r.panel_letter === L).map(r => ({ seat: r.seat })) } : null;
+      };
+      D = { sheets, subs, att, mem, roster, cap, plans,
+            letter: (id, w) => (panelOfTeam(id, w == null ? NOW : w) || {}).letter || "—",
+            /* the seats on the panel that hears this team in week w */
+            seatsFor: (id, w) => ((panelOfTeam(id, w) || {}).panelists || []).map(x => x.seat).sort((a, b) => a - b),
+            seatName: (seat, fb) => ((roster.find(r => r.seat === seat) || {}).display_name) || fb || ("Seat " + seat),
+            at: new Date() };
+      $("#d-asof").textContent = "Live · " + D.at.toLocaleTimeString("en-PH", { hour: "numeric", minute: "2-digit" });
+    } catch (e) {
+      D = null; $("#d-asof").textContent = "";
+      toast("Couldn't load the team data: " + (e.message || e));
+    }
+    renderData();
+  }
+
+  /* ---- what each team has, worked out once per render ---- */
+  function teamsShown(w) {
+    const reg = $("#d-reg").value, pan = $("#d-pan").value;
+    return G.filter(g => (!reg || g.region === reg) && (!pan || D.letter(g.id, w) === pan));
+  }
+  /* weeks count from the first week this cohort has any record, so weeks
+     before the site was in use are not counted as missing */
+  function firstWeek() {
+    const ws = D.subs.map(s => +s.week_no).concat(D.att.map(a => wkOfCode(a.session_code)))
+      .concat(D.sheets.map(s => sessOf(s.session_code).week)).filter(w => w >= 1);
+    return ws.length ? Math.min(...ws) : NOW;
+  }
+  const sheetsFor = (team, code) => D.sheets.filter(s => s.team_id === team && s.session_code === code);
+  const doneSheet = s => s.status === "submitted" && s.total != null;
+  /* the sheets from the panelists who actually sit on this team's panel that week */
+  const panelSheets = (team, code) => {
+    const seats = D.seatsFor(team, sessOf(code).week);
+    return sheetsFor(team, code).filter(s => seats.includes(s.seat));
+  };
+  function sessionScore(team, code) {
+    const done = panelSheets(team, code).filter(doneSheet).map(s => +s.total);
+    return done.length ? { avg: mean(done), n: done.length } : null;
+  }
+  function outputsOf(team, upTo) {
+    const out = [];
+    for (let w = firstWeek(); w <= upTo; w++) {
+      if (!outputWeek(w)) continue;                 // orientation, launch and Demo Day have no weekly output
+      const rows = D.subs.filter(s => s.team_id === team && +s.week_no === w);
+      const v = rows.find(r => r.kind === "video"), d = rows.find(r => r.kind === "slide" || r.kind === "slides");
+      const due = dueOf(w), past = Date.now() > due.getTime();
+      const late = rows.some(r => r.status === "late");
+      const state = v && d ? (late ? "late" : "ok") : (v || d) ? (past ? "part" : "partopen") : (past ? "miss" : "open");
+      out.push({ w, state, at: (v || d || {}).submitted_at, due });
+    }
+    return out;
+  }
+  function attOf(team, upTo) {
+    const rows = D.att.filter(a => a.team_id === team && wkOfCode(a.session_code) <= upTo);
+    const went = rows.filter(a => a.status ? a.status !== "absent" : a.present).length;
+    return { marked: rows.length, went, pct: rows.length ? Math.round(went / rows.length * 100) : null };
+  }
+  function capOf(team) {
+    const it = D.cap.items.filter(r => r.team_id === team);
+    const sub = it.filter(r => r.submitted).length, draft = it.filter(r => !r.submitted && r.filled).length;
+    const slides = D.cap.slides.filter(r => r.team_id === team).length;
+    const last = it.concat(D.cap.slides.filter(r => r.team_id === team)).map(r => r.updated_at).sort().pop();
+    return { sub, draft, none: FORM_META.length - sub - draft, slides, last, byN: Object.fromEntries(it.map(r => [r.item_n, r])) };
+  }
+  const dWhen = iso => iso ? new Date(iso).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—";
+  const teamCell = g => `<td><b style="font-weight:650">${esc(g.name)}</b><div class="note">${esc(g.inst)} · ${esc(g.region || "")}</div></td>`;
+  const dStat = (n, l) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`;
+  const cellbar = (pct, tone, label) => `<div class="cellbar"><div class="bar ${tone}" style="flex:1"><i style="width:${Math.max(0, Math.min(100, pct))}%"></i></div><span>${label}</span></div>`;
+  const tone = (v, a, b) => v >= a ? "ok" : v >= b ? "warn" : "bad";
+
+  /* ---------- the five views ---------- */
+  const VIEWS = {
+    overview() {
+      const upTo = +$("#d-week").value, rows = teamsShown();
+      const codes = SESS.filter(s => s.week <= upTo).map(s => s.code);
+      const head = ["Team", "Panel", "Avg panel score", "Last panel", "Attendance", "Outputs in", "FASTRAC proposal", "Flags"];
+      const data = rows.map(g => {
+        const sc = codes.map(c => ({ c, r: sessionScore(g.id, c) })).filter(x => x.r);
+        const avg = mean(sc.map(x => x.r.avg)), last = sc.length ? sc[sc.length - 1] : null;
+        const a = attOf(g.id, upTo), outs = outputsOf(g.id, upTo).filter(o => !["open", "partopen"].includes(o.state));
+        const inN = outs.filter(o => o.state === "ok" || o.state === "late").length, cp = capOf(g.id);
+        const drafts = codes.flatMap(c => panelSheets(g.id, c)).filter(s => s.status !== "submitted" && s.total != null).length;
+        const flags = [];
+        if (a.pct != null && a.pct < 80) flags.push('<span class="pill bad">Attendance</span>');
+        if (outs.length - inN > 0) flags.push(`<span class="pill bad">${outs.length - inN} output${outs.length - inN > 1 ? "s" : ""} missing</span>`);
+        if (sc.length > 1 && last.r.avg < avg - 0.25) flags.push('<span class="pill warn">Score dropped</span>');
+        if (drafts) flags.push(`<span class="pill idle">${drafts} sheet${drafts > 1 ? "s" : ""} in draft</span>`);
+        return { g, avg, last, a, outs, inN, cp, flags };
+      });
+      $("#d-head").innerHTML = "<tr>" + head.map((h, i) => `<th${[2, 3].includes(i) ? ' class="num"' : ""}>${h}</th>`).join("") + "</tr>";
+      $("#d-body").innerHTML = data.map(r => `<tr>${teamCell(r.g)}<td>${D.letter(r.g.id)}</td>
+        <td class="num">${r.avg != null ? `<b style="font-weight:650">${fx(r.avg)}</b> <span class="note">/ 4</span>` : '<span class="note">No scores yet</span>'}</td>
+        <td class="num">${r.last ? `${fx(r.last.r.avg)} <span class="note">${esc(r.last.c)}</span>` : "—"}</td>
+        <td>${r.a.pct != null ? cellbar(r.a.pct, tone(r.a.pct, 90, 80), r.a.pct + "%") : '<span class="note">Not taken yet</span>'}</td>
+        <td>${r.outs.length ? cellbar(r.inN / r.outs.length * 100, tone(r.inN / r.outs.length * 100, 100, 85), r.inN + "/" + r.outs.length) : '<span class="note">None due yet</span>'}</td>
+        <td>${cellbar(r.cp.sub / (FORM_META.length || 24) * 100, "", r.cp.sub + "/" + (FORM_META.length || 24))}</td>
+        <td>${r.flags.join(" ") || '<span class="note">—</span>'}</td></tr>`).join("");
+      const scored = data.filter(r => r.avg != null), withAtt = data.filter(r => r.a.pct != null), withDue = data.filter(r => r.outs.length);
+      $("#d-stats").innerHTML = dStat(scored.length ? fx(mean(scored.map(r => r.avg))) : "—", "average panel score")
+        + dStat(withAtt.length ? Math.round(mean(withAtt.map(r => r.a.pct))) + "%" : "—", "average attendance")
+        + dStat(withDue.length ? withDue.filter(r => r.inN === r.outs.length).length + " / " + withDue.length : "—", "teams with every output in")
+        + dStat(data.length ? (mean(data.map(r => r.cp.sub)) || 0).toFixed(1) + " / " + (FORM_META.length || 24) : "—", "FASTRAC items submitted, average");
+      $("#d-title").textContent = "Overview"; $("#d-sub").textContent = "Up to Week " + upTo;
+      $("#d-foot").textContent = "Scores are the average of submitted panel sheets on STEP's 1.00–4.00 rubric. Weeks are counted from Week " + firstWeek() + ", the first week with any record.";
+      CSV = [head.slice(0, 7)].concat(data.map(r => [r.g.name, D.letter(r.g.id), r.avg != null ? fx(r.avg) : "", r.last ? fx(r.last.r.avg) : "",
+        r.a.pct != null ? r.a.pct + "%" : "", r.outs.length ? r.inN + "/" + r.outs.length : "", r.cp.sub + "/" + (FORM_META.length || 24)]));
+    },
+
+    scores() {
+      const code = $("#d-sess").value, crit = critOf(code), wk = sessOf(code).week, rows = teamsShown(wk);
+      let maxSeats = 1;
+      const data = rows.map(g => {
+        const L = D.letter(g.id, wk), sh = sheetsFor(g.id, code);
+        /* one column per seat on this team's panel, exactly as set up in the Panel console */
+        const seats = D.seatsFor(g.id, wk);
+        maxSeats = Math.max(maxSeats, seats.length);
+        const cells = seats.map(seat => {
+          const s = sh.find(x => x.seat === seat);
+          return { seat, name: D.seatName(seat, s && s.panelist), s, done: s && doneSheet(s) };
+        });
+        const done = cells.filter(c => c.done).map(c => +c.s.total);
+        const avg = mean(done), spread = done.length > 1 ? Math.max(...done) - Math.min(...done) : null;
+        return { g, L, cells, avg, spread, done: done.length };
+      });
+      const head = ["Team", "Panel"].concat(Array.from({ length: maxSeats }, (_, i) => "Panelist " + (i + 1))).concat(["Average", "Spread"]);
+      $("#d-head").innerHTML = "<tr>" + head.map((h, i) => `<th${i >= 2 ? ' class="num"' : ""}>${h}</th>`).join("") + "</tr>";
+      $("#d-body").innerHTML = data.map(r => {
+        const open = dOpen.has(r.g.id);
+        const cells = Array.from({ length: maxSeats }, (_, i) => {
+          const c = r.cells[i];
+          if (!c) return '<td class="num note">—</td>';
+          const v = c.s && c.s.total != null ? fx(c.s.total) : null;
+          return `<td class="num sccell${c.done ? "" : " is-draft"}" title="${esc(c.name)}${c.s ? " · " + (c.done ? "submitted " + dWhen(c.s.submitted_at) : "draft, last saved " + dWhen(c.s.updated_at)) : " · not started"}">
+            <b>${v || "—"}</b><small>${esc(c.name)}</small>${c.s && !c.done ? '<em>Draft</em>' : !c.s ? '<em>Not started</em>' : ""}</td>`;
+        }).join("");
+        const main = `<tr class="dv-row${open ? " open" : ""}" data-team="${esc(r.g.id)}" style="cursor:pointer">${teamCell(r.g)}<td>${r.L}</td>${cells}
+          <td class="num">${r.avg != null ? `<b style="font-weight:700">${fx(r.avg)}</b><div class="note">${r.done} of ${r.cells.length} submitted</div>` : '<span class="note">No submitted sheet</span>'}</td>
+          <td class="num">${r.spread != null ? `<span class="pill ${r.spread >= 0.75 ? "warn" : "idle"}">${fx(r.spread)}${r.spread >= 0.75 ? " · panelists disagree" : ""}</span>` : "—"}</td></tr>`;
+        if (!open) return main;
+        /* the panelists' sheets side by side, criterion by criterion */
+        const withSheet = r.cells.filter(c => c.s);
+        const detail = !withSheet.length ? '<p class="note" style="margin:0">No panelist has opened a sheet for this team yet.</p>' : `
+          <table class="t mini"><thead><tr><th>Criterion</th><th class="num">Weight</th>${withSheet.map(c => `<th class="num">${esc(c.name)}${c.done ? "" : " <span class='note'>(draft)</span>"}</th>`).join("")}</tr></thead>
+          <tbody>${crit.map((a, i) => `<tr><td>${esc(a.label)}</td><td class="num note">${a.weight}%</td>${withSheet.map(c => {
+            const v = (c.s.scores || {})[i];
+            return `<td class="num${c.done ? "" : " is-draft"}">${v != null && v !== "" ? Number(v).toFixed(2).replace(/\.?0+$/, "") : "—"}</td>`;
+          }).join("")}</tr>`).join("")}
+          <tr class="tot"><td><b>Weighted total</b></td><td></td>${withSheet.map(c => `<td class="num${c.done ? "" : " is-draft"}"><b>${fx(c.s.total)}</b></td>`).join("")}</tr></tbody></table>
+          ${withSheet.filter(c => (c.s.general_comment || "").trim()).map(c => `<blockquote class="dv-quote"><b>${esc(c.name)}:</b> ${esc(c.s.general_comment)}</blockquote>`).join("")}`;
+        return main + `<tr class="dv-detail"><td colspan="${head.length}">${detail}</td></tr>`;
+      }).join("");
+      const all = data.flatMap(r => r.cells), sub = all.filter(c => c.done).length, drafts = all.filter(c => c.s && !c.done).length;
+      const scored = data.filter(r => r.avg != null), wide = data.filter(r => r.spread != null).sort((a, b) => b.spread - a.spread)[0];
+      $("#d-stats").innerHTML = dStat(scored.length + " / " + data.length, "teams with a submitted score")
+        + dStat(sub + " / " + all.length, "panelist sheets submitted") + dStat(drafts, "sheets still in draft")
+        + dStat(scored.length ? fx(mean(scored.map(r => r.avg))) : "—", wide && wide.spread >= 0.75 ? "average · widest gap " + esc(wide.g.name.replace(/\s*\(.*\)$/, "")) : "average score this session");
+      $("#d-title").textContent = "Panel scores · " + sessLabel(code);
+      $("#d-sub").textContent = "Each panelist's own score. Click a team to compare their sheets criterion by criterion.";
+      $("#d-foot").textContent = "Averages use submitted sheets only; greyed scores are drafts the panelist has not submitted yet.";
+      CSV = [["Team", "Panel", "Panelist", "Seat", "Status", "Score"].concat(crit.map(a => a.label)).concat(["General comment"])]
+        .concat(data.flatMap(r => r.cells.map(c => [r.g.name, r.L, c.name, c.seat, c.s ? (c.done ? "Submitted" : "Draft") : "Not started", c.s && c.s.total != null ? fx(c.s.total) : ""]
+          .concat(crit.map((a, i) => c.s && (c.s.scores || {})[i] != null ? (c.s.scores || {})[i] : "")).concat([c.s ? c.s.general_comment || "" : ""]))));
+    },
+
+    outputs() {
+      const upTo = +$("#d-week").value, rows = teamsShown(), f0 = firstWeek();
+      const weeks = []; for (let w = f0; w <= upTo; w++) if (outputWeek(w)) weeks.push(w);
+      const LBL = { ok: ["ok", "On time"], late: ["warn", "Late"], part: ["warn", "1 of 2 files"], partopen: ["idle", "1 of 2 so far"], miss: ["bad", "Missing"], open: ["idle", "Not due yet"] };
+      const data = rows.map(g => ({ g, outs: outputsOf(g.id, upTo) }));
+      $("#d-head").innerHTML = "<tr><th>Team</th>" + weeks.map(w => `<th title="${esc(modOf(w).title)}">W${w}<div class="note">${esc((SCH && SCH.byWeek(w) && SCH.byWeek(w).short) || "")}</div></th>`).join("") + '<th class="num">In / due</th></tr>';
+      $("#d-body").innerHTML = data.map(r => {
+        const due = r.outs.filter(o => !["open", "partopen"].includes(o.state)), inN = due.filter(o => ["ok", "late"].includes(o.state)).length;
+        return `<tr>${teamCell(r.g)}${r.outs.map(o => `<td title="Week ${o.w} · due ${dWhen(o.due.toISOString())}${o.at ? " · handed in " + dWhen(o.at) : ""}"><span class="pill ${LBL[o.state][0]}">${LBL[o.state][1]}</span></td>`).join("")}
+          <td class="num"><b>${inN}</b> / ${due.length}</td></tr>`;
+      }).join("");
+      const cells = data.flatMap(r => r.outs), due = cells.filter(o => !["open", "partopen"].includes(o.state));
+      $("#d-stats").innerHTML = dStat(due.length ? Math.round(due.filter(o => o.state === "ok").length / due.length * 100) + "%" : "—", "handed in on time")
+        + dStat(due.filter(o => o.state === "late").length, "late") + dStat(due.filter(o => ["miss", "part"].includes(o.state)).length, "missing or incomplete")
+        + dStat(data.filter(r => r.outs.filter(o => !["open", "partopen"].includes(o.state)).every(o => ["ok", "late"].includes(o.state))).length + " / " + data.length, "teams with everything in");
+      $("#d-title").textContent = "Submitted outputs"; $("#d-sub").textContent = "Video and slide deck, week by week · due 12:00 NN the day before the feedback session";
+      $("#d-foot").textContent = "A week counts as in when both files are handed in. Weeks start at Week " + f0 + ", the first week with any record.";
+      CSV = [["Team"].concat(weeks.map(w => "Week " + w))].concat(data.map(r => [r.g.name].concat(r.outs.map(o => LBL[o.state][1]))));
+    },
+
+    att() {
+      const upTo = +$("#d-week").value, rows = teamsShown();
+      const codes = [...new Set(D.att.map(a => a.session_code))].filter(c => wkOfCode(c) <= upTo)
+        .sort((a, b) => (wkOfCode(a) * 10 + sesRank(a)) - (wkOfCode(b) * 10 + sesRank(b)));
+      const data = rows.map(g => {
+        const size = D.mem.filter(m => m.team_id === g.id).length;
+        const per = codes.map(c => {
+          const rs = D.att.filter(a => a.team_id === g.id && a.session_code === c);
+          const went = rs.filter(a => a.status ? a.status !== "absent" : a.present);
+          return { c, marked: rs.length, went: went.length, late: rs.filter(a => a.status === "late").map(a => a.member_name),
+                   away: rs.filter(a => a.status ? a.status === "absent" : !a.present).map(a => a.member_name) };
+        });
+        return { g, size, per, a: attOf(g.id, upTo) };
+      });
+      $("#d-head").innerHTML = "<tr><th>Team</th>" + codes.map(c => `<th>W${wkOfCode(c)}<div class="note">${esc(sesName(c))}</div></th>`).join("") + '<th class="num">Attended</th></tr>';
+      $("#d-body").innerHTML = !codes.length ? `<tr><td class="note" colspan="2">No attendance recorded up to Week ${upTo} yet.</td></tr>` : data.map(r => `<tr>${teamCell(r.g)}${r.per.map(p => !p.marked
+          ? '<td class="note">—</td>'
+          : `<td title="${esc([p.away.length ? "Absent: " + p.away.join(", ") : "Nobody absent", p.late.length ? "Late: " + p.late.join(", ") : ""].filter(Boolean).join(" · "))}">
+              <span class="pill ${p.went >= 3 ? "ok" : "bad"}">${p.went} / ${Math.max(r.size, p.marked)}${p.went < 3 ? " · below 3" : ""}</span></td>`).join("")}
+          <td class="num">${r.a.pct != null ? r.a.pct + "%" : "—"}</td></tr>`).join("");
+      const all = data.flatMap(r => r.per.filter(p => p.marked));
+      const withAtt = data.filter(r => r.a.pct != null);
+      $("#d-stats").innerHTML = dStat(withAtt.length ? Math.round(mean(withAtt.map(r => r.a.pct))) + "%" : "—", "average attendance")
+        + dStat(codes.length, "sessions recorded") + dStat(all.filter(p => p.went < 3).length, "team-sessions below the 3-member minimum")
+        + dStat(all.reduce((n, p) => n + p.late.length, 0), "late arrivals");
+      $("#d-title").textContent = "Attendance"; $("#d-sub").textContent = "Members present (on time or late) out of the roster, session by session";
+      $("#d-foot").textContent = "Hover a cell to see who was absent or late. Recorded in the Attendance section of this console.";
+      CSV = [["Team"].concat(codes)].concat(data.map(r => [r.g.name].concat(r.per.map(p => p.marked ? p.went + "/" + Math.max(r.size, p.marked) : ""))));
+    },
+
+    fastrac() {
+      const rows = teamsShown(), N = FORM_META.length || 24;
+      const data = rows.map(g => ({ g, cp: capOf(g.id) }));
+      $("#d-head").innerHTML = '<tr><th>Team</th><th>Submitted</th><th class="num">Draft</th><th class="num">Not started</th><th>Item by item</th><th>Pitch deck</th><th>Last edit</th></tr>';
+      $("#d-body").innerHTML = data.map(r => `<tr>${teamCell(r.g)}
+        <td>${cellbar(r.cp.sub / N * 100, r.cp.sub === N ? "ok" : "", r.cp.sub + "/" + N)}</td>
+        <td class="num">${r.cp.draft}</td><td class="num">${r.cp.none}</td>
+        <td><div class="sqrow">${FORM_META.map(f => {
+          const it = r.cp.byN[f.n], st = it ? (it.submitted ? "sub" : it.filled ? "draft" : "none") : "none";
+          return `<i class="sq ${st}" title="Item ${f.n} · ${esc(f.title)} — ${st === "sub" ? "submitted" : st === "draft" ? "in draft" : "not started"}"></i>`;
+        }).join("")}</div></td>
+        <td>${cellbar(r.cp.slides / DECK_N * 100, r.cp.slides === DECK_N ? "ok" : "", r.cp.slides + "/" + DECK_N)}</td>
+        <td class="note">${dWhen(r.cp.last)}</td></tr>`).join("");
+      $("#d-stats").innerHTML = dStat((mean(data.map(r => r.cp.sub)) || 0).toFixed(1) + " / " + N, "items submitted, average")
+        + dStat(data.filter(r => r.cp.sub > 0).length + " / " + data.length, "teams that have submitted something")
+        + dStat((mean(data.map(r => r.cp.slides)) || 0).toFixed(1) + " / " + DECK_N, "deck slides in, average")
+        + dStat(data.filter(r => r.cp.sub === N).length, "proposals complete");
+      $("#d-title").textContent = "FASTRAC proposal"; $("#d-sub").textContent = "DOST Form 2, item by item, from each team's Capstone page";
+      $("#d-foot").innerHTML = '<span class="legend-sq"><i class="sq sub"></i>Submitted <i class="sq draft"></i>Draft <i class="sq none"></i>Not started</span> · Hover a square for the item.';
+      CSV = [["Team", "Submitted", "Draft", "Not started", "Deck slides", "Last edit"].concat(FORM_META.map(f => "Item " + f.n))]
+        .concat(data.map(r => [r.g.name, r.cp.sub, r.cp.draft, r.cp.none, r.cp.slides, r.cp.last || ""]
+          .concat(FORM_META.map(f => { const it = r.cp.byN[f.n]; return it ? (it.submitted ? "Submitted" : it.filled ? "Draft" : "") : ""; }))));
+    },
+  };
+
+  function renderData() {
+    $("#d-sess-f").hidden = DV !== "scores";
+    $("#d-week-f").hidden = DV === "scores" || DV === "fastrac";
+    if (!D) {
+      $("#d-head").innerHTML = ""; $("#d-stats").innerHTML = ""; CSV = [];
+      $("#d-title").textContent = "Team data"; $("#d-sub").textContent = "";
+      $("#d-body").innerHTML = `<tr><td class="note">${dLive() ? "Loading the team data…" : "Sign in with a STEP team account to see the real figures."}</td></tr>`;
+      $("#d-foot").textContent = "";
+      return;
+    }
+    VIEWS[DV]();
+  }
+  $("#d-view").addEventListener("click", e => {
+    const b = e.target.closest("button[data-v]"); if (!b) return;
+    DV = b.dataset.v; $$("#d-view button").forEach(x => x.setAttribute("aria-pressed", x === b)); renderData();
+  });
+  $("#d-body").addEventListener("click", e => {
+    if (DV !== "scores") return;
+    const tr = e.target.closest("tr.dv-row"); if (!tr) return;
+    const id = tr.dataset.team; dOpen.has(id) ? dOpen.delete(id) : dOpen.add(id); renderData();
+  });
+  ["#d-reg", "#d-pan", "#d-week", "#d-sess"].forEach(s => $(s).addEventListener("change", renderData));
+  $("#d-refresh").addEventListener("click", dLoad);
+  $("#d-csv").addEventListener("click", () => {
+    if (!CSV.length) { toast("Nothing to download yet."); return; }
+    const cell = v => { const t = String(v == null ? "" : v); return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+    const blob = new Blob(["﻿" + CSV.map(r => r.map(cell).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "step-team-data-" + DV + (DV === "scores" ? "-" + $("#d-sess").value : "-week" + $("#d-week").value) + ".csv";
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  });
+  renderData();
+  (async function dGoLive() {
+    for (let i = 0; i < 15 && !dLive(); i++) await new Promise(r => setTimeout(r, 400));
+    if (dLive()) await dLoad();
+  })();
+
+  show(location.hash.slice(1) || "attendance");
+})();
+</script>
+</body>
+</html>

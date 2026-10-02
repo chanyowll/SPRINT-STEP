@@ -285,10 +285,17 @@ page = f"""<!doctype html>
 <script src="submissions-data.js"></script>
 <script src="site-clock.js"></script>
 <script src="materials-data.js"></script>
+<script src="announcements-data.js"></script>
+<script src="chat-data.js"></script>
+<script src="capstone-data.js"></script>
+<script src="panelplan-data.js"></script>
 <script src="panelsheets-data.js"></script>
 <script src="mentorreports-data.js"></script>
 <script src="mentorreport-pdf.js"></script>
+<script src="articles-data.js"></script>
+<script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
+<script src="tech-access.js"></script>
 <script>
 {observer}
 {chr(10).join(scripts)}

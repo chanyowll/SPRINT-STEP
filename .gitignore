@@ -30,3 +30,15 @@ STEP site/source/_test_*.js
 .env
 .env.local
 .env.*.local
+
+# Internal working files - never publish (the repo is public)
+STEP login - Sheet1.csv
+*.csv
+STEP 2.5 Master Tracker.xlsx
+STEP 2.5 Week Short Names.xlsx
+*.xlsx
+ENV files.docx
+Claude outputs/
+Picture and Video Assets/
+STEP Curriculum and Timeline/
+STEP site/source/assets/photos/*-original.*

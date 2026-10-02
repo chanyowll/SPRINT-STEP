@@ -10,15 +10,15 @@
    noon deadline stays on a Friday. Relative order is untouched: an
    announcement posted two days before a deadline still is.
 
-   When the real cohort dates are known, set FIXED_START below to the
-   Tuesday of Week 1 and the shifting stops — everything then counts
-   from that date against today.
+   STEP 2.5 has real dates (schedule-data.js, from the Master Tracker),
+   so FIXED_START is set and nothing is shifted any more: This Week is
+   the program week the calendar is actually in.
    ===================================================================== */
 
 (function () {
   'use strict';
 
-  const FIXED_START = null;        // e.g. "2026-10-06" once the cohort is set
+  const FIXED_START = "2026-10-12";   // STEP 2.5 Week 0 (orientation); the schedule is real
   const MS_DAY = 86400000;
 
   /* The Monday that starts the week containing d (weeks run Mon→Sun). */
@@ -71,6 +71,8 @@
   function align(MOCK, now) {
     if (!MOCK || !MOCK.thisWeek || !MOCK.thisWeek.starts) return 0;
     now = now || new Date();
+    /* real dates: leave everything where the schedule put it */
+    if (FIXED_START) { MOCK.thisWeek.today = now.toISOString(); return 0; }
 
     const sampleStart = (() => {
       const [y, m, d] = String(MOCK.thisWeek.starts).split('-').map(Number);

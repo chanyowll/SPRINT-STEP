@@ -132,10 +132,22 @@
     if (!(await isLive())) { roster = null; return null; }
     const { data, error } = await client().rpc('panel_roster');
     if (error || !data) { roster = null; return null; }
-    roster = data;
     const F = window.MOCK && window.MOCK.faculty;
+    /* a grouping saved from the tech console decides which seats sit on
+       which panel and which teams each panel hears; a seat left off every
+       panel that week has no panel */
+    const PP = window.STEP_PANELPLAN;
+    let plan = null;
+    if (PP) { try { plan = await PP.forWeek(PP.currentWeek()); } catch (e) { plan = null; } }
+    if (plan) {
+      const letterOf = {};
+      (plan.panels || []).forEach(p => (p.panelists || []).forEach(x => { letterOf[x.seat] = p.letter; }));
+      data.forEach(r => { r.panel_letter = letterOf[r.seat] || null; });
+    }
+    roster = data;
     if (F && F.panels) {
-      F.panels.forEach(p => {
+      if (plan) PP.applyTo(F, plan, data);
+      else F.panels.forEach(p => {
         const mine = data.filter(r => r.panel_letter === p.letter).sort((a, b) => a.seat - b.seat);
         if (mine.length) { p.seats = mine.map(r => r.seat); p.panelists = mine.map(r => r.display_name); }
       });
