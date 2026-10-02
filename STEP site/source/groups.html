@@ -84,7 +84,7 @@
     <div class="stagecard" id="stage" role="tabpanel" aria-live="polite">
       <span class="st-crest" aria-hidden="true">
         <img class="st-logo" id="st-logo" alt="" hidden>
-        <span class="st-num" id="st-num">01</span>
+        <span class="st-num" id="st-num" hidden>01</span>
       </span>
       <div class="st-body">
         <div class="st-meta">
@@ -218,6 +218,18 @@ const REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   document.getElementById("rs-count").textContent = G.length;
 
+  /* Fetch every institution crest once, up front, so switching teams never waits on a
+     download. Each team's crest is shown the moment its file is ready; the numeral is
+     only a stand-in for a team that has no crest file at all (or one that fails). */
+  const crests = {};
+  const preloadCrests = () => G.forEach(t => {
+    if (t.logo && !crests[t.logo]) { const im = new Image(); im.fetchPriority = "low"; im.src = t.logo; crests[t.logo] = im; }
+  });
+  /* straight away on the Groups page itself; on the other pages, a moment after they finish loading */
+  if (/groups/.test(location.hash + location.pathname) || document.readyState === "complete") preloadCrests();
+  else window.addEventListener("load", () => setTimeout(preloadCrests, 1500), { once: true });
+  const crestReady = src => { const im = crests[src]; return !!(im && im.complete && im.naturalWidth > 0); };
+
   /* the roster */
   list.insertAdjacentHTML("beforeend", G.map((t, i) => `
     <button class="rsx" role="tab" id="rsx-${i}" data-i="${i}" aria-selected="false" tabindex="-1">
@@ -273,17 +285,21 @@ const REDUCE = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.getElementById("st-inst-t").textContent = t.institution + " · " + t.city;
     document.getElementById("st-about").textContent = t.about;
     document.getElementById("st-pos").textContent = (i + 1) + " / " + G.length;
-    /* the institution's own mark carries the background; the numeral stands in
-       whenever a logo file has not been supplied yet */
+    /* the institution's own mark carries the background; the numeral stands in only
+       when a team has no crest file. Nothing is shown while a crest is still loading,
+       so a numeral never flashes and then gets replaced mid-animation. */
     const num = document.getElementById("st-num"), logo = document.getElementById("st-logo");
     num.textContent = String(i + 1).padStart(2, "0");
+    logo.onload = logo.onerror = null;
+    logo.hidden = true; num.hidden = true;
     if (t.logo) {
-      logo.onload  = () => { logo.hidden = false; num.hidden = true; };
-      logo.onerror = () => { logo.hidden = true;  num.hidden = false; };
-      logo.hidden = true; num.hidden = false;
+      const show = () => { if (my !== ticket) return; void logo.offsetWidth; logo.hidden = false; };
+      logo.onload  = show;
+      logo.onerror = () => { if (my !== ticket) return; logo.hidden = true; num.hidden = false; };
       logo.src = t.logo;
+      if (crestReady(t.logo) || (logo.complete && logo.naturalWidth > 0)) show();
     } else {
-      logo.hidden = true; num.hidden = false;
+      num.hidden = false;
     }
     stage.classList.add("st-in");
 
