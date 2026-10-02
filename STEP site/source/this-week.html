@@ -449,22 +449,26 @@ const daysAway = iso => {
     /* a link from Drive, YouTube or Vimeo plays in their own player here;
        any other link opens in a new tab */
     const embed = v.link ? embedOf(v.link) : null;
+    /* Drive's player carries an "open in new window" button in its top-right corner that
+       leads to the file page and its download option, and it cannot be switched off. The
+       frame is therefore made CLIP px taller than needed on both ends and shifted up by CLIP,
+       so the button lies above the visible area while the picture (which Drive centres in
+       the frame) still starts at the top; the controls sit in the spare band underneath. */
+    const drive = !!embed && /drive\.google\.com/.test(embed), CLIP = 72;
+    const frameStyle = drive
+      ? `position:absolute;left:0;top:-${CLIP}px;width:100%;height:calc(100% + ${CLIP}px);border:0`
+      : "position:absolute;inset:0;width:100%;height:100%;border:0";
     const player = !v.link
-      ? `<video controls preload="metadata" playsinline src="${esc(v.url)}" aria-label="${label}"></video>`
+      ? `<video controls controlsList="nodownload" disablepictureinpicture preload="metadata" playsinline src="${esc(v.url)}" aria-label="${label}"></video>`
       : embed
         ? `<iframe src="${esc(embed)}" title="${label}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                   loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
-                   style="position:absolute;inset:0;width:100%;height:100%;border:0"></iframe>`
+                   loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="${frameStyle}"></iframe>`
         : `<div class="rp-emptybox" style="height:100%;display:grid;place-content:center;justify-items:center;gap:12px;color:#fff"><b>Watch the recording</b>
              <a class="btn solid" href="${esc(v.link)}" target="_blank" rel="noopener">Open the video ↗</a></div>`;
     replay.className = "replay rp-live";
     replay.innerHTML = `
-      <div class="rp-player"${embed ? ' style="position:relative;aspect-ratio:16/9"' : ""}>${player}${
-        /* Drive's player puts an "open in new window" button in its top-right corner, which
-           leads to the file page and its download option. A blank, click-absorbing patch
-           over that corner keeps the recording on this page. */
-        embed && /drive\.google\.com/.test(embed)
-          ? '<div aria-hidden="true" style="position:absolute;top:0;right:0;width:76px;height:76px;z-index:2"></div>' : ""}</div>
+      <div class="rp-player"${embed ? (drive ? ' style="position:relative;overflow:hidden;height:0;padding-bottom:calc(56.25% + ' + CLIP + 'px)"'
+                                             : ' style="position:relative;aspect-ratio:16/9"') : ""}>${player}</div>
       <div class="rp-cap">
         <span class="kick">Session replay</span>
         <h3>${esc(v.title || ("Week " + T.week + " · " + T.short))}</h3>
