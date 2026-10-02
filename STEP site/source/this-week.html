@@ -450,14 +450,13 @@ const daysAway = iso => {
        any other link opens in a new tab */
     const embed = v.link ? embedOf(v.link) : null;
     /* Drive's player carries an "open in new window" button in its top-right corner (a
-       40px button at 12px from the top) that leads to the file page and its download
-       option, and it cannot be switched off. The screen is therefore given a band of BAND px
-       above and below the picture (Drive centres the picture in its frame), and a black
-       patch over the top-right corner covers the button — black on black, so nothing shows.
-       The player's own controls appear in the band underneath. */
-    const drive = !!embed && /drive\.google\.com/.test(embed), BAND = 56;
+       40px button, 12px from the top and 16px from the right) that leads to the file page
+       and its download option, and it cannot be switched off. A small SPRINT-STEP badge —
+       the kind of corner mark broadcasters use — sits over that corner and absorbs the
+       clicks, so the screen can stay a plain 16:9 with no bands. */
+    const drive = !!embed && /drive\.google\.com/.test(embed);
     const frameStyle = "position:absolute;inset:0;width:100%;height:100%;border:0";
-    const patch = drive ? `<div aria-hidden="true" style="position:absolute;top:0;right:0;width:72px;height:${BAND}px;background:#000;z-index:2"></div>` : "";
+    const patch = drive ? `<div class="rp-bug" aria-hidden="true"><img src="assets/step-logo-mark-white.png" alt=""></div>` : "";
     const player = !v.link
       ? `<video controls controlsList="nodownload" disablepictureinpicture preload="metadata" playsinline src="${esc(v.url)}" aria-label="${label}"></video>`
       : embed
@@ -467,8 +466,7 @@ const daysAway = iso => {
              <a class="btn solid" href="${esc(v.link)}" target="_blank" rel="noopener">Open the video ↗</a></div>`;
     replay.className = "replay rp-live";
     replay.innerHTML = `
-      <div class="rp-player"${embed ? (drive ? ' style="position:relative;overflow:hidden;height:0;padding-bottom:calc(56.25% + ' + (2 * BAND) + 'px)"'
-                                             : ' style="position:relative;aspect-ratio:16/9"') : ""}>${player}${patch}</div>
+      <div class="rp-player"${embed ? ' style="position:relative;aspect-ratio:16/9"' : ""}>${player}${patch}</div>
       <div class="rp-cap">
         <span class="kick">Session replay</span>
         <h3>${esc(v.title || ("Week " + T.week + " · " + T.short))}</h3>
