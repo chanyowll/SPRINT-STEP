@@ -459,18 +459,17 @@ const daysAway = iso => {
              <a class="btn solid" href="${esc(v.link)}" target="_blank" rel="noopener">Open the video ↗</a></div>`;
     replay.className = "replay rp-live";
     replay.innerHTML = `
-      <div class="rp-player"${embed ? ' style="position:relative;aspect-ratio:16/9"' : ""}>${player}</div>
+      <div class="rp-player"${embed ? ' style="position:relative;aspect-ratio:16/9"' : ""}>${player}${
+        /* Drive's player puts an "open in new window" button in its top-right corner, which
+           leads to the file page and its download option. A blank, click-absorbing patch
+           over that corner keeps the recording on this page. */
+        embed && /drive\.google\.com/.test(embed)
+          ? '<div aria-hidden="true" style="position:absolute;top:0;right:0;width:76px;height:76px;z-index:2"></div>' : ""}</div>
       <div class="rp-cap">
         <span class="kick">Session replay</span>
         <h3>${esc(v.title || ("Week " + T.week + " · " + T.short))}</h3>
         <p class="meta">${[on, v.duration ? v.duration + " long" : "", v.link ? "" : kb(v.size)].filter(Boolean).join(" · ")}</p>
-        ${embed ? `<p class="meta">Player not loading? <a href="${esc(v.link)}" target="_blank" rel="noopener">Open the video in ${esc(hostName(v.link))} ↗</a></p>` : ""}
       </div>`;
-  }
-  /* "Google Drive", "YouTube" or "Vimeo", for the link under an embedded player */
-  function hostName(link) {
-    let h = ""; try { h = new URL(link).hostname; } catch (e) {}
-    return /drive\.google/.test(h) ? "Google Drive" : /youtu/.test(h) ? "YouTube" : /vimeo/.test(h) ? "Vimeo" : "a new tab";
   }
   paintReplayEmpty();
 
