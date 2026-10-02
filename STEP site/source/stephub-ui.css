@@ -396,7 +396,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--blue); outl
 
 /* Photo hero: one statement, nothing else */
 .hero-photo {
-  position: relative; min-height: 78vh; display: grid; align-items: center;
+  position: relative; min-height: calc(78 * var(--vh)); display: grid; align-items: center;
   background: var(--navy) center/cover no-repeat;
   color: #fff; overflow: hidden;
 }
@@ -1006,7 +1006,7 @@ details.mod .hrs { font-size: 12px; color: var(--ink-soft); }
 .itemlist .wk { display: block; font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
 /* Keep the 24-item list beside the editor instead of running far past it */
 @media (min-width: 961px) {
-  .itemlist { max-height: calc(100vh - var(--header-h) - 48px); overflow-y: auto;
+  .itemlist { max-height: calc(100 * var(--vh) - var(--header-h) - 48px); overflow-y: auto;
               position: sticky; top: calc(var(--header-h) + 16px); }
 }
 .itemlist button.is-locked .ti { color: var(--ink-soft); font-weight: 500; }
@@ -1249,7 +1249,7 @@ body.sheet-open { padding-right: min(52%, 880px); }
 
 /* Photo hero: one statement, nothing else */
 .hero-photo {
-  position: relative; min-height: 78vh; display: grid; align-items: center;
+  position: relative; min-height: calc(78 * var(--vh)); display: grid; align-items: center;
   background: var(--navy) center/cover no-repeat;
   color: #fff; overflow: hidden;
 }
@@ -1774,7 +1774,7 @@ details.mod .hrs { font-size: 12px; color: var(--ink-soft); }
 .itemlist .wk { display: block; font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
 /* Keep the 24-item list beside the editor instead of running far past it */
 @media (min-width: 961px) {
-  .itemlist { max-height: calc(100vh - var(--header-h) - 48px); overflow-y: auto;
+  .itemlist { max-height: calc(100 * var(--vh) - var(--header-h) - 48px); overflow-y: auto;
               position: sticky; top: calc(var(--header-h) + 16px); }
 }
 .itemlist button.is-locked .ti { color: var(--ink-soft); font-weight: 500; }
@@ -3799,7 +3799,7 @@ table.fgrid td.money .fin { letter-spacing: .01em; }
 }
 .auth-backdrop.active { opacity: 1; pointer-events: auto; }
 .auth-modal {
-  width: 100%; max-width: 800px; max-height: 88vh; background: var(--surface);
+  width: 100%; max-width: 800px; max-height: calc(88 * var(--vh)); background: var(--surface);
   border: 1px solid var(--line); border-radius: var(--r-lg);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32); display: flex; flex-direction: column;
   overflow: hidden; transform: translateY(16px); transition: transform .25s cubic-bezier(.2,.8,.3,1);
@@ -4791,7 +4791,7 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
 @media (max-width: 640px) { .tpick { min-width: 0; width: 100%; } }
 
 /* the team picker lists all ten teams without scrolling */
-.tpick-list { max-height: min(78vh, 520px); padding: 4px; }
+.tpick-list { max-height: min(calc(78 * var(--vh)), 520px); padding: 4px; }
 .tp-grp { padding: 6px 10px 2px; font-size: 10px; }
 .tp-opt { padding: 4px 10px; font-size: 13px; gap: 8px; border-radius: 6px; }
 .tp-opt .tp-tag { font-size: 11px; }
@@ -5130,7 +5130,7 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
 /* ── Mentor report: a fixed 4:3 card; only the activity list scrolls ── */
 #mr-sec { container-type: inline-size; }
 .mrep { display: flex; flex-direction: column;
-  height: min(75cqw, calc(100vh - 120px)); min-height: 440px; }
+  height: min(75cqw, calc(100 * var(--vh) - 120px)); min-height: 440px; }
 .mrep > .sh-top, .mrep > .mr-info, .mrep > .mr-signed, .mrep > .sh-foot, .mrep > .mr-prog { flex: none; }
 .mrep .sh-foot { position: static; box-shadow: 0 -8px 18px rgba(64, 48, 16, .06); }
 .mr-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
@@ -5161,7 +5161,7 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
 .mr-signed.stale .mr-view { border-color: #ecd6a6; }
 @media (max-width: 640px) {
   .mr-signed i { display: none; }
-  .mrep { height: calc(100vh - 90px); }
+  .mrep { height: calc(100 * var(--vh) - 90px); }
 }
 .mr-info .mr-in:nth-child(2) { flex-grow: 1.5; }
 @media (max-width: 760px) {
@@ -5191,7 +5191,7 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
 @media (prefers-reduced-motion: reduce) { .hero-photo > .hero-video, .hero-photo > .wrap { transition: none; } }
 
 /* ── Mentor report: 1rem shorter, a little more air up top, list centred ── */
-.mrep { height: calc(min(75cqw, 100vh - 120px) - 7rem); min-height: calc(440px - 7rem); }
+.mrep { height: calc(min(75cqw, 100 * var(--vh) - 120px) - 7rem); min-height: calc(440px - 7rem); }
 .mrep .sh-top { padding: 12px var(--s5) 13px; }
 .mr-info { padding: 11px var(--s5); }
 .mr-scroll { display: flex; flex-direction: column; }
@@ -5200,7 +5200,7 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
 .mr-scroll::before { content: ""; flex: 1 1 0; max-height: 14px; }
 .mr-scroll::after { content: ""; flex: 3 1 0; }
 .mr-scroll > .mr-src { flex: none; }
-@media (max-width: 640px) { .mrep { height: calc(100vh - 90px - 7rem); } }
+@media (max-width: 640px) { .mrep { height: calc(100 * var(--vh) - 90px - 7rem); } }
 
 /* ── This Week: bigger material thumbnails; the two panels share one height ── */
 .matwrap { align-items: stretch; }
@@ -5248,7 +5248,7 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
 .mv { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 3vh 3vw;
   background: rgba(6, 22, 40, .62); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); }
 .mv[hidden] { display: none; }
-.mv-box { width: min(1120px, 100%); height: min(88vh, 900px); display: flex; flex-direction: column;
+.mv-box { width: min(1120px, 100%); height: min(calc(88 * var(--vh)), 900px); display: flex; flex-direction: column;
   background: #fffaf0; border: 1px solid #dccca8; border-radius: 16px; overflow: hidden;
   box-shadow: 0 30px 80px rgba(0, 0, 0, .35); }
 .mv-head { display: flex; align-items: center; gap: 12px; padding: 12px 14px 12px 20px;
@@ -5331,7 +5331,7 @@ body { overflow-x: clip; }
 .gp-top, .gp-band { position: relative; isolation: isolate; }
 .gp-top::before, .gp-band::before {
   content: ""; position: absolute; z-index: -1; pointer-events: none;
-  left: calc(50% - 50vw); width: 100vw;
+  left: calc(50% - 50 * var(--vw)); width: calc(100 * var(--vw));
   background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
@@ -5428,7 +5428,7 @@ body { overflow-x: clip; }
 .tw-bars .tw-empty b { font-size: 14px; }
 .tw-bars .tw-empty span { font-size: 12.5px; }
 .tw-loading { display: flex; align-items: center; justify-content: center; gap: 12px;
-  min-height: 46vh; color: var(--ink-soft); font-size: 15px; }
+  min-height: calc(46 * var(--vh)); color: var(--ink-soft); font-size: 15px; }
 .tw-loading[hidden] { display: none; }
 .tw-spin { width: 22px; height: 22px; border-radius: 50%; border: 2.5px solid #d6e2ec;
   border-top-color: var(--blue); animation: twspin .8s linear infinite; }
@@ -5515,7 +5515,7 @@ body { overflow-x: clip; }
 .gp-after { position: relative; isolation: isolate; }
 .gp-after::before {
   content: ""; position: absolute; z-index: -1; pointer-events: none;
-  top: 0; height: 50%; left: calc(50% - 50vw); width: 100vw;
+  top: 0; height: 50%; left: calc(50% - 50 * var(--vw)); width: calc(100 * var(--vw));
   background-image:
     linear-gradient(var(--grid-line) 1px, transparent 1px),
     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
@@ -5523,4 +5523,17 @@ body { overflow-x: clip; }
   background-position: center -1px;
   -webkit-mask-image: linear-gradient(#000 60%, transparent);
           mask-image: linear-gradient(#000 60%, transparent);
+}
+
+/* ---------- desktop scale ----------
+   The site was designed on a laptop whose display is set to a smaller scale than its
+   screen recommends, so on an ordinary laptop or desktop everything came out about a
+   quarter too large. On mouse/trackpad devices 1024px and wider the whole page is drawn
+   at 80%. Phones and tablets are untouched. `zoom` also shrinks vh/vw units, so the few
+   sizes that must span the real screen (the home cover, full-bleed grids, panel and
+   modal heights) are written with --vh/--vw, which are enlarged here to compensate. */
+:root { --vh: 1vh; --vw: 1vw; }
+@media (min-width: 1024px) and (hover: hover) {
+  body { zoom: .8; }
+  :root { --vh: 1.25vh; --vw: 1.25vw; }
 }
