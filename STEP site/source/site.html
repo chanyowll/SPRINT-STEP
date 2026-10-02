@@ -2185,32 +2185,55 @@ try {
   if (!still) requestAnimationFrame(tick);
 })();
 
-/* ---------- the cover film: plays on every load of the home page, then the cover returns ---------- */
+/* ---------- the cover film: plays on every load of the home page, then the cover returns ----------
+   The cover photos stay on screen while the film loads; the film only
+   takes over once the browser has enough of it to play through, so a
+   slow connection sees the cover, not a black box. If the film cannot
+   load in time, or the device refuses to autoplay (iPhone Low Power
+   Mode, data saver), the cover simply stays. ---------- */
 (function () {
   var hero = document.getElementById("hero"), v = document.getElementById("hero-video");
   if (!hero || !v) return;
   var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (still) return;
+  if (navigator.connection && navigator.connection.saveData) return;      // data saver on: no film
 
-  var done = false;
-  function finish() {
-    if (done) return; done = true;
+  var state = "loading", timer = null;
+  function dispose() {
+    try { v.pause(); } catch (e) {}
+    v.removeAttribute("src"); v.load(); v.hidden = true;
+  }
+  function giveUp() {                       // never started: the cover was showing all along
+    if (state !== "loading") return;
+    state = "off"; clearTimeout(timer); dispose();
+  }
+  function finish() {                       // played: slide the film off, reveal the cover
+    if (state !== "playing") return;
+    state = "done";
     hero.classList.add("intro-out");
     hero.classList.remove("intro");
-    setTimeout(function () {
-      try { v.pause(); } catch (e) {}
-      v.removeAttribute("src"); v.load(); v.hidden = true;
-      hero.classList.remove("intro-out");
-    }, 1100);
+    setTimeout(function () { dispose(); hero.classList.remove("intro-out"); }, 1100);
   }
-  v.src = "assets/video/step-hero.mp4?v=3";   // ?v= busts the old low-bitrate copy from caches
-  v.hidden = false;
-  hero.classList.add("intro");
+  function start() {
+    if (state !== "loading") return;
+    clearTimeout(timer);
+    v.hidden = false;
+    hero.classList.add("intro");
+    var p = v.play();
+    var ok = function () { state = "playing"; };
+    var no = function () { hero.classList.remove("intro"); giveUp(); };
+    if (p && p.then) p.then(ok, no); else ok();
+  }
+  v.addEventListener("canplaythrough", start, { once: true });
+  v.addEventListener("canplay", function () {      // Safari may never say "canplaythrough": start a moment after "canplay"
+    setTimeout(start, 2500);
+  }, { once: true });
   v.addEventListener("ended", finish);
-  v.addEventListener("error", finish);
-  var p = v.play();
-  if (p && p.catch) p.catch(finish);          // autoplay refused → straight to the cover
-  setTimeout(function () { if (v.readyState < 2 && !done) finish(); }, 8000);   // too slow to load
+  v.addEventListener("error", function () { if (state === "playing") finish(); else giveUp(); });
+  timer = setTimeout(giveUp, 20000);        // still not ready after 20 s: keep the cover
+  v.preload = "auto";
+  v.src = "assets/video/step-hero.mp4?v=4";   // ?v= busts the old 12 MB copy from caches
+  v.load();
 })();
 
 /* ---------- cover photos: every 10 seconds slide to the next; after the third, back to the first ---------- */
