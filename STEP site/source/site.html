@@ -2013,6 +2013,7 @@
 <script src="capstone-data.js"></script>
 <script src="panelplan-data.js"></script>
 <script src="panelsheets-data.js"></script>
+<script src="scoresheets-data.js"></script>
 <script src="mentorreports-data.js"></script>
 <script src="mentorreport-pdf.js"></script>
 <script src="articles-data.js"></script>
@@ -5897,6 +5898,7 @@ document.getElementById("fa-spec").innerHTML = `
 /* ---------- the curriculum, with what is done ---------- */
 (function () {
   const SCH = window.STEP_SCHEDULE;
+  function drawCurriculum() {
   const rows = F.sessions.slice().sort((a, b) => a.week - b.week || (a.special ? 1 : -1));
   document.getElementById("curr").innerHTML = rows.map(s => {
     const state = s.week < CUR ? "done" : s.week === CUR ? "now" : "next";
@@ -5922,6 +5924,11 @@ document.getElementById("fa-spec").innerHTML = `
       </div>
     </div>`;
   }).join("");
+  if (window.__stepObserve) window.__stepObserve(document.getElementById("curr"));
+  }
+  drawCurriculum();
+  /* a score sheet saved from the tech console replaces the built-in one */
+  window.addEventListener("stephub_scoresheets", drawCurriculum);
 })();
 
 /* ---------- posting a deck ----------
@@ -7335,6 +7342,8 @@ function initials(n) {
   }
 
   selS.addEventListener("change", () => load(selN.value));
+  /* criteria saved from the tech console: redraw the sheet on screen (marks are kept by position) */
+  window.addEventListener("stephub_scoresheets", () => { if (S) load(selN.value); });
   selP.addEventListener("change", () => load(null));
   selN.addEventListener("change", openSheet);
 

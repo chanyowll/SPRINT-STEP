@@ -290,6 +290,7 @@ page = f"""<!doctype html>
 <script src="capstone-data.js"></script>
 <script src="panelplan-data.js"></script>
 <script src="panelsheets-data.js"></script>
+<script src="scoresheets-data.js"></script>
 <script src="mentorreports-data.js"></script>
 <script src="mentorreport-pdf.js"></script>
 <script src="articles-data.js"></script>

@@ -262,6 +262,22 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .pb-rule { display: flex; align-items: center; gap: 14px; border: 1px solid #e2a9ab; background: var(--bad-2); color: var(--bad);
   border-radius: 8px; padding: 10px 14px; margin-bottom: 14px; }
 .pb-rule[hidden] { display: none; }
+/* score sheet editor */
+.ss-rows { display: flex; flex-direction: column; gap: 8px; }
+.ss-row { display: grid; grid-template-columns: 28px minmax(0,1fr) 96px auto; gap: 10px; align-items: start; padding: 10px 12px;
+          border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+.ss-row .n { font-weight: 700; color: var(--ink-soft); padding-top: 8px; text-align: center; }
+.ss-row textarea.in { width: 100%; resize: vertical; min-height: 40px; font: inherit; line-height: 1.35; }
+.ss-row input.hint { margin-top: 6px; font-size: 13px; }
+.ss-row .wt { display: flex; align-items: center; gap: 4px; padding-top: 2px; }
+.ss-row .wt input { width: 64px; text-align: right; }
+.ss-row .ops { display: flex; gap: 4px; padding-top: 2px; }
+.ss-row .ops button { width: 30px; height: 30px; padding: 0; border: 1px solid var(--line); background: #fff; border-radius: 7px; cursor: pointer; color: var(--ink-soft); }
+.ss-row .ops button:hover { background: var(--bg); color: var(--ink); }
+.ss-row .ops button[disabled] { opacity: .35; cursor: default; }
+.ss-sum { font-weight: 700; } .ss-sum.ok { color: var(--ok); } .ss-sum.bad { color: var(--bad); }
+.ss-lock { border: 1px solid #e2a9ab; background: var(--bad-2); color: var(--bad); border-radius: 10px; padding: 10px 14px; font-size: 13.5px; }
+.ss-lock[hidden] { display: none; }
 .pb-rule div { flex: 1; display: grid; gap: 2px; }
 .pb-rule span { color: var(--ink-2); font-size: 13px; }
 .pb-rule .btn { flex: none; }
@@ -453,6 +469,30 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
             <button class="btn pri" id="pb-save">Save panels</button>
           </div>
         </div>
+
+        <!-- score sheet editor: the criteria a panel scores for a week -->
+        <div class="card" style="margin-top:24px" id="ss-card">
+          <header><h2>Score sheets</h2><span class="sub" id="ss-sub">What panelists score each week, and how much each point counts</span></header>
+          <div class="toolbar" style="padding:12px 16px 0">
+            <label class="field"><span>Week</span><select class="in" id="ss-week" style="width:320px"></select></label>
+            <span class="note" style="margin-left:auto;align-self:center;text-align:right" id="ss-src"></span>
+          </div>
+          <div style="padding:12px 16px 0">
+            <div class="ss-lock" id="ss-lock" hidden></div>
+          </div>
+          <div style="padding:12px 16px 4px">
+            <div class="ss-rows" id="ss-rows"></div>
+            <div style="margin-top:10px"><button class="btn sm" id="ss-add">+ Add a criterion</button></div>
+          </div>
+          <div class="foot">
+            <span class="note">Weights must add up to <b>100%</b>. Total: <span class="ss-sum" id="ss-sum">0%</span>
+              <span id="ss-msg" class="note"></span></span>
+            <span class="sp"></span>
+            <button class="btn" id="ss-builtin">Reset to built-in sheet</button>
+            <button class="btn" id="ss-undo">Undo changes</button>
+            <button class="btn pri" id="ss-save">Save score sheet</button>
+          </div>
+        </div>
       </section>
 
       <!-- ===================== 4. Announcements ===================== -->
@@ -577,6 +617,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 <script src="mock-data.js"></script>
 <script src="materials-data.js"></script>
 <script src="panelplan-data.js"></script>
+<script src="scoresheets-data.js"></script>
 <script src="announcements-data.js"></script>
 <script src="capstone-data.js"></script>
 <script src="articles-data.js"></script>
@@ -1428,6 +1469,108 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const list = data.filter(p => p.role === "mentor" || (p.roles || []).includes("mentor"))
       .map(p => ({ name: p.full_name, teams: [p.team_id].concat(p.teams || []).filter(Boolean) }));
     if (list.length) { setMentors(list); renderPB(); }
+  })();
+
+  /* ---------------- 3b. score sheets: what each week's panel scores ----------------
+     Edits the criteria for one week at a time. Nothing is saved until
+     "Save score sheet"; weights must add to 100. A week whose panel
+     sheets have already been saved is locked, because scores are stored
+     by criterion position and would no longer line up. ---------------- */
+  (function () {
+    const SS = () => window.STEP_SCORESHEETS;
+    const ssLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
+    const SESSIONS = () => ((M.faculty && M.faculty.sessions) || []).filter(s => s.week >= 2);
+    const sel = $("#ss-week"), rowsEl = $("#ss-rows"), sumEl = $("#ss-sum"), msgEl = $("#ss-msg"),
+          lockEl = $("#ss-lock"), srcEl = $("#ss-src");
+    if (!sel) return;
+    let rows = [], saved = [], locked = 0, busy = false;
+
+    const copy = a => JSON.parse(JSON.stringify((a || []).filter(c => !c.group).map(c => ({ label: c.label || "", hint: c.hint || "", weight: Number(c.weight) || 0 }))));
+    const total = () => rows.reduce((t, c) => t + (Number(c.weight) || 0), 0);
+    const dirty = () => JSON.stringify(rows) !== JSON.stringify(saved);
+
+    function fillWeeks() {
+      sel.innerHTML = SESSIONS().map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.short || s.title)}</option>`).join("");
+      const cur = SESSIONS().find(s => s.week === NOW) || SESSIONS()[0];
+      if (cur) sel.value = cur.code;
+    }
+    function paint() {
+      const live = !!SS() && ssLive();
+      rowsEl.innerHTML = rows.map((c, i) => `
+        <div class="ss-row" data-i="${i}">
+          <span class="n">${i + 1}</span>
+          <div>
+            <textarea class="in" rows="2" data-k="label" placeholder="What the panel is scoring — write it as a question, e.g. “Has the group identified a beachhead market?”">${esc(c.label)}</textarea>
+            <input class="in hint" data-k="hint" placeholder="Optional note to the panelist — what a strong answer looks like" value="${esc(c.hint)}">
+          </div>
+          <span class="wt"><input class="in" type="number" min="1" max="100" step="1" data-k="weight" value="${c.weight || ""}" aria-label="Weight, percent">%</span>
+          <span class="ops">
+            <button type="button" data-op="up" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
+            <button type="button" data-op="down" title="Move down" ${i === rows.length - 1 ? "disabled" : ""}>↓</button>
+            <button type="button" data-op="del" title="Remove">×</button>
+          </span>
+        </div>`).join("") || `<p class="note" style="margin:6px 0">No criteria yet — add the first one.</p>`;
+      const t = total();
+      sumEl.textContent = t + "%"; sumEl.className = "ss-sum " + (t === 100 ? "ok" : "bad");
+      const problems = SS() ? SS().validate(rows) : [];
+      const s = SESSIONS().find(x => x.code === sel.value) || {};
+      srcEl.innerHTML = s.sheet_custom ? "Saved from this console" : "Built-in sheet";
+      lockEl.hidden = !locked;
+      if (locked) lockEl.textContent = locked + " panel sheet" + (locked === 1 ? " has" : "s have") + " already been saved for this week, so its criteria can no longer change — the scores on them are stored by position. Clear those sheets first if the criteria really must change.";
+      const can = live && !locked && !busy;
+      $("#ss-save").disabled = !can || !dirty() || problems.length > 0;
+      $("#ss-undo").disabled = !dirty() || busy;
+      $("#ss-builtin").disabled = !can || !s.sheet_custom;
+      $("#ss-add").disabled = !!locked || busy;
+      rowsEl.querySelectorAll("input, textarea, .ops button").forEach(el => { if (locked) el.disabled = true; });
+      msgEl.textContent = !live ? " · Sign in with a STEP team account to edit sheets."
+        : locked ? "" : dirty() ? (problems.length ? " · " + problems[0] : " · Not saved yet.") : "";
+    }
+    async function open() {
+      const s = SESSIONS().find(x => x.code === sel.value); if (!s) return;
+      saved = copy(s.assess); rows = copy(s.assess); locked = 0;
+      paint();
+      if (SS() && ssLive()) { locked = await SS().sheetsSaved(s.code); paint(); }
+    }
+    sel.addEventListener("change", () => { if (dirty() && !confirm("Leave this week and discard the unsaved changes?")) { sel.value = (SESSIONS().find(x => JSON.stringify(copy(x.assess)) === JSON.stringify(saved)) || {}).code || sel.value; return; } open(); });
+    rowsEl.addEventListener("input", e => {
+      const row = e.target.closest(".ss-row"); if (!row) return;
+      const i = +row.dataset.i, k = e.target.dataset.k; if (!k) return;
+      rows[i][k] = k === "weight" ? (e.target.value === "" ? 0 : Math.round(+e.target.value)) : e.target.value;
+      const t = total(); sumEl.textContent = t + "%"; sumEl.className = "ss-sum " + (t === 100 ? "ok" : "bad");
+      const problems = SS() ? SS().validate(rows) : [];
+      $("#ss-save").disabled = !(SS() && ssLive()) || !!locked || busy || !dirty() || problems.length > 0;
+      $("#ss-undo").disabled = !dirty();
+      msgEl.textContent = dirty() ? (problems.length ? " · " + problems[0] : " · Not saved yet.") : "";
+    });
+    rowsEl.addEventListener("click", e => {
+      const b = e.target.closest("[data-op]"); if (!b || b.disabled) return;
+      const i = +b.closest(".ss-row").dataset.i, op = b.dataset.op;
+      if (op === "del") { if (rows[i].label && !confirm("Remove criterion " + (i + 1) + "?")) return; rows.splice(i, 1); }
+      if (op === "up" && i > 0) rows.splice(i - 1, 0, rows.splice(i, 1)[0]);
+      if (op === "down" && i < rows.length - 1) rows.splice(i + 1, 0, rows.splice(i, 1)[0]);
+      paint();
+    });
+    $("#ss-add").addEventListener("click", () => { rows.push({ label: "", hint: "", weight: Math.max(0, 100 - total()) }); paint(); rowsEl.querySelector(".ss-row:last-child textarea").focus(); });
+    $("#ss-undo").addEventListener("click", () => { rows = copy(saved); paint(); });
+    $("#ss-save").addEventListener("click", async () => {
+      if (!SS() || busy) return;
+      busy = true; paint();
+      try { await SS().save(sel.value, rows); toast("Score sheet saved — panelists see it on the Panel page."); }
+      catch (e) { toast("Couldn't save: " + (e.message || e)); }
+      busy = false; open();
+    });
+    $("#ss-builtin").addEventListener("click", async () => {
+      if (!SS() || busy) return;
+      if (!confirm("Go back to the built-in sheet for " + sel.value + "? The saved criteria for this week will be removed.")) return;
+      busy = true; paint();
+      try { await SS().reset(sel.value); toast("Back to the built-in sheet."); }
+      catch (e) { toast("Couldn't reset: " + (e.message || e)); }
+      busy = false; open();
+    });
+    fillWeeks(); open();
+    window.addEventListener("stephub_scoresheets", () => { if (!dirty()) open(); });
+    window.addEventListener("stephub_auth_changed", () => open());
   })();
 
   /* ---------------- 4. announcements: the This Week board ---------------- */
