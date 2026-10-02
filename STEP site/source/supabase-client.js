@@ -63,6 +63,39 @@
     return { data, error };
   }
 
+  /** Change the signed-in user's password. The current password is checked
+      first (by signing in with it again), so a forgotten-unlocked laptop
+      cannot be used to take over an account. */
+  async function changePassword(currentPassword, newPassword) {
+    const sb = getClient();
+    if (!sb) return { error: { message: 'Not connected' } };
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user || !user.email) return { error: { message: 'You are not signed in.' } };
+    const check = await sb.auth.signInWithPassword({ email: user.email, password: currentPassword });
+    if (check.error) return { error: { message: 'The current password is not right.' } };
+    const { error } = await sb.auth.updateUser({ password: newPassword });
+    return { error };
+  }
+
+  /** Email a password-reset link. The link brings the person back to this
+      page, where a "set a new password" form opens. */
+  async function requestPasswordReset(email) {
+    const sb = getClient();
+    if (!sb) return { error: { message: 'Not connected' } };
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname,
+    });
+    return { error };
+  }
+
+  /** Set a new password after arriving from a reset link (no current password needed). */
+  async function setPasswordFromReset(newPassword) {
+    const sb = getClient();
+    if (!sb) return { error: { message: 'Not connected' } };
+    const { error } = await sb.auth.updateUser({ password: newPassword });
+    return { error };
+  }
+
   /** Sign out */
   async function signOut() {
     const sb = getClient();
@@ -170,6 +203,9 @@
     signIn,
     signUp,
     signOut,
+    changePassword,
+    requestPasswordReset,
+    setPasswordFromReset,
     signInWithGoogle,
     getCurrentUser,
     getSession,

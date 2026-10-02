@@ -1090,6 +1090,7 @@ window.MOCK = (function () {
     .replace(/[^A-Za-z ]/g, " ").trim().split(/\s+/).slice(0, 2)
     .map(w => w[0] ? w[0].toUpperCase() : "").join("") || "?";
 
+  let _recovery = null;                      // set while a password-reset link is being used
   function renderAuthModal() {
     let modal = document.getElementById("stephub-auth-modal");
     if (!modal) {
@@ -1112,7 +1113,18 @@ window.MOCK = (function () {
           <button class="auth-modal-close" aria-label="Close dialog" onclick="window.MOCK.closeAuthModal()">&times;</button>
         </div>
         <div class="auth-modal-body">
-          ${isLoggedIn && isLiveUser ? `
+          ${_recovery ? `
+            <!-- Arrived from a password-reset email: set the new password -->
+            <form id="recover-form" onsubmit="window.MOCK._doRecover(event)" style="display:flex;flex-direction:column;gap:12px;">
+              <p style="font-size:13.5px;color:var(--ink-soft);margin:0;">Choose a new password for <b>${_recovery.email || 'your account'}</b>. At least 8 characters.</p>
+              <div id="recover-msg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+              <label style="font-size:13px;font-weight:500;color:var(--navy);">New password
+                <input type="password" id="recover-new" required minlength="8" autocomplete="new-password" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+              <label style="font-size:13px;font-weight:500;color:var(--navy);">New password again
+                <input type="password" id="recover-new2" required minlength="8" autocomplete="new-password" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+              <button type="submit" class="btn solid" id="recover-btn" style="width:100%;margin-top:4px;">Save new password</button>
+            </form>
+          ` : isLoggedIn && isLiveUser ? `
             <!-- Signed-in state -->
             <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(46,125,50,.06);border-radius:12px;margin-bottom:var(--s4);">
               <span class="card-av" style="background:#2e7d32;width:44px;height:44px;font-size:16px;flex-shrink:0;">${curr.initials || '??'}</span>
@@ -1126,6 +1138,20 @@ window.MOCK = (function () {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:-2px;margin-right:6px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
               Sign Out
             </button>
+            <details id="pw-change" style="margin-top:16px;border-top:1px solid #e6ebf1;padding-top:12px;">
+              <summary style="cursor:pointer;font-weight:600;font-size:14px;color:var(--navy);">Change password</summary>
+              <p style="font-size:12.5px;color:var(--ink-soft);margin:8px 0 10px;">If you are still using the password the STEP team gave you, set your own here. At least 8 characters.</p>
+              <form id="pw-form" onsubmit="window.MOCK._doChangePassword(event)" style="display:flex;flex-direction:column;gap:10px;">
+                <div id="pw-msg" style="display:none;padding:9px 12px;border-radius:8px;font-size:13px;"></div>
+                <label style="font-size:13px;font-weight:500;color:var(--navy);">Current password
+                  <input type="password" id="pw-current" required autocomplete="current-password" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+                <label style="font-size:13px;font-weight:500;color:var(--navy);">New password
+                  <input type="password" id="pw-new" required minlength="8" autocomplete="new-password" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+                <label style="font-size:13px;font-weight:500;color:var(--navy);">New password again
+                  <input type="password" id="pw-new2" required minlength="8" autocomplete="new-password" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+                <button type="submit" class="btn solid" id="pw-btn" style="width:100%;margin-top:2px;">Save new password</button>
+              </form>
+            </details>
           ` : isLoggedIn && !isLiveUser ? `
             <!-- Mock signed-in state -->
             <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(46,125,50,.06);border-radius:12px;margin-bottom:var(--s4);">
@@ -1152,6 +1178,16 @@ window.MOCK = (function () {
               <button type="submit" class="btn solid" id="login-submit-btn" style="width:100%;margin-top:4px;">
                 Sign In
               </button>
+              <button type="button" class="auth-link" id="pw-forgot" onclick="window.MOCK._showForgot()"
+                      style="background:none;border:0;padding:4px 0 0;font:inherit;font-size:13px;color:var(--blue);cursor:pointer;text-align:left;text-decoration:underline;">Forgot your password?</button>
+            </form>
+            <form id="forgot-form" onsubmit="window.MOCK._doForgot(event)" style="display:none;flex-direction:column;gap:12px;">
+              <p style="font-size:13.5px;color:var(--ink-soft);margin:0;">Enter the email you signed up with. We will send a link that lets you set a new password.</p>
+              <div id="forgot-msg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+              <label style="font-size:13px;font-weight:500;color:var(--navy);">Email
+                <input type="email" id="forgot-email" required placeholder="you@example.com" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+              <button type="submit" class="btn solid" id="forgot-btn" style="width:100%;margin-top:4px;">Send reset link</button>
+              <button type="button" onclick="window.MOCK._showForgot(false)" style="background:none;border:0;padding:0;font:inherit;font-size:13px;color:var(--blue);cursor:pointer;text-decoration:underline;">Back to sign in</button>
             </form>
           `}
 
@@ -1306,6 +1342,69 @@ window.MOCK = (function () {
   }
 
   /* ── Real Supabase sign-in handler ── */
+  /* ---- passwords ---- */
+  const _note = (id, text, bad) => { const el = document.getElementById(id); if (!el) return;
+    el.textContent = text; el.style.display = text ? "block" : "none";
+    el.style.background = bad ? "rgba(198,40,40,.08)" : "rgba(46,125,50,.08)"; el.style.color = bad ? "#c62828" : "#2e7d32"; };
+  const _pwProblem = (a, b) => !a || a.length < 8 ? "Use at least 8 characters." : a !== b ? "The two new passwords do not match." : "";
+
+  async function _doChangePassword(e) {
+    e.preventDefault();
+    const cur = document.getElementById("pw-current").value, a = document.getElementById("pw-new").value, b = document.getElementById("pw-new2").value;
+    const btn = document.getElementById("pw-btn");
+    const bad = _pwProblem(a, b) || (a === cur ? "The new password is the same as the current one." : "");
+    if (bad) { _note("pw-msg", bad, true); return; }
+    if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) { _note("pw-msg", "Not connected — try again in a moment.", true); return; }
+    btn.disabled = true; btn.textContent = "Saving…"; _note("pw-msg", "");
+    const { error } = await window.STEP_SUPABASE.changePassword(cur, a);
+    btn.disabled = false; btn.textContent = "Save new password";
+    if (error) { _note("pw-msg", error.message || "Couldn't change the password.", true); return; }
+    document.getElementById("pw-form").reset();
+    _note("pw-msg", "Password changed. Use the new one next time you sign in.");
+  }
+  function _showForgot(on) {
+    const login = document.getElementById("stephub-login-form"), forgot = document.getElementById("forgot-form");
+    if (!login || !forgot) return;
+    const show = on !== false;
+    login.style.display = show ? "none" : "flex"; forgot.style.display = show ? "flex" : "none";
+    if (show) { const em = document.getElementById("login-email"); if (em && em.value) document.getElementById("forgot-email").value = em.value; document.getElementById("forgot-email").focus(); }
+  }
+  async function _doForgot(e) {
+    e.preventDefault();
+    const email = document.getElementById("forgot-email").value.trim(), btn = document.getElementById("forgot-btn");
+    if (!email) return;
+    if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) { _note("forgot-msg", "Not connected — try again in a moment.", true); return; }
+    btn.disabled = true; btn.textContent = "Sending…"; _note("forgot-msg", "");
+    const { error } = await window.STEP_SUPABASE.requestPasswordReset(email);
+    btn.disabled = false; btn.textContent = "Send reset link";
+    if (error) { _note("forgot-msg", error.message || "Couldn't send the link.", true); return; }
+    _note("forgot-msg", "If " + email + " has a STEP account, a reset link is on its way. Check your inbox (and spam) and open the link on this device.");
+  }
+  async function _doRecover(e) {
+    e.preventDefault();
+    const a = document.getElementById("recover-new").value, b = document.getElementById("recover-new2").value, btn = document.getElementById("recover-btn");
+    const bad = _pwProblem(a, b); if (bad) { _note("recover-msg", bad, true); return; }
+    btn.disabled = true; btn.textContent = "Saving…"; _note("recover-msg", "");
+    const { error } = await window.STEP_SUPABASE.setPasswordFromReset(a);
+    btn.disabled = false; btn.textContent = "Save new password";
+    if (error) { _note("recover-msg", error.message || "Couldn't set the password.", true); return; }
+    _recovery = null;
+    _note("recover-msg", "Password saved — you are signed in.");
+    setTimeout(() => { closeAuthModal(); try { history.replaceState(null, "", location.pathname + location.search); } catch (x) {} location.reload(); }, 900);
+  }
+  /* a reset link lands here with a recovery session: open the "new password" form straight away */
+  (function watchRecovery() {
+    const fromHash = /(^|[#&])type=recovery(&|$)/.test(location.hash || "");
+    function open(email) { _recovery = { email: email || "" }; renderAuthModal(); openAuthModal(); }
+    if (fromHash) {
+      const tryOpen = () => { if (window.STEP_SUPABASE && window.STEP_SUPABASE.isOnline()) {
+        Promise.resolve(window.STEP_SUPABASE.getSession()).then(r => { const u = r && r.data && r.data.session && r.data.session.user; open(u ? u.email : ""); }).catch(() => open("")); } else setTimeout(tryOpen, 300); };
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", tryOpen); else tryOpen();
+    }
+    const hook = () => { try { window.STEP_SUPABASE.onAuthChange((event, profile) => { if (event === "PASSWORD_RECOVERY") open(profile && profile.email); }); } catch (x) {} };
+    if (window.STEP_SUPABASE && window.STEP_SUPABASE.isOnline()) hook(); else document.addEventListener("DOMContentLoaded", () => { if (window.STEP_SUPABASE && window.STEP_SUPABASE.isOnline()) hook(); });
+  })();
+
   async function _doSignIn(e) {
     e.preventDefault();
     const email = document.getElementById("login-email").value.trim();
@@ -1485,6 +1584,7 @@ window.MOCK = (function () {
     get teamWork() { return getTeamWork(); },
     get capstone() { return getCapstone(); },
     openAuthModal,
+    _doChangePassword, _showForgot, _doForgot, _doRecover,
     closeAuthModal,
     /* true only for a real STEP account — the page then shows real data */
     isLiveUser: () => !!_liveUser,
