@@ -81,7 +81,7 @@
       <div class="hs" style="background-image:url('assets/photos/hero-group.jpg')"></div>
     </div>
   </div>
-  <video class="hero-video" id="hero-video" muted playsinline preload="none" aria-hidden="true" tabindex="-1" hidden></video>
+  <video class="hero-video" id="hero-video" muted playsinline preload="auto" aria-hidden="true" tabindex="-1"></video>
   <div class="wrap">
     <h1 class="hero-statement">Turning<br> Filipino<br> researches<br> into<br> <em>business</em></h1>
   </div>
@@ -2186,54 +2186,62 @@ try {
 })();
 
 /* ---------- the cover film: plays on every load of the home page, then the cover returns ----------
-   The cover photos stay on screen while the film loads; the film only
-   takes over once the browser has enough of it to play through, so a
-   slow connection sees the cover, not a black box. If the film cannot
-   load in time, or the device refuses to autoplay (iPhone Low Power
-   Mode, data saver), the cover simply stays. ---------- */
+   The film starts loading and playing at once but stays invisible behind the
+   cover photos until the browser is really showing frames ("playing"); then
+   it takes over. Starting playback right away is what makes phones (iPhone
+   Safari in particular) fetch the file at all — they ignore preload hints.
+   If nothing is playing after 20 s, or the device refuses to autoplay
+   (Low Power Mode, data saver), the cover simply stays. Laptops and sharp
+   phone screens get the 1080p film; small low-density screens the 720p one. ---------- */
 (function () {
   var hero = document.getElementById("hero"), v = document.getElementById("hero-video");
   if (!hero || !v) return;
   var still = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   if (still) return;
-  if (navigator.connection && navigator.connection.saveData) return;      // data saver on: no film
+  var net = navigator.connection || {};
+  if (net.saveData || net.effectiveType === "slow-2g" || net.effectiveType === "2g") return;   // no film on data saver / very slow links
 
-  var state = "loading", timer = null;
+  var dpr = window.devicePixelRatio || 1;
+  var devicePx = Math.max(hero.offsetWidth || 0, window.innerWidth || 0) * dpr;
+  var hd = devicePx >= 1280 && net.effectiveType !== "3g";
+  var file = hd ? "assets/video/step-hero.mp4?v=5" : "assets/video/step-hero-720.mp4?v=5";
+
+  var state = "loading", timer = null, stall = null;
   function dispose() {
     try { v.pause(); } catch (e) {}
-    v.removeAttribute("src"); v.load(); v.hidden = true;
+    v.removeAttribute("src"); try { v.load(); } catch (e) {}
   }
-  function giveUp() {                       // never started: the cover was showing all along
+  function giveUp() {                       // never showed: the cover was on screen all along
     if (state !== "loading") return;
     state = "off"; clearTimeout(timer); dispose();
   }
-  function finish() {                       // played: slide the film off, reveal the cover
+  function finish() {                       // shown: slide the film off, reveal the cover
     if (state !== "playing") return;
-    state = "done";
+    state = "done"; clearTimeout(stall);
     hero.classList.add("intro-out");
     hero.classList.remove("intro");
     setTimeout(function () { dispose(); hero.classList.remove("intro-out"); }, 1100);
   }
-  function start() {
+  function reveal() {                       // frames are rendering: bring the film in front
     if (state !== "loading") return;
-    clearTimeout(timer);
-    v.hidden = false;
+    state = "playing"; clearTimeout(timer);
     hero.classList.add("intro");
-    var p = v.play();
-    var ok = function () { state = "playing"; };
-    var no = function () { hero.classList.remove("intro"); giveUp(); };
-    if (p && p.then) p.then(ok, no); else ok();
   }
-  v.addEventListener("canplaythrough", start, { once: true });
-  v.addEventListener("canplay", function () {      // Safari may never say "canplaythrough": start a moment after "canplay"
-    setTimeout(start, 2500);
-  }, { once: true });
+  v.addEventListener("playing", function () { clearTimeout(stall); reveal(); });
+  v.addEventListener("timeupdate", function () { if (v.currentTime > 0.05) { clearTimeout(stall); reveal(); } });
+  v.addEventListener("waiting", function () {                 // buffering mid-film: after 4 s hand back to the cover
+    if (state !== "playing") return;
+    clearTimeout(stall); stall = setTimeout(finish, 4000);
+  });
   v.addEventListener("ended", finish);
   v.addEventListener("error", function () { if (state === "playing") finish(); else giveUp(); });
-  timer = setTimeout(giveUp, 20000);        // still not ready after 20 s: keep the cover
-  v.preload = "auto";
-  v.src = "assets/video/step-hero.mp4?v=4";   // ?v= busts the old 12 MB copy from caches
+  timer = setTimeout(giveUp, 20000);        // nothing playing after 20 s: keep the cover
+
+  v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = "auto";
+  v.src = file;
   v.load();
+  var p = v.play();
+  if (p && p.catch) p.catch(function () { giveUp(); });     // autoplay refused: the cover stays
 })();
 
 /* ---------- cover photos: every 10 seconds slide to the next; after the third, back to the first ---------- */
