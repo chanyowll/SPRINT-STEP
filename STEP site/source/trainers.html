@@ -1784,7 +1784,7 @@ function initials(n) {
       const crit = body.querySelector(".crit");
       const was = crit ? crit.getAttribute("style") : null;
       if (crit) crit.style.cssText = "height:0;padding-top:0;padding-bottom:0;overflow:hidden";
-      const h = Math.ceil(body.getBoundingClientRect().height);
+      const h = Math.ceil(body.offsetHeight);          // layout px (the page may be drawn at 80%)
       if (crit) { if (was == null) crit.removeAttribute("style"); else crit.setAttribute("style", was); }
       body.style.height = Math.max(h, 420) + "px";
       pinnedFor = want;

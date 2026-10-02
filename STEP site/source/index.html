@@ -837,9 +837,10 @@
     if (!wr.width) return;                                   // home page not showing
     var range = document.createRange(); range.selectNodeContents(n);
     var nl = range.getBoundingClientRect().left;
-    var base = wr.left + parseFloat(getComputedStyle(wrap).paddingLeft || 0);
+    var z = (document.body.getBoundingClientRect().width / document.body.offsetWidth) || 1;   // screen px -> layout px (the page is drawn at 80% on laptops)
+    var base = wr.left + parseFloat(getComputedStyle(wrap).paddingLeft || 0) * z;
     var fs = parseFloat(getComputedStyle(h).fontSize) || 0;
-    h.style.marginLeft = (nl - base - fs * 0.04).toFixed(1) + "px";   // 0.04em = the letter's own side gap
+    h.style.marginLeft = ((nl - base) / z - fs * 0.04).toFixed(1) + "px";   // 0.04em = the letter's own side gap
   }
   window.addEventListener("resize", align);
   window.addEventListener("hashchange", function () { setTimeout(align, 60); });

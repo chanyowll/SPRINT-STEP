@@ -2323,9 +2323,10 @@ try {
     if (!wr.width) return;                                   // home page not showing
     var range = document.createRange(); range.selectNodeContents(n);
     var nl = range.getBoundingClientRect().left;
-    var base = wr.left + parseFloat(getComputedStyle(wrap).paddingLeft || 0);
+    var z = (document.body.getBoundingClientRect().width / document.body.offsetWidth) || 1;   // screen px -> layout px (the page is drawn at 80% on laptops)
+    var base = wr.left + parseFloat(getComputedStyle(wrap).paddingLeft || 0) * z;
     var fs = parseFloat(getComputedStyle(h).fontSize) || 0;
-    h.style.marginLeft = (nl - base - fs * 0.04).toFixed(1) + "px";   // 0.04em = the letter's own side gap
+    h.style.marginLeft = ((nl - base) / z - fs * 0.04).toFixed(1) + "px";   // 0.04em = the letter's own side gap
   }
   window.addEventListener("resize", align);
   window.addEventListener("hashchange", function () { setTimeout(align, 60); });
@@ -2414,8 +2415,7 @@ const daysAway = iso => {
       busy = true;
       tpT.style.fontSize = "";                       // back to the stylesheet size
       let px = parseFloat(getComputedStyle(tpT).fontSize);
-      const lines = () => Math.round(tpT.getBoundingClientRect().height /
-                                     parseFloat(getComputedStyle(tpT).lineHeight));
+      const lines = () => Math.round(tpT.offsetHeight / parseFloat(getComputedStyle(tpT).lineHeight));
       while (px > MIN_PX && (lines() > MAX_LINES || tpT.scrollWidth > tpT.clientWidth + 1)) {
         px -= 2;
         tpT.style.fontSize = px + "px";
@@ -2863,6 +2863,10 @@ const daysAway = iso => {
   }
 
   /* pointer-based reordering — works with a mouse and with a finger */
+  /* the page is drawn at 80% on laptops (body { zoom }), so getBoundingClientRect() and
+   pointer positions are in screen pixels while offsetWidth/style values are in layout
+   pixels; this is the factor between the two (1 where no zoom applies) */
+  const ZF = () => (document.body.getBoundingClientRect().width / document.body.offsetWidth) || 1;
   let drag = null;
   list.addEventListener("pointerdown", e => {
     if (locked) return;
@@ -2871,9 +2875,10 @@ const daysAway = iso => {
     drag = { from: +card.dataset.i, dx: e.clientX - rect.left, dy: e.clientY - rect.top, w: rect.width };
     const ghost = card.cloneNode(true);
     ghost.classList.add("ghost");
-    ghost.style.width = rect.width + "px";
-    ghost.style.left = rect.left + "px";
-    ghost.style.top = rect.top + "px";
+    const z = ZF();
+    ghost.style.width = rect.width / z + "px";
+    ghost.style.left = rect.left / z + "px";
+    ghost.style.top = rect.top / z + "px";
     document.body.appendChild(ghost);
     drag.ghost = ghost;
     card.classList.add("dragging");
@@ -2882,8 +2887,9 @@ const daysAway = iso => {
   list.addEventListener("pointermove", e => {
     if (!drag) return;
     e.preventDefault();
-    drag.ghost.style.left = (e.clientX - drag.dx) + "px";
-    drag.ghost.style.top = (e.clientY - drag.dy) + "px";
+    const z = ZF();
+    drag.ghost.style.left = (e.clientX - drag.dx) / z + "px";
+    drag.ghost.style.top = (e.clientY - drag.dy) / z + "px";
     const cards = [...list.querySelectorAll(".step-card")];
     const over = cards.find(c => {
       const r = c.getBoundingClientRect();
@@ -3201,7 +3207,9 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     menu.innerHTML = optionsFor(m).map(o => `<button type="button" role="menuitem" data-act="${o.k}"${o.danger ? ' class="danger"' : ""}>${o.label}</button>`).join("");
     menu.hidden = false;
     btn.setAttribute("aria-expanded", "true");
-    const r = btn.getBoundingClientRect(), rr = room.getBoundingClientRect();
+    const z = (document.body.getBoundingClientRect().width / document.body.offsetWidth) || 1;   // screen px -> layout px (see the drag code)
+    const rb = btn.getBoundingClientRect(), rrb = room.getBoundingClientRect();
+    const r = { right: rb.right / z, bottom: rb.bottom / z, top: rb.top / z }, rr = { left: rrb.left / z, top: rrb.top / z, width: rrb.width / z, height: rrb.height / z };
     const left = Math.min(r.right - rr.left - menu.offsetWidth, rr.width - menu.offsetWidth - 8);
     let top = r.bottom - rr.top + 4;
     if (top + menu.offsetHeight > rr.height - 8) top = r.top - rr.top - menu.offsetHeight - 4;   // open upwards near the bottom
@@ -3882,7 +3890,8 @@ window.__renderMyTeam = function(targetTeamId) {
       const el = e.target.closest(".radar-pt"); if (!el || !rGeo) return;
       const o = O[+el.dataset.i], [x, y] = rGeo.pt(+el.dataset.i, rGeo.rOf(o.score));
       const box = rWrap.getBoundingClientRect(), svg = rWrap.querySelector("svg").getBoundingClientRect();
-      tipAt(rTip, rWrap, svg.left - box.left + x, svg.top - box.top + y,
+      const z = (document.body.getBoundingClientRect().width / document.body.offsetWidth) || 1;   // screen px -> layout px
+      tipAt(rTip, rWrap, (svg.left - box.left) / z + x, (svg.top - box.top) / z + y,
         `<b>Week ${o.week}</b>${esc(o.full)}<br>
          <span class="sc">${fx2(o.score)} / 4.00</span> · Panel ${o.panel}`);
     });
@@ -7117,7 +7126,7 @@ function initials(n) {
       const crit = body.querySelector(".crit");
       const was = crit ? crit.getAttribute("style") : null;
       if (crit) crit.style.cssText = "height:0;padding-top:0;padding-bottom:0;overflow:hidden";
-      const h = Math.ceil(body.getBoundingClientRect().height);
+      const h = Math.ceil(body.offsetHeight);          // layout px (the page may be drawn at 80%)
       if (crit) { if (was == null) crit.removeAttribute("style"); else crit.setAttribute("style", was); }
       body.style.height = Math.max(h, 420) + "px";
       pinnedFor = want;

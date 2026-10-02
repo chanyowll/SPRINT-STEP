@@ -748,7 +748,8 @@ window.__renderMyTeam = function(targetTeamId) {
       const el = e.target.closest(".radar-pt"); if (!el || !rGeo) return;
       const o = O[+el.dataset.i], [x, y] = rGeo.pt(+el.dataset.i, rGeo.rOf(o.score));
       const box = rWrap.getBoundingClientRect(), svg = rWrap.querySelector("svg").getBoundingClientRect();
-      tipAt(rTip, rWrap, svg.left - box.left + x, svg.top - box.top + y,
+      const z = (document.body.getBoundingClientRect().width / document.body.offsetWidth) || 1;   // screen px -> layout px
+      tipAt(rTip, rWrap, (svg.left - box.left) / z + x, (svg.top - box.top) / z + y,
         `<b>Week ${o.week}</b>${esc(o.full)}<br>
          <span class="sc">${fx2(o.score)} / 4.00</span> · Panel ${o.panel}`);
     });
