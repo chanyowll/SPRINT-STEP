@@ -4019,7 +4019,7 @@ main.page.stack > .game-sec { margin-top: 72px; }
    which is watched, on a dark panel that looks like a player; and the files,
    which are kept, in a plain list with a download on every row.
    ========================= */
-.matwrap { display: grid; grid-template-columns: minmax(0,.95fr) minmax(0,1.1fr); gap: var(--s5); align-items: start; }
+.matwrap { display: grid; grid-template-columns: minmax(0,1.45fr) minmax(0,1fr); gap: var(--s5); align-items: start; }
 @media (max-width: 900px) { .matwrap { grid-template-columns: minmax(0,1fr); } }
 
 .replay { position: relative; overflow: hidden; border-radius: var(--r-lg); color: #fff;
