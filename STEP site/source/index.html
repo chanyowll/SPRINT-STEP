@@ -702,11 +702,16 @@
 /* ---------- the cover film: plays on every load of the home page, then the cover returns ----------
    The film starts loading and playing at once but stays invisible behind the
    cover photos until the browser is really showing frames ("playing"); then
-   it takes over. Starting playback right away is what makes phones (iPhone
-   Safari in particular) fetch the file at all — they ignore preload hints.
-   If nothing is playing after 20 s, or the device refuses to autoplay
-   (Low Power Mode, data saver), the cover simply stays. Laptops and sharp
-   phone screens get the 1080p film; small low-density screens the 720p one. ---------- */
+   it takes over. Starting playback right away is what makes phones fetch the
+   file at all — they ignore preload hints.
+   Browsers refuse to start a video in a tab that is not in front (opened in
+   the background, or the visitor switched away while the page loaded). That
+   refusal is not final: the film is kept and tried again the moment the tab
+   is shown or the visitor touches the page, as long as they are still at the
+   top. Only when nothing has played after 20 s of the tab being visible, or
+   the device refuses autoplay outright (Low Power Mode, data saver), does
+   the cover simply stay. Laptops and sharp phone screens get the 1080p film;
+   small low-density screens the 720p one. ---------- */
 (function () {
   var hero = document.getElementById("hero"), v = document.getElementById("hero-video");
   if (!hero || !v) return;
@@ -720,42 +725,80 @@
   var hd = devicePx >= 1280 && net.effectiveType !== "3g";
   var file = hd ? "assets/video/step-hero.mp4?v=5" : "assets/video/step-hero-720.mp4?v=5";
 
-  var state = "loading", timer = null, stall = null;
+  var state = "loading", timer = null, stall = null, tries = 0;
+  var diag = window.STEP_FILM = { state: state, file: hd ? "1080p" : "720p", notes: [] };
+  function note(s) { diag.notes.push(Math.round(performance.now()) + "ms " + s); diag.state = state; }
+
   function dispose() {
     try { v.pause(); } catch (e) {}
     v.removeAttribute("src"); try { v.load(); } catch (e) {}
   }
-  function giveUp() {                       // never showed: the cover was on screen all along
+  function giveUp(why) {                    // never showed: the cover was on screen all along
     if (state !== "loading") return;
-    state = "off"; clearTimeout(timer); dispose();
+    state = "off"; note("gave up: " + why); clearTimeout(timer); dispose();
   }
-  function finish() {                       // shown: slide the film off, reveal the cover
+  function finish(why) {                    // shown: slide the film off, reveal the cover
     if (state !== "playing") return;
-    state = "done"; clearTimeout(stall);
+    state = "done"; note("finished: " + why); clearTimeout(stall);
     hero.classList.add("intro-out");
     hero.classList.remove("intro");
     setTimeout(function () { dispose(); hero.classList.remove("intro-out"); }, 1100);
   }
   function reveal() {                       // frames are rendering: bring the film in front
     if (state !== "loading") return;
-    state = "playing"; clearTimeout(timer);
+    state = "playing"; note("playing"); clearTimeout(timer);
     hero.classList.add("intro");
   }
+  function atTop() { return (window.scrollY || 0) < (hero.offsetHeight || 600) * 0.5; }
+  function armTimer() {                     // 20 s of visible waiting without frames: keep the cover
+    clearTimeout(timer);
+    if (state === "loading" && document.visibilityState !== "hidden") timer = setTimeout(function () { giveUp("20 s without playback"); }, 20000);
+  }
+  function attempt(why) {
+    if (state !== "loading") return;
+    if (!atTop()) { giveUp("visitor already scrolled"); return; }
+    tries++; note("play() " + why);
+    armTimer();
+    var p = v.play();
+    if (p && p.then) p.then(function () { note("play() ok"); }, function (e) {
+      var msg = (e && e.name) + ": " + (e && e.message);
+      note("play() refused — " + msg);
+      if (state !== "loading") return;
+      // NotAllowedError: autoplay is blocked until the visitor touches the page. AbortError: the
+      // tab was in the background. Either way, keep the film and try again when things change.
+      if (document.visibilityState === "hidden") { clearTimeout(timer); return; }   // wait for the tab to be shown
+      if (tries >= 3) giveUp("refused " + tries + " times");
+    });
+  }
+  function resume() {                       // tab shown again
+    if (state === "loading") attempt("tab shown");
+    else if (state === "playing" && v.paused && !v.ended) { v.play().catch(function () { finish("could not resume"); }); }
+  }
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "visible") resume();
+    else if (state === "loading") clearTimeout(timer);        // do not count hidden time against the 20 s
+  });
+  ["pointerdown", "keydown", "touchstart"].forEach(function (ev) {
+    window.addEventListener(ev, function () { if (state === "loading" && v.paused) attempt("after a " + ev); }, { passive: true });
+  });
+
   v.addEventListener("playing", function () { clearTimeout(stall); reveal(); });
   v.addEventListener("timeupdate", function () { if (v.currentTime > 0.05) { clearTimeout(stall); reveal(); } });
   v.addEventListener("waiting", function () {                 // buffering mid-film: after 4 s hand back to the cover
     if (state !== "playing") return;
-    clearTimeout(stall); stall = setTimeout(finish, 4000);
+    clearTimeout(stall); stall = setTimeout(function () { finish("stalled 4 s"); }, 4000);
   });
-  v.addEventListener("ended", finish);
-  v.addEventListener("error", function () { if (state === "playing") finish(); else giveUp(); });
-  timer = setTimeout(giveUp, 20000);        // nothing playing after 20 s: keep the cover
+  v.addEventListener("ended", function () { finish("ended"); });
+  v.addEventListener("error", function () {
+    var code = v.error ? v.error.code : "?";
+    if (state === "playing") finish("media error " + code); else giveUp("media error " + code);
+  });
 
   v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = "auto";
   v.src = file;
   v.load();
-  var p = v.play();
-  if (p && p.catch) p.catch(function () { giveUp(); });     // autoplay refused: the cover stays
+  if (document.visibilityState === "hidden") { note("loaded in a background tab; waiting"); }
+  else attempt("on load");
 })();
 
 /* ---------- cover photos: every 10 seconds slide to the next; after the third, back to the first ---------- */
