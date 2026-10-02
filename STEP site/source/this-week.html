@@ -449,15 +449,17 @@ const daysAway = iso => {
     /* a link from Drive, YouTube or Vimeo plays in their own player here;
        any other link opens in a new tab */
     const embed = v.link ? embedOf(v.link) : null;
-    /* Drive's player carries an "open in new window" button in its top-right corner that
-       leads to the file page and its download option, and it cannot be switched off. The
-       screen is therefore given a black band of BAND px above and below the picture (Drive
-       centres the picture in its frame), and a black patch the size of the top band covers
-       the button: black on black, so nothing shows, and the picture sits in the middle with
-       the player's controls in the band underneath. */
-    const drive = !!embed && /drive\.google\.com/.test(embed), BAND = 72;
+    /* Drive's player carries an "open in new window" button in its top-right corner (a
+       40px button at 12px from the top) that leads to the file page and its download
+       option, and it cannot be switched off. The screen is therefore given a band of BAND px
+       above and below the picture (Drive centres the picture in its frame): the caption
+       sits in the top band as a title bar, covering the button, and the player's own
+       controls appear in the band underneath. */
+    const drive = !!embed && /drive\.google\.com/.test(embed), BAND = 56;
     const frameStyle = "position:absolute;inset:0;width:100%;height:100%;border:0";
-    const patch = drive ? `<div aria-hidden="true" style="position:absolute;top:0;right:0;width:96px;height:${BAND}px;background:#000;z-index:2"></div>` : "";
+    const caption = `<span class="kick">Session replay</span><b>${esc(v.title || ("Week " + T.week + " · " + T.short))}</b>`;
+    const meta = [on, v.duration ? v.duration + " long" : "", v.link ? "" : kb(v.size)].filter(Boolean).join(" · ");
+    const bar = drive ? `<div class="rp-bar" style="height:${BAND}px"><span class="rp-bar-t">${caption}</span><span class="meta">${meta}</span></div>` : "";
     const player = !v.link
       ? `<video controls controlsList="nodownload" disablepictureinpicture preload="metadata" playsinline src="${esc(v.url)}" aria-label="${label}"></video>`
       : embed
@@ -468,12 +470,11 @@ const daysAway = iso => {
     replay.className = "replay rp-live";
     replay.innerHTML = `
       <div class="rp-player"${embed ? (drive ? ' style="position:relative;overflow:hidden;height:0;padding-bottom:calc(56.25% + ' + (2 * BAND) + 'px)"'
-                                             : ' style="position:relative;aspect-ratio:16/9"') : ""}>${player}${patch}</div>
-      <div class="rp-cap">
-        <span class="kick">Session replay</span>
-        <h3>${esc(v.title || ("Week " + T.week + " · " + T.short))}</h3>
-        <p class="meta">${[on, v.duration ? v.duration + " long" : "", v.link ? "" : kb(v.size)].filter(Boolean).join(" · ")}</p>
-      </div>`;
+                                             : ' style="position:relative;aspect-ratio:16/9"') : ""}>${player}${bar}</div>
+      ${drive ? "" : `<div class="rp-cap">
+        ${caption.replace("<b>", "<h3>").replace("</b>", "</h3>")}
+        <p class="meta">${meta}</p>
+      </div>`}`;
   }
   paintReplayEmpty();
 
