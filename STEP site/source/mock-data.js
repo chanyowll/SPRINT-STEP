@@ -106,7 +106,7 @@ window.MOCK = (function () {
      table in the database */
   const modules = SCHED.weeks.map(w => ({
     code: w.code, week_no: w.week, title: w.title, short: w.short,
-    trainer: w.week === 0 ? "STEP Team" : "Trainer to be announced",
+    trainer: w.trainer || "Trainer to be announced",
   }));
 
   /* every dated session of the cycle, in calendar order */
@@ -119,7 +119,11 @@ window.MOCK = (function () {
   const announcements = [];          // the real ones live in the announcements table
 
   /* Panel score sheets by week, carried over from the STEP 2 sheets for the
-     same topic (criteria and weights unchanged). */
+     same topic (criteria and weights unchanged): W3 beachhead, W4 competitive
+     advantage, W5 business model validation, W6 finance (presented at the
+     checkpoint), W7 go-to-market, W12 Demo Day. Selling (W8), pitching (W9),
+     technology roadmapping (W10) and the FASTRAC workshop (W11) are new
+     topics whose sheets are still to come. */
   const SCORE_SHEETS = {
       W3: [
           { label: "Has the group identified 5 to 10 possible market opportunities?", weight: 25 },
@@ -128,42 +132,26 @@ window.MOCK = (function () {
           { label: "Has the group articulated a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas?", weight: 25 },
         ],
       W4: [
-          { label: "Has the group identified their beachhead market opportunity?", weight: 20 },
-          { label: "Has the group clearly defined their Value Proposition for the beachhead market?", weight: 20 },
-          { label: "Has the group estimated the market size for their beachhead market, including TAM, SAM, and SOM?", weight: 20 },
-          { label: "Has the group identified potential follow-on markets?", weight: 20 },
-          { label: "Has the group estimated the market size for each follow-on market, including TAM, SAM, and SOM?", weight: 20 },
-        ],
-      W5: [
-          { label: "Has the team clearly identified and detailed their product’s full life cycle use case, showing how it will be used from start to end?", weight: 30 },
-          { label: "How well did the team create a compelling customer pitch using either a concept board or a brochure, demonstrating the value and appeal of their product?", weight: 30 },
-          { group: "Quantified Value Proposition (Total: 40%)" },
-          { label: "Relevant Metrics – Has the team identified 2–3 relevant and meaningful metrics for their customer?", weight: 10 },
-          { label: "Baseline vs. Improvement – Has the team estimated the baseline performance versus the expected improvement?", weight: 10 },
-          { label: "Benefit Calculation – Has the team accurately calculated the potential $ or % benefit to the customer?", weight: 10 },
-          { label: "One-Sentence Value Proposition – How well did the team draft a clear and persuasive one-sentence Quantified Value Proposition?", weight: 10 },
-        ],
-      W6: [
           { label: "Has the group identified their Competitive Advantage using the Competitive Profile Matrix?", weight: 35 },
           { label: "Is this sustainable? (VRIO)", weight: 35 },
           { label: "How was the group's Lean Canvas Model?", weight: 30 },
+        ],
+      W5: [
+          { label: "Has the group refined their Lean Canvas?", weight: 35 },
+          { label: "How's the group transitioned their Business Model Canvas from startup to scale-up?", weight: 35 },
+          { label: "Has the group reconfigured their Go-to-Market Gantt Chart for the weeks up to Demo Day, in preparation for their final pitch?", weight: 30 },
+        ],
+      W6: [
+          { label: "Ratio Interpretation and Application", weight: 25, hint: "Assess the accuracy and relevance of the financial ratios presented (e.g., liquidity, profitability, efficiency). Consider how well the presenters interpret the results and connect them to the financial health and operational performance of the business." },
+          { label: "Capital Budgeting Analysis", weight: 25, hint: "Review the clarity and correctness of capital budgeting calculations such as Payback Period and Internal Rate of Return (IRR). Examine whether the evaluation of investment feasibility is well-reasoned and aligned with the startup’s strategic goals." },
+          { label: "Cost-Benefit and Breakeven Analysis", weight: 25, hint: "Assess how effectively the cost-benefit analysis and breakeven points are calculated and explained. Consider whether the presenters clearly demonstrate the relationship between costs, revenues, and profitability thresholds." },
+          { label: "Analytical Reasoning and Financial Insight", weight: 25, hint: "Evaluate the depth of financial insight and analytical thinking reflected in the overall output. Consider how well the team uses data to draw conclusions, support decision-making, and reflect on the financial viability of the venture." },
         ],
       W7: [
           { label: "How well did the team develop their Strategy Canvas?", weight: 25 },
           { label: "How complete and coherent was the Lean Canvas?", weight: 25 },
           { label: "How effectively did the team identify, prioritize, and justify their chosen channels for reaching the target market (Bullseye Framework)?", weight: 25 },
           { label: "How clear, feasible, and well-structured was the team’s Go-to-Market Gantt Chart?", weight: 25 },
-        ],
-      W9: [
-          { label: "Has the group refined their Lean Canvas?", weight: 35 },
-          { label: "How's the group transitioned their Business Model Canvas from startup to scale-up?", weight: 35 },
-          { label: "Has the group reconfigured their Go-to-Market Gantt Chart for the weeks up to Demo Day, in preparation for their final pitch?", weight: 30 },
-        ],
-      W11: [
-          { label: "Ratio Interpretation and Application", weight: 25, hint: "Assess the accuracy and relevance of the financial ratios presented (e.g., liquidity, profitability, efficiency). Consider how well the presenters interpret the results and connect them to the financial health and operational performance of the business." },
-          { label: "Capital Budgeting Analysis", weight: 25, hint: "Review the clarity and correctness of capital budgeting calculations such as Payback Period and Internal Rate of Return (IRR). Examine whether the evaluation of investment feasibility is well-reasoned and aligned with the startup’s strategic goals." },
-          { label: "Cost-Benefit and Breakeven Analysis", weight: 25, hint: "Assess how effectively the cost-benefit analysis and breakeven points are calculated and explained. Consider whether the presenters clearly demonstrate the relationship between costs, revenues, and profitability thresholds." },
-          { label: "Analytical Reasoning and Financial Insight", weight: 25, hint: "Evaluate the depth of financial insight and analytical thinking reflected in the overall output. Consider how well the team uses data to draw conclusions, support decision-making, and reflect on the financial viability of the venture." },
         ],
       W12: [
           { label: "Market Opportunity", weight: 20, hint: "Market Potential or Market Size & Opportunity (Highlights scope, growth potential, and demand.)" },
@@ -172,7 +160,7 @@ window.MOCK = (function () {
           { label: "Pitching and Selling Skills", weight: 10, hint: "Pitch Delivery & Persuasion or Communication & Selling Ability (Captures clarity, confidence, storytelling, and salesmanship.)" },
           { label: "Team Composition", weight: 10, hint: "Team Strength or Team Capability (Assesses skill diversity, experience, commitment, and execution capacity.)" },
           { label: "Potential adopter/Nearness to commercialization", weight: 30, hint: "Readiness for Adoption or Market Entry (Evaluates the product’s maturity, user validation, adaptability, and potential for real-world implementation or commercialization.)" },
-        ]
+        ],
   };
 
   /* ---------------------------------------------------------------------
@@ -190,17 +178,17 @@ window.MOCK = (function () {
        announced" until it is. */
     trainers: [
       { id: "tr1", name: "Mr. Antonio P. Feria Jr.", short: "Sir Tony", initials: "AF", org: "Ateneo de Manila University",
-        focus: "Topics to be announced", modules: [] },
+        focus: "Beachhead market and customer segments", modules: ["W3"] },
       { id: "tr2", name: "Mr. George Omer Denis S. Quitoriano", short: "Sir GQ", initials: "GQ", org: "Ateneo de Manila University",
-        focus: "Topics to be announced", modules: [] },
+        focus: "Competitive advantage, go-to-market, selling and pitching", modules: ["W4", "W7", "W8", "W9"] },
       { id: "tr3", name: "Mr. Mike Tan", short: "Sir Mike", initials: "MT", org: "Ateneo de Manila University",
         focus: "Topics to be announced", modules: [] },
       { id: "tr4", name: "Engr. Benjamin N. Mirasol", short: "Sir Benjie", initials: "BM", org: "Ateneo de Manila University",
-        focus: "Topics to be announced", modules: [] },
+        focus: "Technology roadmapping", modules: ["W10"] },
       { id: "tr5", name: "Dr. Proceso “Jon” Fernandez", short: "Doc Jon", initials: "JF", org: "Ateneo de Manila University",
-        focus: "Topics to be announced", modules: [] },
+        focus: "Intellectual property, at the Mid-Program Checkpoint", modules: ["W6"] },
       { id: "tr6", name: "Mr. Steve Chavez", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
-        focus: "Topics to be announced", modules: [] },
+        focus: "FASTRAC proposal workshop", modules: ["W11"] },
     ],
 
     mentors: [
@@ -321,13 +309,13 @@ window.MOCK = (function () {
     /* The curriculum and the panel score sheets, one per program week.
        Titles, dates and modes come from the STEP 2.5 schedule. A week's
        score sheet carries over the STEP 2 criteria for the same topic;
-       W2, W8 and W10 are new topics whose score sheets are still to come
-       (criteria_pending), so the Panel page has nothing to score for them
-       yet. Demo Day (W12) uses the STEP 2 Demo Day sheet. */
+       W2, W8, W9, W10 and W11 have no sheet yet (criteria_pending), so the
+       Panel page has nothing to score for them until one is added. Demo
+       Day (W12) uses the STEP 2 Demo Day sheet. */
     sessions: SCHED.weeks.map(w => ({
       code: w.code, week: w.week, title: w.title, short: w.short, topic: w.topic,
       tag: w.week === 12 ? "Demo Day" : undefined,
-      trainer: w.week === 0 ? "STEP Team" : "Trainer to be announced",
+      trainer: w.trainer || "Trainer to be announced",
       mode: Array.from(new Set(w.sessions.filter(x => x.kind !== "holiday").map(x => x.mode))).join(" + "),
       coverage: w.sessions.map(x => SCHED.dayName(x.date).slice(0, 3) + (x.end ? "–" + SCHED.dayName(x.end).slice(0, 3) : "") + " " + SCHED.fmtRange(x.date, x.end) + " · " +
         ({ learning: x.adjusted ? "Adjusted learning session" : "Learning session", feedback: "Feedback session",
@@ -772,7 +760,7 @@ window.MOCK = (function () {
       },
       { n: 6, group: "The case", title: "Executive summary and startup background", kind: "prose",
         guide: "Briefly discusses what the proposal is about, founders, value proposition, and IP status.",
-        week: 5, revisit: 11, source: "Product Use Case Mapping", status: "submitted", limit: 200,
+        week: 3, revisit: 11, source: "Beachhead Market & Customer Segments", status: "submitted", limit: 200,
         draft: `${t.name} is a university spin-off from ${t.implementing_agency} founded by ${lead.name} and research co-inventors. The team developed ${t.technology_title}. Field validation in ${t.city} demonstrates substantial cost reduction and operational advantage over imported solutions. IP protection includes a Philippine patent / utility model application. Grant funds will deploy industrial-scale pilot units across target partner sites.`
       },
       /* Item 7 has three parts on DOST Form 2 — 7.1 Rationale/Significance
@@ -780,70 +768,70 @@ window.MOCK = (function () {
          7.3 Objectives (General and Specific) — so it is filled part by part. */
       { n: 7, group: "The case", title: "Introduction — rationale, scientific basis, objectives", kind: "intro",
         guide: "Rationale, scientific framework, and general and specific objectives.",
-        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked", limit: 300,
+        week: 11, source: "FASTRAC Proposal Workshop", status: "locked", limit: 300,
         value: { rationale: "", framework: "", general: "", specific: "" }
       },
       { n: 8, group: "The case", title: "Review of literature & Prior Art", kind: "prose",
         guide: "State of the art, prior art search, patent novelty, and freedom-to-operate.",
-        week: 10, source: "Team Organization, IP Strategy & Finance", status: "locked",
+        week: 6, source: "Mid-Program Checkpoint: IP & Finance", status: "locked",
         draft: `Prior art search with IPOPHL confirmed no blocking patents in the Philippines for ${t.short}'s specialized formulation and architecture. Prototype validation completed successfully in 2026.`
       },
       { n: 9, group: "The case", title: "Marketing and commercial viability", kind: "prose",
         guide: "Competitor matrix, production requirements, target distribution, sales forecast.",
-        week: 4, revisit: 7, source: "Market Size Estimation, Competitive Advantage and Go-to-Market Plan", status: "draft",
+        week: 4, revisit: 7, source: "Competitive Advantage and Go-to-Market Plan", status: "draft",
         draft: `Target beachhead market consists of industrial and municipal clients in ${t.region}. Competitive analysis indicates ${t.name} delivers 35% cost savings with domestic fabrication and immediate technical support.`
       },
       { n: 10, group: "Plan", title: "Methodology", kind: "prose",
         guide: "Parameters measured, experimental procedure, scale-up strategy.",
-        week: 9, source: "Business Model and Market Validation", status: "draft",
+        week: 5, source: "Business Model Validation", status: "draft",
         draft: `Phase 1 (Months 1–6): Pilot fabrication and QA calibration. Phase 2 (Months 7–18): Field deployment across 3 pilot sites in ${t.region}. Phase 3 (Months 19–24): Long-term durability and unit economics verification.`
       },
       { n: 11, group: "Plan", title: "Technology roadmap", kind: "prose",
         guide: "Milestones matching technology maturity to market validation.",
-        week: 11, source: "Financial Projection", status: "locked"
+        week: 10, source: "Technology Roadmapping", status: "locked"
       },
       { n: 12, group: "Plan", title: "Expected outputs (6Ps)", kind: "prose",
         guide: "Publication, Patent, Product, People, Place/Partnership, Policy.",
-        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
+        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 13, group: "Plan", title: "Potential outcomes", kind: "prose",
         guide: "Long-term results delivered 3 years after grant conclusion.",
-        week: 9, source: "Business Model and Market Validation", status: "submitted",
+        week: 5, source: "Business Model Validation", status: "submitted",
         draft: `Within three years: commercial deployment of ${t.short} across national facilities, generating sustained revenue, sustainable local manufacturing, and regional employment.`
       },
       { n: 14, group: "Plan", title: "Potential impacts (2Is)", kind: "prose",
         guide: "Social and economic impact dimensions.",
-        week: 11, source: "Financial Projection", status: "locked"
+        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 15, group: "Plan", title: "Target beneficiaries", kind: "prose",
         guide: "Direct and indirect beneficiary groups.",
-        week: 3, source: "Customer Segments & Beachhead Markets", status: "reviewed",
+        week: 3, source: "Beachhead Market & Customer Segments", status: "reviewed",
         draft: `Direct: Partner cooperatives, LGUs, and industrial facilities in ${t.region}. Indirect: Surrounding communities benefiting from improved safety, resource efficiency, and local technology self-reliance.`
       },
       { n: 16, group: "Plan", title: "Sustainability plan", kind: "prose",
         guide: "Post-grant commercial viability and revenue model.",
-        week: 10, source: "Team Organization, IP Strategy & Finance", status: "locked",
+        week: 6, source: "Mid-Program Checkpoint: IP & Finance", status: "locked",
         draft: `Revenue generated via equipment sales and service maintenance agreements. Registration as an approved DOST spin-off under the Philippine Innovative Startup Act.`
       },
       { n: 17, group: "Compliance", title: "Gender and Development (GAD) score", kind: "prose",
         guide: "GAD checklist score and gender equality integrations.",
-        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
+        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 18, group: "Compliance", title: "Limitations of the project", kind: "prose",
         guide: "Constraints and boundary limits of the project.",
-        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
+        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 19, group: "Compliance", title: "Risks, assumptions and risk management plan", kind: "prose",
         guide: "Key risks and mitigation measures.",
-        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
+        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 20, group: "Compliance", title: "Literature cited", kind: "prose",
         guide: "Full bibliography and technical citations.",
-        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked"
+        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 21, group: "Resources", title: "Personnel requirement", kind: "personnel",
         guide: "Team roles and percent time dedicated.",
-        week: 10, source: "Team Organization, IP Strategy & Finance", status: "locked",
+        week: 1, source: "Program Launch: Team Formation", status: "locked",
         value: p.members.map((m, idx) => ({
           position: `${m.name} (${m.role})`,
           pct: idx === 0 ? "50" : "40",
@@ -852,7 +840,7 @@ window.MOCK = (function () {
       },
       { n: 22, group: "Resources", title: "Budget by implementing agency", kind: "budget",
         guide: "Personnel Services, MOOE, and Equipment Outlay per year.",
-        week: 11, source: "Financial Projection", status: "locked",
+        week: 6, source: "Mid-Program Checkpoint: IP & Finance", status: "locked",
         value: {
           rows: [
             { label: "Year 1", ps: 1800000, mooe: 2100000, eo: 1500000 },
@@ -864,12 +852,12 @@ window.MOCK = (function () {
       },
       { n: 23, group: "Resources", title: "Other ongoing projects of the project leader", kind: "projects",
         guide: "Current active research grants handled by project leader.",
-        week: 11, source: "Financial Projection (FASTRAC orientation)", status: "locked",
+        week: 11, source: "FASTRAC Proposal Workshop", status: "locked",
         value: { count: "", rows: [{ title: "", agency: "", role: "" }] }
       },
       { n: 24, group: "Attachments", title: "Other supporting documents", kind: "attachments",
         guide: "Counterpart letters, CVs, endorsement clearances.",
-        week: 9, source: "Collected through the cycle", status: "draft",
+        week: 11, source: "Collected through the cycle", status: "draft",
         attachments: [
           { label: "Detailed fund breakdown with counterpart commitment letters", have: true },
           { label: "Institution counterpart fund commitment (min 15%)", have: true },
@@ -882,18 +870,18 @@ window.MOCK = (function () {
 
     const deck = [
       { n: 1,  title: t.name, sub: "Title and team", week: 1, source: "Program Launch", kind: "title", status: "in" },
-      { n: 2,  title: "The problem", sub: `Unmet market pain addressed by ${t.short}`, week: 3, source: "Customer Segments & Beachhead Markets", kind: "statement", status: "in", score: p.scores[0] },
-      { n: 3,  title: "Beachhead market", sub: `Primary customers in ${t.region}`, week: 3, source: "Customer Segments & Beachhead Markets", kind: "bullets", status: "in", score: p.scores[0] },
-      { n: 4,  title: "Market size", sub: "TAM, SAM, SOM for the Philippines", week: 4, source: "Market Size Estimation", kind: "chart", status: "in", score: p.scores[1] },
-      { n: 5,  title: "Value proposition", sub: "Measurable customer ROI and performance", week: 5, source: "Product Use Case Mapping", kind: "statement", status: "in", score: p.scores[2] },
-      { n: 6,  title: "Competitive advantage", sub: "VRIO and Competitive Profile Matrix", week: 6, source: "Competitive Advantage", kind: "table", status: "in", score: p.scores[3] },
-      { n: 7,  title: "Go-to-market", sub: "Distribution and customer acquisition plan", week: 7, source: "Go-to-Market Plan", kind: "grid", status: "in", score: p.scores[4] },
-      { n: 8,  title: "Validation evidence", sub: `Field trials and pilot testing in ${t.city}`, week: 9, source: "Business Model and Market Validation", kind: "chart", status: "due" },
-      { n: 9,  title: "Team and spin-off", sub: `${t.implementing_agency} commercialization team`, week: 10, source: "Team Organization, IP Strategy & Finance", kind: "grid", status: "locked" },
-      { n: 10, title: "IP strategy", sub: "Patents, utility models and trade secrets", week: 10, source: "Team Organization, IP Strategy & Finance", kind: "bullets", status: "locked" },
-      { n: 11, title: "Financial model", sub: "5-year projection, payback and unit economics", week: 11, source: "Financial Projection", kind: "chart", status: "locked" },
-      { n: 12, title: "The ask", sub: "DOST FASTRAC funding request and milestones", week: 11, source: "Financial Projection (FASTRAC orientation)", kind: "statement", status: "locked" },
-      { n: 13, title: "Technology roadmap", sub: "Scale-up timeline through 2030", week: 12, source: "Demo Day technology roadmap", kind: "timeline", status: "locked" },
+      { n: 2,  title: "The problem", sub: `Unmet market pain addressed by ${t.short}`, week: 3, source: "Beachhead Market & Customer Segments", kind: "statement", status: "in", score: p.scores[0] },
+      { n: 3,  title: "Beachhead market", sub: `Primary customers in ${t.region}`, week: 3, source: "Beachhead Market & Customer Segments", kind: "bullets", status: "in", score: p.scores[0] },
+      { n: 4,  title: "Market size", sub: "TAM, SAM, SOM for the Philippines", week: 2, source: "Market Mapping Review", kind: "chart", status: "in", score: p.scores[1] },
+      { n: 5,  title: "Value proposition", sub: "Measurable customer ROI and performance", week: 3, source: "Beachhead Market & Customer Segments", kind: "statement", status: "in", score: p.scores[2] },
+      { n: 6,  title: "Competitive advantage", sub: "VRIO and Competitive Profile Matrix", week: 4, source: "Competitive Advantage", kind: "table", status: "in", score: p.scores[3] },
+      { n: 7,  title: "Go-to-market", sub: "Distribution and customer acquisition plan", week: 7, source: "Go-to-Market & Lean Canvas", kind: "grid", status: "in", score: p.scores[4] },
+      { n: 8,  title: "Validation evidence", sub: `Field trials and pilot testing in ${t.city}`, week: 5, source: "Business Model Validation", kind: "chart", status: "due" },
+      { n: 9,  title: "Team and spin-off", sub: `${t.implementing_agency} commercialization team`, week: 1, source: "Program Launch: Team Formation", kind: "grid", status: "locked" },
+      { n: 10, title: "IP strategy", sub: "Patents, utility models and trade secrets", week: 6, source: "Mid-Program Checkpoint: IP & Finance", kind: "bullets", status: "locked" },
+      { n: 11, title: "Financial model", sub: "5-year projection, payback and unit economics", week: 6, source: "Mid-Program Checkpoint: IP & Finance", kind: "chart", status: "locked" },
+      { n: 12, title: "The ask", sub: "DOST FASTRAC funding request and milestones", week: 11, source: "FASTRAC Proposal Workshop", kind: "statement", status: "locked" },
+      { n: 13, title: "Technology roadmap", sub: "Scale-up timeline through 2030", week: 10, source: "Technology Roadmapping", kind: "timeline", status: "locked" },
       { n: 14, title: "Summary and contact", sub: `Connect with ${t.name}`, week: 12, source: "Demo Day", kind: "title", status: "locked" }
     ];
 
@@ -911,7 +899,7 @@ window.MOCK = (function () {
 
   /* ---------------------------------------------------------------------
      This Week — the program week we are actually in, from the schedule.
-     Before Oct 12 it is Week 0 (the orientation coming up); over the
+     Before Oct 19 it is Week 0 (the orientation coming up); over the
      Christmas break it is Week 9, the week sessions resume.
      --------------------------------------------------------------------- */
   const WK = SCHED.byWeek(NOW_AT.week);

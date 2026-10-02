@@ -18,7 +18,7 @@
 (function () {
   'use strict';
 
-  const FIXED_START = "2026-10-12";   // STEP 2.5 Week 0 (orientation); the schedule is real
+  const FIXED_START = "2026-10-19";   // STEP 2.5 Week 0 (orientation); the schedule is real
   const MS_DAY = 86400000;
 
   /* The Monday that starts the week containing d (weeks run Mon→Sun). */

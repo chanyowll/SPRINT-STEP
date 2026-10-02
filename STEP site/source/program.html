@@ -84,7 +84,7 @@
         <div class="cap">At a glance</div>
         <dl>
           <div class="r"><dt>Length</dt><dd><b>12</b><em>weeks</em></dd></div>
-          <div class="r"><dt>Curriculum</dt><dd><b>10</b><em>weekly topics</em></dd></div>
+          <div class="r"><dt>Curriculum</dt><dd><b>9</b><em>weekly topics</em></dd></div>
           <div class="r hi"><dt>Scheduled time</dt><dd><b>4</b><em>hours a week</em></dd></div>
           <div class="r"><dt>Cohort</dt><dd><b>10</b><em>teams</em></dd></div>
           <div class="r"><dt>What you leave with</dt><dd><em>1 FASTRAC proposal</em></dd></div>
@@ -253,8 +253,8 @@
           introduction. Halfway through, the Mid-Program Checkpoint brings a technology review, mentoring,
           pitch refinement and a business model validation workshop.</p>
         <ul class="meta-list">
-          <li><span class="k">Program Launch</span><span class="v">Week 1 · October 19–20, 2026</span></li>
-          <li><span class="k">Mid-Program Checkpoint</span><span class="v">Week 8 · December 11–12, 2026</span></li>
+          <li><span class="k">Program Launch</span><span class="v">Week 1 · October 29–30, 2026</span></li>
+          <li><span class="k">Mid-Program Checkpoint</span><span class="v">Week 6 · December 3–4, 2026</span></li>
         </ul>
       </div>
     </div>
@@ -281,7 +281,7 @@
     <div class="section-head">
       <div class="eyebrow">This cycle</div>
       <h2>The STEP 2.5 schedule</h2>
-      <p class="muted">October 12, 2026 to January 29, 2027, week by week. Learning sessions are on
+      <p class="muted">October 20, 2026 to January 29, 2027, week by week. Learning sessions are on
          Tuesdays and feedback sessions on Saturdays, online, unless the schedule says otherwise.</p>
     </div>
 
@@ -298,7 +298,7 @@
         </span>
         <span><b>Every Saturday</b>A feedback session — five-minute video, then a panel takes questions</span>
       </div>
-      <p class="rh-note">Both run every teaching week, Week 2 to Week 11. The Christmas break, December 14 to January 4, is not counted as a week.</p>
+      <p class="rh-note">Both run every teaching week, Week 2 to Week 11. The Christmas break, December 21 to January 3, is not counted as a week.</p>
     </div>
 
     <div class="tl2" id="tl"></div>
@@ -402,14 +402,14 @@ SCH.timeline().forEach(x => {
                  w: what, c: "W" + x.week, n: note });
   /* the break sits between Week 8 and Week 9 */
   if (x.week === 8 && x.kind === "feedback") {
-    TIMELINE.push({ m: "Christmas break", items: [{ d: "Dec 14 – Jan 4", t: "note", w: "Holiday break", n: "No sessions. Week 9 starts Tuesday, January 5." }] });
+    TIMELINE.push({ m: "Christmas break", items: [{ d: "Dec 21 – Jan 3", t: "note", w: "Holiday break", n: "No sessions. Week 9 starts Tuesday, January 5." }] });
   }
 });
 
 const MODULES = [
   { phase: "Weeks 0–4", title: "Find the market", weeks: [0, 1, 2, 3, 4] },
-  { phase: "Weeks 5–8", title: "Build the strategy", weeks: [5, 6, 7, 8] },
-  { phase: "Weeks 9–12", title: "Validate, fund and pitch", weeks: [9, 10, 11, 12] },
+  { phase: "Weeks 5–8", title: "Validate, protect and sell", weeks: [5, 6, 7, 8] },
+  { phase: "Weeks 9–12", title: "Pitch, plan and fund", weeks: [9, 10, 11, 12] },
 ].map(col => ({ phase: col.phase, title: col.title, items: col.weeks.map(n => {
   const w = SCH.byWeek(n);
   return { c: w.code, t: w.title, h: SCH.fmtRange(w.starts, w.ends), d: w.produce };
