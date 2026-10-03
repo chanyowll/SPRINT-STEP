@@ -674,11 +674,19 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
   }
   const left = iso => { const h = Math.round((new Date(iso) - NOW) / 3600000);
     return h < 24 ? h + (h === 1 ? " hour left" : " hours left") : Math.round(h / 24) + (Math.round(h / 24) === 1 ? " day left" : " days left"); };
-  du.innerHTML = `<h3>Due soon</h3>` + (dues.length ? dues.map(x => `
-    <a class="gc-ev dueitem" href="my-team.html#submit">
-      <span class="gc-dd"><b>${dayNum(x.due.slice(0, 10))}</b>${esc(S.dayName(x.due.slice(0, 10)).slice(0, 3))}</span>
-      <span class="gc-et"><b>Week ${x.n} team output</b><span>${esc((x.w && x.w.short) || "")} · 12:00 NN · ${left(x.due)}</span></span>
-    </a>`).join("") : '<p class="gc-none">No team outputs are due right now.</p>');
+  /* the FASTRAC proposal items each week's output feeds; only this week's
+     output can be handed in now, so only that row opens My Team's Work */
+  const FORM = (window.MOCK && window.MOCK.capstone && window.MOCK.capstone.form) || [];
+  const itemsOf = n => FORM.filter(f => f.week === n);
+  du.innerHTML = `<h3>Due soon</h3>` + (dues.length ? dues.map(x => {
+    const now = !W.note && x.n === W.week_no, items = itemsOf(x.n);
+    const inner = `<span class="gc-dd"><b>${dayNum(x.due.slice(0, 10))}</b>${esc(S.dayName(x.due.slice(0, 10)).slice(0, 3))}</span>
+      <span class="gc-et"><b>Week ${x.n} team output</b><span>${esc((x.w && x.w.short) || "")} · 12:00 NN · ${left(x.due)}</span>
+        ${items.length ? `<span class="gc-fx">FASTRAC ${items.length === 1 ? "item" : "items"} to answer</span>
+        <ul class="gc-items">${items.map(f => `<li><i>${f.n}</i>${esc(f.title)}</li>`).join("")}</ul>` : ""}</span>`;
+    return now ? `<a class="gc-ev dueitem now" href="my-team.html#submit" title="Hand in this week's output">${inner}</a>`
+               : `<div class="gc-ev dueitem">${inner}</div>`;
+  }).join("") : '<p class="gc-none">No team outputs are due right now.</p>');
 
   kn.innerHTML = `<h3>Good to know</h3><ul class="gc-hk">` + (W.housekeeping || []).map(h =>
     `<li><b>${esc(h.title)}</b><span>${esc(h.note)}</span></li>`).join("") + `</ul>`;
