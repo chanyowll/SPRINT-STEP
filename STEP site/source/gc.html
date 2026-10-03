@@ -223,6 +223,7 @@ const daysAway = iso => {
   /* the room on screen: 'fam', 'team:g1', 'group:mentors' … (picked on the left) */
   let ROOM = "fam", META = null, meId = null;
   const FAM = { title: "STEP Fam · the whole cohort", note: "Everyone in the cohort sees what you post here.",
+                empty: "Say hello. Everyone in the cohort will see it.",
                 ph: "Message the STEP Fam, or paste a screenshot…" };
   const roomMeta = () => META || FAM;
   const DEMO_ROOMS = { fam: MSGS };
@@ -385,7 +386,7 @@ const daysAway = iso => {
           </div>
         </div>
       </div>`;
-    }).join("") : `<div class="ch-empty"><b>No messages yet</b><span>Say hello — everyone in the cohort will see it.</span></div>`;
+    }).join("") : `<div class="ch-empty"><b>No messages yet</b><span>${esc(roomMeta().empty)}</span></div>`;
     pinBottom = !!(stick || nearBottom);
     if (pinBottom) thread.scrollTop = thread.scrollHeight;
     hydrateImages();
@@ -640,10 +641,12 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     const list = [{ id: "fam", kind: "all", name: "STEP Fam", icon: ICO, meta: { title: "STEP Fam · the whole cohort" } }];
     groups().forEach(g => list.push({ id: "group:" + g.id, kind: "group", name: g.name, icon: g.abbr,
       meta: { title: g.name, count: "Only " + g.who + " and the STEP team", note: "Only " + g.who + " and the STEP team can see this room.",
+              empty: "Start the conversation. Only " + g.who + " and the STEP team will see it.",
               ph: "Message " + g.name + ", or paste a screenshot…" } }));
     teams().forEach(t => { const n = "Team " + (t.short || t.name);
       list.push({ id: "team:" + t.id, kind: "team", name: n, icon: esc(String(t.short || t.name).slice(0, 2).toUpperCase()),
         meta: { title: n, count: "Only the team, its mentor and the STEP team", note: "Only " + n + ", its mentor and the STEP team can see this room.",
+                empty: "Start the conversation. Only " + n + ", its mentor and the STEP team will see it.",
                 ph: "Message " + n + ", or paste a screenshot…" } }); });
     return list;
   }
