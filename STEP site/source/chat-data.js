@@ -38,6 +38,60 @@
     return data;
   }
 
+  /* ---- pictures: pasted or attached screenshots ---- */
+  const BUCKET = 'chat-images';
+  const urlCache = {};
+  const extOf = t => (String(t).split('/')[1] || 'png').replace('jpeg', 'jpg').replace(/[^a-z0-9]/g, '') || 'png';
+
+  /** Shrink a big screenshot (longest side 1600 px) so it sends quickly. */
+  async function prepare(file) {
+    if (!file || !/^image\//.test(file.type)) throw new Error('Only pictures can be sent here.');
+    if (file.size > 20e6) throw new Error('That picture is too large. Crop it and try again.');
+    let bmp = null;
+    try { bmp = await createImageBitmap(file); } catch (e) {}
+    if (!bmp) {
+      if (file.size > 5.5e6) throw new Error('That picture is too large. Crop it and try again.');
+      return { blob: file, ext: extOf(file.type) };
+    }
+    const k = Math.min(1, 1600 / Math.max(bmp.width, bmp.height));
+    if (k === 1 && file.size < 1.5e6 && file.type !== 'image/bmp') { bmp.close && bmp.close(); return { blob: file, ext: extOf(file.type) }; }
+    const c = document.createElement('canvas');
+    c.width = Math.round(bmp.width * k); c.height = Math.round(bmp.height * k);
+    const x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); x.drawImage(bmp, 0, 0, c.width, c.height);
+    bmp.close && bmp.close();
+    const blob = await new Promise(r => c.toBlob(r, 'image/jpeg', 0.88));
+    if (!blob) throw new Error('Could not read that picture.');
+    return { blob, ext: 'jpg' };
+  }
+
+  /** Send a picture with an optional caption. */
+  async function sendImage(file, caption) {
+    const text = String(caption || '').trim();
+    if (text.length > 2000) throw new Error('That caption is too long. Keep it under 2,000 characters.');
+    const user = await me(); if (!user) throw new Error('Sign in to send pictures.');
+    const { blob, ext } = await prepare(file);
+    const path = user.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+    const up = await client().storage.from(BUCKET).upload(path, blob, { contentType: blob.type || 'image/' + ext, cacheControl: '3600' });
+    if (up.error) throw new Error(/bucket not found/i.test(up.error.message) ? 'Pictures are not set up yet. Ask the tech team to run chat_images.sql.' : up.error.message);
+    const { data, error } = await client().from('chat_messages').insert({ body: text || '\uD83D\uDCF7 Photo', image_path: path }).select().single();
+    if (error) {
+      client().storage.from(BUCKET).remove([path]).catch(() => {});
+      throw new Error(/image_path/i.test(error.message) ? 'Pictures are not set up yet. Ask the tech team to run chat_images.sql.' : error.message);
+    }
+    return data;
+  }
+
+  /** Short-lived links for pictures: { path: url } (kept for 50 minutes). */
+  async function imageUrls(paths) {
+    const need = paths.filter(p => !urlCache[p] || urlCache[p].exp < Date.now());
+    if (need.length) {
+      const { data, error } = await client().storage.from(BUCKET).createSignedUrls(need, 3600);
+      if (!error && data) data.forEach(d => { if (d.signedUrl && d.path) urlCache[d.path] = { url: d.signedUrl, exp: Date.now() + 50 * 60000 }; });
+    }
+    const out = {}; paths.forEach(p => { if (urlCache[p]) out[p] = urlCache[p].url; });
+    return out;
+  }
+
   /** Change the words of your own message (it shows as edited). */
   async function edit(id, body) {
     const text = String(body || '').trim();
@@ -54,9 +108,10 @@
     if (error) throw new Error(error.message);
   }
 
-  async function remove(id) {
+  async function remove(id, imagePath) {
     const { error } = await client().from('chat_messages').delete().eq('id', id);
     if (error) throw new Error(error.message);
+    if (imagePath) client().storage.from(BUCKET).remove([imagePath]).catch(() => {});
   }
 
   async function info() {
@@ -86,5 +141,5 @@
     };
   }
 
-  window.STEP_CHAT = { available, me, list, send, edit, setPinned, remove, info, subscribe };
+  window.STEP_CHAT = { available, me, list, send, sendImage, imageUrls, edit, setPinned, remove, info, subscribe };
 })();

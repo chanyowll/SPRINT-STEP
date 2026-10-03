@@ -679,9 +679,19 @@
         <button class="ch-pin" id="ch-pin" type="button" hidden></button>
         <div class="thread" id="thread"></div>
         <div class="msg-menu" id="msg-menu" role="menu" hidden></div>
+        <div class="ch-light" id="ch-light" hidden><img id="ch-light-img" alt="Picture shared in the chat"><button type="button" aria-label="Close the picture">&times;</button></div>
         <form class="composer-wrap" id="composer" autocomplete="off">
+          <div class="ch-stage" id="ch-stage" hidden>
+            <img id="ch-stage-img" alt="Picture ready to send">
+            <span class="ch-stage-t"><b>Picture ready to send</b><span id="ch-stage-n"></span></span>
+            <button type="button" class="ch-stage-x" id="ch-stage-x" aria-label="Remove the picture">&times;</button>
+          </div>
           <div class="composer">
-            <input type="text" id="msg" name="step-fam-message" placeholder="Message the STEP Fam…" aria-label="Your message" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send">
+            <button class="ch-attach" id="ch-attach" type="button" aria-label="Attach a picture" title="Attach a picture (or paste a screenshot)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-8 9"/></svg>
+            </button>
+            <input type="file" id="ch-file" accept="image/*" hidden>
+            <input type="text" id="msg" name="step-fam-message" placeholder="Message the STEP Fam, or paste a screenshot…" aria-label="Your message" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send">
             <button class="btn send" type="submit" aria-label="Send message">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 20 4l-7 16-2.5-6.5z"/></svg>
             </button>
@@ -3054,6 +3064,50 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
      messages on the right, and a chip for anyone who answers with a STEP hat on */
   const CHIP = { "STEP Team": "team", "Trainer": "trainer", "Mentor": "mentor", "Panelist": "mentor", "Facilitator": "team" };
   let MSGS = W.helpdesk.slice(), live = false, canModerate = false, editingId = null;
+
+  /* ---- pictures: paste a screenshot, drop one in, or use the picture button ---- */
+  let staged = null, pinBottom = false;          // staged = { file, url }
+  const attachBtn = document.getElementById("ch-attach"), fileIn = document.getElementById("ch-file");
+  const stageBar = document.getElementById("ch-stage");
+  const bytes = n => n > 1e6 ? (n / 1e6).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1e3)) + " KB";
+  function stage(file) {
+    if (!file || !/^image\//.test(file.type)) { note.textContent = "Only pictures can be sent here."; return; }
+    if (file.size > 20e6) { note.textContent = "That picture is too large. Crop it and try again."; return; }
+    unstage();
+    staged = { file, url: URL.createObjectURL(file) };
+    document.getElementById("ch-stage-img").src = staged.url;
+    document.getElementById("ch-stage-n").textContent = (file.name && file.name !== "image.png" ? file.name + " · " : "") + bytes(file.size);
+    stageBar.hidden = false; box.placeholder = "Add a caption (optional)"; box.focus();
+  }
+  function unstage(keepUrl) {
+    if (staged && !keepUrl) URL.revokeObjectURL(staged.url);
+    staged = null; stageBar.hidden = true; box.placeholder = "Message the STEP Fam, or paste a screenshot…";
+  }
+  const imageIn = list => [...(list || [])].find(f => f && /^image\//.test(f.type));
+  box.addEventListener("paste", e => { const f = imageIn(e.clipboardData && e.clipboardData.files); if (f) { e.preventDefault(); stage(f); } });
+  attachBtn.addEventListener("click", () => fileIn.click());
+  fileIn.addEventListener("change", () => { if (fileIn.files[0]) stage(fileIn.files[0]); fileIn.value = ""; });
+  document.getElementById("ch-stage-x").addEventListener("click", () => { unstage(); box.focus(); });
+  const roomEl = thread.closest(".chatroom");
+  roomEl.addEventListener("dragover", e => { if ([...(e.dataTransfer ? e.dataTransfer.types : [])].includes("Files")) { e.preventDefault(); roomEl.classList.add("drop"); } });
+  roomEl.addEventListener("dragleave", e => { if (!roomEl.contains(e.relatedTarget)) roomEl.classList.remove("drop"); });
+  roomEl.addEventListener("drop", e => { roomEl.classList.remove("drop"); const f = imageIn(e.dataTransfer && e.dataTransfer.files); if (f) { e.preventDefault(); if (!box.disabled) stage(f); } });
+  /* a bigger look at a picture */
+  const light = document.getElementById("ch-light");
+  thread.addEventListener("click", e => { const im = e.target.closest(".chimg"); if (!im || !im.src) return;
+    document.getElementById("ch-light-img").src = im.src; light.hidden = false; });
+  light.addEventListener("click", () => { light.hidden = true; });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !light.hidden) light.hidden = true; });
+  /* signed links arrive a moment after the message; keep the room scrolled down as pictures load */
+  async function hydrateImages() {
+    const els = [...thread.querySelectorAll("img.chimg[data-p]:not([src])")]; if (!els.length) return;
+    const stick = pinBottom, done = () => { if (stick) thread.scrollTop = thread.scrollHeight; };
+    els.forEach(im => im.addEventListener("load", done, { once: true }));
+    try {
+      const urls = await window.STEP_CHAT.imageUrls([...new Set(els.map(im => im.dataset.p))]);
+      els.forEach(im => { if (urls[im.dataset.p]) im.src = urls[im.dataset.p]; else im.alt = "This picture can't be shown right now."; });
+    } catch (e) {}
+  }
   /* what this person may do with a message */
   /* only on your own messages — nobody gets options on someone else's */
   const optionsFor = m => {
@@ -3091,25 +3145,30 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
       const kebab = opts.length ? `<button class="kebab" type="button" data-menu="${esc(m.id)}" aria-label="Message options" aria-haspopup="menu" aria-expanded="false">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg></button>` : "";
       const editing = live && editingId === m.id;
+      const pic = m.imgUrl ? `<img class="chimg" src="${esc(m.imgUrl)}" alt="Picture shared by ${esc(m.who)}">`
+        : m.image ? `<img class="chimg" data-p="${esc(m.image)}" alt="Picture shared by ${esc(m.who)}">` : "";
+      const photoOnly = pic && /^\uD83D\uDCF7 Photo$/.test(m.body || "");
       const body = editing
         ? `<div class="ed"><textarea id="ed-box" rows="2" aria-label="Edit your message" autocomplete="off" autocorrect="off" spellcheck="false">${esc(m.body)}</textarea>
              <div class="ed-acts"><span>Enter to save · Esc to cancel</span><button type="button" class="ed-no">Cancel</button><button type="button" class="ed-ok">Save</button></div></div>`
-        : `<div class="bd">${esc(m.body)}</div>`;
+        : (photoOnly ? "" : `<div class="bd">${esc(m.body)}</div>`);
       const stamp = !editing && (endrun || m.edited || m.pinned)
         ? `<span class="tm">${fmtT(m.at)}${m.edited ? " · edited" : ""}${m.pinned ? " · 📌" : ""}</span>` : "";
       return day + `<div class="msg-row${m.me ? " me" : ""}${m.pinned ? " pinned" : ""}${cont ? " cont" : ""}${endrun ? " endrun" : ""}" data-id="${esc(m.id || "")}">
         ${m.me ? "" : (endrun ? `<span class="av" aria-hidden="true">${esc(initials(m.who))}</span>` : `<span class="av ghost" aria-hidden="true"></span>`)}
         <div class="mcol">
           ${!cont && !m.me ? `<div class="who"><span class="nm">${esc(m.who)}</span>${chip}</div>` : ""}
-          <div class="bubble${opts.length ? " has-menu" : ""}">
-            ${body}
+          <div class="bubble${opts.length ? " has-menu" : ""}${pic ? " has-img" : ""}">
+            ${pic}${body}
             ${stamp}
             ${kebab}
           </div>
         </div>
       </div>`;
     }).join("") : `<div class="ch-empty"><b>No messages yet</b><span>Say hello — everyone in the cohort will see it.</span></div>`;
-    if (stick || nearBottom) thread.scrollTop = thread.scrollHeight;
+    pinBottom = !!(stick || nearBottom);
+    if (pinBottom) thread.scrollTop = thread.scrollHeight;
+    hydrateImages();
     paintPin();
     if (editingId) { const t = document.getElementById("ed-box"); if (t && document.activeElement !== t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
 
@@ -3131,8 +3190,9 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     setCount("48 members · participants, trainers and the STEP team");
     form.addEventListener("submit", e => {
       e.preventDefault();
-      const text = box.value.trim(); if (!text) return;
-      MSGS.push({ who: "You", role: "", me: true, at: new Date().toISOString(), body: text });
+      const text = box.value.trim(); if (!text && !staged) return;
+      const pic = staged; unstage(true);
+      MSGS.push({ who: "You", role: "", me: true, at: new Date().toISOString(), body: text || "\uD83D\uDCF7 Photo", imgUrl: pic ? pic.url : "" });
       box.value = ""; render(true);
     });
     return;
@@ -3140,7 +3200,7 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
 
   /* ---- the real room ---- */
   let meId = null, stop = null;
-  const toMsg = r => ({ id: r.id, who: r.author_name, role: r.author_role, at: r.created_at, body: r.body, me: r.user_id === meId,
+  const toMsg = r => ({ id: r.id, who: r.author_name, role: r.author_role, at: r.created_at, body: r.body, image: r.image_path || "", me: r.user_id === meId,
                         edited: !!r.edited_at, pinned: !!r.pinned, pinnedBy: r.pinned_by || "" });
   function lockRoom() {
     live = false; MSGS = [];
@@ -3148,7 +3208,7 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
       <button class="btn solid" type="button" id="ch-signin">Sign in</button></div>`;
     const b = document.getElementById("ch-signin");
     if (b) b.addEventListener("click", () => window.MOCK && window.MOCK.openAuthModal && window.MOCK.openAuthModal());
-    box.disabled = sendBtn.disabled = true;
+    box.disabled = sendBtn.disabled = attachBtn.disabled = true; unstage();
     box.placeholder = "Sign in to message the STEP Fam";
     note.textContent = "Only people with a STEP account can read and post here.";
     setCount("Participants, trainers, mentors and the STEP team");
@@ -3165,8 +3225,8 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     const u = window.MOCK && window.MOCK.auth ? window.MOCK.auth.getCurrentUser() : null;
     const roles = u && window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [];
     canModerate = roles.includes("admin");
-    box.disabled = sendBtn.disabled = false;
-    box.placeholder = "Message the STEP Fam…";
+    box.disabled = sendBtn.disabled = attachBtn.disabled = false;
+    box.placeholder = staged ? "Add a caption (optional)" : "Message the STEP Fam, or paste a screenshot…";
     note.textContent = "Everyone in the cohort sees what you post here.";
     thread.innerHTML = '<div class="ch-empty"><span>Loading the conversation…</span></div>';
     try { MSGS = (await CH.list()).map(toMsg); }
@@ -3188,17 +3248,18 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
   form.addEventListener("submit", async e => {
     e.preventDefault();
     if (!live) return;
-    const text = box.value.trim(); if (!text) return;
-    box.disabled = sendBtn.disabled = true;
-    note.textContent = "Sending…";
+    const text = box.value.trim(); if (!text && !staged) return;
+    box.disabled = sendBtn.disabled = attachBtn.disabled = true;
+    note.textContent = staged ? "Sending your picture…" : "Sending…";
     try {
-      const row = await CH.send(text);
+      const row = staged ? await CH.sendImage(staged.file, text) : await CH.send(text);
+      unstage();
       if (!MSGS.some(m => m.id === row.id)) MSGS.push(toMsg(row));
       box.value = ""; render(true);
       note.textContent = "Everyone in the cohort sees what you post here.";
     } catch (err) {
       note.textContent = "Couldn't send: " + (err.message || err);
-    } finally { box.disabled = sendBtn.disabled = false; box.focus(); }
+    } finally { box.disabled = sendBtn.disabled = attachBtn.disabled = false; box.focus(); }
   });
   /* ---- the ⋮ menu: Edit · Pin · Remove ---- */
   const menu = document.getElementById("msg-menu"), room = thread.closest(".chatroom");
@@ -3246,7 +3307,7 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
       }
       if (b.dataset.act === "remove") {
         if (!confirm("Remove this message for everyone?")) return;
-        await CH.remove(m.id); MSGS = MSGS.filter(x => x.id !== m.id); render();
+        await CH.remove(m.id, m.image); MSGS = MSGS.filter(x => x.id !== m.id); render();
       }
     } catch (err) { note.textContent = "Couldn't do that: " + (err.message || err); }
   });
