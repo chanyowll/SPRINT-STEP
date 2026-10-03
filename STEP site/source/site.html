@@ -679,9 +679,9 @@
         <button class="ch-pin" id="ch-pin" type="button" hidden></button>
         <div class="thread" id="thread"></div>
         <div class="msg-menu" id="msg-menu" role="menu" hidden></div>
-        <form class="composer-wrap" id="composer">
+        <form class="composer-wrap" id="composer" autocomplete="off">
           <div class="composer">
-            <input type="text" id="msg" placeholder="Message the STEP Fam…" aria-label="Your message">
+            <input type="text" id="msg" name="step-fam-message" placeholder="Message the STEP Fam…" aria-label="Your message" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send">
             <button class="btn send" type="submit" aria-label="Send message">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 20 4l-7 16-2.5-6.5z"/></svg>
             </button>
@@ -3088,7 +3088,7 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg></button>` : "";
       const editing = live && editingId === m.id;
       const body = editing
-        ? `<div class="ed"><textarea id="ed-box" rows="2" aria-label="Edit your message">${esc(m.body)}</textarea>
+        ? `<div class="ed"><textarea id="ed-box" rows="2" aria-label="Edit your message" autocomplete="off" autocorrect="off" spellcheck="false">${esc(m.body)}</textarea>
              <div class="ed-acts"><span>Enter to save · Esc to cancel</span><button type="button" class="ed-no">Cancel</button><button type="button" class="ed-ok">Save</button></div></div>`
         : `<div class="bd">${esc(m.body)}</div>`;
       return day + `<div class="msg-row${m.me ? " me" : ""}${m.pinned ? " pinned" : ""}" data-id="${esc(m.id || "")}">

@@ -5542,3 +5542,32 @@ body { overflow-x: clip; }
   body { zoom: .8; }
   :root { --vh: 1.25vh; --vw: 1.25vw; }
 }
+
+/* =====================================================================
+   Group chat: cream paper and navy, like the panel score sheet, and a
+   taller room. Only the neutrals change (same trick as .sheet2): the
+   navy header, blue "me" bubbles and gold pin ring keep their colours.
+   ===================================================================== */
+.chatroom {
+  --surface:   #fffaf0;
+  --bg:        #f7efdc;
+  --line:      #e5d8bb;
+  --line-soft: #efe5cf;
+  border-color: #dccca8;
+  box-shadow: 0 1px 0 rgba(120, 96, 40, .06), 0 14px 34px rgba(64, 48, 16, .12);
+}
+.chatroom .ch-top { background: linear-gradient(140deg, #072341 0%, #0b3c6b 70%, #10508e 100%); border-bottom: 0; }
+.chatroom .ch-ico { background: rgba(255,255,255,.14); color: #fff; }
+.chatroom .ch-t h3 { color: #fff; }
+.chatroom .ch-t p { color: #cfe3f6; }
+.chatroom .ch-t .live { box-shadow: 0 0 0 3px rgba(82, 196, 120, .25); }
+.chatroom .ch-faces span { border-color: #0b3c6b; background: var(--blue-100); }
+.chatroom .ch-faces .more { background: var(--gold); color: #fff; }
+.chatroom .thread { height: clamp(560px, calc(74 * var(--vh)), 780px); max-height: none; background: var(--bg);
+  align-content: start; }   /* a short room keeps its messages together at the top, not spread over the height */
+.chatroom .msg-row .bubble { background: #fffdf8; border-color: #e5d8bb; }
+.chatroom .msg-row.me .bubble { background: var(--blue); border-color: var(--blue); }
+.chatroom .composer-wrap { background: var(--surface); border-top: 1px solid var(--line); }
+.chatroom .composer input { background: #fffdf8; border-color: #dccca8; }
+.chatroom .composer input:focus { border-color: var(--blue); }
+.chatroom .ch-pin { background: #fbf3e2; }
