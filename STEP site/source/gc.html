@@ -509,12 +509,19 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
   let filter = "all", last = null;
   const ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M2 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 11a3 3 0 1 0 0-6"/><path d="M19 20v-1a4.5 4.5 0 0 0-3-4.2"/></svg>';
   const user = () => (window.MOCK && window.MOCK.auth && window.MOCK.auth.getCurrentUser()) || null;
+  /* who sees which team room: the STEP team (admins and the tech team) sees
+     every team; a mentor sees the team(s) they mentor; a participant sees
+     their own team; a trainer or panelist with no team sees only STEP Fam */
   const teams = () => {
     const G = (window.MOCK && window.MOCK.groups) || [], u = user();
     if (!u || u.role === "guest") return [];
-    const staff = (window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role]).some(r => r && r !== "participant" && r !== "guest");
-    const own = [u.team_id].concat(u.teams || []).filter(Boolean);
-    return G.filter(g => staff || own.includes(g.id));
+    const roles = window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role];
+    const tech = window.STEP_TECH && window.STEP_TECH.isTech && window.STEP_TECH.isTech(u.email);
+    if (roles.includes("admin") || tech) return G;
+    const mine = new Set();
+    if (roles.includes("mentor")) [u.team_id].concat(u.assigned_teams || [], u.teams || []).forEach(t => t && mine.add(t));
+    if (roles.includes("participant") && u.team_id) mine.add(u.team_id);
+    return G.filter(g => mine.has(g.id));
   };
   const when = iso => { if (!iso) return ""; const d = new Date(iso);
     return manilaDay(d) === TODAY ? fmtT(iso) : fmtD(iso, { weekday: "short" }); };
