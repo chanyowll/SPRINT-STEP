@@ -712,18 +712,19 @@
         <button class="ch-pin" id="ch-pin" type="button" hidden></button>
         <div class="thread" id="thread"></div>
         <div class="msg-menu" id="msg-menu" role="menu" hidden></div>
-        <div class="ch-light" id="ch-light" hidden><img id="ch-light-img" alt="Picture shared in the chat"><button type="button" aria-label="Close the picture">&times;</button></div>
+        <div class="ch-light" id="ch-light" hidden><img id="ch-light-img" alt="Picture shared in the chat"><button type="button" class="lb-x" aria-label="Close the picture">&times;</button>
+          <button type="button" class="lb-prev" id="lb-prev" aria-label="Previous picture">&#8249;</button><button type="button" class="lb-next" id="lb-next" aria-label="Next picture">&#8250;</button><span class="lb-n" id="lb-n"></span></div>
         <form class="composer-wrap" id="composer" autocomplete="off">
           <div class="ch-stage" id="ch-stage" hidden>
-            <img id="ch-stage-img" alt="Picture ready to send">
-            <span class="ch-stage-t"><b>Picture ready to send</b><span id="ch-stage-n"></span></span>
-            <button type="button" class="ch-stage-x" id="ch-stage-x" aria-label="Remove the picture">&times;</button>
+            <div class="ch-stage-list" id="ch-stage-list"></div>
+            <span class="ch-stage-t"><b id="ch-stage-h">Picture ready to send</b><span id="ch-stage-n"></span></span>
+            <button type="button" class="ch-stage-x" id="ch-stage-x" aria-label="Remove all the pictures">&times;</button>
           </div>
           <div class="composer">
             <button class="ch-attach" id="ch-attach" type="button" aria-label="Attach a picture" title="Attach a picture (or paste a screenshot)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.8"/><path d="m21 16-5-5-8 9"/></svg>
             </button>
-            <input type="file" id="ch-file" accept="image/*" hidden>
+            <input type="file" id="ch-file" accept="image/*" multiple hidden>
             <input type="text" id="msg" name="step-fam-message" placeholder="Message the STEP Fam, or paste a screenshot…" aria-label="Your message" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send">
             <button class="btn send" type="submit" aria-label="Send message">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12 20 4l-7 16-2.5-6.5z"/></svg>
@@ -3157,39 +3158,77 @@ const daysAway = iso => {
   const CHIP = { "STEP Team": "team", "Trainer": "trainer", "Mentor": "mentor", "Panelist": "mentor", "Facilitator": "team" };
   let MSGS = W.helpdesk.slice(), live = false, canModerate = false, editingId = null;
 
-  /* ---- pictures: paste a screenshot, drop one in, or use the picture button ---- */
-  let staged = null, pinBottom = false;          // staged = { file, url }
+  /* ---- pictures: paste screenshots, drop them in, or use the picture button (up to 10 at once) ---- */
+  let staged = [], pinBottom = false;            // staged = [{ file, url }]
+  const MAXPICS = 10, PHOTO = "📷 Photo";
   const attachBtn = document.getElementById("ch-attach"), fileIn = document.getElementById("ch-file");
-  const stageBar = document.getElementById("ch-stage");
+  const stageBar = document.getElementById("ch-stage"), stageList = document.getElementById("ch-stage-list");
   const bytes = n => n > 1e6 ? (n / 1e6).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1e3)) + " KB";
-  function stage(file) {
-    if (!file || !/^image\//.test(file.type)) { note.textContent = "Only pictures can be sent here."; return; }
-    if (file.size > 20e6) { note.textContent = "That picture is too large. Crop it and try again."; return; }
-    unstage();
-    staged = { file, url: URL.createObjectURL(file) };
-    document.getElementById("ch-stage-img").src = staged.url;
-    document.getElementById("ch-stage-n").textContent = (file.name && file.name !== "image.png" ? file.name + " · " : "") + bytes(file.size);
-    stageBar.hidden = false; box.placeholder = "Add a caption (optional)"; box.focus();
+  const DEFAULT_PH = "Message the STEP Fam, or paste a screenshot…";
+  function paintStage() {
+    stageBar.hidden = !staged.length;
+    stageList.innerHTML = staged.map((p, i) => `<span class="ch-st"><img src="${p.url}" alt=""><button type="button" data-rm="${i}" aria-label="Remove this picture">&times;</button></span>`).join("");
+    document.getElementById("ch-stage-h").textContent = staged.length === 1 ? "Picture ready to send" : staged.length + " pictures ready to send";
+    document.getElementById("ch-stage-n").textContent = staged.length ? bytes(staged.reduce((t, p) => t + p.file.size, 0)) : "";
+    if (!box.disabled) box.placeholder = staged.length ? "Add a caption (optional)" : DEFAULT_PH;
+  }
+  function stage(files) {
+    files = [].concat(files).filter(Boolean);
+    const pics = files.filter(f => /^image\//.test(f.type));
+    if (!pics.length) { note.textContent = "Only pictures can be sent here."; return; }
+    let skipped = 0;
+    for (const f of pics) {
+      if (staged.length >= MAXPICS) { note.textContent = "Up to " + MAXPICS + " pictures at a time."; break; }
+      if (f.size > 20e6) { skipped++; continue; }
+      staged.push({ file: f, url: URL.createObjectURL(f) });
+    }
+    if (skipped) note.textContent = skipped === 1 ? "One picture was too large. Crop it and try again." : skipped + " pictures were too large.";
+    paintStage(); box.focus();
   }
   function unstage(keepUrl) {
-    if (staged && !keepUrl) URL.revokeObjectURL(staged.url);
-    staged = null; stageBar.hidden = true; box.placeholder = "Message the STEP Fam, or paste a screenshot…";
+    if (!keepUrl) staged.forEach(p => URL.revokeObjectURL(p.url));
+    staged = []; paintStage();
   }
-  const imageIn = list => [...(list || [])].find(f => f && /^image\//.test(f.type));
-  box.addEventListener("paste", e => { const f = imageIn(e.clipboardData && e.clipboardData.files); if (f) { e.preventDefault(); stage(f); } });
+  stageList.addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (!b) return;
+    const [p] = staged.splice(+b.dataset.rm, 1); if (p) URL.revokeObjectURL(p.url); paintStage(); box.focus(); });
+  const imagesIn = list => [...(list || [])].filter(f => f && /^image\//.test(f.type));
+  box.addEventListener("paste", e => { const fs = imagesIn(e.clipboardData && e.clipboardData.files); if (fs.length) { e.preventDefault(); stage(fs); } });
   attachBtn.addEventListener("click", () => fileIn.click());
-  fileIn.addEventListener("change", () => { if (fileIn.files[0]) stage(fileIn.files[0]); fileIn.value = ""; });
+  fileIn.addEventListener("change", () => { if (fileIn.files.length) stage([...fileIn.files]); fileIn.value = ""; });
   document.getElementById("ch-stage-x").addEventListener("click", () => { unstage(); box.focus(); });
   const roomEl = thread.closest(".chatroom");
   roomEl.addEventListener("dragover", e => { if ([...(e.dataTransfer ? e.dataTransfer.types : [])].includes("Files")) { e.preventDefault(); roomEl.classList.add("drop"); } });
   roomEl.addEventListener("dragleave", e => { if (!roomEl.contains(e.relatedTarget)) roomEl.classList.remove("drop"); });
-  roomEl.addEventListener("drop", e => { roomEl.classList.remove("drop"); const f = imageIn(e.dataTransfer && e.dataTransfer.files); if (f) { e.preventDefault(); if (!box.disabled) stage(f); } });
-  /* a bigger look at a picture */
-  const light = document.getElementById("ch-light");
-  thread.addEventListener("click", e => { const im = e.target.closest(".chimg"); if (!im || !im.src) return;
-    document.getElementById("ch-light-img").src = im.src; light.hidden = false; });
-  light.addEventListener("click", () => { light.hidden = true; });
-  document.addEventListener("keydown", e => { if (e.key === "Escape" && !light.hidden) light.hidden = true; });
+  roomEl.addEventListener("drop", e => { roomEl.classList.remove("drop"); const fs = imagesIn(e.dataTransfer && e.dataTransfer.files); if (fs.length) { e.preventDefault(); if (!box.disabled) stage(fs); } });
+  /* a bigger look at a picture; arrows step through a set */
+  const light = document.getElementById("ch-light"), lightImg = document.getElementById("ch-light-img");
+  let lbSet = [], lbAt = 0;
+  function lbShow() {
+    lightImg.src = lbSet[lbAt].src;
+    const many = lbSet.length > 1;
+    document.getElementById("lb-prev").hidden = document.getElementById("lb-next").hidden = !many;
+    document.getElementById("lb-n").textContent = many ? (lbAt + 1) + " of " + lbSet.length : "";
+  }
+  const lbStep = d => { if (lbSet.length < 2) return; lbAt = (lbAt + d + lbSet.length) % lbSet.length; lbShow(); };
+  thread.addEventListener("click", e => {
+    if (e.target.closest(".kebab")) return;
+    const tile = e.target.closest(".collage .ct"), im = tile ? tile.querySelector(".chimg") : e.target.closest(".chimg");
+    if (!im || !im.src) return;
+    const set = tile ? [...tile.parentNode.querySelectorAll(".chimg")].filter(x => x.src) : [im];
+    lbSet = set; lbAt = Math.max(0, set.indexOf(im)); lbShow(); light.hidden = false;
+  });
+  light.addEventListener("click", e => {
+    if (e.target.closest("#lb-prev")) return lbStep(-1);
+    if (e.target.closest("#lb-next")) return lbStep(1);
+    if (e.target === lightImg) return;
+    light.hidden = true;
+  });
+  document.addEventListener("keydown", e => {
+    if (light.hidden) return;
+    if (e.key === "Escape") light.hidden = true;
+    if (e.key === "ArrowLeft") lbStep(-1);
+    if (e.key === "ArrowRight") lbStep(1);
+  });
   /* signed links arrive a moment after the message; keep the room scrolled down as pictures load */
   async function hydrateImages() {
     const els = [...thread.querySelectorAll("img.chimg[data-p]:not([src])")]; if (!els.length) return;
@@ -3204,7 +3243,7 @@ const daysAway = iso => {
   /* only on your own messages — nobody gets options on someone else's */
   const optionsFor = m => {
     if (!m.me) return [];
-    const o = [{ k: "edit", label: "Edit" }];
+    const o = (m.image || m.imgUrl) && m.body === PHOTO ? [] : [{ k: "edit", label: "Edit" }];
     if (canModerate) o.push({ k: "pin", label: m.pinned ? "Unpin" : "Pin to the top" });
     o.push({ k: "remove", label: "Remove", danger: true });
     return o;
@@ -3221,36 +3260,57 @@ const daysAway = iso => {
 
   function render(stick) {
     const nearBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
-    thread.innerHTML = MSGS.length ? MSGS.map((m, i) => {
-      const prev = MSGS[i - 1];
-      /* messages from one person within five minutes read as one run, like a messenger */
-      const near = (a, b) => a && b && a.who === b.who && !!a.me === !!b.me && new Date(a.at).toDateString() === new Date(b.at).toDateString()
-        && Math.abs(new Date(b.at) - new Date(a.at)) < 5 * 60000;
-      const cont = near(prev, m), endrun = !near(m, MSGS[i + 1]);
-      const sameDay = prev && new Date(prev.at).toDateString() === new Date(m.at).toDateString();
+    const isPic = m => !!(m.image || m.imgUrl);
+    const day0 = m => new Date(m.at).toDateString();
+    /* pictures one person sends together (each within 45 seconds of the last, no caption in
+       between) are drawn as one set, like a messenger collage */
+    const items = [];
+    MSGS.forEach(m => {
+      const g = items[items.length - 1], last = g && g.msgs[g.msgs.length - 1];
+      if (g && isPic(m) && isPic(last) && last.body === PHOTO && last.who === m.who && !!last.me === !!m.me
+          && day0(last) === day0(m) && Math.abs(new Date(m.at) - new Date(last.at)) < 45000
+          && editingId !== m.id && editingId !== last.id) g.msgs.push(m);
+      else items.push({ msgs: [m] });
+    });
+    const near = (a, b) => a && b && a.who === b.who && !!a.me === !!b.me && day0(a) === day0(b)
+      && Math.abs(new Date(b.at) - new Date(a.at)) < 5 * 60000;
+    const kebabOf = (m, opts) => opts.length ? `<button class="kebab" type="button" data-menu="${esc(m.id)}" aria-label="Message options" aria-haspopup="menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg></button>` : "";
+    const imgOf = m => m.imgUrl ? `<img class="chimg" src="${esc(m.imgUrl)}" alt="Picture shared by ${esc(m.who)}">`
+      : m.image ? `<img class="chimg" data-p="${esc(m.image)}" alt="Picture shared by ${esc(m.who)}">` : "";
+    thread.innerHTML = items.length ? items.map((it, i) => {
+      const first = it.msgs[0], m = it.msgs[it.msgs.length - 1];
+      const prev = i ? items[i - 1].msgs[items[i - 1].msgs.length - 1] : null, next = items[i + 1] ? items[i + 1].msgs[0] : null;
+      const cont = near(prev, first), endrun = !near(m, next);
+      const sameDay = prev && day0(prev) === day0(first);
       const day = sameDay ? "" : `<div class="daydiv"><span>${
-        new Date(m.at).toDateString() === new Date().toDateString() ? "Today"
-          : fmtD(m.at, { weekday: "long" })}</span></div>`;
+        day0(first) === new Date().toDateString() ? "Today" : fmtD(first.at, { weekday: "long" })}</span></div>`;
       const chip = CHIP[m.role] ? ` <span class="rolechip ${CHIP[m.role]}">${esc(m.role)}</span>`
         : (m.role ? ` <span class="rolechip team-name">${esc(m.role)}</span>` : "");
+      const set = it.msgs.length > 1;
       const opts = live && m.id ? optionsFor(m) : [];
-      const kebab = opts.length ? `<button class="kebab" type="button" data-menu="${esc(m.id)}" aria-label="Message options" aria-haspopup="menu" aria-expanded="false">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg></button>` : "";
       const editing = live && editingId === m.id;
-      const pic = m.imgUrl ? `<img class="chimg" src="${esc(m.imgUrl)}" alt="Picture shared by ${esc(m.who)}">`
-        : m.image ? `<img class="chimg" data-p="${esc(m.image)}" alt="Picture shared by ${esc(m.who)}">` : "";
-      const photoOnly = pic && /^\uD83D\uDCF7 Photo$/.test(m.body || "");
+      let pic;
+      if (set) {
+        const n = it.msgs.length;
+        pic = `<div class="collage n${Math.min(n, 4)}">` + it.msgs.map((x, j) =>
+          `<span class="ct${j > 3 ? " hide" : ""}" data-id="${esc(x.id || "")}">${imgOf(x)}${live && x.id ? kebabOf(x, optionsFor(x)) : ""}${
+            j === 3 && n > 4 ? `<b class="more">+${n - 4}</b>` : ""}</span>`).join("") + `</div>`;
+      } else pic = imgOf(m);
+      const photoOnly = pic && m.body === PHOTO;
       const body = editing
         ? `<div class="ed"><textarea id="ed-box" rows="2" aria-label="Edit your message" autocomplete="off" autocorrect="off" spellcheck="false">${esc(m.body)}</textarea>
              <div class="ed-acts"><span>Enter to save · Esc to cancel</span><button type="button" class="ed-no">Cancel</button><button type="button" class="ed-ok">Save</button></div></div>`
         : (photoOnly ? "" : `<div class="bd">${esc(m.body)}</div>`);
-      const stamp = !editing && (endrun || m.edited || m.pinned)
-        ? `<span class="tm">${fmtT(m.at)}${m.edited ? " · edited" : ""}${m.pinned ? " · 📌" : ""}</span>` : "";
-      return day + `<div class="msg-row${m.me ? " me" : ""}${m.pinned ? " pinned" : ""}${cont ? " cont" : ""}${endrun ? " endrun" : ""}" data-id="${esc(m.id || "")}">
+      const pinned = it.msgs.some(x => x.pinned);
+      const stamp = !editing && (endrun || m.edited || pinned)
+        ? `<span class="tm">${set ? it.msgs.length + " photos · " : ""}${fmtT(m.at)}${m.edited ? " · edited" : ""}${pinned ? " · 📌" : ""}</span>` : "";
+      const kebab = set ? "" : kebabOf(m, opts);
+      return day + `<div class="msg-row${m.me ? " me" : ""}${pinned ? " pinned" : ""}${cont ? " cont" : ""}${endrun ? " endrun" : ""}" data-id="${esc(m.id || "")}">
         ${m.me ? "" : (endrun ? `<span class="av" aria-hidden="true">${esc(initials(m.who))}</span>` : `<span class="av ghost" aria-hidden="true"></span>`)}
         <div class="mcol">
           ${!cont && !m.me ? `<div class="who"><span class="nm">${esc(m.who)}</span>${chip}</div>` : ""}
-          <div class="bubble${opts.length ? " has-menu" : ""}${pic ? " has-img" : ""}">
+          <div class="bubble${!set && opts.length ? " has-menu" : ""}${pic ? " has-img" : ""}${set ? " has-set" : ""}">
             ${pic}${body}
             ${stamp}
             ${kebab}
@@ -3283,9 +3343,11 @@ const daysAway = iso => {
     setCount("48 members · participants, trainers and the STEP team");
     form.addEventListener("submit", e => {
       e.preventDefault();
-      const text = box.value.trim(); if (!text && !staged) return;
-      const pic = staged; unstage(true);
-      MSGS.push({ who: "You", role: "", me: true, at: new Date().toISOString(), body: text || "\uD83D\uDCF7 Photo", imgUrl: pic ? pic.url : "" });
+      const text = box.value.trim(); if (!text && !staged.length) return;
+      const pics = staged.slice(); unstage(true);
+      if (!pics.length) MSGS.push({ who: "You", role: "", me: true, at: new Date().toISOString(), body: text });
+      pics.forEach((p, i) => MSGS.push({ who: "You", role: "", me: true, at: new Date().toISOString(),
+        body: i === pics.length - 1 && text ? text : PHOTO, imgUrl: p.url }));
       box.value = ""; render(true);
     });
     return;
@@ -3319,7 +3381,7 @@ const daysAway = iso => {
     const roles = u && window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [];
     canModerate = roles.includes("admin");
     box.disabled = sendBtn.disabled = attachBtn.disabled = false;
-    box.placeholder = staged ? "Add a caption (optional)" : "Message the STEP Fam, or paste a screenshot…";
+    box.placeholder = staged.length ? "Add a caption (optional)" : DEFAULT_PH;
     note.textContent = "Everyone in the cohort sees what you post here.";
     thread.innerHTML = '<div class="ch-empty"><span>Loading the conversation…</span></div>';
     try { MSGS = (await CH.list()).map(toMsg); }
@@ -3341,18 +3403,31 @@ const daysAway = iso => {
   form.addEventListener("submit", async e => {
     e.preventDefault();
     if (!live) return;
-    const text = box.value.trim(); if (!text && !staged) return;
+    const text = box.value.trim(); if (!text && !staged.length) return;
     box.disabled = sendBtn.disabled = attachBtn.disabled = true;
-    note.textContent = staged ? "Sending your picture…" : "Sending…";
+    const total = staged.length;
+    note.textContent = total > 1 ? "Sending 1 of " + total + " pictures…" : total ? "Sending your picture…" : "Sending…";
     try {
-      const row = staged ? await CH.sendImage(staged.file, text) : await CH.send(text);
-      unstage();
-      if (!MSGS.some(m => m.id === row.id)) MSGS.push(toMsg(row));
+      if (total) {
+        /* one message per picture, sent in order; the caption rides on the last.
+           Each sent one leaves the tray, so a failure keeps only what is left. */
+        for (let i = 0; staged.length; i++) {
+          const p = staged[0];
+          if (total > 1) note.textContent = "Sending " + (i + 1) + " of " + total + " pictures…";
+          const row = await CH.sendImage(p.file, staged.length === 1 ? text : "");
+          URL.revokeObjectURL(p.url); staged.shift(); paintStage();
+          if (!MSGS.some(m => m.id === row.id)) MSGS.push(toMsg(row));
+          render(true);
+        }
+      } else {
+        const row = await CH.send(text);
+        if (!MSGS.some(m => m.id === row.id)) MSGS.push(toMsg(row));
+      }
       box.value = ""; render(true);
       note.textContent = "Everyone in the cohort sees what you post here.";
     } catch (err) {
       note.textContent = "Couldn't send: " + (err.message || err);
-    } finally { box.disabled = sendBtn.disabled = attachBtn.disabled = false; box.focus(); }
+    } finally { box.disabled = sendBtn.disabled = attachBtn.disabled = false; paintStage(); box.focus(); }
   });
   /* ---- the ⋮ menu: Edit · Pin · Remove ---- */
   const menu = document.getElementById("msg-menu"), room = thread.closest(".chatroom");
