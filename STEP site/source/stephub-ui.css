@@ -5687,6 +5687,9 @@ body.on-gc .site-footer { display: none; }
 .gc-av svg { width: 23px; height: 23px; }
 .gc-av.team { background: #fbf3e2; color: #8a6512; border: 1px solid #e5d8bb; }
 .gc-av.dm { background: var(--blue-100); color: var(--blue); }
+.gc-av.group { background: var(--blue); color: #fff; }
+.gc-chips { gap: 2px; flex-wrap: nowrap; }
+.gc-chips button { padding: 6px 10px; font-size: 13px; white-space: nowrap; }
 .gc-rt { flex: 1 1 auto; min-width: 0; display: grid; gap: 1px; }
 .gc-rt b { font-size: 15px; color: var(--navy); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .gc-rt span { font-size: 12.5px; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
