@@ -7460,7 +7460,9 @@ function initials(n) {
     lock = computeLock();
     if (lock.mode === "own") selP.value = lock.panel;
     S = scored.find(s => s.code === selS.value);
-    P = F.panels.find(p => p.letter === selP.value);
+    /* the panels for this sheet's week (the grouping saved on the tech console) */
+    if (window.__panelWeek) window.__panelWeek(S.week);
+    P = F.panels.find(p => p.letter === selP.value) || F.panels[0];
     fillPanelists(keepSeat);
     document.getElementById("sc-code").textContent = (S.tag ? S.tag + " · " : "") + "Week " + S.week;
     const titleEl = document.getElementById("sc-title");

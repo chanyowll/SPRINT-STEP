@@ -127,10 +127,12 @@
      the database; the page's panel list is updated in place and a
      "stephub_roster" event tells the pages to redraw. */
   let roster = null;          // [{ seat, panel_letter, display_name, email, is_me }] or null
+  let seq = 0;                // newest load wins when several overlap
   let viewWeek = null;        // the week whose grouping the page shows (null = this week)
   let builtin = null;         // the programme's own panels, kept to fall back on
 
   async function loadRoster(week) {
+    const mine = ++seq;
     if (typeof week === 'number' || (typeof week === 'string' && week !== '')) viewWeek = Number(week);
     if (!(await isLive())) { roster = null; return null; }
     const { data, error } = await client().rpc('panel_roster');
@@ -147,6 +149,7 @@
       (plan.panels || []).forEach(p => (p.panelists || []).forEach(x => { letterOf[x.seat] = p.letter; }));
       data.forEach(r => { r.panel_letter = letterOf[r.seat] || null; });
     }
+    if (mine !== seq) return data;                // a newer load has taken over
     roster = data;
     if (F && F.panels && !builtin) builtin = JSON.parse(JSON.stringify(F.panels));
     /* a week with no saved grouping shows the programme's own panels again */
