@@ -5730,3 +5730,15 @@ body.on-gc .site-footer { display: none; }
 .gc-toast[hidden] { display: none; }
 @media (max-width: 1180px) { .gc-app { grid-template-columns: 280px minmax(0, 1fr); } .gc-right { display: none; } }
 @media (max-width: 800px) { .gc-app { grid-template-columns: minmax(0, 1fr); padding: 8px; } .gc-left { display: none; } }
+
+/* a picture stands on its own: no bubble (and no blue frame) around it;
+   a caption gets its own small bubble underneath */
+.chatroom .msg-row .bubble.has-img,
+.chatroom .msg-row.me .bubble.has-img { background: transparent; border: 0; box-shadow: none; padding: 0; }
+.chatroom .msg-row .bubble.has-img .chimg { box-shadow: 0 1px 3px rgba(64, 48, 16, .18); border: 1px solid #e5d8bb; }
+.chatroom .msg-row .bubble.has-img .bd { display: table; margin-top: 4px; padding: 7px 14px; border-radius: 18px;
+  background: #fffdf8; border: 1px solid #e5d8bb; box-shadow: 0 1px 1.5px rgba(64, 48, 16, .12); }
+.chatroom .msg-row.me .bubble.has-img .bd { margin-left: auto; background: var(--blue); border-color: var(--blue); color: #fff; }
+.chatroom .msg-row .bubble.has-img .tm,
+.chatroom .msg-row.me .bubble.has-img .tm { float: none; display: block; margin: 3px 4px 0; padding: 0; text-align: right; color: #9a8f77; }
+.chatroom .msg-row .bubble.has-img .kebab { background: rgba(8, 24, 44, .45); color: #fff; opacity: 1; top: 6px; right: 6px; }
