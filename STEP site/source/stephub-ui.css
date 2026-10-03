@@ -5764,9 +5764,10 @@ body.on-gc .site-footer { display: none; }
   border: 0; border-radius: 0; box-shadow: none; object-fit: cover; }
 .chatroom .collage .more { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(8, 24, 44, .55);
   color: #fff; font-size: 26px; font-weight: 800; pointer-events: none; }
-.chatroom .msg-row .bubble.has-img .collage .kebab { top: 5px; right: 5px; opacity: 0; }
-.chatroom .collage .ct:hover .kebab, .chatroom .collage .kebab:focus-visible, .chatroom .collage .kebab[aria-expanded="true"] { opacity: 1; }
-@media (hover: none) { .chatroom .msg-row .bubble.has-img .collage .kebab { opacity: .85; } }
+.chatroom .msg-row .bubble.has-img .collage .kebab { top: 5px; right: 5px; opacity: .9; z-index: 2; }
+.chatroom .msg-row .bubble.has-img .collage .ct:hover .kebab,
+.chatroom .msg-row .bubble.has-img .collage .kebab:focus-visible,
+.chatroom .msg-row .bubble.has-img .collage .kebab[aria-expanded="true"] { opacity: 1; background: rgba(8, 24, 44, .7); }
 
 /* the tray of pictures waiting to be sent */
 .chatroom .ch-stage-list { display: flex; gap: 6px; flex: 0 1 auto; min-width: 0; overflow-x: auto; padding: 2px; }
