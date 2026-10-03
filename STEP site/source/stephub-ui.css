@@ -5784,3 +5784,10 @@ body.on-gc .site-footer { display: none; }
 .chatroom .ch-light .lb-prev[hidden], .chatroom .ch-light .lb-next[hidden] { display: none; }
 .chatroom .ch-light .lb-n { position: absolute; bottom: 18px; left: 50%; transform: translateX(-50%); color: #fff; font-size: 13.5px; font-weight: 650; }
 .chatroom .ch-light img { cursor: default; }
+
+/* rooms with something new */
+.gc-rm { flex: none; align-self: stretch; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; padding-top: 4px; }
+.gc-rm time { margin-top: 0; }
+.gc-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--blue); display: block; }
+.gc-room.unread .gc-rt b { font-weight: 800; }
+.gc-room.unread .gc-rt span { color: var(--ink); font-weight: 650; }

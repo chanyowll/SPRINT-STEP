@@ -704,7 +704,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M2 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 11a3 3 0 1 0 0-6"/><path d="M19 20v-1a4.5 4.5 0 0 0-3-4.2"/></svg>
           </span>
           <div class="ch-t">
-            <h3>STEP Fam · the whole cohort</h3>
+            <h3 id="ch-title">STEP Fam · the whole cohort</h3>
             <p><i class="live" aria-hidden="true"></i><span id="ch-count">—</span></p>
           </div>
           <span class="ch-faces" id="ch-faces" aria-hidden="true"></span>
@@ -3157,6 +3157,12 @@ const daysAway = iso => {
      messages on the right, and a chip for anyone who answers with a STEP hat on */
   const CHIP = { "STEP Team": "team", "Trainer": "trainer", "Mentor": "mentor", "Panelist": "mentor", "Facilitator": "team" };
   let MSGS = W.helpdesk.slice(), live = false, canModerate = false, editingId = null;
+  /* the room on screen: 'fam', 'team:g1', 'group:mentors' … (picked on the left) */
+  let ROOM = "fam", META = null, meId = null;
+  const FAM = { title: "STEP Fam · the whole cohort", note: "Everyone in the cohort sees what you post here.",
+                ph: "Message the STEP Fam, or paste a screenshot…" };
+  const roomMeta = () => META || FAM;
+  const DEMO_ROOMS = { fam: MSGS };
 
   /* ---- pictures: paste screenshots, drop them in, or use the picture button (up to 10 at once) ---- */
   let staged = [], pinBottom = false;            // staged = [{ file, url }]
@@ -3164,13 +3170,12 @@ const daysAway = iso => {
   const attachBtn = document.getElementById("ch-attach"), fileIn = document.getElementById("ch-file");
   const stageBar = document.getElementById("ch-stage"), stageList = document.getElementById("ch-stage-list");
   const bytes = n => n > 1e6 ? (n / 1e6).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1e3)) + " KB";
-  const DEFAULT_PH = "Message the STEP Fam, or paste a screenshot…";
   function paintStage() {
     stageBar.hidden = !staged.length;
     stageList.innerHTML = staged.map((p, i) => `<span class="ch-st"><img src="${p.url}" alt=""><button type="button" data-rm="${i}" aria-label="Remove this picture">&times;</button></span>`).join("");
     document.getElementById("ch-stage-h").textContent = staged.length === 1 ? "Picture ready to send" : staged.length + " pictures ready to send";
     document.getElementById("ch-stage-n").textContent = staged.length ? bytes(staged.reduce((t, p) => t + p.file.size, 0)) : "";
-    if (!box.disabled) box.placeholder = staged.length ? "Add a caption (optional)" : DEFAULT_PH;
+    if (!box.disabled) box.placeholder = staged.length ? "Add a caption (optional)" : roomMeta().ph;
   }
   function stage(files) {
     files = [].concat(files).filter(Boolean);
@@ -3322,7 +3327,7 @@ const daysAway = iso => {
     if (pinBottom) thread.scrollTop = thread.scrollHeight;
     hydrateImages();
     paintPin();
-    window.dispatchEvent(new CustomEvent("stephub_chat_render", { detail: { msgs: MSGS, live } }));
+    window.dispatchEvent(new CustomEvent("stephub_chat_render", { detail: { msgs: MSGS, live, room: ROOM, me: meId } }));
     if (editingId) { const t = document.getElementById("ed-box"); if (t && document.activeElement !== t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
 
     /* who is in the room, drawn from the people who have spoken lately */
@@ -3330,17 +3335,35 @@ const daysAway = iso => {
     MSGS.slice().reverse().forEach(m => { if (m.me || seen[m.who]) return; seen[m.who] = 1; faces.push(initials(m.who)); });
     const facesEl = document.getElementById("ch-faces");
     if (facesEl) facesEl.innerHTML = faces.slice(0, 4).map(f => `<span>${esc(f)}</span>`).join("") +
-      (members > faces.slice(0, 4).length ? `<span class="more">+${members - faces.slice(0, 4).length}</span>` : "");
+      (ROOM === "fam" && members > faces.slice(0, 4).length ? `<span class="more">+${members - faces.slice(0, 4).length}</span>` : "");
   }
   let members = 48;
   function setCount(text) { const c = document.getElementById("ch-count"); if (c) c.textContent = text; }
+
+  /* ---- switching rooms (from the list on the left) ---- */
+  let roomSeq = 0;
+  window.__gcRoom = () => ROOM;
+  window.__gcOpenRoom = async function (id, meta) {
+    if (id === ROOM) return;
+    ROOM = id; META = id === "fam" ? null : meta; editingId = null; unstage();
+    document.getElementById("ch-title").textContent = roomMeta().title;
+    setCount(id === "fam" ? famCount() : meta.count);
+    if (!box.disabled) box.placeholder = roomMeta().ph;
+    if (!live) { MSGS = DEMO_ROOMS[id] || (DEMO_ROOMS[id] = []); render(true); return; }
+    note.textContent = roomMeta().note;
+    const mine = ++roomSeq;
+    thread.innerHTML = '<div class="ch-empty"><span>Loading the conversation…</span></div>';
+    try { const rows = await window.STEP_CHAT.list(200, ROOM); if (mine !== roomSeq) return; MSGS = rows.map(toMsg); render(true); }
+    catch (e) { if (mine === roomSeq) thread.innerHTML = `<div class="ch-empty"><b>Couldn't load this room</b><span>${esc(e.message || e)}</span></div>`; }
+  };
+  const famCount = () => members + " members · participants, trainers, mentors and the STEP team";
 
   /* ---- the sample room: only the ?demo=1 preview, or with no database ---- */
   const DEMO = /[?&]demo=1(&|$)/.test(location.search);
   const CH = window.STEP_CHAT;
   if (DEMO || !CH || !CH.available()) {
     render(true);
-    setCount("48 members · participants, trainers and the STEP team");
+    setCount(famCount());
     form.addEventListener("submit", e => {
       e.preventDefault();
       const text = box.value.trim(); if (!text && !staged.length) return;
@@ -3354,9 +3377,9 @@ const daysAway = iso => {
   }
 
   /* ---- the real room ---- */
-  let meId = null, stop = null;
-  const toMsg = r => ({ id: r.id, who: r.author_name, role: r.author_role, at: r.created_at, body: r.body, image: r.image_path || "", me: r.user_id === meId,
-                        edited: !!r.edited_at, pinned: !!r.pinned, pinnedBy: r.pinned_by || "" });
+  let stop = null;
+  function toMsg(r) { return ({ id: r.id, room: r.room || "fam", who: r.author_name, role: r.author_role, at: r.created_at, body: r.body, image: r.image_path || "", me: r.user_id === meId,
+                        edited: !!r.edited_at, pinned: !!r.pinned, pinnedBy: r.pinned_by || "" }); }
   function lockRoom() {
     live = false; MSGS = [];
     thread.innerHTML = `<div class="ch-empty"><b>Members only</b><span>Sign in with your STEP account to read and join the conversation.</span>
@@ -3370,7 +3393,8 @@ const daysAway = iso => {
     document.getElementById("ch-faces").innerHTML = "";
   }
   async function resync() {
-    try { MSGS = (await CH.list()).map(toMsg); render(); } catch (e) {}
+    const r = ROOM;
+    try { const rows = await CH.list(200, r); if (r === ROOM) { MSGS = rows.map(toMsg); render(); } } catch (e) {}
   }
   async function start() {
     if (stop) { stop(); stop = null; }
@@ -3381,15 +3405,20 @@ const daysAway = iso => {
     const roles = u && window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [];
     canModerate = roles.includes("admin");
     box.disabled = sendBtn.disabled = attachBtn.disabled = false;
-    box.placeholder = staged.length ? "Add a caption (optional)" : DEFAULT_PH;
-    note.textContent = "Everyone in the cohort sees what you post here.";
+    box.placeholder = staged.length ? "Add a caption (optional)" : roomMeta().ph;
+    note.textContent = roomMeta().note;
     thread.innerHTML = '<div class="ch-empty"><span>Loading the conversation…</span></div>';
-    try { MSGS = (await CH.list()).map(toMsg); }
+    try { MSGS = (await CH.list(200, ROOM)).map(toMsg); }
     catch (e) { thread.innerHTML = `<div class="ch-empty"><b>Couldn't load the chat</b><span>${esc(e.message || e)}</span></div>`; return; }
     render(true);
-    CH.info().then(i => { if (i && i.members) { members = i.members; setCount(members + " members · participants, trainers, mentors and the STEP team"); render(); } });
+    CH.info().then(i => { if (i && i.members) { members = i.members; if (ROOM === "fam") setCount(famCount()); render(); } });
     stop = CH.subscribe(ev => {
       if (ev.type === "resync") return resync();
+      /* a message in another room only lights that room up on the left */
+      if (ev.row && ev.row.room && ev.row.room !== ROOM) {
+        if (ev.type === "insert") window.dispatchEvent(new CustomEvent("stephub_chat_other", { detail: { row: ev.row, me: meId } }));
+        return;
+      }
       if (ev.type === "insert" && ev.row && !MSGS.some(m => m.id === ev.row.id)) { MSGS.push(toMsg(ev.row)); render(ev.row.user_id === meId); }
       if (ev.type === "update" && ev.row) {
         const i = MSGS.findIndex(m => m.id === ev.row.id);
@@ -3414,17 +3443,17 @@ const daysAway = iso => {
         for (let i = 0; staged.length; i++) {
           const p = staged[0];
           if (total > 1) note.textContent = "Sending " + (i + 1) + " of " + total + " pictures…";
-          const row = await CH.sendImage(p.file, staged.length === 1 ? text : "");
+          const row = await CH.sendImage(p.file, staged.length === 1 ? text : "", ROOM);
           URL.revokeObjectURL(p.url); staged.shift(); paintStage();
           if (!MSGS.some(m => m.id === row.id)) MSGS.push(toMsg(row));
           render(true);
         }
       } else {
-        const row = await CH.send(text);
+        const row = await CH.send(text, ROOM);
         if (!MSGS.some(m => m.id === row.id)) MSGS.push(toMsg(row));
       }
       box.value = ""; render(true);
-      note.textContent = "Everyone in the cohort sees what you post here.";
+      note.textContent = roomMeta().note;
     } catch (err) {
       note.textContent = "Couldn't send: " + (err.message || err);
     } finally { box.disabled = sendBtn.disabled = attachBtn.disabled = false; paintStage(); box.focus(); }
@@ -3470,7 +3499,7 @@ const daysAway = iso => {
         await CH.setPinned(m.id, !m.pinned);
         MSGS.forEach(x => { if (x.id === m.id) { x.pinned = !m.pinned; } else if (!m.pinned) x.pinned = false; });
         render(); note.textContent = m.pinned ? "Pinned to the top of the room." : "Unpinned.";
-        setTimeout(() => { note.textContent = "Everyone in the cohort sees what you post here."; }, 2500);
+        setTimeout(() => { note.textContent = roomMeta().note; }, 2500);
         return;
       }
       if (b.dataset.act === "remove") {
@@ -3515,55 +3544,66 @@ const daysAway = iso => {
 /* ---------- left: the rooms ---------- */
 (function () {
   const rooms = document.getElementById("gc-rooms"), q = document.getElementById("gc-q"), chips = document.getElementById("gc-chips");
-  let filter = "all", last = null;
+  const CH = window.STEP_CHAT;
+  let filter = "all", latest = {}, meId = null, ready = false, live = false;
   const ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M2 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 11a3 3 0 1 0 0-6"/><path d="M19 20v-1a4.5 4.5 0 0 0-3-4.2"/></svg>';
+  const DM = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>';
   const user = () => (window.MOCK && window.MOCK.auth && window.MOCK.auth.getCurrentUser()) || null;
-  /* who sees which team room: the STEP team (admins and the tech team) sees
-     every team; a mentor sees the team(s) they mentor; a participant sees
-     their own team; a trainer or panelist with no team sees only STEP Fam */
+  const rolesOf = u => window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role];
+  const staffAll = u => rolesOf(u).includes("admin") || !!(window.STEP_TECH && window.STEP_TECH.isTech && window.STEP_TECH.isTech(u.email));
+  /* the same rule the database applies (supabase/chat_rooms.sql, can_use_room) */
   const teams = () => {
     const G = (window.MOCK && window.MOCK.groups) || [], u = user();
     if (!u || u.role === "guest") return [];
-    const roles = window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role];
-    const tech = window.STEP_TECH && window.STEP_TECH.isTech && window.STEP_TECH.isTech(u.email);
-    if (roles.includes("admin") || tech) return G;
-    const mine = new Set();
-    if (roles.includes("mentor")) [u.team_id].concat(u.assigned_teams || [], u.teams || []).forEach(t => t && mine.add(t));
-    if (roles.includes("participant") && u.team_id) mine.add(u.team_id);
+    if (staffAll(u)) return G;
+    const mine = new Set([u.team_id].concat(u.assigned_teams || [], u.teams || []).filter(Boolean));
     return G.filter(g => mine.has(g.id));
   };
-  /* rooms for a whole role: the STEP team (admins and the tech team) is in
-     all three; mentors in Mentors, panelists in Panels, and DOST-PCIEERD
-     accounts (role "dost" or a pcieerd.dost.gov.ph email) in DOST-PCIEERD */
   const GROUPS = [
-    { id: "dost", name: "DOST-PCIEERD", sub: "The funding agency and the STEP team", abbr: "DP",
-      who: (roles, u) => roles.includes("dost") || /@pcieerd\.dost\.gov\.ph$/i.test(u.email || "") },
-    { id: "mentors", name: "Mentors", sub: "All mentors and the STEP team", abbr: "ME", who: roles => roles.includes("mentor") },
-    { id: "panels", name: "Panels", sub: "All panelists and the STEP team", abbr: "PA", who: roles => roles.includes("panel") },
+    { id: "dost", name: "DOST-PCIEERD", who: "DOST-PCIEERD", abbr: "DP",
+      can: (roles, u) => roles.includes("dost") || /@pcieerd\.dost\.gov\.ph$/i.test(u.email || "") },
+    { id: "mentors", name: "Mentors", who: "the mentors", abbr: "ME", can: roles => roles.includes("mentor") },
+    { id: "panels", name: "Panels", who: "the panelists", abbr: "PA", can: roles => roles.includes("panel") },
   ];
   const groups = () => {
     const u = user(); if (!u || u.role === "guest") return [];
-    const roles = window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role];
-    const tech = window.STEP_TECH && window.STEP_TECH.isTech && window.STEP_TECH.isTech(u.email);
-    return GROUPS.filter(g => roles.includes("admin") || tech || g.who(roles, u));
+    return GROUPS.filter(g => staffAll(u) || g.can(rolesOf(u), u));
   };
+  function roomList() {
+    const list = [{ id: "fam", kind: "all", name: "STEP Fam", icon: ICO, meta: { title: "STEP Fam · the whole cohort" } }];
+    groups().forEach(g => list.push({ id: "group:" + g.id, kind: "group", name: g.name, icon: g.abbr,
+      meta: { title: g.name, count: "Only " + g.who + " and the STEP team", note: "Only " + g.who + " and the STEP team can see this room.",
+              ph: "Message " + g.name + ", or paste a screenshot…" } }));
+    teams().forEach(t => { const n = "Team " + (t.short || t.name);
+      list.push({ id: "team:" + t.id, kind: "team", name: n, icon: esc(String(t.short || t.name).slice(0, 2).toUpperCase()),
+        meta: { title: n, count: "Only the team, its mentor and the STEP team", note: "Only " + n + ", its mentor and the STEP team can see this room.",
+                ph: "Message " + n + ", or paste a screenshot…" } }); });
+    return list;
+  }
   const when = iso => { if (!iso) return ""; const d = new Date(iso);
     return manilaDay(d) === TODAY ? fmtT(iso) : fmtD(iso, { weekday: "short" }); };
-  function row(o) {
-    return `<button type="button" class="gc-room${o.active ? " on" : ""}${o.soon ? " soon" : ""}" ${o.soon ? 'data-soon="1"' : ""} data-k="${o.kind}" data-t="${esc((o.name + " " + (o.sub || "")).toLowerCase())}">
-      <span class="gc-av ${o.kind}">${o.icon}</span>
-      <span class="gc-rt"><b>${esc(o.name)}</b><span>${esc(o.sub || "")}</span></span>
-      ${o.soon ? '<em class="gc-soon">Soon</em>' : (o.time ? `<time>${esc(o.time)}</time>` : "")}
-    </button>`;
-  }
+  const seenKey = id => "stepgc_seen_" + id;
+  const seen = id => { try { return localStorage.getItem(seenKey(id)) || ""; } catch (e) { return ""; } };
+  const markSeen = (id, at) => { try { if (at && at > seen(id)) localStorage.setItem(seenKey(id), at); } catch (e) {} };
+  const preview = r => { if (!r) return ""; const who = r.user_id && r.user_id === meId ? "You"
+      : (String(r.author_name || "").split(/\s+/).find(w => w && !/^(ms|mr|mrs|dr|engr|atty|prof|sir|maam)\.?$/i.test(w)) || "Someone");
+    return who + ": " + (/^📷 Photo$/.test(r.body || "") ? "sent a photo" : r.body); };
   function draw() {
-    const needle = q.value.trim().toLowerCase();
-    const prev = last ? ((last.me ? "You" : String(last.who).split(" ")[0]) + ": " + (/^📷 Photo$/.test(last.body) ? "sent a photo" : last.body)) : "The whole cohort";
-    const list = [{ kind: "all", name: "STEP Fam", sub: prev, time: last ? when(last.at) : "", icon: ICO, active: true }];
-    groups().forEach(g => list.push({ kind: "group", name: g.name, sub: g.sub, icon: g.abbr, soon: true }));
-    teams().forEach(g => list.push({ kind: "team", name: "Team " + (g.short || g.name), sub: "Team room", icon: esc(String(g.short || g.name).slice(0, 2).toUpperCase()), soon: true }));
-    list.push({ kind: "dm", name: "Direct messages", sub: "One-to-one chats", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>', soon: true });
-    const html = list.filter(r => (filter === "all" || r.kind === filter || (filter === "team" && r.kind === "all" && false))).map(row);
+    const needle = q.value.trim().toLowerCase(), open = window.__gcRoom ? window.__gcRoom() : "fam";
+    const html = roomList().filter(r => filter === "all" || r.kind === filter).map(r => {
+      const soon = r.id !== "fam" && !(ready && live);
+      const last = latest[r.id];
+      const unread = !soon && last && r.id !== open && last.user_id !== meId && last.created_at > seen(r.id);
+      const sub = soon ? (r.kind === "team" ? "Team room" : r.meta.count) : (last ? preview(last) : (r.id === "fam" ? "The whole cohort" : "No messages yet"));
+      return `<button type="button" class="gc-room${r.id === open ? " on" : ""}${soon ? " soon" : ""}${unread ? " unread" : ""}" data-room="${esc(r.id)}" data-k="${r.kind}"
+        data-t="${esc((r.name + " " + sub).toLowerCase())}">
+        <span class="gc-av ${r.kind}">${r.icon}</span>
+        <span class="gc-rt"><b>${esc(r.name)}</b><span>${esc(sub)}</span></span>
+        ${soon ? '<em class="gc-soon">Soon</em>' : `<span class="gc-rm">${last ? `<time>${esc(when(last.created_at))}</time>` : ""}${unread ? '<i class="gc-dot" aria-label="New messages"></i>' : ""}</span>`}
+      </button>`;
+    });
+    if (filter === "all" || filter === "dm") html.push(`<button type="button" class="gc-room soon" data-room="dm" data-k="dm" data-t="direct messages one-to-one chats">
+        <span class="gc-av dm">${DM}</span><span class="gc-rt"><b>Direct messages</b><span>One-to-one chats</span></span><em class="gc-soon">Soon</em></button>`);
     rooms.innerHTML = html.length ? html.join("") : '<p class="gc-none">No rooms here yet.</p>';
     rooms.querySelectorAll(".gc-room").forEach(b => { b.hidden = !!needle && !b.dataset.t.includes(needle); });
     if (needle && ![...rooms.querySelectorAll(".gc-room")].some(b => !b.hidden)) rooms.insertAdjacentHTML("beforeend", '<p class="gc-none">Nothing matches “' + esc(q.value.trim()) + '”.</p>');
@@ -3571,14 +3611,37 @@ const daysAway = iso => {
   chips.addEventListener("click", e => { const b = e.target.closest("button[data-f]"); if (!b) return; filter = b.dataset.f;
     chips.querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", x === b ? "true" : "false")); draw(); });
   q.addEventListener("input", draw);
-  rooms.addEventListener("click", e => { const b = e.target.closest(".gc-room[data-soon]"); if (!b) return;
-    const n = b.querySelector("b").textContent; b.classList.add("nudge"); setTimeout(() => b.classList.remove("nudge"), 600);
-    const note = document.getElementById("gc-toast"); note.textContent = n + " opens in a later update. For now, everyone talks in STEP Fam."; note.hidden = false;
-    clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 3800); });
-  window.addEventListener("stephub_chat_render", e => { const m = e.detail.msgs || []; last = m.length ? m[m.length - 1] : null; draw(); });
-  window.addEventListener("stephub_auth_changed", draw);
-  window.addEventListener("stephub_auth_settled", draw);
-  draw();
+  rooms.addEventListener("click", e => {
+    const b = e.target.closest(".gc-room"); if (!b) return;
+    if (b.classList.contains("soon")) {
+      const n = b.querySelector("b").textContent; b.classList.add("nudge"); setTimeout(() => b.classList.remove("nudge"), 600);
+      const note = document.getElementById("gc-toast");
+      note.textContent = b.dataset.room === "dm" ? "Direct messages open in a later update." : n + " opens once the rooms are switched on in the database.";
+      note.hidden = false; clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 3800); return;
+    }
+    const r = roomList().find(x => x.id === b.dataset.room); if (!r || !window.__gcOpenRoom) return;
+    window.__gcOpenRoom(r.id, r.meta);
+    if (latest[r.id]) markSeen(r.id, latest[r.id].created_at);
+    draw();
+  });
+  async function refresh() {
+    live = !!(CH && CH.available && CH.available()) && !/[?&]demo=1(&|$)/.test(location.search);
+    if (live) { try { const u = await CH.me(); meId = u ? u.id : null; live = !!u; } catch (e) { live = false; } }
+    ready = live ? await CH.hasRooms().catch(() => false) : false;
+    if (live && ready) { try { latest = Object.assign(latest, await CH.latest(roomList().map(r => r.id))); } catch (e) {} }
+    draw();
+  }
+  /* the room on screen tells us its newest message; other rooms light up as messages arrive */
+  window.addEventListener("stephub_chat_render", e => {
+    const d = e.detail, m = d.msgs || [], last = m[m.length - 1];
+    if (d.me) meId = d.me;
+    if (last) { latest[d.room] = { body: last.body, author_name: last.who, user_id: last.me ? meId : "x", created_at: last.at }; markSeen(d.room, last.at); }
+    draw();
+  });
+  window.addEventListener("stephub_chat_other", e => { const r = e.detail.row; latest[r.room] = r; draw(); });
+  window.addEventListener("stephub_auth_changed", refresh);
+  window.addEventListener("stephub_auth_settled", refresh);
+  draw(); refresh();
 })();
 
 /* ---------- right: this week, coming up, due soon ---------- */

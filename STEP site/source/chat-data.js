@@ -21,19 +21,48 @@
     catch (e) { return null; }
   }
 
-  /** The latest messages, oldest first. */
-  async function list(limit) {
-    const { data, error } = await client().from('chat_messages').select('*')
-      .order('created_at', { ascending: false }).limit(limit || 200);
+  /* rooms (supabase/chat_rooms.sql): 'fam', 'team:g1', 'group:mentors' …
+     Until that file has been run there is no room column, and everything
+     is STEP Fam, as before. */
+  let roomsReady = null;                      // null = not checked yet
+  async function hasRooms() {
+    if (roomsReady !== null) return roomsReady;
+    const { error } = await client().from('chat_messages').select('room').limit(1);
+    roomsReady = !error;
+    return roomsReady;
+  }
+
+  /** The latest messages in a room, oldest first. */
+  async function list(limit, room) {
+    const ready = await hasRooms();
+    let q = client().from('chat_messages').select('*');
+    if (ready) q = q.eq('room', room || 'fam');
+    else if (room && room !== 'fam') return [];
+    const { data, error } = await q.order('created_at', { ascending: false }).limit(limit || 200);
     if (error) throw new Error(error.message);
     return (data || []).reverse();
   }
 
-  async function send(body) {
+  /** The newest message of each room you can read: { room: row } */
+  async function latest(rooms) {
+    if (!(await hasRooms())) return {};
+    const out = {};
+    await Promise.all(rooms.map(async r => {
+      const { data } = await client().from('chat_messages').select('*').eq('room', r)
+        .order('created_at', { ascending: false }).limit(1);
+      if (data && data[0]) out[r] = data[0];
+    }));
+    return out;
+  }
+
+  const roomRow = (row, room) => (roomsReady && room ? Object.assign(row, { room }) : row);
+
+  async function send(body, room) {
     const text = String(body || '').trim();
     if (!text) throw new Error('Write a message first.');
     if (text.length > 2000) throw new Error('That message is too long — keep it under 2,000 characters.');
-    const { data, error } = await client().from('chat_messages').insert({ body: text }).select().single();
+    await hasRooms();
+    const { data, error } = await client().from('chat_messages').insert(roomRow({ body: text }, room)).select().single();
     if (error) throw new Error(error.message);
     return data;
   }
@@ -65,7 +94,7 @@
   }
 
   /** Send a picture with an optional caption. */
-  async function sendImage(file, caption) {
+  async function sendImage(file, caption, room) {
     const text = String(caption || '').trim();
     if (text.length > 2000) throw new Error('That caption is too long. Keep it under 2,000 characters.');
     const user = await me(); if (!user) throw new Error('Sign in to send pictures.');
@@ -73,7 +102,8 @@
     const path = user.id + '/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
     const up = await client().storage.from(BUCKET).upload(path, blob, { contentType: blob.type || 'image/' + ext, cacheControl: '3600' });
     if (up.error) throw new Error(/bucket not found/i.test(up.error.message) ? 'Pictures are not set up yet. Ask the tech team to run chat_images.sql.' : up.error.message);
-    const { data, error } = await client().from('chat_messages').insert({ body: text || '\uD83D\uDCF7 Photo', image_path: path }).select().single();
+    await hasRooms();
+    const { data, error } = await client().from('chat_messages').insert(roomRow({ body: text || '\uD83D\uDCF7 Photo', image_path: path }, room)).select().single();
     if (error) {
       client().storage.from(BUCKET).remove([path]).catch(() => {});
       throw new Error(/image_path/i.test(error.message) ? 'Pictures are not set up yet. Ask the tech team to run chat_images.sql.' : error.message);
@@ -141,5 +171,5 @@
     };
   }
 
-  window.STEP_CHAT = { available, me, list, send, sendImage, imageUrls, edit, setPinned, remove, info, subscribe };
+  window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, subscribe };
 })();
