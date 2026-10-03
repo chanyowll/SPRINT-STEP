@@ -472,8 +472,9 @@
       <div class="section-head">
         <div class="eyebrow">Saturday feedback sessions</div>
         <h2>The panels</h2>
-        <p class="lede">Three panels run in parallel from 9:00 AM. Each team gets thirty-five minutes — a
+        <p class="lede" id="pnl-lede">Three panels run in parallel from 9:00 AM. Each team gets thirty-five minutes — a
            five-minute video, then questions.</p>
+        <label class="fld" style="max-width:320px;margin-top:14px"><span>Grouping for</span><select id="pnl-week"></select></label>
       </div>
       <div class="pgrid" id="pnl-grid"></div>
     </section>
@@ -1587,7 +1588,15 @@ document.getElementById("fa-spec").innerHTML = `
 
 /* ---------- the panels ---------- */
 (function () {
-  const draw = () => { document.getElementById("pnl-grid").innerHTML = F.panels.map((p, i) => `
+  const NUM = ["No", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
+  const clock = t => { const [h, m] = String(t || "09:00").split(":").map(Number); return ((h + 11) % 12 + 1) + ":" + String(m).padStart(2, "0") + (h < 12 ? " AM" : " PM"); };
+  const lede = () => {
+    const el = document.getElementById("pnl-lede"); if (!el) return;
+    const n = F.panels.length, starts = [...new Set(F.panels.map(p => clock((p.teams[0] || {}).at)))];
+    el.textContent = (NUM[n] || n) + " panel" + (n === 1 ? " runs" : "s run in parallel") + (starts.length === 1 ? " from " + starts[0] : ", starting at " + starts.slice(0, -1).join(", ") + " and " + starts[starts.length - 1]) +
+      ". Each team gets thirty-five minutes — a five-minute video, then questions.";
+  };
+  const draw = () => { lede(); document.getElementById("pnl-grid").innerHTML = F.panels.map((p, i) => `
     <article class="pcard reveal" style="--d:${i * 70}ms">
       <div class="ph"><span class="pl">Panel ${esc(p.letter)}</span>
         <span class="pn2">${p.teams.length} team${p.teams.length === 1 ? "" : "s"}</span></div>
@@ -1608,6 +1617,22 @@ document.getElementById("fa-spec").innerHTML = `
   };
   draw();
   window.addEventListener("stephub_roster", draw);       // real names from the database
+
+  /* the grouping is per week: the tech console can set a different one for each Saturday.
+     This picker, the score-sheet week and the hand-in week all show the same one. */
+  const selPW = document.getElementById("pnl-week");
+  if (selPW) {
+    const wk = [...new Set(F.sessions.filter(x => x.assess.length && x.week >= 1).map(x => x.week))].sort((a, b) => a - b);
+    selPW.innerHTML = wk.map(w => `<option value="${w}">Week ${w}${w === CUR ? " (this week)" : ""}</option>`).join("");
+    selPW.value = String(wk.includes(CUR) ? CUR : (wk.filter(w => w <= CUR).pop() || wk[0]));
+    selPW.addEventListener("change", () => window.__panelWeek(selPW.value));
+    window.__panelWeek = w => {
+      w = Number(w); if (!w) return;
+      if (selPW.value !== String(w)) selPW.value = String(w);
+      const PS = window.STEP_PANELSHEETS;
+      if (PS && PS.setWeek && PS.getWeek() !== w) PS.setWeek(w);
+    };
+  }
 })();
 
 function initials(n) {
@@ -2105,7 +2130,11 @@ function initials(n) {
     return openSheet();
   }
 
-  selS.addEventListener("change", () => load(selN.value));
+  selS.addEventListener("change", () => {
+    const sc = scored.find(x => x.code === selS.value);
+    if (sc && window.__panelWeek) window.__panelWeek(sc.week);     // the panels for that week
+    load(selN.value);
+  });
   /* criteria saved from the tech console: redraw the sheet on screen (marks are kept by position) */
   window.addEventListener("stephub_scoresheets", () => { if (S) load(selN.value); });
   selP.addEventListener("change", () => load(null));
@@ -2377,7 +2406,7 @@ function initials(n) {
     empty.hidden = true; view.hidden = false;
   }
 
-  selW.addEventListener("change", () => { refreshStatus(); load(); });
+  selW.addEventListener("change", () => { if (window.__panelWeek) window.__panelWeek(selW.value); refreshStatus(); load(); });
   window.addEventListener("stephub_auth_changed", () => { refreshStatus(); load(); });
   /* a saved grouping can move teams between panels — regroup the picker */
   window.addEventListener("stephub_roster", () => paintPicker());

@@ -127,8 +127,11 @@
      the database; the page's panel list is updated in place and a
      "stephub_roster" event tells the pages to redraw. */
   let roster = null;          // [{ seat, panel_letter, display_name, email, is_me }] or null
+  let viewWeek = null;        // the week whose grouping the page shows (null = this week)
+  let builtin = null;         // the programme's own panels, kept to fall back on
 
-  async function loadRoster() {
+  async function loadRoster(week) {
+    if (typeof week === 'number' || (typeof week === 'string' && week !== '')) viewWeek = Number(week);
     if (!(await isLive())) { roster = null; return null; }
     const { data, error } = await client().rpc('panel_roster');
     if (error || !data) { roster = null; return null; }
@@ -138,13 +141,16 @@
        panel that week has no panel */
     const PP = window.STEP_PANELPLAN;
     let plan = null;
-    if (PP) { try { plan = await PP.forWeek(PP.currentWeek()); } catch (e) { plan = null; } }
+    if (PP) { try { plan = await PP.forWeek(viewWeek != null ? viewWeek : PP.currentWeek()); } catch (e) { plan = null; } }
     if (plan) {
       const letterOf = {};
       (plan.panels || []).forEach(p => (p.panelists || []).forEach(x => { letterOf[x.seat] = p.letter; }));
       data.forEach(r => { r.panel_letter = letterOf[r.seat] || null; });
     }
     roster = data;
+    if (F && F.panels && !builtin) builtin = JSON.parse(JSON.stringify(F.panels));
+    /* a week with no saved grouping shows the programme's own panels again */
+    if (F && F.panels && builtin && !plan) { F.panels.length = 0; JSON.parse(JSON.stringify(builtin)).forEach(p => F.panels.push(p)); }
     if (F && F.panels) {
       if (plan) PP.applyTo(F, plan, data);
       else F.panels.forEach(p => {
@@ -152,10 +158,13 @@
         if (mine.length) { p.seats = mine.map(r => r.seat); p.panelists = mine.map(r => r.display_name); }
       });
     }
-    window.dispatchEvent(new CustomEvent('stephub_roster', { detail: { roster: data } }));
+    window.dispatchEvent(new CustomEvent('stephub_roster', { detail: { roster: data, week: viewWeek, saved: !!plan } }));
     return data;
   }
   const getRoster = () => roster;
+  /** show the grouping that holds for week w (re-reads it, then redraws the page) */
+  const setWeek = w => loadRoster(Number(w));
+  const getWeek = () => viewWeek;
   /** the seat the signed-in account holds, or null */
   const mySeat = () => (roster && roster.find(r => r.is_me)) || null;
 
@@ -172,5 +181,5 @@
   setTimeout(loadRoster, 0);
   window.addEventListener('stephub_auth_changed', () => { loadRoster(); });
 
-  window.STEP_PANELSHEETS = { isLive, load, save, submit, clear, loadRoster, getRoster, mySeat, assignSeat };
+  window.STEP_PANELSHEETS = { isLive, load, save, submit, clear, loadRoster, setWeek, getWeek, getRoster, mySeat, assignSeat };
 })();
