@@ -481,8 +481,8 @@ window.MOCK = (function () {
       // ── Public routes — always accessible to logged-in users
       if (["home", "program", "groups"].includes(route)) return true;
 
-      // ── This Week — all authenticated users
-      if (route === "week") return true;
+      // ── This Week and STEP GC — all authenticated users
+      if (route === "week" || route === "gc") return true;
 
       // ── My Team's Work — all authenticated users
       if (route === "myteam") return true;

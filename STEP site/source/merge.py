@@ -13,6 +13,7 @@ root = pathlib.Path(".")
 PAGES = [
     ("home",    "index.html",   "Home"),
     ("week",    "this-week.html", "This Week"),
+    ("gc",      "gc.html",      "STEP GC"),
     ("program", "program.html", "Program"),
     ("groups",  "groups.html",  "STEP Groups"),
     ("myteam",  "my-team.html", "My Team's Work"),
@@ -68,6 +69,8 @@ def fix_nav(h):
     h = h.replace('<a href="trainers.html" class="active"', '<a href="#trainers" data-route="trainers"')
     h = h.replace('<a href="trainers.html"', '<a href="#trainers" data-route="trainers"')
     h = h.replace('<a href="this-week.html">', '<a href="#week" data-route="week">')
+    h = h.replace('<a href="gc.html" class="active">', '<a href="#gc" data-route="gc">')
+    h = h.replace('<a href="gc.html">', '<a href="#gc" data-route="gc">')
     return h
 
 header = fix_nav(header)
@@ -86,6 +89,7 @@ LINKS = [
     ('href="capstone.html#capstone"', 'href="#capstone"'),
     ('href="capstone.html"',          'href="#capstone"'),
     ('href="this-week.html"',         'href="#week"'),
+    ('href="gc.html"',                'href="#gc"'),
     ('href="trainers.html"',          'href="#trainers"'),
     ('href="groups.html"',            'href="#groups"'),
     ('href="index.html"',             'href="#home"'),
@@ -113,6 +117,7 @@ router = """
                  myteam:  "My Team's Work · SPRINT-STEP",
                  capstone: "Capstone · SPRINT-STEP",
                  week:    "This Week · SPRINT-STEP",
+                 gc:      "STEP GC · SPRINT-STEP",
                  groups:  "STEP Groups · SPRINT-STEP",
                  trainers: "Trainers · SPRINT-STEP" };
 
@@ -156,6 +161,9 @@ router = """
       a.classList.toggle("active", on);
     });
     document.title = titles[name];
+    /* STEP GC is one screen: the page itself does not scroll, only its lists */
+    document.body.classList.toggle("on-gc", name === "gc");
+    if (name === "gc" && typeof window.__gcFit === "function") window.__gcFit();
     document.getElementById("nav").classList.remove("open");
     document.querySelector(".nav-toggle").setAttribute("aria-expanded", "false");
     // Trigger dynamic renders if available
@@ -249,6 +257,8 @@ tagged = tagged.replace('<a href="#capstone" data-route="capstone" aria-haspopup
                         '<a class="nav-link" href="#capstone" data-route="capstone" aria-haspopup')
 tagged = tagged.replace('<a href="#week" data-route="week">',
                         '<a class="nav-link" href="#week" data-route="week">')
+tagged = tagged.replace('<a href="#gc" data-route="gc">',
+                        '<a class="nav-link" href="#gc" data-route="gc">')
 tagged = tagged.replace('<a href="#groups" data-route="groups">',
                         '<a class="nav-link" href="#groups" data-route="groups">')
 tagged = tagged.replace('<a href="#trainers" data-route="trainers" aria-haspopup',

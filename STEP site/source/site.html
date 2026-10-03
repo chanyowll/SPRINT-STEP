@@ -37,6 +37,7 @@
       <a class="nav-link" href="#program" data-route="program">Program</a>
       <a class="nav-link" href="#groups" data-route="groups">STEP Groups</a>
       <a class="nav-link" href="#week" data-route="week">This Week <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <a class="nav-link" href="#gc" data-route="gc">STEP GC <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
       <a class="nav-link" href="#myteam" data-route="myteam">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
       <span class="navdd"><a class="nav-link" href="#capstone" data-route="capstone" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
       <span class="navdd"><a class="nav-link" href="#trainers" data-route="trainers" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
@@ -656,15 +657,46 @@
     <div class="week-rail" id="rail"></div>
   </section>
 
-  <!-- ===== STEP Family group chat ===== -->
+  <!-- ===== STEP Family group chat: now its own tab ===== -->
   <section>
     <div class="section-head">
       <div class="eyebrow">STEP Fam</div>
       <h2>Group chat</h2>
-      <p class="lede">One room for the whole cohort — participants, trainers, mentors and the STEP team.
-         Ask anything, answer each other; everyone sees every message.</p>
+      <p class="lede">The cohort's group chat has its own tab now, with this week's sessions and deadlines beside it.</p>
     </div>
-    <div class="hd-wrap">
+    <a class="btn solid" href="#gc">Open STEP GC</a>
+  </section>
+
+  </div>
+
+</main>
+</div>
+
+<!-- ===== Footer ===== -->
+</div>
+<div class="route" id="route-gc" data-route="gc" hidden>
+<main class="gc-page" id="gc-page">
+  <div class="gc-app" id="gc-app">
+
+    <!-- ===== left: rooms ===== -->
+    <aside class="gc-left" aria-label="Rooms">
+      <div class="gc-lh">
+        <h1>STEP GC</h1>
+      </div>
+      <label class="gc-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+        <input type="search" id="gc-q" placeholder="Search rooms" aria-label="Search rooms" autocomplete="off" spellcheck="false">
+      </label>
+      <div class="gc-chips" id="gc-chips" role="tablist" aria-label="Show">
+        <button type="button" role="tab" data-f="all" aria-selected="true">All</button>
+        <button type="button" role="tab" data-f="team" aria-selected="false">Teams</button>
+        <button type="button" role="tab" data-f="dm" aria-selected="false">Direct</button>
+      </div>
+      <div class="gc-rooms" id="gc-rooms"></div>
+    </aside>
+
+    <!-- ===== middle: the chat ===== -->
+    <section class="gc-mid" aria-label="Group chat">
       <div class="chatroom reveal">
         <header class="ch-top">
           <span class="ch-ico" aria-hidden="true">
@@ -699,18 +731,20 @@
           <p class="small muted mb-0" id="ch-note">Design mockup — messages stay in your browser.</p>
         </form>
       </div>
-      <div class="card reveal" style="--d:100ms">
-        <div class="card-head"><h3>Good to know</h3></div>
-        <ul class="hk" id="hk"></ul>
-      </div>
-    </div>
-  </section>
+    </section>
+
+    <!-- ===== right: this week ===== -->
+    <aside class="gc-right" aria-label="This week">
+      <section class="gc-card" id="gc-week"></section>
+      <section class="gc-card" id="gc-next"></section>
+      <section class="gc-card" id="gc-due"></section>
+      <section class="gc-card" id="gc-know"></section>
+    </aside>
 
   </div>
-
 </main>
-</div>
 
+<div class="gc-toast" id="gc-toast" role="status" hidden></div>
 <!-- ===== Footer ===== -->
 </div>
 <div class="route" id="route-program" data-route="program" hidden>
@@ -1999,7 +2033,7 @@
       <p class="small">
         <a href="#home" data-route="home">Home</a> · <a href="#program" data-route="program">Program</a> ·
         <a href="#groups" data-route="groups">STEP Groups</a><br>
-        <a href="#week" data-route="week">This Week</a> · <a href="#myteam" data-route="myteam">My Team's Work</a> ·
+        <a href="#week" data-route="week">This Week</a> · <a href="#gc" data-route="gc">STEP GC</a> · <a href="#myteam" data-route="myteam">My Team's Work</a> ·
         <a href="#capstone" data-route="capstone">Capstone</a> · <a href="#trainers" data-route="trainers">Trainers</a>
       </p>
     </div>
@@ -3049,6 +3083,63 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
   window.addEventListener("stephub_auth_changed", () => { marked = false; load(); });
 })();
 
+
+
+/* ---------- RBAC Access Guard ---------- */
+window.__renderThisWeek = function() {
+  const user = window.MOCK ? window.MOCK.auth.getCurrentUser() : null;
+  const gate = document.getElementById("week-locked-gate");
+  const content = document.getElementById("week-content-wrap");
+  if (!gate || !content) return;
+  if (!user || user.role === "guest") {
+    gate.hidden = false;
+    gate.innerHTML = `
+      <div class="access-restricted-card">
+        <div class="shield-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+        </div>
+        <h2>Sign In Required</h2>
+        <p>This Week's schedule, materials, and panel assignments are private to enrolled SPRINT-STEP participants, mentors, trainers, and panelists. Please sign in to view this week's sessions.</p>
+        <button class="btn solid" onclick="window.MOCK.openAuthModal()">Sign In / Select Demo Account</button>
+      </div>
+    `;
+    content.hidden = true;
+  } else {
+    gate.hidden = true;
+    content.hidden = false;
+  }
+};
+window.__renderThisWeek();
+window.addEventListener("stephub_auth_changed", () => {
+  if (typeof window.__renderThisWeek === "function") window.__renderThisWeek();
+});
+})();
+} catch(e) { console.error('[STEP] Error in this-week.html script:', e); }
+/* ---- gc.html ---- */
+try {
+(function(){
+const W = window.MOCK.thisWeek;
+const NOW = new Date();                              // the real clock
+const esc = t => String(t == null ? "" : t)
+  .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+/* Compare Manila calendar days as plain YYYY-MM-DD strings — comparing Date
+   objects breaks whenever the browser's own zone is behind Asia/Manila. */
+const manilaDay = d => d.toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
+const TODAY = manilaDay(NOW);
+const fmtD = (iso, o) => new Date(iso).toLocaleDateString("en-PH",
+  Object.assign({ timeZone: "Asia/Manila", day: "numeric", month: "short" }, o || {}));
+const fmtT = iso => new Date(iso).toLocaleTimeString("en-PH",
+  { timeZone: "Asia/Manila", hour: "numeric", minute: "2-digit" });
+const isToday = iso => iso === TODAY;
+const isPast  = iso => iso < TODAY;
+const dayNum  = iso => Number(iso.slice(8, 10));
+const utcOf   = iso => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10));
+const daysAway = iso => {
+  const n = Math.round((utcOf(iso) - utcOf(TODAY)) / 86400000);
+  return n === 1 ? "Tomorrow" : "In " + n + " days";
+};
+
+
 /* ---------- STEP Family group chat ---------- */
 (function () {
   const thread = document.getElementById("thread");
@@ -3170,6 +3261,7 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     if (pinBottom) thread.scrollTop = thread.scrollHeight;
     hydrateImages();
     paintPin();
+    window.dispatchEvent(new CustomEvent("stephub_chat_render", { detail: { msgs: MSGS, live } }));
     if (editingId) { const t = document.getElementById("ed-box"); if (t && document.activeElement !== t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
 
     /* who is in the room, drawn from the people who have spoken lately */
@@ -3340,41 +3432,101 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
   window.addEventListener("stephub_auth_changed", start);
 })();
 
-document.getElementById("hk").innerHTML = W.housekeeping.map(h =>
-  `<li><b>${esc(h.title)}</b><span>${esc(h.note)}</span></li>`).join("");
 
 
 
-/* ---------- RBAC Access Guard ---------- */
-window.__renderThisWeek = function() {
-  const user = window.MOCK ? window.MOCK.auth.getCurrentUser() : null;
-  const gate = document.getElementById("week-locked-gate");
-  const content = document.getElementById("week-content-wrap");
-  if (!gate || !content) return;
-  if (!user || user.role === "guest") {
-    gate.hidden = false;
-    gate.innerHTML = `
-      <div class="access-restricted-card">
-        <div class="shield-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
-        </div>
-        <h2>Sign In Required</h2>
-        <p>This Week's schedule, materials, and panel assignments are private to enrolled SPRINT-STEP participants, mentors, trainers, and panelists. Please sign in to view this week's sessions.</p>
-        <button class="btn solid" onclick="window.MOCK.openAuthModal()">Sign In / Select Demo Account</button>
-      </div>
-    `;
-    content.hidden = true;
-  } else {
-    gate.hidden = true;
-    content.hidden = false;
+
+/* ---------- left: the rooms ---------- */
+(function () {
+  const rooms = document.getElementById("gc-rooms"), q = document.getElementById("gc-q"), chips = document.getElementById("gc-chips");
+  let filter = "all", last = null;
+  const ICO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M2 20v-1a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v1"/><path d="M17 11a3 3 0 1 0 0-6"/><path d="M19 20v-1a4.5 4.5 0 0 0-3-4.2"/></svg>';
+  const user = () => (window.MOCK && window.MOCK.auth && window.MOCK.auth.getCurrentUser()) || null;
+  const teams = () => {
+    const G = (window.MOCK && window.MOCK.groups) || [], u = user();
+    if (!u || u.role === "guest") return [];
+    const staff = (window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role]).some(r => r && r !== "participant" && r !== "guest");
+    const own = [u.team_id].concat(u.teams || []).filter(Boolean);
+    return G.filter(g => staff || own.includes(g.id));
+  };
+  const when = iso => { if (!iso) return ""; const d = new Date(iso);
+    return manilaDay(d) === TODAY ? fmtT(iso) : fmtD(iso, { weekday: "short" }); };
+  function row(o) {
+    return `<button type="button" class="gc-room${o.active ? " on" : ""}${o.soon ? " soon" : ""}" ${o.soon ? 'data-soon="1"' : ""} data-k="${o.kind}" data-t="${esc((o.name + " " + (o.sub || "")).toLowerCase())}">
+      <span class="gc-av ${o.kind}">${o.icon}</span>
+      <span class="gc-rt"><b>${esc(o.name)}</b><span>${esc(o.sub || "")}</span></span>
+      ${o.soon ? '<em class="gc-soon">Soon</em>' : (o.time ? `<time>${esc(o.time)}</time>` : "")}
+    </button>`;
   }
-};
-window.__renderThisWeek();
-window.addEventListener("stephub_auth_changed", () => {
-  if (typeof window.__renderThisWeek === "function") window.__renderThisWeek();
-});
+  function draw() {
+    const needle = q.value.trim().toLowerCase();
+    const prev = last ? ((last.me ? "You" : String(last.who).split(" ")[0]) + ": " + (/^📷 Photo$/.test(last.body) ? "sent a photo" : last.body)) : "The whole cohort";
+    const list = [{ kind: "all", name: "STEP Fam", sub: prev, time: last ? when(last.at) : "", icon: ICO, active: true }];
+    teams().forEach(g => list.push({ kind: "team", name: "Team " + (g.short || g.name), sub: "Team room", icon: esc(String(g.short || g.name).slice(0, 2).toUpperCase()), soon: true }));
+    list.push({ kind: "dm", name: "Direct messages", sub: "One-to-one chats", icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg>', soon: true });
+    const html = list.filter(r => (filter === "all" || r.kind === filter || (filter === "team" && r.kind === "all" && false))).map(row);
+    rooms.innerHTML = html.length ? html.join("") : '<p class="gc-none">No rooms here yet.</p>';
+    rooms.querySelectorAll(".gc-room").forEach(b => { b.hidden = !!needle && !b.dataset.t.includes(needle); });
+    if (needle && ![...rooms.querySelectorAll(".gc-room")].some(b => !b.hidden)) rooms.insertAdjacentHTML("beforeend", '<p class="gc-none">Nothing matches “' + esc(q.value.trim()) + '”.</p>');
+  }
+  chips.addEventListener("click", e => { const b = e.target.closest("button[data-f]"); if (!b) return; filter = b.dataset.f;
+    chips.querySelectorAll("button").forEach(x => x.setAttribute("aria-selected", x === b ? "true" : "false")); draw(); });
+  q.addEventListener("input", draw);
+  rooms.addEventListener("click", e => { const b = e.target.closest(".gc-room[data-soon]"); if (!b) return;
+    const n = b.querySelector("b").textContent; b.classList.add("nudge"); setTimeout(() => b.classList.remove("nudge"), 600);
+    const note = document.getElementById("gc-toast"); note.textContent = n + " opens in a later update. For now, everyone talks in STEP Fam."; note.hidden = false;
+    clearTimeout(note._t); note._t = setTimeout(() => { note.hidden = true; }, 3800); });
+  window.addEventListener("stephub_chat_render", e => { const m = e.detail.msgs || []; last = m.length ? m[m.length - 1] : null; draw(); });
+  window.addEventListener("stephub_auth_changed", draw);
+  window.addEventListener("stephub_auth_settled", draw);
+  draw();
 })();
-} catch(e) { console.error('[STEP] Error in this-week.html script:', e); }
+
+/* ---------- right: this week, coming up, due soon ---------- */
+(function () {
+  const S = window.STEP_SCHEDULE;
+  const wk = document.getElementById("gc-week"), nx = document.getElementById("gc-next"),
+        du = document.getElementById("gc-due"), kn = document.getElementById("gc-know");
+  const T = W.topic || {};
+  wk.innerHTML = `<div class="gc-k">This week</div>
+    <h2>Week ${W.week_no} of ${W.weeks_total}</h2>
+    <p class="gc-tt">${esc(T.title || "")}</p>
+    ${W.note ? `<p class="gc-note">${esc(W.note)}</p>` : (T.tagline ? `<p class="gc-tag">${esc(T.tagline)}</p>` : "")}
+    <a class="gc-link" href="#week">Open This Week</a>`;
+
+  const upcoming = (W.days || []).filter(d => !isPast(d.d) && ["session", "panel", "onsite"].includes(d.kind)).slice(0, 3);
+  nx.innerHTML = `<h3>Coming up</h3>` + (upcoming.length ? upcoming.map(d => `
+    <div class="gc-ev ${isToday(d.d) ? "today" : ""}">
+      <span class="gc-dd"><b>${dayNum(d.d)}</b>${esc(d.label.slice(0, 3))}</span>
+      <span class="gc-et"><b>${esc(d.title)}</b><span>${[d.time, d.where].filter(Boolean).map(esc).join(" · ")}${isToday(d.d) ? " · Today" : " · " + daysAway(d.d)}</span></span>
+      ${d.action === "join" ? '<button class="gc-join" type="button" disabled title="Opens 15 minutes before">Join</button>' : ""}
+    </div>`).join("") : '<p class="gc-none">Nothing else is scheduled this week.</p>');
+
+  const dues = [];
+  if (S) for (let n = Math.max(1, W.week_no); n <= W.weeks_total && dues.length < 3; n++) {
+    const due = S.dueOf(n); if (due && new Date(due) > NOW) dues.push({ n, due, w: S.byWeek(n) });
+  }
+  const left = iso => { const h = Math.round((new Date(iso) - NOW) / 3600000);
+    return h < 24 ? h + (h === 1 ? " hour left" : " hours left") : Math.round(h / 24) + (Math.round(h / 24) === 1 ? " day left" : " days left"); };
+  du.innerHTML = `<h3>Due soon</h3>` + (dues.length ? dues.map(x => `
+    <a class="gc-ev dueitem" href="#myteam-submit">
+      <span class="gc-dd"><b>${dayNum(x.due.slice(0, 10))}</b>${esc(S.dayName(x.due.slice(0, 10)).slice(0, 3))}</span>
+      <span class="gc-et"><b>Week ${x.n} team output</b><span>${esc((x.w && x.w.short) || "")} · 12:00 NN · ${left(x.due)}</span></span>
+    </a>`).join("") : '<p class="gc-none">No team outputs are due right now.</p>');
+
+  kn.innerHTML = `<h3>Good to know</h3><ul class="gc-hk">` + (W.housekeeping || []).map(h =>
+    `<li><b>${esc(h.title)}</b><span>${esc(h.note)}</span></li>`).join("") + `</ul>`;
+})();
+
+/* ---------- the screen is one piece: only the lists scroll ---------- */
+window.__gcFit = function () {
+  const top = (document.querySelector(".utility-bar") || {}).offsetHeight + (document.querySelector(".site-header") || {}).offsetHeight;
+  document.documentElement.style.setProperty("--gc-top", (top || 128) + "px");
+};
+window.addEventListener("resize", window.__gcFit);
+if (!document.getElementById("route-gc")) { document.body.classList.add("on-gc"); window.__gcFit(); }
+})();
+} catch(e) { console.error('[STEP] Error in gc.html script:', e); }
 /* ---- program.html ---- */
 try {
 (function(){
@@ -7891,6 +8043,7 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
                  myteam:  "My Team's Work · SPRINT-STEP",
                  capstone: "Capstone · SPRINT-STEP",
                  week:    "This Week · SPRINT-STEP",
+                 gc:      "STEP GC · SPRINT-STEP",
                  groups:  "STEP Groups · SPRINT-STEP",
                  trainers: "Trainers · SPRINT-STEP" };
 
@@ -7934,6 +8087,9 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
       a.classList.toggle("active", on);
     });
     document.title = titles[name];
+    /* STEP GC is one screen: the page itself does not scroll, only its lists */
+    document.body.classList.toggle("on-gc", name === "gc");
+    if (name === "gc" && typeof window.__gcFit === "function") window.__gcFit();
     document.getElementById("nav").classList.remove("open");
     document.querySelector(".nav-toggle").setAttribute("aria-expanded", "false");
     // Trigger dynamic renders if available
