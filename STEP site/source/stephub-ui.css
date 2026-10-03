@@ -5571,3 +5571,44 @@ body { overflow-x: clip; }
 .chatroom .composer input { background: #fffdf8; border-color: #dccca8; }
 .chatroom .composer input:focus { border-color: var(--blue); }
 .chatroom .ch-pin { background: #fbf3e2; }
+
+/* ---- it should feel like a chat box: runs of messages, time inside the
+   bubble, a floating day chip, a patterned wall and a one-piece message bar ---- */
+.chatroom .thread { background-image: radial-gradient(rgba(150, 118, 52, .16) 1px, transparent 1.3px); background-size: 20px 20px;
+  padding: var(--s4) var(--s5) var(--s5); gap: 8px; }
+.chatroom .daydiv { margin: var(--s3) 0 var(--s2); justify-content: center; }
+.chatroom .daydiv::before, .chatroom .daydiv::after { display: none; }
+.chatroom .daydiv span { background: #fffdf8; border: 1px solid #e5d8bb; border-radius: 999px; padding: 4px 14px;
+  font-size: 11.5px; letter-spacing: .02em; text-transform: none; font-weight: 650; color: var(--ink-soft);
+  box-shadow: 0 1px 2px rgba(64, 48, 16, .08); }
+.chatroom .msg-row { gap: 8px; }
+.chatroom .msg-row.cont { margin-top: -5px; }
+.chatroom .msg-row .av.ghost { background: none; border: 0; box-shadow: none; }
+.chatroom .msg-row .av { width: 32px; height: 32px; font-size: 11.5px; font-weight: 800; background: #fbf3e2; color: var(--navy);
+  border: 1px solid #e5d8bb; }
+.chatroom .msg-row .who { margin: 0 0 3px 12px; }
+.chatroom .msg-row .who .nm { color: var(--navy); font-weight: 700; }
+.chatroom .msg-row .bubble { display: flex; flex-wrap: wrap; align-items: flex-end; column-gap: 12px; row-gap: 0;
+  padding: 8px 14px 6px; border-radius: 18px; box-shadow: 0 1px 1.5px rgba(64, 48, 16, .12); }
+.chatroom .msg-row:not(.me).cont .bubble { border-top-left-radius: 6px; }
+.chatroom .msg-row:not(.me):not(.endrun) .bubble { border-bottom-left-radius: 6px; }
+.chatroom .msg-row:not(.me).endrun .bubble { border-bottom-left-radius: 4px; }
+.chatroom .msg-row.me.cont .bubble { border-top-right-radius: 6px; }
+.chatroom .msg-row.me:not(.endrun) .bubble { border-bottom-right-radius: 6px; }
+.chatroom .msg-row.me.endrun .bubble { border-bottom-right-radius: 4px; }
+.chatroom .msg-row .bubble .bd { flex: 1 1 auto; min-width: 0; font-size: 14.5px; line-height: 1.42; padding-bottom: 2px; }
+.chatroom .msg-row .bubble .tm { flex: none; margin-left: auto; font-size: 10.5px; font-weight: 500; color: #9a8f77; line-height: 1.6; padding-bottom: 1px; }
+.chatroom .msg-row.me .bubble .tm { color: rgba(255, 255, 255, .72); }
+.chatroom .msg-row .bubble .ed { flex: 1 1 100%; }
+.chatroom .msg-row .bubble.has-menu { padding-right: 14px; }
+.chatroom .kebab { top: 4px; right: 4px; width: 24px; height: 24px; background: inherit; }
+.chatroom .msg-row .mcol { max-width: min(78%, 560px); }
+
+.chatroom .composer-wrap { padding: 10px var(--s4) 12px; background: #f3e9d0; border-top: 1px solid #dccca8; gap: 6px; }
+.chatroom .composer { gap: 0; align-items: center; background: #fffdf8; border: 1px solid #dccca8; border-radius: 999px;
+  padding: 4px 4px 4px 18px; box-shadow: 0 1px 2px rgba(64, 48, 16, .08); transition: border-color .15s, box-shadow .15s; }
+.chatroom .composer:focus-within { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(31, 111, 178, .15); }
+.chatroom .composer input { border: 0; background: transparent; box-shadow: none; padding: 9px 4px; border-radius: 0; }
+.chatroom .composer input:focus { box-shadow: none; border: 0; }
+.chatroom .btn.send { width: 40px; height: 40px; }
+.chatroom .composer-wrap .small { font-size: 11.5px; text-align: center; margin: 0; color: #8f8466; }

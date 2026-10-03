@@ -3077,6 +3077,10 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     const nearBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight < 80;
     thread.innerHTML = MSGS.length ? MSGS.map((m, i) => {
       const prev = MSGS[i - 1];
+      /* messages from one person within five minutes read as one run, like a messenger */
+      const near = (a, b) => a && b && a.who === b.who && !!a.me === !!b.me && new Date(a.at).toDateString() === new Date(b.at).toDateString()
+        && Math.abs(new Date(b.at) - new Date(a.at)) < 5 * 60000;
+      const cont = near(prev, m), endrun = !near(m, MSGS[i + 1]);
       const sameDay = prev && new Date(prev.at).toDateString() === new Date(m.at).toDateString();
       const day = sameDay ? "" : `<div class="daydiv"><span>${
         new Date(m.at).toDateString() === new Date().toDateString() ? "Today"
@@ -3091,12 +3095,15 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
         ? `<div class="ed"><textarea id="ed-box" rows="2" aria-label="Edit your message" autocomplete="off" autocorrect="off" spellcheck="false">${esc(m.body)}</textarea>
              <div class="ed-acts"><span>Enter to save · Esc to cancel</span><button type="button" class="ed-no">Cancel</button><button type="button" class="ed-ok">Save</button></div></div>`
         : `<div class="bd">${esc(m.body)}</div>`;
-      return day + `<div class="msg-row${m.me ? " me" : ""}${m.pinned ? " pinned" : ""}" data-id="${esc(m.id || "")}">
-        ${m.me ? "" : `<span class="av" aria-hidden="true">${esc(initials(m.who))}</span>`}
+      const stamp = !editing && (endrun || m.edited || m.pinned)
+        ? `<span class="tm">${fmtT(m.at)}${m.edited ? " · edited" : ""}${m.pinned ? " · 📌" : ""}</span>` : "";
+      return day + `<div class="msg-row${m.me ? " me" : ""}${m.pinned ? " pinned" : ""}${cont ? " cont" : ""}${endrun ? " endrun" : ""}" data-id="${esc(m.id || "")}">
+        ${m.me ? "" : (endrun ? `<span class="av" aria-hidden="true">${esc(initials(m.who))}</span>` : `<span class="av ghost" aria-hidden="true"></span>`)}
         <div class="mcol">
-          <div class="who"><span class="nm">${m.me ? "You" : esc(m.who)}</span>${chip}<span class="tm">${fmtT(m.at)}${m.edited ? " · edited" : ""}${m.pinned ? " · 📌 pinned" : ""}</span></div>
+          ${!cont && !m.me ? `<div class="who"><span class="nm">${esc(m.who)}</span>${chip}</div>` : ""}
           <div class="bubble${opts.length ? " has-menu" : ""}">
             ${body}
+            ${stamp}
             ${kebab}
           </div>
         </div>
