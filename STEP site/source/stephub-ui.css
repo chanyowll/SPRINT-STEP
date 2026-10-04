@@ -5791,3 +5791,25 @@ body.on-gc .site-footer { display: none; }
 .gc-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--blue); display: block; }
 .gc-room.unread .gc-rt b { font-weight: 800; }
 .gc-room.unread .gc-rt span { color: var(--ink); font-weight: 650; }
+
+/* =====================================================================
+   The floating STEP GC button: bottom right of every page except STEP GC
+   ===================================================================== */
+.gc-fab { position: fixed; right: 28px; bottom: 28px; z-index: 250; width: 66px; height: 66px; border-radius: 50%;
+  display: grid; place-items: center; color: #fff; text-decoration: none;
+  background: linear-gradient(140deg, #072341 0%, #0b3c6b 70%, #10508e 100%);
+  box-shadow: 0 0 0 3px #fff, 0 10px 26px rgba(11, 60, 107, .35), 0 2px 6px rgba(11, 60, 107, .25);
+  transition: transform .18s ease, box-shadow .18s ease; }
+.gc-fab[hidden] { display: none; }
+.gc-fab svg { width: 36px; height: 36px; }
+.gc-fab:hover { transform: translateY(-2px); box-shadow: 0 0 0 3px #fff, 0 14px 30px rgba(11, 60, 107, .42), 0 2px 6px rgba(11, 60, 107, .25); }
+.gc-fab:focus-visible { outline: 3px solid var(--blue); outline-offset: 5px; }
+.gc-fab-n { position: absolute; top: -4px; right: -4px; min-width: 24px; height: 24px; padding: 0 6px; box-sizing: border-box; border-radius: 999px;
+  background: var(--gold); color: #fff; border: 2px solid #fff; font-size: 12px; font-weight: 800; line-height: 20px; text-align: center; }
+.gc-fab-n[hidden] { display: none; }
+.gc-fab-tip { position: absolute; right: calc(100% + 12px); top: 50%; transform: translateY(-50%); white-space: nowrap; pointer-events: none;
+  background: var(--navy); color: #fff; font-size: 13.5px; font-weight: 650; padding: 7px 13px; border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, .18); opacity: 0; transition: opacity .15s ease; }
+.gc-fab:hover .gc-fab-tip, .gc-fab:focus-visible .gc-fab-tip { opacity: 1; }
+@media (max-width: 700px) { .gc-fab { right: 16px; bottom: 16px; width: 58px; height: 58px; } .gc-fab svg { width: 31px; height: 31px; } .gc-fab-tip { display: none; } }
+@media (prefers-reduced-motion: reduce) { .gc-fab { transition: none; } .gc-fab:hover { transform: none; } }
