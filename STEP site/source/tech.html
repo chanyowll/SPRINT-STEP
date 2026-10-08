@@ -1605,12 +1605,13 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     panel: `<svg ${IS}><path d="M3 4h11a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8l-3 3v-3H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M18 8h3a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-1v3l-3-3h-4a1 1 0 0 1-1-1v-1"/></svg>`,
   };
   const ICON_NAME = { alert: "Alert", file: "Document", cert: "Certificate", chart: "Results", learn: "Learning session", panel: "Panel feedback" };
-  /* a link typed into an announcement opens as a link; everything else stays plain text */
-  const linkify = txt => esc(txt).replace(/((?:https?:\/\/|www\.)[^\s<"']+)/g, (m) => {
+  /* any link in an announcement opens as a link: web addresses with or without https://,
+     www., bare domains (zoom.us/j/…), mailto: and file:// — everything else stays plain text */
+  const linkify = txt => esc(txt).replace(/(?<![@\w.\/])((?:(?:https?|ftp|file):\/\/|mailto:|www\.)[^\s<"']+|[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|net|edu|gov|ph|io|us|co|me|app|ly|gl|link|info|dev|ai|gle)(?:\/[^\s<"']*)?)/gi, (m) => {
     let url = m, tail = "";
     const t = url.match(/[.,;:!?)\]]+$/); if (t) { tail = t[0]; url = url.slice(0, -tail.length); }
     if (!url) return m;
-    const href = /^www\./i.test(url) ? "https://" + url : url;
+    const href = /^(?:[a-z][a-z0-9+.-]*:)/i.test(url) ? url : "https://" + url;
     return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>${tail}`;
   });
 
