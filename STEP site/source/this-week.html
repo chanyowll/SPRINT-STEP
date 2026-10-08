@@ -424,22 +424,34 @@ const daysAway = iso => {
        clicks, so the screen can stay a plain 16:9 with no bands. */
     const drive = !!embed && /drive\.google\.com/.test(embed);
     const frameStyle = "position:absolute;inset:0;width:100%;height:100%;border:0";
-    const patch = drive ? `<div class="rp-bug" aria-hidden="true"><img src="assets/step-logo-mark-white.png" alt=""></div>` : "";
+    const patch = drive ? `<div class="rp-bug" aria-hidden="true"><img src="assets/step-logo-mark-white.png" alt=""></div>` : ""
+    /* Drive's own full-screen button would take only its player and leave the badge behind,
+       so for Drive the player's own button is not allowed and this one expands the whole
+       frame — video and badge together. */
+    const fsBtn = drive ? `<button type="button" class="rp-fs" aria-label="Full screen" title="Full screen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>` : "";
     const player = !v.link
       ? `<video controls controlsList="nodownload" disablepictureinpicture preload="metadata" playsinline src="${esc(v.url)}" aria-label="${label}"></video>`
       : embed
-        ? `<iframe src="${esc(embed)}" title="${label}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+        ? `<iframe src="${esc(embed)}" title="${label}" allow="autoplay; ${drive ? "" : "fullscreen; "}picture-in-picture; encrypted-media"
                    loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="${frameStyle}"></iframe>`
         : `<div class="rp-emptybox" style="height:100%;display:grid;place-content:center;justify-items:center;gap:12px;color:#fff"><b>Watch the recording</b>
              <a class="btn solid" href="${esc(v.link)}" target="_blank" rel="noopener">Open the video ↗</a></div>`;
     replay.className = "replay rp-live";
     replay.innerHTML = `
-      <div class="rp-player"${embed ? ' style="position:relative;aspect-ratio:16/9"' : ""}>${player}${patch}</div>
+      <div class="rp-player"${embed ? ' style="position:relative;aspect-ratio:16/9"' : ""}>${player}${patch}${fsBtn}</div>
       <div class="rp-cap">
         <span class="kick">Session replay</span>
         <h3>${esc(v.title || ("Week " + T.week + " · " + T.short))}</h3>
         <p class="meta">${[on, v.duration ? v.duration + " long" : "", v.link ? "" : kb(v.size)].filter(Boolean).join(" · ")}</p>
       </div>`;
+
+    const fs = replay.querySelector(".rp-fs");
+    if (fs) fs.addEventListener("click", () => {
+      const box = replay.querySelector(".rp-player");
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (box.requestFullscreen) box.requestFullscreen();
+      else if (box.webkitRequestFullscreen) box.webkitRequestFullscreen();
+    });
   }
   paintReplayEmpty();
 
