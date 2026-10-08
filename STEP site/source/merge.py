@@ -380,9 +380,11 @@ page = page.replace('<link rel="preconnect" href="https://fonts.googleapis.com">
     '<link rel="preconnect" href="https://roarebrfugxwdabduebt.supabase.co" crossorigin>\n'
     '<link rel="preconnect" href="https://fonts.googleapis.com">', 1)
 # 3. pictures load when they come into view, not all at once on every page
-#    (only in the page's HTML; script text is left exactly as written)
+#    (only in the page's HTML; script text is left exactly as written). Only pictures
+#    that already have a src and are visible: a hidden <img> that a script fills in
+#    and waits on (the STEP Groups crest) would never load if marked lazy.
 _parts = re.split(r'(<script\b[\s\S]*?</script>)', page)
-page = "".join(x if x.startswith("<script") else re.sub(r'<img (?![^>]*\bloading=)', '<img loading="lazy" decoding="async" ', x)
+page = "".join(x if x.startswith("<script") else re.sub(r'<img (?![^>]*\b(?:loading=|hidden\b))(?=[^>]*\bsrc=)', '<img loading="lazy" decoding="async" ', x)
                for x in _parts)
 
 out = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "site.html")
