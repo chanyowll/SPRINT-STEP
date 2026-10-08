@@ -589,16 +589,6 @@ document.getElementById("fa-spec").innerHTML = `
     });
   }
 
-  /* Asking for one of the three pages by name without holding its role says
-     so, in the site's one access popup, before landing on their own page. */
-  const NEED = { trainers: "trainers", mentors: "mentors", panel: "panelists" };
-  function deny(raw) {
-    const asked = raw.replace(/^trainers-?/, "");
-    const may = allowed();
-    if (!asked || !VIEWS.includes(asked) || !may.length || may.includes(asked)) return;
-    if (window.__accessPopup) window.__accessPopup({ kind: "role", page: LABEL[asked], need: NEED[asked] });
-  }
-
   function show(v, mode) {
     const may = allowed();
     if (!may.length) return;
@@ -629,7 +619,7 @@ document.getElementById("fa-spec").innerHTML = `
     if (raw && !/^trainers(-|$)/.test(raw) && !VIEWS.includes(raw)) return;
     const h = readHash();
     const may = allowed();
-    deny(raw);
+    if (raw !== "trainers" && VIEWS.includes(h) && !may.includes(h)) return;   // the site's router keeps you put and shows the popup
     const want = may.includes(h) ? h : (may[0] || null);
     if (want && document.getElementById("view-" + want).hidden) show(want, "replace");
   });
@@ -642,7 +632,6 @@ document.getElementById("fa-spec").innerHTML = `
     /* the address says which of the three was asked for (a refresh on Mentors
        stays on Mentors); off the Trainers pages, keep whichever is showing */
     const raw = (location.hash || "").replace(/^#/, "");
-    if (/^trainers-/.test(raw)) deny(raw);
     const cur = /^trainers(-|$)/.test(raw) ? readHash()
       : VIEWS.find(k => !document.getElementById("view-" + k).hidden);
     show(may.includes(cur) ? cur : may[0], "replace");

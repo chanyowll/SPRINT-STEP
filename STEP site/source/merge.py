@@ -180,16 +180,25 @@ router = """
       window.__pendingRoute = true;
       return;
     }
-    if (window.MOCK && window.MOCK.auth && !window.MOCK.auth.canAccess(name)) {
-      /* Every locked page answers the same way: back to Home, with one
-         popup saying why. */
-      var asked = name, u = window.MOCK.auth.getCurrentUser();
+    var auth = window.MOCK && window.MOCK.auth;
+    var subview = (name === "trainers" && anchor && /^(trainers|mentors|panel)$/.test(anchor)) ? anchor : "";
+    var denied = auth && (!auth.canAccess(name) || (subview && auth.canView && !auth.canView(subview)));
+    if (denied) {
+      /* Every locked page answers the same way: the person stays exactly
+         where they are and one popup says why. Only a link opened cold, with
+         nowhere to stay, falls back to Home. */
+      var u = auth.getCurrentUser();
       var guest = !u || u.role === "guest";
-      name = "home";
-      location.hash = "#home";
-      if (window.__accessPopup) window.__accessPopup(guest ? { kind: "signin" }
+      var asked = name, keep = window.__lastHash, cur = "#" + (location.hash || "").replace(/^#/, "");
+      var stay = !!keep && keep !== cur;            // they clicked a locked link: put the address back
+      var recheck = !!keep && keep === cur;          // their rights changed under them (signed out): go Home quietly
+      if (stay) history.replaceState(null, "", keep);
+      else { name = "home"; anchor = ""; history.replaceState(null, "", "#home"); }
+      if (window.__accessPopup && !recheck) window.__accessPopup(guest ? { kind: "signin" }
+        : subview ? { kind: "role", page: { trainers: "Trainers", mentors: "Mentors", panel: "Panel" }[subview], need: NEEDS[subview] }
         : asked === "trainers" ? { kind: "role", page: "Trainers, Mentors and Panel", need: NEEDS.trainers }
         : { kind: "role", page: "that page", need: "the STEP team" });
+      if (stay) return;
     }
     // the Capstone form panel is docked to the page; never let it follow you elsewhere
     if (name !== "capstone" && window.__closeSheet) window.__closeSheet();
@@ -199,6 +208,7 @@ router = """
       a.classList.toggle("active", on);
     });
     document.title = titles[name];
+    window.__lastHash = "#" + (location.hash || "#" + name).replace(/^#/, "");
     /* STEP GC is one screen: the page itself does not scroll, only its lists */
     document.body.classList.toggle("on-gc", name === "gc");
     if (name === "gc" && typeof window.__gcFit === "function") window.__gcFit();
