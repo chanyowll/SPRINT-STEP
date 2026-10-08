@@ -286,7 +286,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .ann-split { display: grid; grid-template-columns: minmax(320px, 400px) minmax(0, 1fr); gap: 20px; align-items: start; }
 .ann-split > .card { position: sticky; top: 64px; }
 @media (max-width: 1100px) { .ann-split { grid-template-columns: minmax(0, 1fr); } .ann-split > .card { position: static; } }
-.icopick { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.icopick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 .icopick button { all: unset; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 8px 4px; border: 1px solid var(--rule); border-radius: 6px; font-size: 11.5px; color: var(--ink-2); background: #fff; }
 .icopick button svg { width: 20px; height: 20px; color: #1f6fb2; }
 .icopick button[aria-pressed="true"] { border-color: var(--blue); box-shadow: inset 0 0 0 1px var(--blue); background: var(--blue-2); color: var(--ink); }
@@ -1601,8 +1601,19 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     file:  `<svg ${IS}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>`,
     cert:  `<svg ${IS}><circle cx="12" cy="9" r="5"/><path d="M8.5 13.2 7 22l5-2.6L17 22l-1.5-8.8"/></svg>`,
     chart: `<svg ${IS}><path d="M3 21h18"/><rect x="5" y="11" width="4" height="7" rx="1"/><rect x="11" y="6" width="4" height="12" rx="1"/><rect x="17" y="14" width="4" height="4" rx="1"/></svg>`,
+    learn: `<svg ${IS}><path d="M22 9 12 4 2 9l10 5 10-5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg>`,
+    panel: `<svg ${IS}><path d="M3 4h11a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8l-3 3v-3H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M18 8h3a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-1v3l-3-3h-4a1 1 0 0 1-1-1v-1"/></svg>`,
   };
-  const ICON_NAME = { alert: "Alert", file: "Document", cert: "Certificate", chart: "Results" };
+  const ICON_NAME = { alert: "Alert", file: "Document", cert: "Certificate", chart: "Results", learn: "Learning session", panel: "Panel feedback" };
+  /* a link typed into an announcement opens as a link; everything else stays plain text */
+  const linkify = txt => esc(txt).replace(/((?:https?:\/\/|www\.)[^\s<"']+)/g, (m) => {
+    let url = m, tail = "";
+    const t = url.match(/[.,;:!?)\]]+$/); if (t) { tail = t[0]; url = url.slice(0, -tail.length); }
+    if (!url) return m;
+    const href = /^www\./i.test(url) ? "https://" + url : url;
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>${tail}`;
+  });
+
   const W = M.thisWeek || {};
   let ANN = (W.announcements || []).map(a => ({ ...a, until: "" }));
   let editing = null, icoSel = "file", annBusy = false;
@@ -1632,7 +1643,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <span class="ic" aria-hidden="true">${ICON[a.icon] || ICON.file}</span>
       <div class="nb">${a.pinned ? '<span class="ntag">Pinned by the STEP team</span>' : ""}
         <h4>${esc(a.title) || '<span style="opacity:.45">Your headline</span>'}</h4>
-        <p>${esc(a.body) || '<span style="opacity:.45">Your message</span>'}</p>
+        <p>${linkify(a.body) || '<span style="opacity:.45">Your message</span>'}</p>
         <div class="mt">${esc(a.by)} · ${fmtWhen(a.at)}</div></div>
       ${a.read ? "" : '<span class="dot"></span>'}
       ${a.scheduled && !isDraft ? `<span class="dtag">Scheduled · shows ${esc(fmtWhen(a.at))}</span>` : ""}

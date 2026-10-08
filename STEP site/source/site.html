@@ -3033,8 +3033,18 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     alert: `<svg ${S}><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>`,
     file:  `<svg ${S}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>`,
     cert:  `<svg ${S}><circle cx="12" cy="9" r="5"/><path d="M8.5 13.2 7 22l5-2.6L17 22l-1.5-8.8"/></svg>`,
-    chart: `<svg ${S}><path d="M3 21h18"/><rect x="5" y="11" width="4" height="7" rx="1"/><rect x="11" y="6" width="4" height="12" rx="1"/><rect x="17" y="14" width="4" height="4" rx="1"/></svg>`,
+    chart: `<svg ${S}><path d="M3 21h18"/><rect x="5" y="11" width="4" height="7" rx="1"/><rect x="11" y="6" width="4" height="12" rx="1"/><rect x="17" y="14" width="4" height="4" rx="1"/></svg>`,    learn: `<svg ${S}><path d="M22 9 12 4 2 9l10 5 10-5z"/><path d="M6 11.5V16c0 1.5 3 3 6 3s6-1.5 6-3v-4.5"/><path d="M22 9v6"/></svg>`,
+    panel: `<svg ${S}><path d="M3 4h11a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H8l-3 3v-3H3a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1z"/><path d="M18 8h3a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1h-1v3l-3-3h-4a1 1 0 0 1-1-1v-1"/></svg>`,
   };
+  /* a link typed into an announcement opens as a link; everything else stays plain text */
+  const linkify = txt => esc(txt).replace(/((?:https?:\/\/|www\.)[^\s<"']+)/g, (m) => {
+    let url = m, tail = "";
+    const t = url.match(/[.,;:!?)\]]+$/); if (t) { tail = t[0]; url = url.slice(0, -tail.length); }
+    if (!url) return m;
+    const href = /^www\./i.test(url) ? "https://" + url : url;
+    return `<a href="${href}" target="_blank" rel="noopener noreferrer">${url}</a>${tail}`;
+  });
+
   function paint(items, note) {
     const list = items.slice().sort((a, b) => (b.pinned - a.pinned) || (new Date(b.at) - new Date(a.at)));
     document.getElementById("ann").innerHTML = list.length ? list.map((a, i) => `
@@ -3044,7 +3054,7 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
       <div class="nb">
         ${a.pinned ? '<span class="ntag">Pinned by the STEP team</span>' : ""}
         <h4>${esc(a.title)}</h4>
-        <p>${esc(a.body)}</p>
+        <p>${linkify(a.body)}</p>
         <div class="mt">${esc(a.by)} · ${fmtD(a.at, { weekday: "long" })}, ${fmtT(a.at)}</div>
       </div>
       ${a.read ? "" : '<span class="dot" title="New since you last looked"></span>'}
