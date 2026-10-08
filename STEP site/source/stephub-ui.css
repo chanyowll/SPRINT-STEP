@@ -5836,13 +5836,3 @@ body.on-gc .site-footer { display: none; }
 .replay.rp-live .rp-player, .replay.rp-live .rp-player video, .replay.rp-live .rp-player iframe { cursor: pointer; }
 .replay.rp-live .rp-player { transition: filter .18s ease; }
 .replay.rp-live .rp-player:hover { filter: brightness(1.05); }
-
-/* the cover that starts the recording: a hand cursor over the whole player */
-.rp-cover { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; cursor: pointer; display: grid; place-items: center;
-  background: linear-gradient(150deg, #06203c 0%, #0b3c6b 55%, #10528f 100%); overflow: hidden; }
-.rp-cover img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.rp-cplay { position: relative; width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; color: #fff;
-  background: rgba(10, 24, 40, .72); border: 1.5px solid rgba(255, 255, 255, .6); transition: transform .18s ease, background .18s ease; }
-.rp-cplay svg { width: 30px; height: 30px; margin-left: 4px; }
-.rp-cover:hover .rp-cplay, .rp-cover:focus-visible .rp-cplay { transform: scale(1.08); background: #006eb9; }
-.rp-cover:focus-visible { outline: 3px solid #9ccbf4; outline-offset: -3px; }

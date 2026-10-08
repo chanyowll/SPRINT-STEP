@@ -2541,19 +2541,6 @@ const daysAway = iso => {
     }
     return null;
   }
-  /* A site's own player cannot show a hand cursor (the browser lets the player
-     choose it), so the recording starts behind a cover that can. One click on
-     the cover loads the real player, and YouTube and Vimeo start playing. */
-  function coverFor(embed, label, frameStyle) {
-    const yt = (embed.match(/youtube-nocookie\.com\/embed\/([^/?]+)/) || [])[1];
-    const dr = (embed.match(/drive\.google\.com\/file\/d\/([^/]+)/) || [])[1];
-    const thumb = yt ? "https://i.ytimg.com/vi/" + yt + "/hqdefault.jpg"
-      : dr ? "https://drive.google.com/thumbnail?id=" + dr + "&sz=w1280" : "";
-    const src = (yt || /vimeo\.com/.test(embed)) ? embed + (embed.includes("?") ? "&" : "?") + "autoplay=1" : embed;
-    return `<button type="button" class="rp-cover" data-src="${esc(src)}" data-title="${esc(label)}" data-style="${esc(frameStyle)}" aria-label="Play: ${esc(label)}">
-      ${thumb ? `<img src="${esc(thumb)}" alt="" referrerpolicy="no-referrer" onerror="this.remove()">` : ""}
-      <span class="rp-cplay" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l11-6.5z"/></svg></span></button>`;
-  }
   function paintReplayVideo(v) {
     if (!replay) return;
     const kb = n => !n ? "" : n < 1048576 ? Math.max(1, Math.round(n / 1024)) + " KB"
@@ -2574,7 +2561,8 @@ const daysAway = iso => {
     const player = !v.link
       ? `<video controls controlsList="nodownload" disablepictureinpicture preload="metadata" playsinline src="${esc(v.url)}" aria-label="${label}"></video>`
       : embed
-        ? coverFor(embed, label, frameStyle)
+        ? `<iframe src="${esc(embed)}" title="${label}" allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
+                   loading="lazy" referrerpolicy="strict-origin-when-cross-origin" style="${frameStyle}"></iframe>`
         : `<div class="rp-emptybox" style="height:100%;display:grid;place-content:center;justify-items:center;gap:12px;color:#fff"><b>Watch the recording</b>
              <a class="btn solid" href="${esc(v.link)}" target="_blank" rel="noopener">Open the video ↗</a></div>`;
     replay.className = "replay rp-live";
@@ -2585,13 +2573,6 @@ const daysAway = iso => {
         <h3>${esc(v.title || ("Week " + T.week + " · " + T.short))}</h3>
         <p class="meta">${[on, v.duration ? v.duration + " long" : "", v.link ? "" : kb(v.size)].filter(Boolean).join(" · ")}</p>
       </div>`;
-    const cover = replay.querySelector(".rp-cover");
-    if (cover) cover.addEventListener("click", () => {
-      const f = document.createElement("iframe");
-      f.src = cover.dataset.src; f.title = cover.dataset.title; f.setAttribute("style", cover.dataset.style);
-      f.allow = "autoplay; fullscreen; picture-in-picture; encrypted-media"; f.referrerPolicy = "strict-origin-when-cross-origin";
-      cover.replaceWith(f); f.focus();
-    });
   }
   paintReplayEmpty();
 
