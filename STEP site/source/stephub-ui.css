@@ -5836,13 +5836,3 @@ body.on-gc .site-footer { display: none; }
 .replay.rp-live .rp-player, .replay.rp-live .rp-player video, .replay.rp-live .rp-player iframe { cursor: pointer; }
 .replay.rp-live .rp-player { transition: filter .18s ease; }
 .replay.rp-live .rp-player:hover { filter: brightness(1.05); }
-
-/* Drive recording: our own full-screen button, so the STEP badge stays on screen */
-.rp-fs { position: absolute; top: 10px; left: 10px; z-index: 3; width: 36px; height: 36px; border-radius: 9px; border: 0; cursor: pointer;
-  display: grid; place-items: center; color: #fff; background: rgba(6, 22, 40, .6); opacity: 0; transition: opacity .15s ease, background .15s ease; }
-.rp-fs svg { width: 18px; height: 18px; }
-.rp-player:hover .rp-fs, .rp-fs:focus-visible { opacity: 1; }
-.rp-fs:hover { background: #006eb9; }
-@media (hover: none) { .rp-fs { opacity: .85; } }
-.rp-player:fullscreen { width: 100vw; height: 100vh; aspect-ratio: auto; background: #000; }
-.rp-player:-webkit-full-screen { width: 100vw; height: 100vh; aspect-ratio: auto; background: #000; }
