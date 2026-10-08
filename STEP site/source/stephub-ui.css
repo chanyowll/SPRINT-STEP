@@ -5138,7 +5138,7 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
   height: min(75cqw, calc(100 * var(--vh) - 120px)); min-height: 440px; }
 .mrep > .sh-top, .mrep > .mr-info, .mrep > .mr-signed, .mrep > .sh-foot, .mrep > .mr-prog { flex: none; }
 .mrep .sh-foot { position: static; box-shadow: 0 -8px 18px rgba(64, 48, 16, .06); }
-.mr-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+.mr-scroll { flex: 1 1 auto; min-height: 0; overflow-y: auto;
   scrollbar-width: thin; scrollbar-color: transparent transparent; transition: scrollbar-color .3s; }
 .mr-scroll.scrolling { scrollbar-color: #cdbb92 transparent; }
 .mr-scroll::-webkit-scrollbar { width: 8px; }
