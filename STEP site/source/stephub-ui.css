@@ -5838,5 +5838,5 @@ body.on-gc .site-footer { display: none; }
 .replay.rp-live .rp-player:hover { filter: brightness(1.05); }
 
 /* links inside an announcement */
-.note .nb p a { color: var(--blue); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; overflow-wrap: anywhere; }
-.note .nb p a:hover { color: var(--navy); }
+.note .nb h4 a, .note .nb p a { color: var(--blue); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; overflow-wrap: anywhere; }
+.note .nb h4 a:hover, .note .nb p a:hover { color: var(--navy); }

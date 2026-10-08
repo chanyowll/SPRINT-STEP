@@ -1642,7 +1642,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     return `<article class="note ${a.pinned ? "pinned" : ""} ${a.priority} ${a.read ? "" : "unread"}${isDraft ? " draft" : ""}" data-id="${esc(a.id)}">
       <span class="ic" aria-hidden="true">${ICON[a.icon] || ICON.file}</span>
       <div class="nb">${a.pinned ? '<span class="ntag">Pinned by the STEP team</span>' : ""}
-        <h4>${esc(a.title) || '<span style="opacity:.45">Your headline</span>'}</h4>
+        <h4>${linkify(a.title) || '<span style="opacity:.45">Your headline</span>'}</h4>
         <p>${linkify(a.body) || '<span style="opacity:.45">Your message</span>'}</p>
         <div class="mt">${esc(a.by)} · ${fmtWhen(a.at)}</div></div>
       ${a.read ? "" : '<span class="dot"></span>'}

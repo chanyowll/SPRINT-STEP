@@ -3053,7 +3053,7 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
       <span class="ic" aria-hidden="true">${ICON[a.icon] || ICON.file}</span>
       <div class="nb">
         ${a.pinned ? '<span class="ntag">Pinned by the STEP team</span>' : ""}
-        <h4>${esc(a.title)}</h4>
+        <h4>${linkify(a.title)}</h4>
         <p>${linkify(a.body)}</p>
         <div class="mt">${esc(a.by)} · ${fmtD(a.at, { weekday: "long" })}, ${fmtT(a.at)}</div>
       </div>
