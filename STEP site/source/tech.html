@@ -1392,6 +1392,16 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   });
   /* ---- saving: what is saved here is what the Panel tab and This Week show ---- */
   const pbLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC() && !!window.STEP_PANELPLAN;
+  /* the seat for a name typed on the board: the name as written, else the one seat whose
+     surname matches and whose first name starts with the same letter ("Mike Tan" finds
+     "Mr. Michael Tan"), else null */
+  function seatOfName(n) {
+    const k = seatKey(n); if (seatByName[k] != null) return seatByName[k];
+    const w = normName(n).split(" "); if (!w[0]) return null;
+    const hits = SEATS.filter(r => { const v = normName(r.display_name).split(" ");
+      return v.length > 1 && w.length > 1 && v[v.length - 1] === w[w.length - 1] && v[0][0] === w[0][0]; });
+    return hits.length === 1 ? hits[0].seat : null;
+  }
   const pbScope = () => (($("#pb-scope button[aria-pressed=true]") || {}).dataset || {}).v || "onward";
   async function pbLoad(w) {
     const PP = window.STEP_PANELPLAN;
@@ -1439,13 +1449,15 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const onward = pbScope() === "onward";
     const payload = PB.map(p => ({
       letter: p.letter, at: p.at || "09:00", teams: p.teams.slice(),
-      panelists: p.panelists.map(n => ({ seat: seatByName[seatKey(n)] != null ? seatByName[seatKey(n)] : null, name: n })),
+      panelists: p.panelists.map(n => ({ seat: seatOfName(n), name: n })),
     }));
     pbBusy = true; $("#pb-save").disabled = true; $("#pb-save").textContent = "Saving…";
     try {
       await window.STEP_PANELPLAN.save(pbWeek, onward ? null : pbWeek, payload);
       await pbLoad(pbWeek);
-      toast("Saved — the Panel tab shows these panels for Week " + pbWeek + (onward ? " onward." : " only."));
+      const unseated = PB.flatMap(p => p.panelists).filter(n => seatOfName(n) == null);
+      toast("Saved — the Panel tab shows these panels for Week " + pbWeek + (onward ? " onward." : " only.") +
+        (unseated.length ? " Not linked to a panel seat yet: " + [...new Set(unseated)].join(", ") + "." : ""));
     } catch (err) {
       toast("Couldn't save: " + (err.message || err));
     } finally { pbBusy = false; $("#pb-save").textContent = "Save panels"; renderPB(); }

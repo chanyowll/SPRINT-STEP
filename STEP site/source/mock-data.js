@@ -380,14 +380,14 @@ window.MOCK = (function () {
 
     // --- Mentors ---
     { id: "u_mentor_pfernandez", name: "Dr. Jon Fernandez", email: "pfernandez@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (POSTE)", assigned_teams: ["g1"], team_id: "g1", initials: "JF", institution: "AIPO" },
-    { id: "u_mentor_jlagdameo", name: "Dr. John Lagdameo", email: "jlagdameo@ateneo.edu", role: "mentor", role_label: "Mentor (SINAG)", assigned_teams: ["g2"], team_id: "g2", initials: "JL", institution: "AIPO" },
+    { id: "u_mentor_jlagdameo", name: "Dr. John Lagdameo", email: "jlagdameo@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (SINAG)", assigned_teams: ["g2"], team_id: "g2", initials: "JL", institution: "AIPO" },
     { id: "u_mentor_bgarcia", name: "Mr. Bienvenido Garcia", email: "bgarcia@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (BRICKS)", assigned_teams: ["g3"], team_id: "g3", initials: "BG", institution: "AIPO" },
-    { id: "u_mentor_mctan", name: "Mr. Michael Tan", email: "mctan@ateneo.edu", role: "mentor", roles: ["mentor", "trainer"], role_label: "Mentor & Trainer (Halal Blockchain)", assigned_teams: ["g4"], team_id: "g4", initials: "MT", institution: "AIPO" },
+    { id: "u_mentor_mctan", name: "Mr. Michael Tan", email: "mctan@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (Halal Blockchain)", assigned_teams: ["g4"], team_id: "g4", initials: "MT", institution: "AIPO" },
     { id: "u_mentor_amiclat", name: "Mr. Armando Miclat", email: "amiclat@ateneo.edu", role: "mentor", role_label: "Mentor (Zeoskin)", assigned_teams: ["g5"], team_id: "g5", initials: "AM", institution: "AIPO" },
     { id: "u_mentor_gquitoriano", name: "Mr. George Quitoriano", email: "gquitoriano@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (CAPPS)", assigned_teams: ["g6"], team_id: "g6", initials: "GQ", institution: "AIPO" },
     { id: "u_mentor_bmirasol", name: "Engr. Benjamin N. Mirasol", email: "bmirasol@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (SPArC)", assigned_teams: ["g7"], team_id: "g7", initials: "BM", institution: "AIPO" },
     { id: "u_mentor_jchiong", name: "Ms. Janine Chiong", email: "jchiong@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (meSHM)", assigned_teams: ["g8"], team_id: "g8", initials: "JC", institution: "AIPO" },
-    { id: "u_mentor_mcbdeguzman", name: "Ms. Bunnie De Guzman", email: "mcbdeguzman@ateneo.edu", role: "mentor", role_label: "Mentor (SFRSCC)", assigned_teams: ["g9"], team_id: "g9", initials: "BD", institution: "AIPO" },
+    { id: "u_mentor_mcbdeguzman", name: "Ms. Bunnie De Guzman", email: "mcbdeguzman@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (SFRSCC)", assigned_teams: ["g9"], team_id: "g9", initials: "BD", institution: "AIPO" },
     { id: "u_mentor_aferia", name: "Mr. Tony Feria", email: "aferia@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (LASER)", assigned_teams: ["g10"], team_id: "g10", initials: "TF", institution: "AIPO" },
 
     // --- Trainers ---
