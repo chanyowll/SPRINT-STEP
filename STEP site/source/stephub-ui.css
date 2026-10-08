@@ -5812,3 +5812,22 @@ body.on-gc .site-footer { display: none; }
 .gc-fab:hover .gc-fab-tip, .gc-fab:focus-visible .gc-fab-tip { opacity: 1; }
 @media (max-width: 700px) { .gc-fab { right: 16px; bottom: 16px; width: 40px; height: 40px; } .gc-fab svg { width: 22px; height: 22px; } .gc-fab-tip { display: none; } }
 @media (prefers-reduced-motion: reduce) { .gc-fab { transition: none; } .gc-fab:hover { transform: none; } }
+
+/* ---- The one "you cannot open this" popup ---- */
+.acc-scrim { position: fixed; inset: 0; z-index: 300; display: flex; align-items: center; justify-content: center;
+  padding: 16px; background: rgba(11, 35, 60, .55); animation: acc-in .18s ease-out; }
+.acc-card { width: 100%; max-width: 360px; background: #fff; border-radius: 18px; padding: 26px 24px 20px;
+  text-align: center; box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+.acc-lock { width: 54px; height: 54px; margin: 0 auto 14px; border-radius: 50%; background: #e4f0fa; color: #006eb9;
+  display: grid; place-items: center; }
+.acc-lock svg { width: 26px; height: 26px; }
+.acc-card h3 { margin: 0 0 8px; font-size: 20px; line-height: 1.25; color: var(--navy); }
+.acc-card p { margin: 0 0 18px; font-size: 13px; line-height: 1.5; color: #8a94a1; }
+.acc-acts { display: flex; flex-direction: column; gap: 8px; }
+.acc-btn { font: inherit; font-size: 14px; font-weight: 700; padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  background: #006eb9; color: #fff; border: 1px solid #006eb9; }
+.acc-btn:hover { background: #005a9a; }
+.acc-link { font: inherit; font-size: 14px; font-weight: 600; padding: 8px; background: none; border: 0; color: #6b7684; cursor: pointer; }
+.acc-btn:focus-visible, .acc-link:focus-visible { outline: 3px solid #9ccbf4; outline-offset: 2px; }
+@keyframes acc-in { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .acc-scrim { animation: none; } }

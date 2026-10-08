@@ -121,6 +121,45 @@ router = """
                  groups:  "STEP Groups · SPRINT-STEP",
                  trainers: "Trainers · SPRINT-STEP" };
 
+
+  /* ---------- the one "you cannot open this" popup ---------- */
+  var NEEDS = { trainers: "mentors, trainers and panelists", mentors: "mentors", panel: "panelists" };
+  window.__accessPopup = function (o) {
+    o = o || {};
+    var old = document.getElementById("acc-pop"); if (old) old.remove();
+    var back = document.activeElement;
+    var signin = o.kind === "signin";
+    var need = o.need || "the STEP team";
+    var title = signin ? "Sign in to open this page" : "This page is for " + need;
+    var body = signin
+      ? "This page is for people in the program. Sign in with your STEP account to continue."
+      : "Your account doesn" + String.fromCharCode(39) + "t have access to " + (o.page || "this page") + ". If you think it should, ask the STEP team to check your role.";
+    var el = document.createElement("div");
+    el.id = "acc-pop"; el.className = "acc-scrim";
+    el.innerHTML = '<div class="acc-card" role="alertdialog" aria-modal="true" aria-labelledby="acc-t" aria-describedby="acc-b">'
+      + '<div class="acc-lock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div>'
+      + '<h3 id="acc-t"></h3><p id="acc-b"></p><div class="acc-acts"></div></div>';
+    el.querySelector("#acc-t").textContent = title;
+    el.querySelector("#acc-b").textContent = body;
+    var acts = el.querySelector(".acc-acts");
+    function close() { el.remove(); document.removeEventListener("keydown", onKey, true); if (back && back.focus) try { back.focus(); } catch (e) {} }
+    function onKey(e) { if (e.key === "Escape") { e.stopPropagation(); close(); } }
+    var main = document.createElement("button");
+    main.type = "button"; main.className = "acc-btn";
+    main.textContent = signin ? "Sign in" : "Got it";
+    main.onclick = function () { close(); if (signin && window.MOCK && window.MOCK.openAuthModal) window.MOCK.openAuthModal(); };
+    acts.appendChild(main);
+    if (signin) {
+      var nb = document.createElement("button");
+      nb.type = "button"; nb.className = "acc-link"; nb.textContent = "Not now"; nb.onclick = close;
+      acts.appendChild(nb);
+    }
+    el.addEventListener("mousedown", function (e) { if (e.target === el) close(); });
+    document.addEventListener("keydown", onKey, true);
+    document.body.appendChild(el);
+    main.focus();
+  };
+
   function signInPending() {
     if (window.__authSettled) return false;
     try {
@@ -142,16 +181,15 @@ router = """
       return;
     }
     if (window.MOCK && window.MOCK.auth && !window.MOCK.auth.canAccess(name)) {
-      /* A page that explains its own lock is shown, so the person reads why
-         they cannot open it. Anything else falls back to home. */
-      var gated = document.getElementById("route-" + name)
-        && document.getElementById("route-" + name).querySelector("[data-locked-gate]");
-      if (!gated) {
-        name = "home";
-        location.hash = "#home";
-        if (window.MOCK.openAuthModal) window.MOCK.openAuthModal();
-        return;
-      }
+      /* Every locked page answers the same way: back to Home, with one
+         popup saying why. */
+      var asked = name, u = window.MOCK.auth.getCurrentUser();
+      var guest = !u || u.role === "guest";
+      name = "home";
+      location.hash = "#home";
+      if (window.__accessPopup) window.__accessPopup(guest ? { kind: "signin" }
+        : asked === "trainers" ? { kind: "role", page: "Trainers, Mentors and Panel", need: NEEDS.trainers }
+        : { kind: "role", page: "that page", need: "the STEP team" });
     }
     // the Capstone form panel is docked to the page; never let it follow you elsewhere
     if (name !== "capstone" && window.__closeSheet) window.__closeSheet();
