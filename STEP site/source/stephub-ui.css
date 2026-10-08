@@ -4704,7 +4704,7 @@ body.modal-open { overflow: hidden; }
 /* corner badge over an embedded Drive recording: covers Google's pop-out button (see This Week) */
 .rp-bug { position: absolute; top: 8px; right: 10px; width: 60px; height: 48px; z-index: 2;
           display: grid; place-items: center; border-radius: 9px;
-          background: #0b3c6b; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
+          background: #006eb9; box-shadow: 0 1px 4px rgba(0,0,0,.35); }
 .rp-bug img { width: 48px; height: 26px; object-fit: contain; display: block; }
 
 /* ── This Week: a small picture of each posted file ── */
