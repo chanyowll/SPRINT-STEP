@@ -5247,7 +5247,7 @@ ol.objs { margin: 2px 0 0; padding-left: 22px; }
 .mats li.can-view { cursor: pointer; border-radius: 10px; margin: 0 -10px; padding-left: 10px; padding-right: 10px;
   transition: background .15s ease; }
 .mats li.can-view:hover { background: rgba(201, 154, 46, .08); }
-.mats li.can-view:hover .mn { text-decoration: underline; text-underline-offset: 3px; }
+.mats li.can-view:hover .mn { text-decoration: underline; text-decoration-thickness: 1px; text-decoration-color: #c3c9d0; text-underline-offset: 3px; }
 .mats li.can-view:focus-visible { outline: 2px solid var(--gold); outline-offset: 1px; }
 
 .mv { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; padding: 3vh 3vw;
@@ -5831,3 +5831,8 @@ body.on-gc .site-footer { display: none; }
 .acc-btn:focus-visible, .acc-link:focus-visible { outline: 3px solid #9ccbf4; outline-offset: 2px; }
 @keyframes acc-in { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .acc-scrim { animation: none; } }
+
+/* ---- Session replay: the player reads as clickable ---- */
+.replay.rp-live .rp-player, .replay.rp-live .rp-player video, .replay.rp-live .rp-player iframe { cursor: pointer; }
+.replay.rp-live .rp-player { transition: filter .18s ease; }
+.replay.rp-live .rp-player:hover { filter: brightness(1.05); }
