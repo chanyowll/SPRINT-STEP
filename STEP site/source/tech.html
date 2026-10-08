@@ -1845,7 +1845,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 
   /* ---------------- 7. team data ----------------
      Every figure here comes from the database: the panel sheets (each
-     panelist's own scores — an average uses submitted sheets only, a
+     panelist's own scores — an average counts every scored sheet, and a
      draft is shown greyed), the hand-ins, attendance and the Capstone
      proposal. Five views, one set of filters, a CSV of whatever is shown. */
   const SESS = ((M.faculty && M.faculty.sessions) || []).filter(s => (s.assess || []).some(a => !a.group));
@@ -1932,13 +1932,16 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   }
   const sheetsFor = (team, code) => D.sheets.filter(s => s.team_id === team && s.session_code === code);
   const doneSheet = s => s.status === "submitted" && s.total != null;
+  /* an average counts every sheet that has a score, drafts included, so a team
+     shows its running average before every panelist has submitted */
+  const scoredSheet = s => s.total != null && !isNaN(+s.total) && +s.total > 0;
   /* the sheets from the panelists who actually sit on this team's panel that week */
   const panelSheets = (team, code) => {
     const seats = D.seatsFor(team, sessOf(code).week);
     return sheetsFor(team, code).filter(s => seats.includes(s.seat));
   };
   function sessionScore(team, code) {
-    const done = panelSheets(team, code).filter(doneSheet).map(s => +s.total);
+    const done = panelSheets(team, code).filter(scoredSheet).map(s => +s.total);
     return done.length ? { avg: mean(done), n: done.length } : null;
   }
   function outputsOf(team, upTo) {
@@ -2005,7 +2008,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         + dStat(withDue.length ? withDue.filter(r => r.inN === r.outs.length).length + " / " + withDue.length : "—", "teams with every output in")
         + dStat(data.length ? (mean(data.map(r => r.cp.sub)) || 0).toFixed(1) + " / " + (FORM_META.length || 24) : "—", "FASTRAC items submitted, average");
       $("#d-title").textContent = "Overview"; $("#d-sub").textContent = "Up to Week " + upTo;
-      $("#d-foot").textContent = "Scores are the average of submitted panel sheets on STEP's 1.00–4.00 rubric. Weeks are counted from Week " + firstWeek() + ", the first week with any record.";
+      $("#d-foot").textContent = "Scores are the average of the panel sheets scored so far, drafts included, on STEP's 1.00–4.00 rubric. Weeks are counted from Week " + firstWeek() + ", the first week with any record.";
       CSV = [head.slice(0, 7)].concat(data.map(r => [r.g.name, D.letter(r.g.id), r.avg != null ? fx(r.avg) : "", r.last ? fx(r.last.r.avg) : "",
         r.a.pct != null ? r.a.pct + "%" : "", r.outs.length ? r.inN + "/" + r.outs.length : "", r.cp.sub + "/" + (FORM_META.length || 24)]));
     },
@@ -2022,9 +2025,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           const s = sh.find(x => x.seat === seat);
           return { seat, name: D.seatName(seat, s && s.panelist), s, done: s && doneSheet(s) };
         });
-        const done = cells.filter(c => c.done).map(c => +c.s.total);
+        const done = cells.filter(c => c.s && scoredSheet(c.s)).map(c => +c.s.total);
         const avg = mean(done), spread = done.length > 1 ? Math.max(...done) - Math.min(...done) : null;
-        return { g, L, cells, avg, spread, done: done.length };
+        return { g, L, cells, avg, spread, done: done.length, drafts: cells.filter(c => c.s && scoredSheet(c.s) && !c.done).length };
       });
       const head = ["Team", "Panel"].concat(Array.from({ length: maxSeats }, (_, i) => "Panelist " + (i + 1))).concat(["Average", "Spread"]);
       $("#d-head").innerHTML = "<tr>" + head.map((h, i) => `<th${i >= 2 ? ' class="num"' : ""}>${h}</th>`).join("") + "</tr>";
@@ -2038,7 +2041,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
             <b>${v || "—"}</b><small>${esc(c.name)}</small>${c.s && !c.done ? '<em>Draft</em>' : !c.s ? '<em>Not started</em>' : ""}</td>`;
         }).join("");
         const main = `<tr class="dv-row${open ? " open" : ""}" data-team="${esc(r.g.id)}" style="cursor:pointer">${teamCell(r.g)}<td>${r.L}</td>${cells}
-          <td class="num">${r.avg != null ? `<b style="font-weight:700">${fx(r.avg)}</b><div class="note">${r.done} of ${r.cells.length} submitted</div>` : '<span class="note">No submitted sheet</span>'}</td>
+          <td class="num">${r.avg != null ? `<b style="font-weight:700">${fx(r.avg)}</b><div class="note">${r.done} of ${r.cells.length} scored${r.drafts ? " · " + r.drafts + " draft" : ""}</div>` : '<span class="note">No scores yet</span>'}</td>
           <td class="num">${r.spread != null ? `<span class="pill ${r.spread >= 0.75 ? "warn" : "idle"}">${fx(r.spread)}${r.spread >= 0.75 ? " · panelists disagree" : ""}</span>` : "—"}</td></tr>`;
         if (!open) return main;
         /* the panelists' sheets side by side, criterion by criterion */
@@ -2055,12 +2058,12 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       }).join("");
       const all = data.flatMap(r => r.cells), sub = all.filter(c => c.done).length, drafts = all.filter(c => c.s && !c.done).length;
       const scored = data.filter(r => r.avg != null), wide = data.filter(r => r.spread != null).sort((a, b) => b.spread - a.spread)[0];
-      $("#d-stats").innerHTML = dStat(scored.length + " / " + data.length, "teams with a submitted score")
+      $("#d-stats").innerHTML = dStat(scored.length + " / " + data.length, "teams with a score")
         + dStat(sub + " / " + all.length, "panelist sheets submitted") + dStat(drafts, "sheets still in draft")
         + dStat(scored.length ? fx(mean(scored.map(r => r.avg))) : "—", wide && wide.spread >= 0.75 ? "average · widest gap " + esc(wide.g.name.replace(/\s*\(.*\)$/, "")) : "average score this session");
       $("#d-title").textContent = "Panel scores · " + sessLabel(code);
       $("#d-sub").textContent = "Each panelist's own score. Click a team to compare their sheets criterion by criterion.";
-      $("#d-foot").textContent = "Averages use submitted sheets only; greyed scores are drafts the panelist has not submitted yet.";
+      $("#d-foot").textContent = "Averages include every score entered so far, drafts too; greyed scores are drafts the panelist has not submitted yet.";
       CSV = [["Team", "Panel", "Panelist", "Seat", "Status", "Score"].concat(crit.map(a => a.label)).concat(["General comment"])]
         .concat(data.flatMap(r => r.cells.map(c => [r.g.name, r.L, c.name, c.seat, c.s ? (c.done ? "Submitted" : "Draft") : "Not started", c.s && c.s.total != null ? fx(c.s.total) : ""]
           .concat(crit.map((a, i) => c.s && (c.s.scores || {})[i] != null ? (c.s.scores || {})[i] : "")).concat([c.s ? c.s.general_comment || "" : ""]))));
