@@ -364,6 +364,27 @@ page = f"""<!doctype html>
 </html>
 """
 
+# ---- speed: fewer round trips, nothing loaded before it is needed ----
+# 1. the site's own scripts go inside the page: one download instead of ~17,
+#    each of which could stall on a slow connection before the page could start
+def _inline(m):
+    f = pathlib.Path(m.group(1))
+    if not f.exists():
+        return m.group(0)
+    code = f.read_text().replace("</script", "<\\/script")
+    return f"<script>/* {f.name} */\n{code}\n</script>"
+page = re.sub(r'<script src="([a-z0-9-]+\.js)"></script>', _inline, page)
+# 2. open the connections to the script CDN and the database while the page downloads
+page = page.replace('<link rel="preconnect" href="https://fonts.googleapis.com">',
+    '<link rel="preconnect" href="https://cdn.jsdelivr.net">\n'
+    '<link rel="preconnect" href="https://roarebrfugxwdabduebt.supabase.co" crossorigin>\n'
+    '<link rel="preconnect" href="https://fonts.googleapis.com">', 1)
+# 3. pictures load when they come into view, not all at once on every page
+#    (only in the page's HTML; script text is left exactly as written)
+_parts = re.split(r'(<script\b[\s\S]*?</script>)', page)
+page = "".join(x if x.startswith("<script") else re.sub(r'<img (?![^>]*\bloading=)', '<img loading="lazy" decoding="async" ', x)
+               for x in _parts)
+
 out = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "site.html")
 out.write_text(page)
 print(out, round(len(page) / 1024), "KB")

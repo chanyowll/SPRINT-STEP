@@ -719,6 +719,10 @@
   if (still) return;
   var net = navigator.connection || {};
   if (net.saveData || net.effectiveType === "slow-2g" || net.effectiveType === "2g") return;   // no film on data saver / very slow links
+  /* the film is Home's opening: a page opened on another tab (#week, #trainers…) never
+     downloads it, so its megabytes don't hold up that page's data */
+  var opened = (location.hash || "#home").slice(1).split("-")[0];
+  if (opened && opened !== "home" && document.getElementById("route-home")) return;
 
   var dpr = window.devicePixelRatio || 1;
   var devicePx = Math.max(hero.offsetWidth || 0, window.innerWidth || 0) * dpr;
