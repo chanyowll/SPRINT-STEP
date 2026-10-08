@@ -5840,3 +5840,7 @@ body.on-gc .site-footer { display: none; }
 /* links inside an announcement */
 .note .nb h4 a, .note .nb p a { color: var(--blue); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; overflow-wrap: anywhere; }
 .note .nb h4 a:hover, .note .nb p a:hover { color: var(--navy); }
+
+/* an announcement icon that is a picture (the Zoom logo) fills its tile */
+.note .ic:has(.ic-img) { background: none; padding: 0; overflow: hidden; }
+.note .ic .ic-img { width: 100%; height: 100%; border-radius: inherit; display: block; object-fit: cover; }
