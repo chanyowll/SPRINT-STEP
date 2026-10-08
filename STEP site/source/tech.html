@@ -1283,7 +1283,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
               <span class="grip" aria-hidden="true">⋮⋮</span><span class="tt">${esc(n)}${m ? `<small class="mtag">Mentor · ${esc(m.teams.map(id => short(teamName(id))).join(", "))}</small>` : ""}</span>
               <button class="x" data-rmpl="${pi}:${i}" aria-label="Remove ${esc(n)}">×</button></div>`;
           }).join("")}
-          <input class="pin" data-addpl="${pi}" placeholder="Add a panelist, then Enter">
+          <input class="pin" data-addpl="${pi}" list="pb-names" autocomplete="off" placeholder="Add a panelist, then Enter">
         </div>
         <div class="plbl">Teams, in order</div>
         <div class="pzone" data-kind="tm" data-p="${pi}">
@@ -1295,6 +1295,12 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           }).join("") || '<div class="pempty">Drop teams here</div>'}
         </div>
       </div>`).join("");
+    /* names offered while typing: every seat's name that is not already on a panel */
+    const placed = new Set(PB.flatMap(p => p.panelists).map(seatKey));
+    const pool = (SEATS.length ? SEATS.map(r => r.display_name) : PB_BUILTIN.flatMap(p => p.panelists)).filter(Boolean);
+    let dl = document.getElementById("pb-names");
+    if (!dl) { dl = document.createElement("datalist"); dl.id = "pb-names"; document.body.appendChild(dl); }
+    dl.innerHTML = [...new Set(pool)].filter(n => !placed.has(seatKey(n))).map(n => `<option value="${esc(n)}"></option>`).join("");
     const n = PB.reduce((a, p) => a + p.teams.length, 0);
     const changed = JSON.stringify(PB) !== JSON.stringify(PB0);
     $("#pb-sum").innerHTML = `${PB.length} panels · ${n} of ${G.length} teams placed` + (changed ? ' · <b style="color:var(--warn)">unsaved changes</b>' : "");
