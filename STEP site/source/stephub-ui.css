@@ -316,7 +316,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--blue); outl
 
 /* White header variant used on public pages (carries the STEP logo) */
 .site-header.light {
-  background: var(--surface); color: var(--ink); height: 92px;
+  background: var(--surface); color: var(--ink); height: 74px;
   border-bottom: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,32,48,.04);
 }
 .site-header.light .brand { color: var(--navy); }
@@ -327,7 +327,7 @@ input:focus, select:focus, textarea:focus { outline: 2px solid var(--blue); outl
 @media (max-width: 900px) {
   .site-header.light .nav { background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); }
 }
-.brand img { height: 62px; width: auto; }
+.brand img { height: 50px; width: auto; }
 @media (max-width: 640px) { .brand img { height: 42px; } .site-header.light { height: 68px; } }
 .site-footer .brand img { height: 66px; margin-bottom: var(--s3); }
 
@@ -1169,7 +1169,7 @@ body.sheet-open { padding-right: min(52%, 880px); }
 
 /* White header variant used on public pages (carries the STEP logo) */
 .site-header.light {
-  background: var(--surface); color: var(--ink); height: 92px;
+  background: var(--surface); color: var(--ink); height: 74px;
   border-bottom: 1px solid var(--line); box-shadow: 0 1px 2px rgba(16,32,48,.04);
 }
 .site-header.light .brand { color: var(--navy); }
@@ -1180,7 +1180,7 @@ body.sheet-open { padding-right: min(52%, 880px); }
 @media (max-width: 900px) {
   .site-header.light .nav { background: var(--surface); border-bottom: 1px solid var(--line); box-shadow: var(--shadow); }
 }
-.brand img { height: 62px; width: auto; }
+.brand img { height: 50px; width: auto; }
 @media (max-width: 640px) { .brand img { height: 42px; } .site-header.light { height: 68px; } }
 .site-footer .brand img { height: 66px; margin-bottom: var(--s3); }
 
