@@ -248,6 +248,7 @@ let { capstone: CAP, teams } = window.MOCK;
 let TEAM = teams.find(t => t.id === CAP.team_id) || teams[0];
 let FORM = CAP.form, DECK = CAP.deck;
 let WDECK = [];            // the pitch deck: one frame per week (see "the deck" below)
+let sheetOpen = false, lastFocus = null;   // the proposal preview sheet; read by showTab() on the first paint
 /* the sample data still carries the old six-way status; anything that had
    already gone to the panel counts as submitted, everything else is the
    team's own to submit. FORM is rebuilt on a team switch, so this runs
@@ -1253,7 +1254,7 @@ function markHot(n) {
 }
 
 /* open / close — docked, so typing on the left redraws the paper on the right */
-let sheetOpen = false, lastFocus = null;
+/* sheetOpen / lastFocus are declared near the top: showTab() reads sheetOpen on the first paint */
 function openSheet() {
   buildSheet();
   lastFocus = document.activeElement;

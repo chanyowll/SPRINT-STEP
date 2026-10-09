@@ -674,7 +674,7 @@ window.MOCK = (function () {
     const slug = t.short.toLowerCase().replace(/[^a-z0-9]+/g, "-");
     const subOf = n => {
       const w = SCHED.byWeek(n), o = outputs.find(x => x.week === n), due = SCHED.dueOf(n);
-      const at = (h, m) => due.slice(0, 10) + "T" + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":00+08:00";
+      const at = (h, m) => (due || w.starts).slice(0, 10) + "T" + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":00+08:00";
       if (n === DEMO_WEEK) return { week: n, code: w.code, module: w.title, due, status: "open", files: [] };
       if (n === 5) return { week: n, code: w.code, module: w.title, due, status: "missing", files: [] };
       return { week: n, code: w.code, module: w.title, due, status: o ? "scored" : "submitted", score: o ? o.score : undefined,
@@ -703,7 +703,7 @@ window.MOCK = (function () {
         { key: "report", label: "Feedback application report" },
       ],
       handins: [2, 3, 4, 5, 6, 7, 8, 9].map(n => {
-        const due = SCHED.dueOf(n), d = due.slice(0, 10);
+        const due = SCHED.dueOf(n), d = (due || SCHED.byWeek(n).starts).slice(0, 10);
         const ok = (h, m) => ({ state: "on_time", at: d + "T" + String(h).padStart(2, "0") + ":" + String(m).padStart(2, "0") + ":00+08:00" });
         if (n === 9) return { week: n, code: "W9", due, video: { state: "open" }, slides: { state: "open" }, report: { state: "open" } };
         if (n === 5) return { week: n, code: "W5", due, video: ok(11, 31), slides: { state: "late", at: SCHED.addDays(d, 1) + "T08:15:00+08:00", late_days: 1 }, report: { state: "missed" } };
