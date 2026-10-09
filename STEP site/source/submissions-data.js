@@ -170,5 +170,22 @@
     return out;
   }
 
-  window.STEP_SUBMISSIONS = { isLive, putFile, getWeek, clearWeek, weekStatus, BUCKET };
+  /** Every week's slide file a team has posted on My Team's Work, keyed by week:
+      { 3: { url, name, size, type, status, submitted_at }, … } — for the Capstone deck. */
+  async function slidesFor(teamId) {
+    const sb = client();
+    if (!sb) return {};
+    const { data, error } = await sb.from('submissions').select('*')
+      .eq('team_id', teamId).eq('kind', 'slide');
+    if (error) throw new Error(error.message);
+    const out = {};
+    await Promise.all((data || []).filter(r => r.storage_path).map(async r => {
+      const { data: signed } = await sb.storage.from(BUCKET).createSignedUrl(r.storage_path, SIGNED_SECONDS);
+      out[r.week_no] = { url: signed ? signed.signedUrl : null, name: r.file_name, size: r.file_size,
+                         type: r.mime_type || '', status: r.status, submitted_at: r.submitted_at };
+    }));
+    return out;
+  }
+
+  window.STEP_SUBMISSIONS = { isLive, putFile, getWeek, clearWeek, weekStatus, slidesFor, BUCKET };
 })();

@@ -1500,11 +1500,11 @@
     <div id="capstone-switcher-slot-deck" class="mb-4"></div>
     <div class="eyebrow">Capstone</div>
     <h1 style="margin-bottom:4px">Pitch Deck</h1>
-    <p class="tech">One slide per topic, assembled week by week. Your Demo Day presentation, already being built.</p>
+    <p class="tech">Every week's slide, collected from what your team posts on My Team's Work. Your Demo Day presentation, already being built.</p>
     <div class="cap-head mt-4">
       <div class="cap-art" style="max-width:480px">
         <div class="k">Progress</div>
-        <div class="v" id="ca-deck">—<small>of 14 slides</small></div>
+        <div class="v" id="ca-deck">—<small>weeks posted</small></div>
         <div class="cap-meter"><i id="ca-deck-bar"></i></div>
         <div class="s" id="ca-deck-sub">—</div>
       </div>
@@ -1563,28 +1563,20 @@
       <div class="ws-band deck under mb-4">
         <div>
           <h3>Your pitch deck</h3>
-          <p>One slide per topic. Drop each week's slide straight onto its frame.</p>
-        </div>
-        <div class="acts">
-          <button class="btn solid" id="btn-assemble">Assemble the deck</button>
+          <p>Each week's slide appears here as soon as your team posts it on My Team's Work.</p>
         </div>
       </div>
 
       <div class="card reveal">
         <div class="card-head">
           <h3>Your deck so far</h3>
-          <span class="small muted">One slide per topic, in the order you will present them</span>
+          <span class="small muted">One frame per week, in program order</span>
         </div>
         <div class="film" id="film"></div>
-        <p class="small muted mt-4 mb-0">Click an empty frame to choose a file, or drag a slide onto it.
-           PDF, PPTX, PNG or JPG. A frame you have already filled opens the slide above instead — use
-           its Replace button to swap the file. A topic not yet taught stays a dashed placeholder.</p>
+        <p class="small muted mt-4 mb-0">Slides are posted on My Team's Work, under each week. Click a week
+           to see its slide above. A week still to come stays a dashed placeholder.</p>
       </div>
 
-      <div class="deckdrop mt-4" id="deckdrop">
-        <strong>Or drop several slides here at once</strong>
-        They fill the next empty frames in order.
-      </div>
       </div>
     </div>
   </section>
@@ -2753,7 +2745,24 @@
     return out;
   }
 
-  window.STEP_SUBMISSIONS = { isLive, putFile, getWeek, clearWeek, weekStatus, BUCKET };
+  /** Every week's slide file a team has posted on My Team's Work, keyed by week:
+      { 3: { url, name, size, type, status, submitted_at }, … } — for the Capstone deck. */
+  async function slidesFor(teamId) {
+    const sb = client();
+    if (!sb) return {};
+    const { data, error } = await sb.from('submissions').select('*')
+      .eq('team_id', teamId).eq('kind', 'slide');
+    if (error) throw new Error(error.message);
+    const out = {};
+    await Promise.all((data || []).filter(r => r.storage_path).map(async r => {
+      const { data: signed } = await sb.storage.from(BUCKET).createSignedUrl(r.storage_path, SIGNED_SECONDS);
+      out[r.week_no] = { url: signed ? signed.signedUrl : null, name: r.file_name, size: r.file_size,
+                         type: r.mime_type || '', status: r.status, submitted_at: r.submitted_at };
+    }));
+    return out;
+  }
+
+  window.STEP_SUBMISSIONS = { isLive, putFile, getWeek, clearWeek, weekStatus, slidesFor, BUCKET };
 })();
 
 </script>
@@ -9819,6 +9828,7 @@ try {
 let { capstone: CAP, teams } = window.MOCK;
 let TEAM = teams.find(t => t.id === CAP.team_id) || teams[0];
 let FORM = CAP.form, DECK = CAP.deck;
+let WDECK = [];            // the pitch deck: one frame per week (see "the deck" below)
 /* the sample data still carries the old six-way status; anything that had
    already gone to the panel counts as submitted, everything else is the
    team's own to submit. FORM is rebuilt on a team switch, so this runs
@@ -9881,14 +9891,14 @@ function hasContent(f) {
 function refreshCounts() {
   const started = FORM.filter(f => stateOf(f) === "started").length;
   const sent    = FORM.filter(f => stateOf(f) === "submitted").length;
-  const slidesIn = DECK.filter(d => d.status === "in").length;
-  const nextSlide = DECK.find(d => d.status !== "in");
+  const slidesIn = WDECK.filter(d => d.state === "in").length;
+  const nextSlide = WDECK.find(d => d.state !== "in");
 
   document.getElementById("ca-form").innerHTML = sent + '<small>of 24 items submitted</small>';
   document.getElementById("ca-form-sub").textContent =
     started + " in draft · " + (FORM.length - sent - started) + " not started yet";
-  document.getElementById("ca-deck").innerHTML = slidesIn + '<small>of 14 slides</small>';
-  document.getElementById("ca-deck-sub").textContent = nextSlide ? "Next up: " + nextSlide.title : "Deck complete";
+  document.getElementById("ca-deck").innerHTML = slidesIn + '<small>of ' + WDECK.length + ' weeks posted</small>';
+  document.getElementById("ca-deck-sub").textContent = nextSlide ? "Next up: Week " + nextSlide.week + " · " + nextSlide.title : "Deck complete";
 
   document.getElementById("ca-chips").innerHTML = [
     TEAM.name, "Week " + CAP.week_no + " of " + CAP.weeks_total,
@@ -9897,7 +9907,7 @@ function refreshCounts() {
 
   requestAnimationFrame(() => {
     document.getElementById("ca-form-bar").style.width = (sent / FORM.length * 100) + "%";
-    document.getElementById("ca-deck-bar").style.width = (slidesIn / DECK.length * 100) + "%";
+    document.getElementById("ca-deck-bar").style.width = (WDECK.length ? slidesIn / WDECK.length * 100 : 0) + "%";
   });
 }
 refreshCounts();
@@ -10395,198 +10405,171 @@ function slideSVG(d, big) {
 }
 const heatOf = s => "heat heat-" + (s >= 3.5 ? 4 : s >= 3.0 ? 3 : s >= 2.5 ? 2 : 1);
 
-/* ---------- the deck storyboard, every frame a drop target ---------- */
-const OK_TYPES = /\.(pdf|pptx?|png|jpe?g)$/i;
+/* ---------- the deck: every week's slide, as the team posted it ----------
+   View only. One frame per week that has a team output; the file is the
+   week's slide posted on My Team's Work (submissions, kind "slide"), so that
+   page is the one place a slide goes in. */
 const sizeOf = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
+const SCHD = window.STEP_SCHEDULE;
+const DWEEKS = (SCHD && SCHD.teachingWeeks ? SCHD.teachingWeeks() : [])
+  .map(w => ({ week: w.week, title: w.short || w.title }));
+const nowWeek = () => { const M = window.MOCK || {};
+  return (M.cohort && M.cohort.current_week) || (M.thisWeek && M.thisWeek.week_no) || 0; };
+const kindOf = f => !f ? "" : /^image\//.test(f.type || "") || /\.(png|jpe?g|gif|webp)$/i.test(f.name || "") ? "img"
+  : /pdf/.test(f.type || "") || /\.pdf$/i.test(f.name || "") ? "pdf" : "doc";
+/* files: { week: { url, name, size, type, status, submitted_at } }; null = the offline sample */
+function buildDeck(files) {
+  const now = nowWeek();
+  WDECK = DWEEKS.map(w => {
+    const f = files ? files[w.week] || null : null, sample = !files && w.week < now;
+    return Object.assign({}, w, { file: f, sample,
+      state: f || sample ? "in" : w.week < now ? "missing" : w.week === now ? "due" : "later" });
+  });
+}
+buildDeck(null);
+
+/* the first page of a PDF, drawn once and kept */
+const pdfPics = {};
+let pdfjsReady = null;
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if (pdfjsReady) return pdfjsReady;
+  const BASE = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/";
+  pdfjsReady = new Promise((res, rej) => {
+    const sc = document.createElement("script");
+    sc.src = BASE + "pdf.min.js";
+    sc.onload = () => { try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = BASE + "pdf.worker.min.js"; } catch (e) {} res(window.pdfjsLib); };
+    sc.onerror = () => { pdfjsReady = null; rej(new Error("pdf.js did not load")); };
+    document.head.appendChild(sc);
+  });
+  return pdfjsReady;
+}
+function pdfPic(url) {
+  return pdfPics[url] || (pdfPics[url] = (async () => {
+    const lib = await loadPdfJs();
+    const doc = await lib.getDocument({ url, disableAutoFetch: true, disableStream: true }).promise;
+    const page = await doc.getPage(1), base = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: 480 / base.width });
+    const cv = document.createElement("canvas");
+    cv.width = Math.ceil(vp.width); cv.height = Math.ceil(vp.height);
+    await page.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
+    const out = cv.toDataURL("image/jpeg", 0.85);
+    try { doc.destroy(); } catch (e) {}
+    return out;
+  })().catch(e => { delete pdfPics[url]; throw e; }));
+}
+function fillPdfPics(root) {
+  root.querySelectorAll("[data-pdf]").forEach(async el => {
+    try { const src = await pdfPic(el.dataset.pdf);
+      el.innerHTML = `<img src="${src}" alt="" style="width:100%;height:100%;object-fit:contain;background:#fff">`; }
+    catch (e) { /* the file tile stays */ }
+  });
+}
+const docTile = f => `<span class="up"><svg class="doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+    <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+  <span class="fn">${esc(f.name || "Slide file")}</span><span class="sz">${f.size ? sizeOf(f.size) : ""}</span></span>`;
+const sampleSlide = d => slideSVG({ n: d.week, title: d.title, sub: "Week " + d.week + " · sample slide", kind: "statement" });
+const emptyNote = d => d.state === "missing" ? "Not posted" : d.state === "due" ? "Due this week" : "Week " + d.week;
 
 function frameInner(d) {
-  const filled = d.status === "in";
-  if (d.file) {
-    return `<span class="up">${d.file.url
-      ? `<img src="${d.file.url}" alt="Slide ${d.n}: ${esc(d.title)}">`
-      : `<svg class="doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
-           <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
-         <span class="fn">${esc(d.file.name)}</span><span class="sz">${esc(d.file.size)}</span>`}</span>`;
-  }
-  if (filled) return slideSVG(d);
-  return `<svg viewBox="0 0 480 270" aria-hidden="true"><text x="240" y="132" text-anchor="middle"
+  if (d.sample) return sampleSlide(d);
+  if (!d.file) return `<svg viewBox="0 0 480 270" aria-hidden="true"><text x="240" y="132" text-anchor="middle"
       font-family="Inter, Segoe UI, system-ui, sans-serif" font-size="15" font-weight="650"
-      fill="${d.status === "due" ? "#c99a2e" : "#9aa6b2"}">${d.status === "due" ? (d.week < CAP.week_no ? "Ready to add" : "Due this week") : "Week " + d.week}</text></svg>`;
+      fill="${d.state === "later" ? "#9aa6b2" : "#c99a2e"}">${emptyNote(d)}</text></svg>`;
+  const k = kindOf(d.file);
+  if (k === "img" && d.file.url) return `<span class="up"><img src="${esc(d.file.url)}" alt="Week ${d.week} slide"></span>`;
+  if (k === "pdf" && d.file.url) return `<span class="up" data-pdf="${esc(d.file.url)}">${docTile(d.file).replace(/^<span class="up">|<\/span>$/g, "")}</span>`;
+  return docTile(d.file);
 }
 
 function renderFilm() {
-  document.getElementById("film").innerHTML = DECK.map(d => {
-    const filled = d.status === "in", locked = d.status === "locked";
-    const hint = locked ? "Opens in Week " + d.week : "Drop your slide here";
-    /* A frame that already holds a file is a viewer: clicking it puts the
-       slide on the stage. Only an empty frame is a drop target, and the
-       file already in place is changed with its own Replace button. */
-    /* A frame that already has a slide is a viewer: clicking it puts that
-       slide on the stage. Only a frame still waiting for one is an upload
-       target, and a slide already in place is changed with Replace. */
-    return `<div class="frame ${filled ? "" : "empty"} ${d.file ? "uploaded" : ""} ${locked ? "locked" : ""}" data-i="${d.n - 1}">
+  const film = document.getElementById("film");
+  film.innerHTML = WDECK.map((d, i) => {
+    const filled = d.state === "in";
+    return `<div class="frame ${filled ? "" : "empty"} ${d.file ? "uploaded" : ""} ${d.state === "later" ? "locked" : ""}" data-i="${i}">
       <span class="thumb">
-        ${locked || filled ? "" : `<input type="file" accept=".pdf,.ppt,.pptx,.png,.jpg,.jpeg"
-             aria-label="Upload slide ${d.n}: ${esc(d.title)}">`}
         ${frameInner(d)}
-        ${filled ? `<span class="viewhint">View slide</span>`
-                 : `<span class="drophint">${hint}${locked ? "" : "<br><span style=\"font-weight:500\">PDF, PPTX, PNG or JPG</span>"}</span>`}
+        ${filled ? `<span class="viewhint">View slide</span>` : ""}
       </span>
-      ${d.file ? `<button class="rmslide" type="button" aria-label="Remove the file on slide ${d.n}">×</button>` : ""}
-      ${filled ? `<input class="reinput" type="file" accept=".pdf,.ppt,.pptx,.png,.jpg,.jpeg" hidden
-                         aria-label="Replace slide ${d.n}">` : ""}
-      <span class="cap"><span class="no">${String(d.n).padStart(2, "0")}</span><span class="nm">${esc(d.title)}</span></span>
+      <span class="cap"><span class="no">W${d.week}</span><span class="nm">${esc(d.title)}</span></span>
       <span class="fmeta">
-        ${d.file ? `<span class="badge mine">Your file</span>`
-                 : d.score ? `<span class="${heatOf(d.score)}">${d.score.toFixed(2)}</span>` : ""}
-        ${filled ? `<button class="repl" type="button">Replace</button>`
-                 : `<span class="src">${esc(d.source)}</span>`}
+        ${d.file ? `<span class="badge mine">${d.file.status === "late" ? "Posted late" : "Posted"}</span>`
+          : d.sample ? `<span class="badge">Sample</span>` : `<span class="src">${esc(emptyNote(d))}</span>`}
       </span>
     </div>`;
-  }).join("");
-  wireFrames();
+  }).join("") || '<p class="small muted mb-0">No weeks with a team output yet.</p>';
+  fillPdfPics(film);
 }
-
-/* a dropped file becomes that slide */
-function takeFile(i, file) {
-  const d = DECK[i];
-  if (!file || d.status === "locked") return false;
-  if (CAP_LIVE && !CAP_EDIT) { alertLine("View only — only the team can add slides."); return false; }
-  if (!OK_TYPES.test(file.name)) { alertLine("That file type is not accepted — use PDF, PPTX, PNG or JPG."); return false; }
-  if (d.file && d.file.url) URL.revokeObjectURL(d.file.url);
-  d.file = { name: file.name, size: sizeOf(file.size),
-             url: /^image\//.test(file.type) ? URL.createObjectURL(file) : null };
-  d.status = "in";
-  renderFilm(); refreshCounts(); showSlide(i);
-  if (CAP_LIVE && CAPDB()) {
-    const team = CAP_TEAM;
-    CAPDB().putSlide(team, d.n, file)
-      .then(r => { if (team === CAP_TEAM && d.file) { d.file.href = r.url; d.file.saved = true; } })
-      .catch(e => alertLine("Couldn't save slide " + d.n + ": " + (e.message || e)));
-  }
-  return true;
-}
-function alertLine(msg) {
-  const note = document.getElementById("deckdrop");
-  const keep = note.innerHTML;
-  note.innerHTML = `<strong>${msg}</strong>`;
-  setTimeout(() => { note.innerHTML = keep; }, 2600);
-}
-
-function wireFrames() {
-  document.querySelectorAll("#film .frame").forEach(fr => {
-    const i = +fr.dataset.i;
-    const inp = fr.querySelector("input[type=file]");
-    if (inp) inp.addEventListener("change", e => { if (e.target.files[0]) takeFile(i, e.target.files[0]); });
-    fr.addEventListener("dragover", e => { e.preventDefault(); if (DECK[i].status !== "locked") fr.classList.add("over"); });
-    fr.addEventListener("dragleave", () => fr.classList.remove("over"));
-    fr.addEventListener("drop", e => {
-      e.preventDefault(); e.stopPropagation(); fr.classList.remove("over");
-      takeFile(i, e.dataTransfer.files[0]);
-    });
-    const re = fr.querySelector(".reinput"), rb = fr.querySelector(".repl");
-    if (rb && re) {
-      rb.addEventListener("click", e => { e.preventDefault(); e.stopPropagation(); re.click(); });
-      // the synthetic click on the hidden input would otherwise bubble to the strip
-      re.addEventListener("click", e => e.stopPropagation());
-      re.addEventListener("change", e => { if (e.target.files[0]) takeFile(i, e.target.files[0]); });
-    }
-    const rm = fr.querySelector(".rmslide");
-    if (rm) rm.addEventListener("click", e => {
-      e.preventDefault(); e.stopPropagation();
-      const d = DECK[i];
-      if (d.file && d.file.url) URL.revokeObjectURL(d.file.url);
-      if (CAP_LIVE && !CAP_EDIT) return;
-      d.file = null;
-      d.status = d._st0 || (d.n <= 11 ? "in" : (d.n === 12 ? "due" : "locked"));   // back to how the week left it
-      if (CAP_LIVE && CAPDB()) CAPDB().removeSlide(CAP_TEAM, d.n).catch(err => alertLine("Couldn't remove slide " + d.n + ": " + (err.message || err)));
-      renderFilm(); refreshCounts(); showSlide(Math.min(i, DECK.length - 1));
-    });
-  });
-}
-renderFilm();
-
-/* drop a handful of slides at once — they fill the next empty frames */
-(function () {
-  const zone = document.getElementById("deckdrop");
-  zone.addEventListener("dragover", e => { e.preventDefault(); zone.classList.add("over"); });
-  zone.addEventListener("dragleave", () => zone.classList.remove("over"));
-  zone.addEventListener("drop", e => {
-    e.preventDefault(); zone.classList.remove("over");
-    const files = [...e.dataTransfer.files];
-    let taken = 0, full = false;
-    files.forEach(f => {
-      // fill the next frame that has no file of its own and is open — never jump a filled one
-      const slot = DECK.findIndex(d => !d.file && d.status !== "locked");
-      if (slot === -1) { full = true; return; }
-      if (takeFile(slot, f)) taken++;
-    });
-    if (full) alertLine("No open frames left — drop onto a slide to replace it.");
-    else if (taken) alertLine(taken + (taken === 1 ? " slide" : " slides") + " added, in order.");
-  });
-})();
 
 let slideAt = 0;
+function stageEmpty(title, line) {
+  document.getElementById("stage-screen").innerHTML =
+    `<svg viewBox="0 0 480 270" role="img" aria-label="${esc(title)}">
+       <rect width="480" height="270" fill="#f6f8fa"/>
+       <rect x="24" y="24" width="432" height="222" rx="10" fill="none" stroke="#cfd8e1" stroke-width="2" stroke-dasharray="8 7"/>
+       <text x="240" y="128" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
+         font-size="20" font-weight="700" fill="#0b3c6b">${esc(title)}</text>
+       <text x="240" y="156" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
+         font-size="13" fill="#5a6470">${esc(line)}</text>
+     </svg>`;
+}
+const postedOn = f => f && f.submitted_at ? "posted " + new Date(f.submitted_at).toLocaleDateString("en-PH",
+  { timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric" }) : "";
 function showSlide(i) {
-  const filledIdx = DECK.map((d, k) => d.status === "in" ? k : -1).filter(k => k >= 0);
+  const filledIdx = WDECK.map((d, k) => d.state === "in" ? k : -1).filter(k => k >= 0);
   if (!filledIdx.length) {
-    /* nothing in the deck yet — say so rather than keep an old slide up */
-    document.getElementById("stage-screen").innerHTML =
-      `<svg viewBox="0 0 480 270" role="img" aria-label="No slides added yet">
-         <rect width="480" height="270" fill="#f6f8fa"/>
-         <rect x="24" y="24" width="432" height="222" rx="10" fill="none" stroke="#cfd8e1" stroke-width="2" stroke-dasharray="8 7"/>
-         <text x="240" y="128" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
-           font-size="20" font-weight="700" fill="#0b3c6b">No slides added yet</text>
-         <text x="240" y="156" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
-           font-size="13" fill="#5a6470">Drop a slide onto any open frame below to start the deck.</text>
-       </svg>`;
-    document.getElementById("stage-who").innerHTML = `Your pitch deck<small>${DECK.length} slides to build across the cycle</small>`;
+    stageEmpty("No slides posted yet", "Each week's slide appears here once it is posted on My Team's Work.");
+    document.getElementById("stage-who").innerHTML = `Your pitch deck<small>${WDECK.length} weeks of slides across the cycle</small>`;
     document.getElementById("slide-prev").disabled = true;
     document.getElementById("slide-next").disabled = true;
     return;
   }
-  slideAt = Math.max(0, Math.min(DECK.length - 1, i));
-  if (DECK[slideAt].status !== "in") slideAt = filledIdx[filledIdx.length - 1];
-  const d = DECK[slideAt];
-  document.getElementById("stage-screen").innerHTML = d.file
-    ? (d.file.url
-        ? `<img src="${d.file.url}" alt="Slide ${d.n}: ${esc(d.title)}" style="width:100%;height:100%;object-fit:contain;background:#fff">`
-        : `<div style="height:100%;display:grid;place-items:center;align-content:center;gap:8px;background:#fff;text-align:center;padding:20px">
-             <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#2e7d5b" stroke-width="1.4" aria-hidden="true">
-               <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
-             <div style="font-weight:700;color:#0b3c6b">${esc(d.file.name)}</div>
-             <div style="font-size:13px;color:#5a6470">${esc(d.file.size)} · handed in, ready for the panel</div>
-           </div>`)
-    : slideSVG(d, true);
-  document.getElementById("stage-who").innerHTML =
-    `Slide ${d.n} · ${d.title}<small>${d.sub} — from ${d.source}${
-      d.file ? " · your file: " + esc(d.file.name) : d.score ? " · panel scored this " + d.score.toFixed(2) : ""}</small>`;
+  slideAt = Math.max(0, Math.min(WDECK.length - 1, i));
+  if (WDECK[slideAt].state !== "in") slideAt = filledIdx[filledIdx.length - 1];
+  const d = WDECK[slideAt], f = d.file, k = kindOf(f), scr = document.getElementById("stage-screen");
+  if (d.sample) scr.innerHTML = sampleSlide(d);
+  else if (k === "img" && f.url) scr.innerHTML = `<img src="${esc(f.url)}" alt="Week ${d.week} slide" style="width:100%;height:100%;object-fit:contain;background:#fff">`;
+  else if (k === "pdf" && f.url) scr.innerHTML = `<iframe src="${esc(f.url)}#view=FitH" title="Week ${d.week} slide" style="width:100%;height:100%;border:0;background:#fff"></iframe>`;
+  else scr.innerHTML = `<div style="height:100%;display:grid;place-items:center;align-content:center;gap:10px;background:#fff;text-align:center;padding:20px">
+       <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#2e7d5b" stroke-width="1.4" aria-hidden="true">
+         <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+       <div style="font-weight:700;color:#0b3c6b">${esc(f.name || "Slide file")}</div>
+       <div style="font-size:13px;color:#5a6470">${f.size ? sizeOf(f.size) + " · " : ""}this file type can't be shown here</div>
+       ${f.url ? `<a class="btn" href="${esc(f.url)}" target="_blank" rel="noopener">Open the file</a>` : ""}
+     </div>`;
+  document.getElementById("stage-who").innerHTML = `Week ${d.week} · ${esc(d.title)}<small>${
+    d.sample ? "Sample slide — the team's real slide shows here once posted"
+      : [esc(f.name || ""), postedOn(f), f.status === "late" ? "after the deadline" : ""].filter(Boolean).join(" · ")
+        + (f.url ? ` · <a href="${esc(f.url)}" target="_blank" rel="noopener">Open</a>` : "")}</small>`;
   document.getElementById("slide-prev").disabled = slideAt <= filledIdx[0];
   document.getElementById("slide-next").disabled = slideAt >= filledIdx[filledIdx.length - 1];
-  document.querySelectorAll("#film .frame").forEach(b =>
-    b.setAttribute("aria-current", String(+b.dataset.i === slideAt)));
+  document.querySelectorAll("#film .frame").forEach(b => b.setAttribute("aria-current", String(+b.dataset.i === slideAt)));
 }
 document.getElementById("film").addEventListener("click", e => {
   const b = e.target.closest(".frame"); if (!b) return;
-  const i = +b.dataset.i, d = DECK[i];
-  if (d.status === "in") { showSlide(i); return; }
-  document.getElementById("stage-screen").innerHTML =
-    `<svg viewBox="0 0 480 270" role="img" aria-label="Slide ${d.n} not made yet">
-       <rect width="480" height="270" fill="#f6f8fa"/>
-       <rect x="24" y="24" width="432" height="222" rx="10" fill="none" stroke="#cfd8e1" stroke-width="2" stroke-dasharray="8 7"/>
-       <text x="240" y="128" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
-         font-size="20" font-weight="700" fill="#0b3c6b">${d.title}</text>
-       <text x="240" y="156" text-anchor="middle" font-family="Inter, Segoe UI, system-ui, sans-serif"
-         font-size="13" fill="#5a6470">${d.status === "due" ? (d.week < CAP.week_no ? "Ready to add" : "Due this week") : "Opens in Week " + d.week}</text>
-     </svg>`;
-  document.getElementById("stage-who").innerHTML =
-    `Slide ${d.n} · ${d.title}<small>Not made yet — comes from ${d.source} in Week ${d.week}</small>`;
-  document.getElementById("slide-prev").disabled = false;
-  document.getElementById("slide-next").disabled = false;
+  const i = +b.dataset.i, d = WDECK[i];
+  if (d.state === "in") { showSlide(i); return; }
+  stageEmpty("Week " + d.week + " · " + d.title,
+    d.state === "missing" ? "No slide was posted for this week." : d.state === "due" ? "Due this week — post it on My Team's Work." : "Opens in Week " + d.week);
+  document.getElementById("stage-who").innerHTML = `Week ${d.week} · ${esc(d.title)}<small>${esc(emptyNote(d))}</small>`;
   document.querySelectorAll("#film .frame").forEach(x => x.setAttribute("aria-current", String(+x.dataset.i === i)));
 });
-document.getElementById("slide-prev").addEventListener("click", () => showSlide(slideAt - 1));
-document.getElementById("slide-next").addEventListener("click", () => showSlide(slideAt + 1));
+function stepSlide(dir) {
+  const filledIdx = WDECK.map((d, k) => d.state === "in" ? k : -1).filter(k => k >= 0);
+  const pos = filledIdx.indexOf(slideAt);
+  const next = pos === -1 ? (dir > 0 ? filledIdx.find(k => k > slideAt) : [...filledIdx].reverse().find(k => k < slideAt))
+    : filledIdx[pos + dir];
+  if (next != null) showSlide(next);
+}
+document.getElementById("slide-prev").addEventListener("click", () => stepSlide(-1));
+document.getElementById("slide-next").addEventListener("click", () => stepSlide(1));
+renderFilm();
+
+/* a problem loading the team's saved work, said where the proposal counts are */
+function alertLine(msg) {
+  const el = document.getElementById("fa-counts"); if (!el) return;
+  el.textContent = msg; el.style.color = "#a63d40";
+}
 
 /* ---------- export (mockup) ---------- */
 function flash(btn, msg, back) {
@@ -10595,9 +10578,6 @@ function flash(btn, msg, back) {
 }
 document.getElementById("btn-export").addEventListener("click", function () {
   flash(this, "Assembled " + FORM.filter(hasContent).length + " items into DOST Form 2 (mockup)", "Export current draft");
-});
-document.getElementById("btn-assemble").addEventListener("click", function () {
-  flash(this, "Assembled " + DECK.filter(d => d.status === "in").length + " slides into one deck (mockup)", "Assemble the deck");
 });
 
 
@@ -10966,11 +10946,21 @@ window.__renderCapstone = function(targetTeamId) {
     const openItemObj = (keepItem && F(keepItem)) || FORM.find(f => f.status === "open") || FORM[0];
     openItem(openItemObj.n);
     renderFilm();
-    const firstIn = DECK.filter(d => d.status === "in").length - 1;
-    showSlide(firstIn >= 0 ? firstIn : 0);
+    const lastIn = WDECK.map((d, k) => d.state === "in" ? k : -1).filter(k => k >= 0).pop();
+    showSlide(lastIn != null ? lastIn : 0);
     if (sheetOpen) buildSheet();
   }
+  /* the deck: what this team has posted on My Team's Work */
+  buildDeck(live ? {} : null);
   paintAll();
+  if (live && window.STEP_SUBMISSIONS && window.STEP_SUBMISSIONS.slidesFor) {
+    window.STEP_SUBMISSIONS.slidesFor(activeId).then(files => {
+      if (token !== capToken) return;
+      buildDeck(files); refreshCounts(); renderFilm();
+      const lastIn = WDECK.map((d, k) => d.state === "in" ? k : -1).filter(k => k >= 0).pop();
+      showSlide(lastIn != null ? lastIn : 0);
+    }).catch(() => {});
+  }
   if (live) {
     CAPDB().load(activeId).then(saved => {
       if (token !== capToken) return;                   // a newer team or account took over

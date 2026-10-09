@@ -1886,7 +1886,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const sessOf = code => SESS.find(s => s.code === code) || { code, week: 0, title: code };
   const sessLabel = code => { const s = sessOf(code); return (s.tag || "Week " + s.week) + " · " + s.title; };
   const FORM_META = (M.getCapstone ? (M.getCapstone("g1").form || []) : []).map(f => ({ n: f.n, title: f.title, group: f.group }));
-  const DECK_N = M.getCapstone ? (M.getCapstone("g1").deck || []).length : 14;
+  /* the pitch deck is one slide per week with a team output, posted on My Team's Work */
+  const DECK_N = (window.STEP_SCHEDULE && window.STEP_SCHEDULE.teachingWeeks ? window.STEP_SCHEDULE.teachingWeeks().length : 0) || 9;
   const dLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
   const fx = n => (n == null || isNaN(n)) ? "—" : Number(n).toFixed(2);
   const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
@@ -1998,8 +1999,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   function capOf(team) {
     const it = D.cap.items.filter(r => r.team_id === team);
     const sub = it.filter(r => r.submitted).length, draft = it.filter(r => !r.submitted && r.filled).length;
-    const slides = D.cap.slides.filter(r => r.team_id === team).length;
-    const last = it.concat(D.cap.slides.filter(r => r.team_id === team)).map(r => r.updated_at).sort().pop();
+    const mySlides = (D.subs || []).filter(r => r.team_id === team && r.kind === "slide");
+    const slides = new Set(mySlides.map(r => r.week_no)).size;
+    const last = it.map(r => r.updated_at).concat(mySlides.map(r => r.submitted_at)).filter(Boolean).sort().pop();
     return { sub, draft, none: FORM_META.length - sub - draft, slides, last, byN: Object.fromEntries(it.map(r => [r.item_n, r])) };
   }
   const dWhen = iso => iso ? new Date(iso).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—";
