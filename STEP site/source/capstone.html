@@ -164,6 +164,8 @@
           <div class="nav">
             <button id="slide-prev" aria-label="Previous slide">‹</button>
             <button id="slide-next" aria-label="Next slide">›</button>
+            <button id="slide-fs" aria-label="Show the slide full screen" title="Full screen">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
           </div>
         </div>
       </div>
@@ -946,7 +948,7 @@ function showSlide(i) {
   const d = WDECK[slideAt], f = d.file, k = kindOf(f), scr = document.getElementById("stage-screen");
   if (d.sample) scr.innerHTML = sampleSlide(d);
   else if (k === "img" && f.url) scr.innerHTML = `<img src="${esc(f.url)}" alt="Week ${d.week} slide" style="width:100%;height:100%;object-fit:contain;background:#fff">`;
-  else if (k === "pdf" && f.url) scr.innerHTML = `<iframe src="${esc(f.url)}#view=FitH" title="Week ${d.week} slide" style="width:100%;height:100%;border:0;background:#fff"></iframe>`;
+  else if (k === "pdf" && f.url) scr.innerHTML = `<iframe src="${esc(f.url)}#view=Fit&toolbar=0" title="Week ${d.week} slide" style="width:100%;height:100%;border:0;background:#fff"></iframe>`;
   else scr.innerHTML = `<div style="height:100%;display:grid;place-items:center;align-content:center;gap:10px;background:#fff;text-align:center;padding:20px">
        <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#2e7d5b" stroke-width="1.4" aria-hidden="true">
          <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
@@ -980,6 +982,32 @@ function stepSlide(dir) {
 }
 document.getElementById("slide-prev").addEventListener("click", () => stepSlide(-1));
 document.getElementById("slide-next").addEventListener("click", () => stepSlide(1));
+
+/* full screen: the viewer covers the whole monitor and the slide fills it;
+   ← → move between the posted weeks, Esc (or the button) comes back */
+(function () {
+  const stage = document.getElementById("stage"), btn = document.getElementById("slide-fs");
+  const isFs = () => (document.fullscreenElement || document.webkitFullscreenElement) === stage;
+  const ICON_IN = '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+        ICON_OUT = '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>';
+  btn.addEventListener("click", () => {
+    if (isFs()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
+    else (stage.requestFullscreen || stage.webkitRequestFullscreen).call(stage);
+  });
+  const sync = () => {
+    const on = isFs();
+    btn.setAttribute("aria-label", on ? "Exit full screen" : "Show the slide full screen");
+    btn.title = on ? "Exit full screen (Esc)" : "Full screen";
+    btn.querySelector("svg").innerHTML = on ? ICON_OUT : ICON_IN;
+  };
+  document.addEventListener("fullscreenchange", sync);
+  document.addEventListener("webkitfullscreenchange", sync);
+  document.addEventListener("keydown", e => {
+    if (!isFs()) return;
+    if (e.key === "ArrowRight") { e.preventDefault(); stepSlide(1); }
+    if (e.key === "ArrowLeft")  { e.preventDefault(); stepSlide(-1); }
+  });
+})();
 renderFilm();
 
 /* a problem loading the team's saved work, said where the proposal counts are */
