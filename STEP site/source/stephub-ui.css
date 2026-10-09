@@ -5860,7 +5860,7 @@ body.on-gc .site-footer { display: none; }
 }
 
 /* pitch deck viewer: every slide fills its screen edge to edge */
-.stage .screen .slide-fill { width: 100%; height: 100%; display: block; object-fit: fill; background: #fff; }
+.stage .screen .slide-fill { width: 100%; height: 100%; display: block; object-fit: cover; background: #fff; }   /* scaled up until it fills, never stretched */
 .stage .screen .slide-wait { height: 100%; display: grid; place-items: center; color: #5a6470; font-size: 14px; background: #fff; }
 /* full screen: the slide takes the whole monitor; the controls float over its foot
    and fade away while the mouse is still */

@@ -164,8 +164,6 @@
           <div class="nav">
             <button id="slide-prev" aria-label="Previous slide">‹</button>
             <button id="slide-next" aria-label="Next slide">›</button>
-            <button id="slide-fs" aria-label="Show the slide full screen" title="Full screen">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
           </div>
         </div>
       </div>
@@ -1045,38 +1043,6 @@ function stepSlide(dir) {
 document.getElementById("slide-prev").addEventListener("click", () => stepSlide(-1));
 document.getElementById("slide-next").addEventListener("click", () => stepSlide(1));
 
-/* full screen: the viewer covers the whole monitor and the slide fills it;
-   ← → move between the posted weeks, Esc (or the button) comes back */
-(function () {
-  const stage = document.getElementById("deck-stage"), btn = document.getElementById("slide-fs");   // not "stage": STEP Groups already uses that id
-  const isFs = () => (document.fullscreenElement || document.webkitFullscreenElement) === stage;
-  const ICON_IN = '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
-        ICON_OUT = '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>';
-  btn.addEventListener("click", () => {
-    if (isFs()) (document.exitFullscreen || document.webkitExitFullscreen).call(document);
-    else (stage.requestFullscreen || stage.webkitRequestFullscreen).call(stage);
-  });
-  const sync = () => {
-    const on = isFs();
-    btn.setAttribute("aria-label", on ? "Exit full screen" : "Show the slide full screen");
-    btn.title = on ? "Exit full screen (Esc)" : "Full screen";
-    btn.querySelector("svg").innerHTML = on ? ICON_OUT : ICON_IN;
-  };
-  /* the controls hide after 2.5 s without the mouse moving, and come back on any move */
-  let idle = null;
-  const wake = () => { stage.classList.remove("idle"); clearTimeout(idle);
-    if (isFs()) idle = setTimeout(() => stage.classList.add("idle"), 2500); };
-  stage.addEventListener("mousemove", wake);
-  document.addEventListener("fullscreenchange", wake);
-  document.addEventListener("webkitfullscreenchange", wake);
-  document.addEventListener("fullscreenchange", sync);
-  document.addEventListener("webkitfullscreenchange", sync);
-  document.addEventListener("keydown", e => {
-    if (!isFs()) return;
-    if (e.key === "ArrowRight") { e.preventDefault(); stepSlide(1); }
-    if (e.key === "ArrowLeft")  { e.preventDefault(); stepSlide(-1); }
-  });
-})();
 renderFilm();
 
 /* a problem loading the team's saved work, said where the proposal counts are */
