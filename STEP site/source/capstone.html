@@ -157,7 +157,7 @@
     <!-- ---------- Workspace B: the deck ---------- -->
     <div id="ws-deck" role="tabpanel" aria-label="Pitch deck workspace" hidden>
       <div class="ws-body plain">
-      <div class="stage reveal mb-4" id="stage">
+      <div class="stage reveal mb-4" id="deck-stage">
         <div class="screen" id="stage-screen"></div>
         <div class="bar">
           <div class="who" id="stage-who">—<small>—</small></div>
@@ -935,7 +935,29 @@ function stageEmpty(title, line) {
 }
 const postedOn = f => f && f.submitted_at ? "posted " + new Date(f.submitted_at).toLocaleDateString("en-PH",
   { timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric" }) : "";
-function showSlide(i) {
+/* a PDF deck is drawn page by page (pdf.js), so each page can fill the screen
+   like a slide — the browser's own PDF viewer always leaves margins around it */
+const pdfDocs = {}, pdfPages = {};
+function pdfDoc(url) {
+  return pdfDocs[url] || (pdfDocs[url] = loadPdfJs()
+    .then(lib => lib.getDocument({ url }).promise)
+    .catch(e => { delete pdfDocs[url]; throw e; }));
+}
+function pdfPage(url, n) {
+  const key = url + "#" + n;
+  return pdfPages[key] || (pdfPages[key] = (async () => {
+    const doc = await pdfDoc(url), page = await doc.getPage(n), base = page.getViewport({ scale: 1 });
+    const vp = page.getViewport({ scale: Math.min(4, 1920 / base.width) });
+    const cv = document.createElement("canvas");
+    cv.width = Math.ceil(vp.width); cv.height = Math.ceil(vp.height);
+    await page.render({ canvasContext: cv.getContext("2d"), viewport: vp }).promise;
+    return cv.toDataURL("image/jpeg", 0.9);
+  })().catch(e => { delete pdfPages[key]; throw e; }));
+}
+const fillImg = (src, alt) => `<img src="${src}" alt="${alt}" class="slide-fill">`;
+
+let pageAt = 0, showTicket = 0;
+function showSlide(i, page) {
   const filledIdx = WDECK.map((d, k) => d.state === "in" ? k : -1).filter(k => k >= 0);
   if (!filledIdx.length) {
     stageEmpty("No slides posted yet", "Each week's slide appears here once it is posted on My Team's Work.");
@@ -946,10 +968,36 @@ function showSlide(i) {
   }
   slideAt = Math.max(0, Math.min(WDECK.length - 1, i));
   if (WDECK[slideAt].state !== "in") slideAt = filledIdx[filledIdx.length - 1];
+  const my = ++showTicket;
   const d = WDECK[slideAt], f = d.file, k = kindOf(f), scr = document.getElementById("stage-screen");
+  pageAt = 0;
+  const who = extra => {
+    document.getElementById("stage-who").innerHTML = `Week ${d.week} · ${esc(d.title)}<small>${
+      d.sample ? "Sample slide — the team's real slide shows here once posted"
+        : [extra || "", esc(f.name || ""), postedOn(f), f.status === "late" ? "after the deadline" : ""].filter(Boolean).join(" · ")
+          + (f.url ? ` · <a href="${esc(f.url)}" target="_blank" rel="noopener">Open</a>` : "")}</small>`;
+  };
+  const arrows = () => {
+    const first = slideAt <= filledIdx[0] && pageAt === 0;
+    const lastWeek = slideAt >= filledIdx[filledIdx.length - 1];
+    document.getElementById("slide-prev").disabled = first;
+    document.getElementById("slide-next").disabled = lastWeek && !(d.pageCount && pageAt < d.pageCount - 1);
+  };
   if (d.sample) scr.innerHTML = sampleSlide(d);
-  else if (k === "img" && f.url) scr.innerHTML = `<img src="${esc(f.url)}" alt="Week ${d.week} slide" style="width:100%;height:100%;object-fit:contain;background:#fff">`;
-  else if (k === "pdf" && f.url) scr.innerHTML = `<iframe src="${esc(f.url)}#view=Fit&toolbar=0" title="Week ${d.week} slide" style="width:100%;height:100%;border:0;background:#fff"></iframe>`;
+  else if (k === "img" && f.url) scr.innerHTML = fillImg(esc(f.url), "Week " + d.week + " slide");
+  else if (k === "pdf" && f.url) {
+    scr.innerHTML = `<div class="slide-wait">Loading the slides…</div>`;
+    pdfDoc(f.url).then(doc => {
+      if (my !== showTicket) return;
+      d.pageCount = doc.numPages;
+      const want = page === -1 ? doc.numPages - 1 : Math.max(0, Math.min(doc.numPages - 1, page || 0));
+      showPage(d, want, my);
+    }).catch(() => {
+      if (my !== showTicket) return;
+      /* pdf.js could not load: the browser's own viewer instead */
+      scr.innerHTML = `<iframe src="${esc(f.url)}#view=Fit&toolbar=0" title="Week ${d.week} slide" style="width:100%;height:100%;border:0;background:#fff"></iframe>`;
+    });
+  }
   else scr.innerHTML = `<div style="height:100%;display:grid;place-items:center;align-content:center;gap:10px;background:#fff;text-align:center;padding:20px">
        <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="#2e7d5b" stroke-width="1.4" aria-hidden="true">
          <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
@@ -957,13 +1005,20 @@ function showSlide(i) {
        <div style="font-size:13px;color:#5a6470">${f.size ? sizeOf(f.size) + " · " : ""}this file type can't be shown here</div>
        ${f.url ? `<a class="btn" href="${esc(f.url)}" target="_blank" rel="noopener">Open the file</a>` : ""}
      </div>`;
-  document.getElementById("stage-who").innerHTML = `Week ${d.week} · ${esc(d.title)}<small>${
-    d.sample ? "Sample slide — the team's real slide shows here once posted"
-      : [esc(f.name || ""), postedOn(f), f.status === "late" ? "after the deadline" : ""].filter(Boolean).join(" · ")
-        + (f.url ? ` · <a href="${esc(f.url)}" target="_blank" rel="noopener">Open</a>` : "")}</small>`;
-  document.getElementById("slide-prev").disabled = slideAt <= filledIdx[0];
-  document.getElementById("slide-next").disabled = slideAt >= filledIdx[filledIdx.length - 1];
+  who(); arrows();
+  showSlide._who = who; showSlide._arrows = arrows;
   document.querySelectorAll("#film .frame").forEach(b => b.setAttribute("aria-current", String(+b.dataset.i === slideAt)));
+}
+function showPage(d, n, my) {
+  pageAt = n;
+  if (showSlide._who) showSlide._who("Page " + (n + 1) + " of " + d.pageCount);
+  if (showSlide._arrows) showSlide._arrows();
+  pdfPage(d.file.url, n + 1).then(src => {
+    if (my !== showTicket || pageAt !== n) return;
+    document.getElementById("stage-screen").innerHTML = fillImg(src, "Week " + d.week + " slide, page " + (n + 1));
+    /* draw the next page ahead, so the arrow feels instant */
+    if (n + 1 < d.pageCount) pdfPage(d.file.url, n + 2).catch(() => {});
+  }).catch(() => {});
 }
 document.getElementById("film").addEventListener("click", e => {
   const b = e.target.closest(".frame"); if (!b) return;
@@ -975,11 +1030,17 @@ document.getElementById("film").addEventListener("click", e => {
   document.querySelectorAll("#film .frame").forEach(x => x.setAttribute("aria-current", String(+x.dataset.i === i)));
 });
 function stepSlide(dir) {
-  const filledIdx = WDECK.map((d, k) => d.state === "in" ? k : -1).filter(k => k >= 0);
+  const d = WDECK[slideAt];
+  /* inside a PDF deck, the arrows turn its pages first */
+  if (d && d.pageCount && kindOf(d.file) === "pdf") {
+    const n = pageAt + dir;
+    if (n >= 0 && n < d.pageCount) { showPage(d, n, showTicket); return; }
+  }
+  const filledIdx = WDECK.map((x, k) => x.state === "in" ? k : -1).filter(k => k >= 0);
   const pos = filledIdx.indexOf(slideAt);
   const next = pos === -1 ? (dir > 0 ? filledIdx.find(k => k > slideAt) : [...filledIdx].reverse().find(k => k < slideAt))
     : filledIdx[pos + dir];
-  if (next != null) showSlide(next);
+  if (next != null) showSlide(next, dir < 0 ? -1 : 0);   // going back lands on that week's last page
 }
 document.getElementById("slide-prev").addEventListener("click", () => stepSlide(-1));
 document.getElementById("slide-next").addEventListener("click", () => stepSlide(1));
@@ -987,7 +1048,7 @@ document.getElementById("slide-next").addEventListener("click", () => stepSlide(
 /* full screen: the viewer covers the whole monitor and the slide fills it;
    ← → move between the posted weeks, Esc (or the button) comes back */
 (function () {
-  const stage = document.getElementById("stage"), btn = document.getElementById("slide-fs");
+  const stage = document.getElementById("deck-stage"), btn = document.getElementById("slide-fs");   // not "stage": STEP Groups already uses that id
   const isFs = () => (document.fullscreenElement || document.webkitFullscreenElement) === stage;
   const ICON_IN = '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
         ICON_OUT = '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>';
@@ -1001,6 +1062,13 @@ document.getElementById("slide-next").addEventListener("click", () => stepSlide(
     btn.title = on ? "Exit full screen (Esc)" : "Full screen";
     btn.querySelector("svg").innerHTML = on ? ICON_OUT : ICON_IN;
   };
+  /* the controls hide after 2.5 s without the mouse moving, and come back on any move */
+  let idle = null;
+  const wake = () => { stage.classList.remove("idle"); clearTimeout(idle);
+    if (isFs()) idle = setTimeout(() => stage.classList.add("idle"), 2500); };
+  stage.addEventListener("mousemove", wake);
+  document.addEventListener("fullscreenchange", wake);
+  document.addEventListener("webkitfullscreenchange", wake);
   document.addEventListener("fullscreenchange", sync);
   document.addEventListener("webkitfullscreenchange", sync);
   document.addEventListener("keydown", e => {
