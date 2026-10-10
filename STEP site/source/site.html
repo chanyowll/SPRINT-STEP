@@ -10182,15 +10182,21 @@ function queueSave(f, wait) {
   }, wait == null ? 800 : wait);
 }
 /* put what the team saved onto the blank proposal */
+function hydrateItem(r) {
+  const f = F(r.item_n); if (!f) return;
+  ["draft", "value", "attachments", "parts"].forEach(k => { if (r.data && r.data[k] !== undefined) f[k] = r.data[k]; });
+  f.submitted = !!r.submitted;
+  f.submitted_iso = r.submitted_at || null;
+  f.submitted_at = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString("en-PH",
+    { timeZone: "Asia/Manila", day: "numeric", month: "long" }) : (r.data && r.data.submitted_at) || undefined;
+  capSeen[r.item_n] = stampOf(r);
+}
+/* what the page last took from the database for each item, so a teammate's
+   change is noticed and nobody's own unsaved typing is overwritten */
+let capSeen = {};
+const stampOf = r => (r.updated_at || "") + "|" + (r.submitted ? 1 : 0);
 function hydrate(saved) {
-  Object.values(saved.items).forEach(r => {
-    const f = F(r.item_n); if (!f) return;
-    ["draft", "value", "attachments", "parts"].forEach(k => { if (r.data && r.data[k] !== undefined) f[k] = r.data[k]; });
-    f.submitted = !!r.submitted;
-    f.submitted_iso = r.submitted_at || null;
-    f.submitted_at = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString("en-PH",
-      { timeZone: "Asia/Manila", day: "numeric", month: "long" }) : (r.data && r.data.submitted_at) || undefined;
-  });
+  Object.values(saved.items).forEach(hydrateItem);
   Object.values(saved.slides).forEach(r => {
     const d = DECK.find(x => x.n === r.slide_n); if (!d) return;
     const isImg = /^image\//.test(r.mime_type || "") || /\.(png|jpe?g)$/i.test(r.file_name || "");
@@ -10921,7 +10927,9 @@ window.__renderCapstone = function(targetTeamId) {
   if (!gate || !content) return;
 
   const auth = window.MOCK && window.MOCK.auth;
+  if (window.__capGate0 == null) window.__capGate0 = gate.innerHTML;   // the sign-in card, kept to put back
   if (!auth || !auth.canAccess("capstone")) {
+    gate.innerHTML = window.__capGate0;
     gate.hidden = false;
     content.hidden = true;
     const slot = document.getElementById("capstone-switcher-slot");
@@ -10937,7 +10945,16 @@ window.__renderCapstone = function(targetTeamId) {
   const assigned = auth.getAssignedTeams();
   let activeId;
   if (user.role === "participant") {
-    activeId = user.team_id || "g1";
+    /* the proposal and the deck belong to the team: a participant opens their
+       own team's, and an account not yet placed on a team opens none */
+    if (!user.team_id) {
+      gate.hidden = false;
+      content.hidden = true;
+      gate.innerHTML = `<div class="access-restricted-card"><h3>You're not on a team yet</h3>
+        <p>The FASTRAC proposal and the pitch deck are shared by everyone on a team. Ask the STEP team to add your account to your team, then come back here.</p></div>`;
+      return;
+    }
+    activeId = user.team_id;
   } else {
     if (targetTeamId && (assigned.includes(targetTeamId) || user.role === "admin")) {
       activeId = targetTeamId;
@@ -11017,21 +11034,73 @@ window.__renderCapstone = function(targetTeamId) {
   buildDeck(live ? {} : null);
   paintAll();
   if (live && window.STEP_SUBMISSIONS && window.STEP_SUBMISSIONS.slidesFor) {
+    deckSig = "";
     window.STEP_SUBMISSIONS.slidesFor(activeId).then(files => {
       if (token !== capToken) return;
+      deckSig = Object.keys(files).sort().map(w => w + ":" + files[w].submitted_at).join(",");
       buildDeck(files); refreshCounts(); renderFilm();
       const lastIn = WDECK.map((d, k) => d.state === "in" ? k : -1).filter(k => k >= 0).pop();
       showSlide(lastIn != null ? lastIn : 0);
     }).catch(() => {});
   }
+  capSeen = {};
+  clearInterval(capPoll);
   if (live) {
     CAPDB().load(activeId).then(saved => {
       if (token !== capToken) return;                   // a newer team or account took over
       hydrate(saved);
       paintAll(current);
     }).catch(e => { if (token === capToken) alertLine("Couldn't load the saved proposal: " + (e.message || e)); });
+    /* one proposal and one deck per team: what a teammate saves shows up
+       here within a few seconds, without a reload */
+    capPoll = setInterval(() => syncTeam(activeId, token), 15000);
   }
 };
+
+/* ---------- keeping the whole team on the same proposal and deck ---------- */
+let capPoll = null, deckSig = "";
+function capOnScreen() {
+  const r = document.getElementById("route-capstone");
+  return !document.hidden && (!r || !r.hidden);
+}
+/* the item being typed in right now is left alone until its own save has gone */
+function editingNow(n) {
+  const ed = document.getElementById("editor");
+  return current === n && (!!saveTimers[n] || (ed && ed.contains(document.activeElement)));
+}
+async function syncTeam(team, token) {
+  if (token !== capToken || !CAP_LIVE || !capOnScreen() || !CAPDB()) return;
+  try {
+    const saved = await CAPDB().load(team);
+    if (token !== capToken) return;
+    let changed = false, curChanged = false;
+    Object.values(saved.items).forEach(r => {
+      if (capSeen[r.item_n] === stampOf(r) || editingNow(r.item_n)) return;
+      hydrateItem(r); changed = true;
+      if (r.item_n === current) curChanged = true;
+    });
+    if (changed) {
+      refreshCounts(); renderItemBar(); renderItemList();
+      if (curChanged) openItem(current);
+      if (sheetOpen) buildSheet();
+    }
+  } catch (e) {}
+  try {
+    if (!window.STEP_SUBMISSIONS || !window.STEP_SUBMISSIONS.slidesFor) return;
+    const files = await window.STEP_SUBMISSIONS.slidesFor(team);
+    if (token !== capToken) return;
+    const sig = Object.keys(files).sort().map(w => w + ":" + files[w].submitted_at).join(",");
+    if (sig !== deckSig) {
+      const first = !deckSig; deckSig = sig;
+      if (first) return;                                 // the first look only records what is there
+      const keep = slideAt;
+      buildDeck(files); refreshCounts(); renderFilm(); showSlide(keep);
+    }
+  } catch (e) {}
+}
+/* back on the tab, or back on the page: catch up at once */
+document.addEventListener("visibilitychange", () => { if (!document.hidden && CAP_LIVE) syncTeam(CAP_TEAM, capToken); });
+window.addEventListener("hashchange", () => { if (/^#capstone/.test(location.hash) && CAP_LIVE) syncTeam(CAP_TEAM, capToken); });
 
 window.addEventListener("stephub_auth_changed", () => {
   if (typeof window.__renderCapstone === "function") window.__renderCapstone();
