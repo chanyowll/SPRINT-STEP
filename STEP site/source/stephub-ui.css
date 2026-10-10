@@ -5794,13 +5794,15 @@ body.on-gc .site-footer { display: none; }
 /* =====================================================================
    The floating STEP GC button: bottom right of every page except STEP GC
    ===================================================================== */
-.gc-fab { position: fixed; right: 28px; bottom: 28px; z-index: 250; width: 46px; height: 46px; border-radius: 50%;
+.gc-fab { position: fixed; right: 28px; top: 50%; translate: 0 -50%; z-index: 250; width: 46px; height: 46px; border-radius: 50%;
   display: grid; place-items: center; color: #fff; text-decoration: none;
   background: #006eb9;   /* the blue of the STEP logo */
   box-shadow: 0 0 0 3px #fff, 0 10px 26px rgba(0, 110, 185, .35), 0 2px 6px rgba(0, 110, 185, .25);
   transition: transform .18s ease, box-shadow .18s ease; }
 .gc-fab[hidden] { display: none; }
 .gc-fab svg { width: 25px; height: 25px; }
+/* the STEP mark as wide as the circle allows (its corners just clear the edge) */
+.gc-fab .gc-fab-mark { width: 40px; height: auto; display: block; pointer-events: none; }
 .gc-fab:hover { transform: translateY(-2px); background: #0063a7; box-shadow: 0 0 0 3px #fff, 0 14px 30px rgba(0, 110, 185, .42), 0 2px 6px rgba(0, 110, 185, .25); }
 .gc-fab:focus-visible { outline: 3px solid var(--blue); outline-offset: 5px; }
 .gc-fab-n { position: absolute; top: -4px; right: -4px; min-width: 18px; height: 18px; padding: 0 4px; box-sizing: border-box; border-radius: 999px;
@@ -5810,7 +5812,7 @@ body.on-gc .site-footer { display: none; }
   background: var(--navy); color: #fff; font-size: 13.5px; font-weight: 650; padding: 7px 13px; border-radius: 999px;
   box-shadow: 0 6px 16px rgba(0, 0, 0, .18); opacity: 0; transition: opacity .15s ease; }
 .gc-fab:hover .gc-fab-tip, .gc-fab:focus-visible .gc-fab-tip { opacity: 1; }
-@media (max-width: 700px) { .gc-fab { right: 16px; bottom: 16px; width: 40px; height: 40px; } .gc-fab svg { width: 22px; height: 22px; } .gc-fab-tip { display: none; } }
+@media (max-width: 700px) { .gc-fab { right: 16px; width: 40px; height: 40px; } .gc-fab svg { width: 22px; height: 22px; } .gc-fab .gc-fab-mark { width: 35px; } .gc-fab-tip { display: none; } }
 @media (prefers-reduced-motion: reduce) { .gc-fab { transition: none; } .gc-fab:hover { transform: none; } }
 
 /* ---- The one "you cannot open this" popup ---- */

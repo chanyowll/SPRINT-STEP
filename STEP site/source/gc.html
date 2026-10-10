@@ -726,7 +726,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
   if (document.getElementById("gc-fab")) return;
   const b = document.createElement("a");
   b.id = "gc-fab"; b.className = "gc-fab"; b.href = document.getElementById("route-gc") ? "#gc" : "gc.html"; b.hidden = true;
-  b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 9.5h4A2.5 2.5 0 0 1 21 12v4.5a2.5 2.5 0 0 1-2.5 2.5H18v2.5L15 19h-3.5A2.5 2.5 0 0 1 9 16.5V15"/><path d="M5.5 3h7A2.5 2.5 0 0 1 15 5.5v5a2.5 2.5 0 0 1-2.5 2.5H9l-3 2.5V13h-.5A2.5 2.5 0 0 1 3 10.5v-5A2.5 2.5 0 0 1 5.5 3z"/></svg>'
+  b.innerHTML = '<img class="gc-fab-mark" src="assets/step-logo-mark-white.png" alt="">'
     + '<span class="gc-fab-n" hidden></span><span class="gc-fab-tip">STEP GC</span>';
   document.body.appendChild(b);
   const n = b.querySelector(".gc-fab-n"), tip = b.querySelector(".gc-fab-tip");
