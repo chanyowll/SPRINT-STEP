@@ -10977,38 +10977,30 @@ window.__renderCapstone = function(targetTeamId) {
   DECK = CAP.deck;
   seedSubmitted();
 
-  // Render team switcher
-  const slot = document.getElementById("capstone-switcher-slot");
-  if (slot) {
-    if (user.role === "participant") {
-      // Participants: no banner needed
-      slot.innerHTML = '';
-    } else {
-      const allowedTeams = (user.role === "admin") ? teams : teams.filter(t => assigned.includes(t.id));
-      if (allowedTeams.length > 1) {
-        slot.innerHTML = `
-          <div class="team-switcher-bar admin-switcher">
-            <div class="ts-left">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              <select id="team-select-capstone">
-                ${allowedTeams.map(t => `<option value="${t.id}" ${t.id === activeId ? 'selected' : ''}>${esc(t.short)} (${esc(t.abbr)})</option>`).join('')}
-              </select>
-            </div>
-            <span class="ts-count">${allowedTeams.length} teams</span>
-          </div>`;
-        const sel = document.getElementById("team-select-capstone");
-        if (sel) {
-          sel.addEventListener("change", (e) => {
-            window.__selectedTeamId = e.target.value;
-            window.__renderCapstone(e.target.value);
-            document.dispatchEvent(new CustomEvent("stephub_team_changed", { detail: e.target.value }));
-          });
-        }
-      } else {
-        slot.innerHTML = '';
-      }
-    }
-  }
+  // Render team switcher — in both headers: the FASTRAC proposal's and the pitch deck's
+  const slots = ["capstone-switcher-slot", "capstone-switcher-slot-deck"]
+    .map(id => document.getElementById(id)).filter(Boolean);
+  const allowedTeams = user.role === "participant" ? []
+    : (user.role === "admin") ? teams : teams.filter(t => assigned.includes(t.id));
+  slots.forEach(slot => {
+    /* participants see only their own team, so they get no picker */
+    if (allowedTeams.length < 2) { slot.innerHTML = ""; return; }
+    slot.innerHTML = `
+      <div class="team-switcher-bar admin-switcher">
+        <div class="ts-left">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <select class="cap-team-select" aria-label="Team">
+            ${allowedTeams.map(t => `<option value="${t.id}" ${t.id === activeId ? 'selected' : ''}>${esc(t.short)} (${esc(t.abbr)})</option>`).join('')}
+          </select>
+        </div>
+        <span class="ts-count">${allowedTeams.length} teams</span>
+      </div>`;
+    slot.querySelector("select").addEventListener("change", (e) => {
+      window.__selectedTeamId = e.target.value;
+      window.__renderCapstone(e.target.value);
+      document.dispatchEvent(new CustomEvent("stephub_team_changed", { detail: e.target.value }));
+    });
+  });
 
   /* real account: who may edit, and what the team has saved */
   const live = !!(window.MOCK.isLiveUser && window.MOCK.isLiveUser() && CAPDB());
