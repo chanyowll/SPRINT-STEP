@@ -19,6 +19,7 @@ PAGES = [
     ("myteam",  "my-team.html", "My Team's Work"),
     ("capstone","capstone.html","Capstone"),
     ("trainers","trainers.html","Trainers"),
+    ("mail",    "mail.html",    "STEP Mail"),
 ]
 
 def read(f):
@@ -71,6 +72,7 @@ def fix_nav(h):
     h = h.replace('<a href="this-week.html">', '<a href="#week" data-route="week">')
     h = h.replace('<a href="gc.html" class="active">', '<a href="#gc" data-route="gc">')
     h = h.replace('<a href="gc.html">', '<a href="#gc" data-route="gc">')
+    h = h.replace('<a href="mail.html" class="nav-mail"', '<a href="#mail" data-route="mail" class="nav-mail"')
     return h
 
 header = fix_nav(header)
@@ -90,6 +92,7 @@ LINKS = [
     ('href="capstone.html"',          'href="#capstone"'),
     ('href="this-week.html"',         'href="#week"'),
     ('href="gc.html"',                'href="#gc"'),
+    ('href="mail.html"',              'href="#mail"'),
     ('href="trainers.html"',          'href="#trainers"'),
     ('href="groups.html"',            'href="#groups"'),
     ('href="index.html"',             'href="#home"'),
@@ -119,7 +122,8 @@ router = """
                  week:    "This Week · SPRINT-STEP",
                  gc:      "STEP GC · SPRINT-STEP",
                  groups:  "STEP Groups · SPRINT-STEP",
-                 trainers: "Trainers · SPRINT-STEP" };
+                 trainers: "Trainers · SPRINT-STEP",
+                 mail:    "STEP Mail · SPRINT-STEP" };
 
 
   /* ---------- the one "you cannot open this" popup ---------- */
@@ -219,6 +223,7 @@ router = """
     if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
     if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();
     if (name === "trainers" && typeof window.__renderTrainers === "function") window.__renderTrainers();
+    if (name === "mail" && typeof window.__renderMail === "function") window.__renderMail();
     // replay the scroll reveals for the page we just switched to
     var target = document.getElementById("route-" + name);
     target.querySelectorAll(".reveal").forEach(function (el) { el.classList.remove("in"); });
@@ -311,6 +316,8 @@ tagged = tagged.replace('<a href="#groups" data-route="groups">',
                         '<a class="nav-link" href="#groups" data-route="groups">')
 tagged = tagged.replace('<a href="#trainers" data-route="trainers" aria-haspopup',
                         '<a class="nav-link" href="#trainers" data-route="trainers" aria-haspopup')
+tagged = tagged.replace('<a href="#mail" data-route="mail" class="nav-mail"',
+                        '<a href="#mail" data-route="mail" class="nav-link nav-mail"')
 header = header.replace(nav_block, tagged)
 
 page = f"""<!doctype html>
@@ -345,6 +352,7 @@ page = f"""<!doctype html>
 <script src="materials-data.js"></script>
 <script src="announcements-data.js"></script>
 <script src="chat-data.js"></script>
+<script src="mail-data.js"></script>
 <script src="capstone-data.js"></script>
 <script src="panelplan-data.js"></script>
 <script src="panelsheets-data.js"></script>

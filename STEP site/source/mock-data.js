@@ -482,7 +482,7 @@ window.MOCK = (function () {
       if (["home", "program", "groups"].includes(route)) return true;
 
       // ── This Week and STEP GC — all authenticated users
-      if (route === "week" || route === "gc") return true;
+      if (route === "week" || route === "gc" || route === "mail") return true;
 
       // ── My Team's Work — all authenticated users
       if (route === "myteam") return true;

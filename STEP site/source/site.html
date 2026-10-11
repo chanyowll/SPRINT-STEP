@@ -42,6 +42,7 @@
       <a class="nav-link" href="#myteam" data-route="myteam">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
       <span class="navdd"><a class="nav-link" href="#capstone" data-route="capstone" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
       <span class="navdd"><a class="nav-link" href="#trainers" data-route="trainers" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
+      <a href="#mail" data-route="mail" class="nav-link nav-mail" aria-label="STEP Mail" title="STEP Mail"><svg class="nav-mail-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg><span class="nav-mail-l">Mail</span><i class="nav-mail-n" hidden></i></a>
     </nav>
   </div>
   <script>
@@ -2014,6 +2015,53 @@
 </main>
 </div>
 </div>
+<div class="route" id="route-mail" data-route="mail" hidden>
+<main class="ml-page" id="ml-page">
+  <div class="wrap">
+    <div class="ml-app" id="ml-app">
+      <section class="ml-list" aria-label="Messages">
+        <div class="ml-lh">
+          <div class="ml-title">
+            <h1>STEP Mail</h1>
+            <button type="button" class="ml-new" id="ml-new" hidden>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>New message</button>
+          </div>
+          <div class="ml-tabs" id="ml-tabs" role="tablist" aria-label="Show"></div>
+          <label class="ml-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input type="search" id="ml-q" placeholder="Search mail" aria-label="Search mail"></label>
+        </div>
+        <div class="ml-rows" id="ml-rows" role="list"></div>
+      </section>
+      <section class="ml-read" id="ml-read" aria-label="Message"></section>
+    </div>
+  </div>
+</main>
+
+<div class="ml-compose" id="ml-compose" role="dialog" aria-modal="false" aria-labelledby="mlc-t" hidden>
+  <div class="mlc-head"><b id="mlc-t">New message</b>
+    <button type="button" class="mlc-x" id="mlc-x" aria-label="Close">×</button></div>
+  <div class="mlc-to">
+    <span class="mlc-lab">To</span>
+    <div class="mlc-chips" id="mlc-chips"></div>
+    <input id="mlc-in" autocomplete="off" placeholder="Name, team or role" aria-label="Add recipients" aria-controls="mlc-sug">
+    <div class="mlc-sug" id="mlc-sug" role="listbox" hidden></div>
+  </div>
+  <label class="mlc-subj"><span class="mlc-lab">Subject</span><input id="mlc-subj" maxlength="200"></label>
+  <textarea id="mlc-body" placeholder="Write your message" maxlength="20000" aria-label="Message"></textarea>
+  <div class="mlc-files" id="mlc-files"></div>
+  <div class="mlc-foot">
+    <label class="mlc-att"><input type="file" id="mlc-file" multiple hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 12-8.5 8.5a5 5 0 0 1-7-7L14 5a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4L15.5 8"/></svg>Attach</label>
+    <span class="mlc-count" id="mlc-count"></span>
+    <button type="button" class="ml-btn" id="mlc-send">Send</button>
+  </div>
+  <p class="mlc-err" id="mlc-err" role="alert" hidden></p>
+</div>
+
+<div class="ml-toast" id="ml-toast" role="status" hidden></div>
+
+<!-- ===== Footer ===== -->
+</div>
 
 <footer class="site-footer">
   <div class="wrap grid c3">
@@ -3468,6 +3516,191 @@
   }
 
   window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, subscribe };
+})();
+
+</script>
+<script>/* mail-data.js */
+/* =====================================================================
+   STEP Hub — STEP Mail (data)
+
+   Each person has their own inbox. Only the STEP Team (admins and the
+   tech team) writes new messages; a message to a group lands in every
+   member's inbox with its own read/unread. Everyone else replies, and
+   a reply goes privately to the STEP Team. The rules live in the
+   database (supabase/mail.sql); this file only reads and calls them.
+   ===================================================================== */
+
+(function () {
+  'use strict';
+
+  const SB = () => window.STEP_SUPABASE;
+  const client = () => (SB() && SB().getClient ? SB().getClient() : null);
+  const available = () => !!(client() && (!SB().isOnline || SB().isOnline()));
+
+  async function me() {
+    const sb = client(); if (!sb) return null;
+    try { const { data } = await sb.auth.getSession(); return data && data.session ? data.session.user : null; }
+    catch (e) { return null; }
+  }
+
+  const fail = (error, fallback) => {
+    const m = (error && error.message) || fallback || 'Something went wrong.';
+    if (/mail_messages|mail_send|mail_reply|is_step_team|does not exist|schema cache/i.test(m))
+      return new Error('STEP Mail is not set up yet. Ask the tech team to run mail.sql.');
+    return new Error(m);
+  };
+
+  /* is this account on the STEP Team? asked once per signed-in person */
+  let teamFor = null, teamAns = false;
+  async function isTeam() {
+    const u = await me(); if (!u) return false;
+    if (teamFor === u.id) return teamAns;
+    const { data, error } = await client().rpc('is_step_team');
+    teamFor = u.id; teamAns = !error && data === true;
+    return teamAns;
+  }
+
+  /** Everything this person can see: messages, newest first, and their own read marks. */
+  async function load() {
+    const u = await me(); if (!u) return { me: null, team: false, messages: [], readAt: {} };
+    const sb = client();
+    const [team, msgs, mine] = await Promise.all([
+      isTeam(),
+      sb.from('mail_messages').select('*').order('created_at', { ascending: false }).limit(600),
+      sb.from('mail_recipients').select('message_id, read_at').eq('user_id', u.id)
+    ]);
+    if (msgs.error) throw fail(msgs.error);
+    const readAt = {};
+    (mine.data || []).forEach(r => { readAt[r.message_id] = r.read_at || null; });
+    return { me: u, team, messages: msgs.data || [], readAt };
+  }
+
+  /** How many unread messages wait for this person (the number on the envelope). */
+  async function unread() {
+    const u = await me(); if (!u) return 0;
+    const sb = client();
+    const own = await sb.from('mail_recipients').select('message_id', { count: 'exact', head: true })
+      .eq('user_id', u.id).is('read_at', null);
+    let n = own.error ? 0 : (own.count || 0);
+    if (await isTeam()) {
+      const rep = await sb.from('mail_messages').select('id', { count: 'exact', head: true })
+        .eq('from_team', false).is('team_read_at', null);
+      if (!rep.error) n += rep.count || 0;
+    }
+    return n;
+  }
+
+  const safeName = n => String(n || 'file').replace(/[^\w.\- ()]+/g, '_').slice(-120);
+  const newId = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID()
+    : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }));
+
+  /** Send a new message (STEP Team only). to = { users:[], teams:[], roles:[], everyone } */
+  async function send(o) {
+    const sb = client(); if (!sb) throw new Error('You are offline.');
+    const id = newId(), files = o.files || [], att = [];
+    for (const f of files) {
+      if (f.size > 50 * 1024 * 1024) throw new Error(f.name + ' is over 50 MB.');
+      const path = id + '/' + safeName(f.name);
+      const up = await sb.storage.from('mail').upload(path, f, { upsert: false, contentType: f.type || undefined });
+      if (up.error) throw fail(up.error, 'Could not upload ' + f.name + '.');
+      att.push({ name: f.name, path, size: f.size });
+    }
+    const to = o.to || {};
+    const { data, error } = await sb.rpc('mail_send', {
+      p_subject: o.subject, p_body: o.body,
+      p_users: to.users || [], p_teams: to.teams || [], p_roles: to.roles || [],
+      p_everyone: !!to.everyone, p_attachments: att, p_id: id
+    });
+    if (error) {
+      if (att.length) sb.storage.from('mail').remove(att.map(a => a.path)).catch(() => {});
+      throw fail(error);
+    }
+    nudge();
+    return data;
+  }
+
+  async function reply(parentId, body) {
+    const { data, error } = await client().rpc('mail_reply', { p_parent: parentId, p_body: body });
+    if (error) throw fail(error);
+    nudge();
+    return data;
+  }
+
+  async function markRead(ids) {
+    if (!ids || !ids.length) return;
+    const { error } = await client().rpc('mail_mark_read', { p_ids: ids });
+    if (!error) nudge();
+  }
+
+  /** Remove a message sent by mistake, with its files (STEP Team only). */
+  async function remove(msg) {
+    const sb = client();
+    const paths = (msg.attachments || []).map(a => a.path).filter(Boolean);
+    if (paths.length) await sb.storage.from('mail').remove(paths);
+    const { error } = await sb.rpc('mail_delete', { p_id: msg.id });
+    if (error) throw fail(error);
+    nudge();
+  }
+
+  /** People and teams for the "To" field (STEP Team only). */
+  async function directory() {
+    const sb = client();
+    const [p, t] = await Promise.all([
+      sb.from('profiles').select('id, full_name, email, role, roles, team_id').neq('role', 'guest').order('full_name'),
+      sb.from('teams').select('id, name, short').order('id')
+    ]);
+    if (p.error) throw fail(p.error);
+    return { people: p.data || [], teams: t.data || [] };
+  }
+
+  /** Who a message went to and who has opened it (STEP Team only). */
+  async function readers(messageId) {
+    const sb = client();
+    const { data, error } = await sb.from('mail_recipients').select('user_id, read_at').eq('message_id', messageId);
+    if (error) throw fail(error);
+    const ids = (data || []).map(r => r.user_id);
+    const names = {};
+    if (ids.length) {
+      const p = await sb.from('profiles').select('id, full_name, email').in('id', ids);
+      (p.data || []).forEach(x => { names[x.id] = x.full_name || x.email; });
+    }
+    return (data || []).map(r => ({ name: names[r.user_id] || 'Someone', read_at: r.read_at }))
+      .sort((a, b) => (!!b.read_at - !!a.read_at) || a.name.localeCompare(b.name));
+  }
+
+  async function fileUrl(att) {
+    const { data, error } = await client().storage.from('mail').createSignedUrl(att.path, 3600, { download: att.name });
+    if (error) throw fail(error, 'Could not open the file.');
+    return data.signedUrl;
+  }
+
+  /* ---------- the number on the envelope, on every page ---------- */
+  let timer = null, busy = false;
+  async function paintBadge() {
+    if (busy) return; busy = true;
+    let n = 0;
+    try { if (available() && (await me())) n = await unread(); } catch (e) { n = 0; }
+    busy = false;
+    document.querySelectorAll('.nav-mail-n').forEach(el => {
+      el.textContent = n > 99 ? '99+' : String(n);
+      el.hidden = !n;
+    });
+    document.querySelectorAll('.nav-mail').forEach(a =>
+      a.setAttribute('aria-label', n ? 'STEP Mail, ' + n + ' unread' : 'STEP Mail'));
+    window.dispatchEvent(new CustomEvent('stephub_mail_unread', { detail: { count: n } }));
+  }
+  function nudge() { paintBadge(); }
+  function start() {
+    if (timer) return;
+    paintBadge();
+    timer = setInterval(() => { if (!document.hidden) paintBadge(); }, 60000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) paintBadge(); });
+  }
+  window.addEventListener('stephub_auth_changed', () => { teamFor = null; paintBadge(); });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+
+  window.STEP_MAIL = { available, isTeam, load, unread, send, reply, markRead, remove, directory, readers, fileUrl, refreshBadge: paintBadge };
 })();
 
 </script>
@@ -5610,7 +5843,7 @@ window.MOCK = (function () {
       if (["home", "program", "groups"].includes(route)) return true;
 
       // ── This Week and STEP GC — all authenticated users
-      if (route === "week" || route === "gc") return true;
+      if (route === "week" || route === "gc" || route === "mail") return true;
 
       // ── My Team's Work — all authenticated users
       if (route === "myteam") return true;
@@ -13053,6 +13286,504 @@ window.__renderTrainers();
 window.addEventListener("stephub_auth_changed", () => window.__renderTrainers());
 })();
 } catch(e) { console.error('[STEP] Error in trainers.html script:', e); }
+/* ---- mail.html ---- */
+try {
+(function(){
+
+
+/* ---------- STEP Mail ---------- */
+(function () {
+  const $ = id => document.getElementById(id);
+  if (!$("ml-app")) return;
+  const esc = t => String(t == null ? "" : t)
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  const DEMO = /[?&]demo=1(&|$)/.test(location.search || "");
+  const MARK = '<img src="assets/step-logo-mark-white.png" alt="">';
+  const IC = {
+    clip: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 12-8.5 8.5a5 5 0 0 1-7-7L14 5a3.3 3.3 0 0 1 4.7 4.7l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4L15.5 8"/></svg>',
+    grp: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M16 5a3 3 0 0 1 0 6M21 20c0-2.5-1.5-4-3.5-4.6"/></svg>',
+    one: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c0-3.5 3-6 7-6s7 2.5 7 6"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+    file: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>',
+    mail: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m3.5 7 8.5 6 8.5-6"/></svg>'
+  };
+
+  /* ---------- small helpers ---------- */
+  const TZ = "Asia/Manila";
+  const dayOf = d => new Date(d).toLocaleDateString("en-CA", { timeZone: TZ });
+  function when(iso, long) {
+    const d = new Date(iso), today = dayOf(Date.now());
+    const t = d.toLocaleTimeString("en-PH", { timeZone: TZ, hour: "numeric", minute: "2-digit" });
+    if (dayOf(d) === today) return long ? "Today, " + t : t;
+    if (dayOf(d) === dayOf(Date.now() - 864e5)) return long ? "Yesterday, " + t : "Yesterday";
+    const sameYear = dayOf(d).slice(0, 4) === today.slice(0, 4);
+    const day = d.toLocaleDateString("en-PH", Object.assign({ timeZone: TZ, month: "short", day: "numeric" }, sameYear ? {} : { year: "numeric" }));
+    return long ? day + ", " + t : day;
+  }
+  const initials = n => String(n || "?").replace(/^(Dr|Engr|Mr|Ms|Mrs|Prof)\.?\s+/i, "").split(/\s+/).filter(Boolean)
+    .slice(0, 2).map(x => x[0]).join("").toUpperCase() || "?";
+  function linkify(t) {
+    return esc(t).replace(/\b((?:https?:\/\/|www\.)[^\s<]+[^\s<.,;:!?)\]'"])/gi, u =>
+      '<a href="' + (/^www\./i.test(u) ? "https://" + u : u) + '" target="_blank" rel="noopener">' + u + "</a>")
+      .replace(/\n/g, "<br>");
+  }
+  const sizeOf = n => n > 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB";
+  function toast(msg) {
+    const t = $("ml-toast"); t.textContent = msg; t.hidden = false;
+    clearTimeout(toast.k); toast.k = setTimeout(() => { t.hidden = true; }, 3200);
+  }
+  const API = () => (DEMO ? demoApi() : window.STEP_MAIL);
+
+  /* ---------- state ---------- */
+  let S = { me: null, team: false, messages: [], readAt: {} };
+  let tab = "all", query = "", sel = null, phone = false, err = "", loaded = false, loading = false;
+  let replyTo = null, confirmDel = false, seenOpen = false, seen = {};
+  const drafts = {};
+
+  function isUnread(m) {
+    if (Object.prototype.hasOwnProperty.call(S.readAt, m.id) && S.readAt[m.id] === null) return true;
+    return S.team && !m.from_team && !m.team_read_at;
+  }
+  function threads() {
+    const by = {};
+    S.messages.forEach(m => { (by[m.thread_id] = by[m.thread_id] || []).push(m); });
+    return Object.keys(by).map(k => {
+      const list = by[k].slice().sort((a, b) => (a.created_at < b.created_at ? -1 : 1));
+      const root = list.find(m => m.id === k) || list[0];
+      const unreadIds = list.filter(isUnread).map(m => m.id);
+      return { id: k, list, root, last: list[list.length - 1], unreadIds,
+               people: list.filter(m => !m.from_team) };
+    }).sort((a, b) => (a.last.created_at < b.last.created_at ? 1 : -1));
+  }
+  function visible(all) {
+    const q = query.trim().toLowerCase();
+    return all.filter(t => {
+      if (tab === "unread" && !t.unreadIds.length) return false;
+      if (tab === "sent" && !t.root.from_team) return false;
+      if (!q) return true;
+      return t.list.some(m => [m.subject, m.body, m.sender_name, m.to_label].join(" ").toLowerCase().indexOf(q) > -1);
+    });
+  }
+  const groupMsg = m => m.to_count > 1 || /^(Team |All |Everyone)/.test(m.to_label || "");
+
+  /* ---------- the list ---------- */
+  function rowWho(t) {
+    if (!S.team) return t.last.from_team ? "STEP Team" : "STEP Team, you";
+    if (!t.people.length) return "To " + t.root.to_label;
+    const names = [...new Set(t.people.map(m => m.sender_name))];
+    return names.slice(0, 2).join(", ") + (names.length > 2 ? " +" + (names.length - 2) : "");
+  }
+  function chip(m, opts) {
+    const grp = groupMsg(m);
+    if (!S.team && !grp) return '<span class="ml-to one">' + IC.one + "To you</span>";
+    return '<span class="ml-to ' + (grp ? "grp" : "one") + '">' + (grp ? IC.grp : IC.one) + esc((opts && opts.bare ? "" : "To ") + m.to_label)
+      + (grp ? " · " + m.to_count + (m.to_count === 1 ? " person" : " people") : "") + "</span>";
+  }
+  function renderTabs(all) {
+    const unread = all.filter(t => t.unreadIds.length).length;
+    const tabs = [["all", "All"], ["unread", "Unread" + (unread ? " (" + unread + ")" : "")]];
+    if (S.team) tabs.push(["sent", "Sent"]);
+    $("ml-tabs").innerHTML = tabs.map(([k, l]) =>
+      '<button type="button" role="tab" aria-selected="' + (tab === k) + '" data-tab="' + k + '">' + l + "</button>").join("");
+    $("ml-new").hidden = !S.team;
+  }
+  function renderRows(list) {
+    const box = $("ml-rows");
+    if (!loaded && !err) { box.innerHTML = '<div class="ml-empty"><span class="ml-spin" aria-hidden="true"></span>Loading your mail…</div>'; return; }
+    if (err) { box.innerHTML = '<div class="ml-empty">' + esc(err) + "</div>"; return; }
+    if (!list.length) {
+      box.innerHTML = '<div class="ml-empty">' + (query ? "No messages match “" + esc(query) + "”."
+        : tab === "unread" ? "You're all caught up."
+        : tab === "sent" ? "Messages you send appear here."
+        : S.team ? "No mail yet. Start with New message." : "No mail yet. Messages from the STEP Team will land here.") + "</div>";
+      return;
+    }
+    box.innerHTML = list.map(t => {
+      const un = t.unreadIds.length > 0, att = t.list.some(m => (m.attachments || []).length);
+      const teamAv = S.team ? !t.people.length : true;
+      const replies = t.list.length - 1;
+      return '<button type="button" role="listitem" class="ml-row' + (un ? " unread" : "") + (t.id === sel ? " sel" : "") + '" data-id="' + t.id + '">'
+        + '<span class="ml-av' + (teamAv ? " team" : "") + '">' + (teamAv ? MARK : esc(initials(t.people[t.people.length - 1].sender_name))) + "</span>"
+        + '<span class="ml-rm"><span class="ml-rt"><b>' + esc(rowWho(t)) + "</b><time>" + esc(when(t.last.created_at)) + "</time></span>"
+        + '<span class="ml-rs">' + esc(t.root.subject) + "</span>"
+        + '<span class="ml-rp">' + esc(String(t.last.body).replace(/\s+/g, " ").slice(0, 140)) + "</span>"
+        + '<span class="ml-rf">' + chip(t.root) + (att ? '<span class="ml-ri" title="Has attachments">' + IC.clip + "</span>" : "")
+        + (replies > 0 ? '<span class="ml-rn">' + replies + (replies === 1 ? " reply" : " replies") + "</span>" : "")
+        + "</span></span></button>";
+    }).join("");
+  }
+
+  /* ---------- the open message ---------- */
+  function displayName(m) {
+    if (m.from_team) return S.team ? "STEP Team · " + m.sender_name : "STEP Team";
+    return S.me && m.sender_id === S.me.id ? "You" : m.sender_name;
+  }
+  function toLine(m, t) {
+    if (!m.from_team) return "to STEP Team";
+    if (m.id === t.root.id) {
+      if (!S.team) return groupMsg(m) ? "to " + m.to_label + " (" + m.to_count + " people, including you)" : "to you";
+      return "to " + m.to_label + (groupMsg(m) ? " (" + m.to_count + " people)" : "");
+    }
+    return S.team ? "to " + m.to_label + " only" : "to you";
+  }
+  function replyTarget(t) {
+    if (S.team) {
+      if (replyTo && t.list.some(m => m.id === replyTo && !m.from_team)) return t.list.find(m => m.id === replyTo);
+      return t.people[t.people.length - 1] || null;
+    }
+    const got = t.list.filter(m => m.from_team && Object.prototype.hasOwnProperty.call(S.readAt, m.id));
+    return got[got.length - 1] || t.root;
+  }
+  function renderRead(all) {
+    const pane = $("ml-read"), t = all.find(x => x.id === sel);
+    $("ml-app").classList.toggle("open", !!t && phone);
+    if (!t) {
+      pane.innerHTML = '<div class="ml-none">' + IC.mail + "<p>" + (loaded && !S.messages.length && !err ? "Your inbox is empty." : "Pick a message to read it.") + "</p></div>";
+      return;
+    }
+    const keep = pane.querySelector("textarea"), focused = keep && document.activeElement === keep;
+    const caret = focused ? keep.selectionStart : 0;
+    const r = t.root, target = replyTarget(t);
+    const canDel = S.team && r.from_team;
+    const sn = seen[r.id];
+    let html = '<header class="ml-th"><button type="button" class="ml-back" data-act="back">' + IC.back + "Inbox</button>"
+      + "<h2>" + esc(r.subject) + "</h2><div class=\"ml-meta\">" + chip(r)
+      + (S.team && r.from_team ? '<button type="button" class="ml-seen" data-act="seen" aria-expanded="' + seenOpen + '">'
+          + (sn ? "Read by " + sn.filter(x => x.read_at).length + " of " + sn.length : "Who has read it") + "</button>" : "")
+      + (canDel ? (confirmDel
+          ? '<span class="ml-del-ask">Delete for everyone? <button type="button" class="ml-del-yes" data-act="del-yes">Delete</button><button type="button" class="ml-link" data-act="del-no">Keep</button></span>'
+          : '<button type="button" class="ml-link ml-del" data-act="del">Delete</button>') : "")
+      + "</div>";
+    if (seenOpen && S.team) {
+      html += '<div class="ml-seenlist">' + (!sn ? "Loading…" : !sn.length ? "Nobody yet." : sn.map(x =>
+        '<span class="' + (x.read_at ? "y" : "n") + '">' + esc(x.name) + "<em>" + (x.read_at ? "Read " + esc(when(x.read_at)) : "Not yet") + "</em></span>").join("")) + "</div>";
+    }
+    html += '</header><div class="ml-msgs" id="ml-msgs">';
+    t.list.forEach(m => {
+      const mine = S.me && m.sender_id === S.me.id && !m.from_team;
+      html += '<article class="ml-msg' + (m.id === r.id ? " root" : "") + (m.from_team ? " team" : " person") + (mine ? " mine" : "") + (target && target.id === m.id && S.team ? " target" : "") + '">'
+        + '<div class="ml-mh"><span class="ml-av sm' + (m.from_team ? " team" : "") + '">' + (m.from_team ? MARK : esc(initials(m.sender_name))) + "</span>"
+        + '<div class="ml-mw"><b>' + esc(displayName(m)) + "</b><span>" + esc(toLine(m, t)) + "</span></div>"
+        + "<time>" + esc(when(m.created_at, true)) + "</time></div>"
+        + '<div class="ml-mb">' + linkify(m.body) + "</div>"
+        + ((m.attachments || []).length ? '<div class="ml-atts">' + m.attachments.map((a, i) =>
+            '<button type="button" class="ml-att" data-act="file" data-mid="' + m.id + '" data-i="' + i + '">' + IC.file
+            + "<span><b>" + esc(a.name) + "</b><em>" + esc(sizeOf(a.size || 0)) + "</em></span></button>").join("") + "</div>" : "")
+        + (S.team && !m.from_team ? '<button type="button" class="ml-link ml-rto" data-act="rto" data-id="' + m.id + '">Reply to ' + esc(m.sender_name.split(" ")[0] === "Dr." || m.sender_name.split(" ")[0] === "Engr." ? m.sender_name : m.sender_name.split(" ")[0]) + "</button>" : "")
+        + "</article>";
+    });
+    html += "</div>";
+    if (S.team && !target) {
+      html += '<footer class="ml-reply"><p class="ml-rhint">When someone replies, you can answer them here. To write to the group again, start a new message.</p></footer>';
+    } else {
+      const hint = S.team ? "Replying to <b>" + esc(target.sender_name) + "</b> only" + (t.people.length > 1 ? " · pick “Reply to” on another message to change" : "")
+        : groupMsg(r) ? "Your reply goes only to the STEP Team, not to the whole group" : "Your reply goes to the STEP Team";
+      html += '<footer class="ml-reply"><p class="ml-rhint">' + hint + '</p><div class="ml-rbox">'
+        + '<textarea id="ml-rtext" rows="1" maxlength="20000" placeholder="Write a reply" aria-label="Write a reply"></textarea>'
+        + '<button type="button" class="ml-btn" data-act="send">Send</button></div><p class="ml-rerr" id="ml-rerr" role="alert" hidden></p></footer>';
+    }
+    const scrolled = pane.dataset.thread === t.id ? (pane.querySelector(".ml-msgs") || {}).scrollTop : null;
+    pane.innerHTML = html;
+    pane.dataset.thread = t.id;
+    const msgs = $("ml-msgs");
+    if (scrolled != null) msgs.scrollTop = scrolled;
+    else if (t.list.length > 1) msgs.scrollTop = msgs.scrollHeight;
+    const ta = $("ml-rtext");
+    if (ta) {
+      ta.value = drafts[t.id] || "";
+      grow(ta);
+      if (focused) { ta.focus(); try { ta.setSelectionRange(caret, caret); } catch (e) {} }
+    }
+  }
+  function grow(ta) { ta.style.height = "auto"; ta.style.height = Math.min(ta.scrollHeight, 180) + "px"; }
+
+  function render() {
+    phone = window.matchMedia("(max-width: 760px)").matches;
+    const all = threads(), list = visible(all);
+    renderTabs(all);
+    renderRows(list);
+    renderRead(all);
+  }
+
+  /* ---------- loading ---------- */
+  function signedIn() {
+    const u = window.MOCK && window.MOCK.auth && window.MOCK.auth.getCurrentUser();
+    return !!u && u.role !== "guest";
+  }
+  async function refresh() {
+    if (loading) return;
+    const api = API();
+    if (!api) { err = "STEP Mail could not start. Reload the page."; render(); return; }
+    if (!signedIn() && !DEMO) { err = "Sign in to see your mail."; loaded = false; render(); return; }
+    loading = true;
+    try {
+      S = await api.load();
+      err = ""; loaded = true;
+      if (sel && !S.messages.some(m => m.thread_id === sel)) sel = null;
+    } catch (e) { err = e.message || "Could not load your mail."; }
+    loading = false;
+    render();
+  }
+  window.__renderMail = refresh;
+  const onMail = () => { const p = $("ml-page"); return !!p && p.offsetParent !== null; };
+  setInterval(() => { if (!document.hidden && onMail()) refresh(); }, 30000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden && onMail()) refresh(); });
+  window.addEventListener("stephub_auth_changed", () => { sel = null; seen = {}; loaded = false; if (onMail()) refresh(); });
+  window.addEventListener("resize", () => { const p = window.matchMedia("(max-width: 760px)").matches; if (p !== phone) render(); });
+
+  function open(id) {
+    sel = id; replyTo = null; confirmDel = false; seenOpen = false;
+    const t = threads().find(x => x.id === id);
+    if (t && t.unreadIds.length) {
+      const now = new Date().toISOString();
+      t.unreadIds.forEach(mid => {
+        if (Object.prototype.hasOwnProperty.call(S.readAt, mid)) S.readAt[mid] = now;
+        const m = S.messages.find(x => x.id === mid); if (m && S.team && !m.from_team) m.team_read_at = now;
+      });
+      API().markRead(t.unreadIds).catch(() => {});
+    }
+    render();
+    if (phone) window.scrollTo(0, 0);
+  }
+
+  /* ---------- clicks ---------- */
+  $("ml-tabs").addEventListener("click", e => {
+    const b = e.target.closest("[data-tab]"); if (!b) return;
+    tab = b.dataset.tab; render();
+  });
+  $("ml-q").addEventListener("input", e => { query = e.target.value; render(); });
+  $("ml-rows").addEventListener("click", e => { const r = e.target.closest(".ml-row"); if (r) open(r.dataset.id); });
+  $("ml-read").addEventListener("input", e => {
+    if (e.target.id !== "ml-rtext") return;
+    drafts[sel] = e.target.value; grow(e.target);
+  });
+  $("ml-read").addEventListener("keydown", e => {
+    if (e.target.id === "ml-rtext" && e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); sendReply(); }
+  });
+  $("ml-read").addEventListener("click", async e => {
+    const b = e.target.closest("[data-act]"); if (!b) return;
+    const act = b.dataset.act, t = threads().find(x => x.id === sel);
+    if (act === "back") { sel = null; render(); return; }
+    if (!t) return;
+    if (act === "send") return sendReply();
+    if (act === "rto") { replyTo = b.dataset.id; render(); const ta = $("ml-rtext"); if (ta) ta.focus(); return; }
+    if (act === "del") { confirmDel = true; render(); return; }
+    if (act === "del-no") { confirmDel = false; render(); return; }
+    if (act === "del-yes") {
+      b.disabled = true;
+      try { await API().remove(t.root); sel = null; confirmDel = false; toast("Message deleted"); await refresh(); }
+      catch (x) { toast(x.message); b.disabled = false; }
+      return;
+    }
+    if (act === "seen") {
+      seenOpen = !seenOpen; render();
+      if (seenOpen && !seen[t.root.id]) {
+        try { seen[t.root.id] = await API().readers(t.root.id); } catch (x) { seen[t.root.id] = []; toast(x.message); }
+        render();
+      }
+      return;
+    }
+    if (act === "file") {
+      const m = t.list.find(x => x.id === b.dataset.mid), a = m && m.attachments[+b.dataset.i];
+      if (!a) return;
+      try { const url = await API().fileUrl(a); window.open(url, "_blank", "noopener"); }
+      catch (x) { toast(x.message); }
+    }
+  });
+  async function sendReply() {
+    const t = threads().find(x => x.id === sel), ta = $("ml-rtext"), errEl = $("ml-rerr");
+    if (!t || !ta) return;
+    const body = ta.value.trim(), target = replyTarget(t);
+    if (!body) { ta.focus(); return; }
+    const btn = $("ml-read").querySelector('[data-act="send"]');
+    btn.disabled = true; btn.textContent = "Sending…"; errEl.hidden = true;
+    try {
+      await API().reply(target.id, body);
+      drafts[t.id] = ""; ta.value = "";
+      toast(S.team ? "Reply sent to " + target.sender_name : "Reply sent to the STEP Team");
+      await refresh();
+      const msgs = $("ml-msgs"); if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    } catch (x) {
+      errEl.textContent = x.message; errEl.hidden = false;
+      btn.disabled = false; btn.textContent = "Send";
+    }
+  }
+
+  /* ---------- writing a new message (STEP Team) ---------- */
+  const C = { rec: [], files: [], dir: null, sug: [], hi: 0 };
+  const ROLES = [["participant", "All participants"], ["mentor", "All mentors"], ["trainer", "All trainers"],
+                 ["panel", "All panelists"], ["facilitator", "All facilitators"], ["admin", "All admins"]];
+  const rolesOfP = p => (Array.isArray(p.roles) && p.roles.length ? p.roles : [p.role]).map(String);
+  function matches(p, r) {
+    if (r.kind === "everyone") return true;
+    if (r.kind === "user") return p.id === r.id;
+    if (r.kind === "team") return p.team_id === r.id || (Array.isArray(p.teams) && p.teams.indexOf(r.id) > -1);
+    if (r.kind === "role") return rolesOfP(p).indexOf(r.id) > -1;
+    return false;
+  }
+  function reach(list) {
+    const ppl = (C.dir && C.dir.people) || [];
+    return ppl.filter(p => (!S.me || p.id !== S.me.id) && list.some(r => matches(p, r))).length;
+  }
+  function options() {
+    if (!C.dir) return [];
+    const o = [{ kind: "everyone", id: "all", label: "Everyone", group: "Groups" }];
+    ROLES.forEach(([id, label]) => o.push({ kind: "role", id, label, group: "Groups" }));
+    C.dir.teams.forEach(t => o.push({ kind: "team", id: t.id, label: "Team " + (t.short || t.name), sub: t.name, group: "Teams" }));
+    C.dir.people.forEach(p => o.push({ kind: "user", id: p.id, label: p.full_name || p.email, sub: p.email, group: "People" }));
+    o.forEach(x => { x.n = reach([x]); });
+    return o.filter(x => x.kind === "user" || x.n > 0);
+  }
+  function paintChips() {
+    $("mlc-chips").innerHTML = C.rec.map((r, i) =>
+      '<span class="mlc-chip ' + (r.kind === "user" ? "one" : "grp") + '">' + esc(r.label)
+      + '<button type="button" data-rm="' + i + '" aria-label="Remove ' + esc(r.label) + '">×</button></span>').join("");
+    const n = reach(C.rec);
+    $("mlc-count").textContent = C.rec.length ? "Goes to " + n + (n === 1 ? " person" : " people") : "";
+  }
+  function paintSug() {
+    const box = $("mlc-sug"), q = $("mlc-in").value.trim().toLowerCase();
+    const taken = r => C.rec.some(x => x.kind === r.kind && x.id === r.id);
+    C.sug = options().filter(x => !taken(x) && (!q || (x.label + " " + (x.sub || "")).toLowerCase().indexOf(q) > -1)).slice(0, q ? 10 : 12);
+    if (document.activeElement !== $("mlc-in") || !C.sug.length) { box.hidden = true; return; }
+    C.hi = Math.min(C.hi, C.sug.length - 1);
+    let g = "";
+    box.innerHTML = C.sug.map((x, i) => {
+      const head = x.group !== g ? '<div class="mlc-sg">' + (g = x.group) + "</div>" : "";
+      return head + '<div role="option" class="mlc-so' + (i === C.hi ? " hi" : "") + '" data-i="' + i + '" aria-selected="' + (i === C.hi) + '">'
+        + "<span>" + esc(x.label) + (x.kind === "user" && x.sub ? "<em>" + esc(x.sub) + "</em>" : "") + "</span>"
+        + (x.kind !== "user" ? "<small>" + x.n + (x.n === 1 ? " person" : " people") + "</small>" : "") + "</div>";
+    }).join("");
+    box.hidden = false;
+  }
+  function pick(i) {
+    const x = C.sug[i]; if (!x) return;
+    if (x.kind === "everyone") C.rec = [];
+    else C.rec = C.rec.filter(r => r.kind !== "everyone");
+    C.rec.push({ kind: x.kind, id: x.id, label: x.label });
+    $("mlc-in").value = ""; C.hi = 0;
+    paintChips(); paintSug();
+  }
+  function paintFiles() {
+    $("mlc-files").innerHTML = C.files.map((f, i) =>
+      '<span class="mlc-file">' + IC.file + esc(f.name) + " <em>" + sizeOf(f.size) + '</em><button type="button" data-rf="' + i + '" aria-label="Remove ' + esc(f.name) + '">×</button></span>').join("");
+  }
+  async function openCompose() {
+    $("ml-compose").hidden = false;
+    $("mlc-err").hidden = true;
+    $("mlc-in").focus();
+    if (!C.dir) {
+      try { C.dir = await API().directory(); } catch (x) { $("mlc-err").textContent = x.message; $("mlc-err").hidden = false; C.dir = { people: [], teams: [] }; }
+      paintChips(); paintSug();
+    }
+  }
+  function closeCompose() { $("ml-compose").hidden = true; $("mlc-sug").hidden = true; }
+  $("ml-new").addEventListener("click", openCompose);
+  $("mlc-x").addEventListener("click", closeCompose);
+  $("mlc-in").addEventListener("focus", paintSug);
+  $("mlc-in").addEventListener("blur", () => setTimeout(() => { $("mlc-sug").hidden = true; }, 150));
+  $("mlc-in").addEventListener("input", () => { C.hi = 0; paintSug(); });
+  $("mlc-in").addEventListener("keydown", e => {
+    if (e.key === "ArrowDown") { e.preventDefault(); C.hi = Math.min(C.hi + 1, C.sug.length - 1); paintSug(); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); C.hi = Math.max(C.hi - 1, 0); paintSug(); }
+    else if (e.key === "Enter") { e.preventDefault(); pick(C.hi); }
+    else if (e.key === "Backspace" && !e.target.value && C.rec.length) { C.rec.pop(); paintChips(); paintSug(); }
+    else if (e.key === "Escape") { $("mlc-sug").hidden = true; }
+  });
+  $("mlc-sug").addEventListener("mousedown", e => { const o = e.target.closest("[data-i]"); if (o) { e.preventDefault(); pick(+o.dataset.i); } });
+  $("mlc-chips").addEventListener("click", e => { const b = e.target.closest("[data-rm]"); if (b) { C.rec.splice(+b.dataset.rm, 1); paintChips(); } });
+  $("mlc-file").addEventListener("change", e => {
+    [].slice.call(e.target.files || []).forEach(f => {
+      if (f.size > 50 * 1024 * 1024) toast(f.name + " is over 50 MB and was left out.");
+      else C.files.push(f);
+    });
+    e.target.value = ""; paintFiles();
+  });
+  $("mlc-files").addEventListener("click", e => { const b = e.target.closest("[data-rf]"); if (b) { C.files.splice(+b.dataset.rf, 1); paintFiles(); } });
+  $("ml-compose").addEventListener("keydown", e => { if (e.key === "Escape" && $("mlc-sug").hidden) closeCompose(); });
+  $("mlc-send").addEventListener("click", async () => {
+    const er = $("mlc-err"), subject = $("mlc-subj").value.trim(), body = $("mlc-body").value.trim();
+    const say = m => { er.textContent = m; er.hidden = false; };
+    if (!C.rec.length) return say("Add at least one person, team or group.");
+    if (!subject) return say("Add a subject.");
+    if (!body) return say("Write a message.");
+    const to = { users: [], teams: [], roles: [], everyone: false };
+    C.rec.forEach(r => { if (r.kind === "everyone") to.everyone = true; else to[r.kind === "user" ? "users" : r.kind + "s"].push(r.id); });
+    const btn = $("mlc-send"); btn.disabled = true; btn.textContent = "Sending…"; er.hidden = true;
+    try {
+      const id = await API().send({ subject, body, to, files: C.files });
+      const label = C.rec.map(r => r.label).join(", ");
+      C.rec = []; C.files = []; $("mlc-subj").value = ""; $("mlc-body").value = "";
+      paintChips(); paintFiles(); closeCompose();
+      toast("Sent to " + label);
+      tab = "all"; sel = id || null; seenOpen = false; confirmDel = false; replyTo = null;
+      await refresh();
+    } catch (x) { say(x.message); }
+    btn.disabled = false; btn.textContent = "Send";
+  });
+
+  /* ---------- sample mail for ?demo=1 (no database needed) ---------- */
+  let demo = null;
+  function demoApi() {
+    if (demo) return demo;
+    const now = Date.now(), ago = h => new Date(now - h * 36e5).toISOString();
+    const uid = () => { const u = window.MOCK.auth.getCurrentUser(); return u ? u.id : "guest"; };
+    const isTeam = () => window.MOCK.auth.rolesOf().indexOf("admin") > -1;
+    const ME = "u_sinag";
+    let M = [
+      { id: "t1", thread_id: "t1", from_team: true, sender_id: "staff", sender_name: "Christian Perote", subject: "Week 7 pitch slides: what to bring", body: "Hi team,\n\nPlease upload your slides on My Team's Work by Friday 5 pm. Keep it to the 10 slides in the template and bring one printed copy.\n\nTemplate and examples: https://drive.google.com/\n\nSee you Saturday,\nSTEP Team", to_label: "Team SINAG", to_count: 5, attachments: [{ name: "Pitch-template.pdf", path: "x", size: 842000 }], created_at: ago(3) },
+      { id: "t1r1", thread_id: "t1", parent_id: "t1", from_team: false, sender_id: ME, sender_name: "Engr. Mark Anthony", subject: "Re: Week 7 pitch slides: what to bring", body: "Can we bring a working prototype instead of the printed copy?", to_label: "STEP Team", to_count: 0, attachments: [], created_at: ago(2.4), team_read_at: null },
+      { id: "t1r2", thread_id: "t1", parent_id: "t1r1", from_team: true, sender_id: "staff", sender_name: "Christian Perote", subject: "Re: Week 7 pitch slides: what to bring", body: "Yes, please do. Bring both if you can.", to_label: "Engr. Mark Anthony", to_count: 1, attachments: [], created_at: ago(2) },
+      { id: "t2", thread_id: "t2", from_team: true, sender_id: "staff", sender_name: "Christian Perote", subject: "Your mentor session moved to Thursday", body: "Hi Mark,\n\nDr. Lagdameo asked to move your 1:1 to Thursday, 3 pm. The Zoom link stays the same.", to_label: "Engr. Mark Anthony", to_count: 1, attachments: [], created_at: ago(26) },
+      { id: "t3", thread_id: "t3", from_team: true, sender_id: "staff", sender_name: "Josh Guico", subject: "Panel feedback session link", body: "Here's the Zoom link for Saturday's panel feedback: https://zoom.us/j/0000000000\n\nPlease join 10 minutes early.", to_label: "All participants", to_count: 48, attachments: [], created_at: ago(120) },
+      { id: "t3r1", thread_id: "t3", parent_id: "t3", from_team: false, sender_id: "u_poste", sender_name: "Dr. Roland Emerito", subject: "Re: Panel feedback session link", body: "Will the session be recorded?", to_label: "STEP Team", to_count: 0, attachments: [], created_at: ago(118), team_read_at: null }
+    ];
+    const R = { t1: null, t1r2: null, t2: ago(20), t3: null };
+    demo = {
+      load: async () => {
+        const team = isTeam(), me = uid();
+        const msgs = team ? M : M.filter(m => m.from_team ? Object.prototype.hasOwnProperty.call(R, m.id) : m.sender_id === ME);
+        return { me: { id: team ? "staff" : ME }, team, messages: JSON.parse(JSON.stringify(msgs)), readAt: team ? {} : Object.assign({}, R), _who: me };
+      },
+      markRead: async ids => { ids.forEach(id => { if (id in R) R[id] = new Date().toISOString(); const m = M.find(x => x.id === id); if (m && !m.from_team) m.team_read_at = new Date().toISOString(); }); },
+      reply: async (pid, body) => {
+        const p = M.find(m => m.id === pid), team = isTeam(), id = "d" + Date.now();
+        M.push({ id, thread_id: p.thread_id, parent_id: pid, from_team: team, sender_id: team ? "staff" : ME, sender_name: team ? "Christian Perote" : "Engr. Mark Anthony",
+                 subject: "Re: " + p.subject.replace(/^Re:\s*/i, ""), body, to_label: team ? p.sender_name : "STEP Team", to_count: team ? 1 : 0, attachments: [], created_at: new Date().toISOString(), team_read_at: team ? null : null });
+        if (team && p.sender_id === ME) R[id] = null;
+        return id;
+      },
+      send: async o => {
+        const id = "d" + Date.now(), lab = [];
+        if (o.to.everyone) lab.push("Everyone");
+        M.push({ id, thread_id: id, from_team: true, sender_id: "staff", sender_name: "Christian Perote", subject: o.subject, body: o.body,
+                 to_label: (lab.concat(o.to.teams.map(t => "Team " + t), o.to.roles.map(r => "All " + r + "s"), o.to.users)).join(", ") || "Someone",
+                 to_count: Math.max(1, o.to.users.length + o.to.teams.length * 5 + o.to.roles.length * 10 + (o.to.everyone ? 60 : 0)),
+                 attachments: (o.files || []).map(f => ({ name: f.name, path: "x", size: f.size })), created_at: new Date().toISOString() });
+        return id;
+      },
+      remove: async m => { M = M.filter(x => x.thread_id !== m.id); },
+      directory: async () => ({
+        teams: [["g1", "POSTE"], ["g2", "SINAG"], ["g3", "BRICKS"], ["g4", "Halal Blockchain"], ["g5", "Zeoskin"]].map(([id, s]) => ({ id, short: s, name: s })),
+        people: [
+          { id: "u_poste", full_name: "Dr. Roland Emerito", email: "remerito@usc.edu.ph", role: "participant", team_id: "g1" },
+          { id: ME, full_name: "Engr. Mark Anthony", email: "manthony@usm.edu.ph", role: "participant", team_id: "g2" },
+          { id: "p3", full_name: "Ana Reyes", email: "areyes@usm.edu.ph", role: "participant", team_id: "g2" },
+          { id: "p4", full_name: "Dr. Ramon Del Fierro", email: "rdelfierro@usc.edu.ph", role: "participant", team_id: "g3" },
+          { id: "m1", full_name: "Dr. John Lagdameo", email: "jlagdameo@ateneo.edu", role: "mentor", roles: ["mentor", "panel"] },
+          { id: "m2", full_name: "Ms. Bunnie De Guzman", email: "bdeguzman@ateneo.edu", role: "mentor", roles: ["mentor", "panel"] }]
+      }),
+      readers: async () => [{ name: "Ana Reyes", read_at: ago(1) }, { name: "Engr. Mark Anthony", read_at: ago(2.5) }, { name: "Jun Santos", read_at: ago(2) }, { name: "Lea Cruz", read_at: null }, { name: "Paolo Lim", read_at: null }],
+      fileUrl: async () => "about:blank"
+    };
+    return demo;
+  }
+
+  render();
+  if (onMail() || !document.querySelector(".route")) refresh();
+})();
+})();
+} catch(e) { console.error('[STEP] Error in mail.html script:', e); }
 
 /* ---------- tiny hash router ---------- */
 (function () {
@@ -13065,7 +13796,8 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
                  week:    "This Week · SPRINT-STEP",
                  gc:      "STEP GC · SPRINT-STEP",
                  groups:  "STEP Groups · SPRINT-STEP",
-                 trainers: "Trainers · SPRINT-STEP" };
+                 trainers: "Trainers · SPRINT-STEP",
+                 mail:    "STEP Mail · SPRINT-STEP" };
 
 
   /* ---------- the one "you cannot open this" popup ---------- */
@@ -13165,6 +13897,7 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
     if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
     if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();
     if (name === "trainers" && typeof window.__renderTrainers === "function") window.__renderTrainers();
+    if (name === "mail" && typeof window.__renderMail === "function") window.__renderMail();
     // replay the scroll reveals for the page we just switched to
     var target = document.getElementById("route-" + name);
     target.querySelectorAll(".reveal").forEach(function (el) { el.classList.remove("in"); });
