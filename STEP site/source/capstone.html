@@ -248,7 +248,13 @@ let { capstone: CAP, teams } = window.MOCK;
 let TEAM = teams.find(t => t.id === CAP.team_id) || teams[0];
 let FORM = CAP.form, DECK = CAP.deck;
 let WDECK = [];            // the pitch deck: one frame per week (see "the deck" below)
-let sheetOpen = false, lastFocus = null;   // the proposal preview sheet; read by showTab() on the first paint
+let sheetOpen = false, lastFocus = null;
+/* " · revisited in Week 9" / " · revisited in Weeks 2, 7 and 8" */
+const revisitNote = f => {
+  const r = [].concat(f.revisit || []).filter(Boolean);
+  if (!r.length) return "";
+  return " · revisited in Week" + (r.length > 1 ? "s " + r.slice(0, -1).join(", ") + " and " + r[r.length - 1] : " " + r[0]);
+};   // the proposal preview sheet; read by showTab() on the first paint
 /* the sample data still carries the old six-way status; anything that had
    already gone to the panel counts as submitted, everything else is the
    team's own to submit. FORM is rebuilt on a team switch, so this runs
@@ -656,7 +662,7 @@ function openItem(n) {
     </div>
     <div class="from mt-3">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      Comes from ${f.source}${f.revisit ? " · revisited in Week " + f.revisit : ""}
+      Comes from ${f.source}${revisitNote(f)}
     </div>
     <div class="guide"><b>What DOST asks for</b>${f.guide}</div>
     ${f.parts ? `<h4 class="mt-4 mb-0">Sub-items (${f.parts.filter(p => p.done).length} of ${f.parts.length} done)</h4>

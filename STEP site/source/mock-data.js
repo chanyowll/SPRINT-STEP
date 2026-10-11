@@ -794,7 +794,7 @@ window.MOCK = (function () {
       },
       { n: 6, group: "The case", title: "Executive summary and startup background", kind: "prose",
         guide: "Briefly discusses what the proposal is about, founders, value proposition, and IP status.",
-        week: 3, revisit: 11, source: "Beachhead Market & Customer Segments", status: "submitted", limit: 200,
+        week: 3, revisit: 9, source: "Beachhead Market & Customer Segments", status: "submitted", limit: 200,   /* revisited in Pitching Skills: the summary is the pitch in writing */
         draft: `${t.name} is a university spin-off from ${t.implementing_agency} founded by ${lead.name} and research co-inventors. The team developed ${t.technology_title}. Field validation in ${t.city} demonstrates substantial cost reduction and operational advantage over imported solutions. IP protection includes a Philippine patent / utility model application. Grant funds will deploy industrial-scale pilot units across target partner sites.`
       },
       /* Item 7 has three parts on DOST Form 2 — 7.1 Rationale/Significance
@@ -812,7 +812,7 @@ window.MOCK = (function () {
       },
       { n: 9, group: "The case", title: "Marketing and commercial viability", kind: "prose",
         guide: "Competitor matrix, production requirements, target distribution, sales forecast.",
-        week: 4, revisit: 7, source: "Competitive Advantage and Go-to-Market Plan", status: "draft",
+        week: 4, revisit: [2, 7, 8], source: "Competitive Advantage", status: "draft",   /* built on the market map (W2), go-to-market (W7) and selling (W8) */
         draft: `Target beachhead market consists of industrial and municipal clients in ${t.region}. Competitive analysis indicates ${t.name} delivers 35% cost savings with domestic fabrication and immediate technical support.`
       },
       { n: 10, group: "Plan", title: "Methodology", kind: "prose",
@@ -926,9 +926,19 @@ window.MOCK = (function () {
       week_no: 9,
       weeks_total: 12,
       demo_day: "2027-01-28",
-      form,
-      deck
+      form: synced(form),
+      deck: synced(deck)
     };
+  }
+
+  /* Each item's "comes from" names its week exactly as the schedule does,
+     so a change of topic in schedule-data.js shows up here by itself. */
+  function synced(list) {
+    list.forEach(f => {
+      const w = SCHED.byWeek(f.week);
+      if (w && f.source !== "Collected through the cycle") f.source = w.short;
+    });
+    return list;
   }
 
   /* ---------------------------------------------------------------------
