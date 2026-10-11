@@ -6290,3 +6290,7 @@ body.on-cal .site-footer { display: none; }
   .cl-ev { height: 6px; padding: 0; border-left: 0; background: var(--kc); }
   .cl-more { font-size: 10px; padding: 1px 3px; border-left: 0; }
 }
+
+/* the link mark for on-site days (they carry a plain link, not Zoom) */
+.cq-lk, .cl-lk { background: none; color: currentColor; border-radius: 0; }
+.cl-ev .cl-lk { color: var(--kc); }

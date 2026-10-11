@@ -35,7 +35,7 @@
     feedback:    { name: "Feedback session", chip: "Feedback",   zoom: true },
     orientation: { name: "Onboarding",       chip: "Onboarding", zoom: true },
     mentoring:   { name: "Mentoring",        chip: "Mentoring",  zoom: true },
-    onsite:      { name: "On site",          chip: "On site" },
+    onsite:      { name: "On site",          chip: "On site",    zoom: true },   /* a link too: map, livestream or sign-up */
     deadline:    { name: "Output due",       chip: "Due 12 NN" },
     holiday:     { name: "No session",       chip: "No session" }
   };
@@ -235,6 +235,9 @@
 
   /* ---------- the quick look ---------- */
   const ZOOM = '<img class="cq-z" src="assets/zoom-logo.png" alt="">';
+  const LINK = '<svg class="cq-z cq-lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
+  /* on-site days carry a plain link (venue map, livestream, sign-up), not a Zoom room */
+  const isZoom = e => e.k !== "onsite";
   const fullHref = () => (document.getElementById("route-calendar") ? "#calendar" : "calendar.html");
   let pop = null, popMonth = null, popDay = null, popData = null, openBtn = null;
 
@@ -253,7 +256,7 @@
   function item(e) {
     return '<a class="cq-i k-' + e.k + '" href="' + fullHref() + '" data-cqe="' + esc(e.key) + '"><span class="cq-bar"></span><span class="cq-tx"><em>' + esc(KIND[e.k].name + (e.w ? " · " + e.w : "")) + "</em><b>" + esc(e.title) + "</b><small>"
       + esc((e.time ? e.time + " · " : "") + (e.where || "")) + "</small></span>"
-      + (e.zoom ? '<span class="cq-join" data-join="' + esc(e.zoom) + '" role="link" tabindex="0">' + ZOOM + "Join</span>" : "") + "</a>";
+      + (e.zoom ? '<span class="cq-join" data-join="' + esc(e.zoom) + '" role="link" tabindex="0">' + (isZoom(e) ? ZOOM + "Join" : LINK + "Open") + "</span>" : "") + "</a>";
   }
   function paintPop() {
     if (!pop) return;
@@ -346,7 +349,7 @@
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", paintBadge); else paintBadge();
 
   window.STEP_CAL = {
-    KIND, teams, teamName, programEvents, weekOf, inBreak, today, add, daysTo, fmt, t12, esc,
+    KIND, isZoom, teams, teamName, programEvents, weekOf, inBreak, today, add, daysTo, fmt, t12, esc,
     load, isTeam, visibleFor, upcoming, saveLinks, addMentoring, updateMentoring, deleteMentoring, download, refresh: () => load(true)
   };
 })();

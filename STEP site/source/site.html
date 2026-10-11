@@ -6822,7 +6822,7 @@ window.MOCK = (function () {
     feedback:    { name: "Feedback session", chip: "Feedback",   zoom: true },
     orientation: { name: "Onboarding",       chip: "Onboarding", zoom: true },
     mentoring:   { name: "Mentoring",        chip: "Mentoring",  zoom: true },
-    onsite:      { name: "On site",          chip: "On site" },
+    onsite:      { name: "On site",          chip: "On site",    zoom: true },   /* a link too: map, livestream or sign-up */
     deadline:    { name: "Output due",       chip: "Due 12 NN" },
     holiday:     { name: "No session",       chip: "No session" }
   };
@@ -7022,6 +7022,9 @@ window.MOCK = (function () {
 
   /* ---------- the quick look ---------- */
   const ZOOM = '<img class="cq-z" src="assets/zoom-logo.png" alt="">';
+  const LINK = '<svg class="cq-z cq-lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
+  /* on-site days carry a plain link (venue map, livestream, sign-up), not a Zoom room */
+  const isZoom = e => e.k !== "onsite";
   const fullHref = () => (document.getElementById("route-calendar") ? "#calendar" : "calendar.html");
   let pop = null, popMonth = null, popDay = null, popData = null, openBtn = null;
 
@@ -7040,7 +7043,7 @@ window.MOCK = (function () {
   function item(e) {
     return '<a class="cq-i k-' + e.k + '" href="' + fullHref() + '" data-cqe="' + esc(e.key) + '"><span class="cq-bar"></span><span class="cq-tx"><em>' + esc(KIND[e.k].name + (e.w ? " · " + e.w : "")) + "</em><b>" + esc(e.title) + "</b><small>"
       + esc((e.time ? e.time + " · " : "") + (e.where || "")) + "</small></span>"
-      + (e.zoom ? '<span class="cq-join" data-join="' + esc(e.zoom) + '" role="link" tabindex="0">' + ZOOM + "Join</span>" : "") + "</a>";
+      + (e.zoom ? '<span class="cq-join" data-join="' + esc(e.zoom) + '" role="link" tabindex="0">' + (isZoom(e) ? ZOOM + "Join" : LINK + "Open") + "</span>" : "") + "</a>";
   }
   function paintPop() {
     if (!pop) return;
@@ -7133,7 +7136,7 @@ window.MOCK = (function () {
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", paintBadge); else paintBadge();
 
   window.STEP_CAL = {
-    KIND, teams, teamName, programEvents, weekOf, inBreak, today, add, daysTo, fmt, t12, esc,
+    KIND, isZoom, teams, teamName, programEvents, weekOf, inBreak, today, add, daysTo, fmt, t12, esc,
     load, isTeam, visibleFor, upcoming, saveLinks, addMentoring, updateMentoring, deleteMentoring, download, refresh: () => load(true)
   };
 })();
@@ -13443,6 +13446,9 @@ try {
   if (!$("cl-app") || !window.STEP_CAL) return;
   const K = window.STEP_CAL, esc = K.esc, KIND = K.KIND;
   const ZOOM = '<img class="cl-z" src="assets/zoom-logo.png" alt="">';
+  const LINK = '<svg class="cl-z cl-lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
+  /* on-site days carry a plain link (venue map, livestream, sign-up), not a Zoom room */
+  const isZ = e => e.k !== "onsite", mark = e => (isZ(e) ? ZOOM : LINK);
   const IC = {
     clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
     pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
@@ -13470,7 +13476,7 @@ try {
   }
   function chip(e) {
     return '<button type="button" class="cl-ev k-' + e.k + (selKey === e.key ? " sel" : "") + '" data-ev="' + esc(e.key) + '" title="' + esc(e.title + (e.time ? " · " + e.time : "")) + '">'
-      + (e.zoom ? ZOOM : "") + "<span>" + esc(chipLabel(e)) + "</span></button>";
+      + (e.zoom ? mark(e) : "") + "<span>" + esc(chipLabel(e)) + "</span></button>";
   }
   function drawMonth() {
     $("cl-title").textContent = new Date(month + "-01T00:00:00Z").toLocaleDateString("en-PH", { timeZone: "UTC", month: "long", year: "numeric" });
@@ -13502,7 +13508,7 @@ try {
   function item(e) {
     return '<button type="button" class="cl-it k-' + e.k + '" data-ev="' + esc(e.key) + '"><span class="cl-bar"></span><span class="cl-tx"><em>' + esc(KIND[e.k].name + (e.w ? " · " + e.w : "") + (e.k === "mentoring" && D && D.team ? " · " + e.teamName : "")) + "</em>"
       + "<b>" + esc(e.title) + "</b><small>" + esc((e.time ? e.time + " · " : "") + (e.where || "") + (e.mentor ? " · " + e.mentor : "")) + "</small>"
-      + (e.zoom ? '<span class="cl-ready">' + ZOOM + "Zoom link ready</span>" : "") + "</span></button>";
+      + (e.zoom ? '<span class="cl-ready">' + mark(e) + (isZ(e) ? "Zoom link ready" : "Link ready") + "</span>" : "") + "</span></button>";
   }
   function list(items) {
     let g = "", h = "";
@@ -13519,7 +13525,7 @@ try {
     const dt = K.daysTo(n.d);
     h += '<div class="cl-next k-' + n.k + '"><small>Up next · ' + (dt === 0 ? "today" : dt === 1 ? "tomorrow" : "in " + dt + " days") + "</small><b>" + esc(n.title) + "</b><span>"
       + esc(K.fmt(n.d, { weekday: "long", month: "long" }) + (n.time ? " · " + n.time : "") + (n.where ? " · " + n.where : "")) + "</span>"
-      + (n.zoom ? '<a class="cl-join" href="' + esc(n.zoom) + '" target="_blank" rel="noopener">' + ZOOM + "Join on Zoom</a>" : "")
+      + (n.zoom ? '<a class="cl-join" href="' + esc(n.zoom) + '" target="_blank" rel="noopener">' + mark(n) + (isZ(n) ? "Join on Zoom" : "Open link") + "</a>" : "")
       + '<button type="button" class="cl-link" data-ev="' + esc(n.key) + '">Details</button></div>';
     return h + list(up.slice(1));
   }
@@ -13531,9 +13537,9 @@ try {
   }
   function zoomPart(e) {
     if (!KIND[e.k].zoom) return "";
-    let h = '<div class="cl-zbox"><div class="cl-lab">Zoom</div>';
-    if (!D || !D.signedIn) h += '<p class="cl-none">Sign in to see the Zoom link.</p>';
-    else if (e.zoom) h += '<a class="cl-join blue" href="' + esc(e.zoom) + '" target="_blank" rel="noopener">' + ZOOM + 'Join on Zoom</a><div class="cl-url"><span>' + esc(e.zoom) + '</span><button type="button" class="cl-link" data-copy>Copy link</button></div>';
+    let h = '<div class="cl-zbox"><div class="cl-lab">' + (isZ(e) ? "Zoom" : "Link") + '</div>';
+    if (!D || !D.signedIn) h += '<p class="cl-none">Sign in to see the link.</p>';
+    else if (e.zoom) h += '<a class="cl-join blue" href="' + esc(e.zoom) + '" target="_blank" rel="noopener">' + mark(e) + (isZ(e) ? "Join on Zoom" : "Open link") + '</a><div class="cl-url"><span>' + esc(e.zoom) + '</span><button type="button" class="cl-link" data-copy>Copy link</button></div>';
     else h += '<p class="cl-none">The STEP Team hasn\'t posted the link yet. It will appear here.</p>';
     return h + "</div>";
   }
@@ -13541,8 +13547,8 @@ try {
     if (!D || !D.team) return "";
     if (e.k === "mentoring") return mentForm(e);
     if (!KIND[e.k].zoom) return "";
-    return '<div class="cl-edit"><div class="cl-lab">Zoom link · STEP Team only</div>'
-      + '<input type="url" id="cl-zin" placeholder="https://zoom.us/j/…" value="' + esc(e.zoom) + '" aria-label="Zoom link">'
+    return '<div class="cl-edit"><div class="cl-lab">' + (isZ(e) ? "Zoom link" : "Link (venue map, livestream or sign-up)") + ' · STEP Team only</div>'
+      + '<input type="url" id="cl-zin" placeholder="' + (isZ(e) ? "https://zoom.us/j/…" : "https://…") + '" value="' + esc(e.zoom) + '" aria-label="' + (isZ(e) ? "Zoom link" : "Link") + '">'
       + (e.k === "learning" || e.k === "feedback" ? '<label class="cl-ck"><input type="checkbox" id="cl-zall"> Also use it for every ' + e.k + " session that has no link yet</label>" : "")
       + '<div class="cl-acts"><button type="button" class="cl-btn" data-savelink>Save link</button>' + (e.zoom ? '<button type="button" class="cl-btn sec" data-droplink>Remove link</button>' : "") + "</div>"
       + '<p class="cl-err" id="cl-err" role="alert" hidden></p></div>';
@@ -13627,9 +13633,9 @@ try {
     if (b("[data-copy]")) { const e = find(selKey); if (e && navigator.clipboard) navigator.clipboard.writeText(e.zoom).then(() => toast("Link copied"), () => toast(e.zoom)); return; }
     if ((x = b("[data-savelink]"))) {
       const e = find(selKey), url = $("cl-zin").value.trim(), all = $("cl-zall") && $("cl-zall").checked;
-      if (!url) return err("Paste the Zoom link first, or use Remove link.");
+      if (!url) return err("Paste the link first, or use Remove link.");
       const keys = [e.key].concat(all ? D.events.filter(y => y.k === e.k && !y.zoom && y.key !== e.key).map(y => y.key) : []);
-      return act(x, () => K.saveLinks(keys, url), keys.length > 1 ? "Link saved on " + keys.length + " sessions" : "Zoom link saved");
+      return act(x, () => K.saveLinks(keys, url), keys.length > 1 ? "Link saved on " + keys.length + " sessions" : "Link saved");
     }
     if ((x = b("[data-droplink]"))) { const e = find(selKey); return act(x, () => K.saveLinks([e.key], ""), "Link removed"); }
     if ((x = b("[data-addment]"))) {
