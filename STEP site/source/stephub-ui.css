@@ -1937,7 +1937,7 @@ body.sheet-open { padding-right: min(52%, 880px); }
 
 /* editable grid, drawn like the form's tables */
 .fgrid-wrap { overflow-x: auto; margin: 4px 0 var(--s3); }
-table.fgrid { width: 100%; min-width: 560px; border-collapse: collapse; }
+table.fgrid { display: table; width: 100%; min-width: 560px; border-collapse: collapse; }  /* stays a table: a later .fgrid rule (card grid) would make it a grid */
 table.fgrid th, table.fgrid td { border: 1px solid var(--line); padding: 0; }
 table.fgrid th { background: var(--bg); font-size: 11px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase;
                  color: var(--ink-soft); padding: 7px 8px; text-align: left; }
