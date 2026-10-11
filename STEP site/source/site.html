@@ -11812,10 +11812,54 @@ document.getElementById("fa-spec").innerHTML = `
     if (f.url) { open.href = f.url; open.hidden = false; open.setAttribute("download", f.name); }
     else open.hidden = true;
     const isPdf = /\.pdf$/i.test(f.name || "");
-    document.getElementById("sp-prev").innerHTML = isPdf && f.url
-      ? `<iframe src="${f.url}#toolbar=0&navpanes=0&view=Fit" title="The posted deck" loading="lazy"></iframe>`
-      : `<div class="dp-none"><b>${esc(f.ext)}</b><span>${
+    const box = document.getElementById("sp-prev");
+    const token = (paintPreview.n = (paintPreview.n || 0) + 1);
+    if (!(isPdf && f.url)) {
+      box.innerHTML = `<div class="dp-none"><b>${esc(f.ext)}</b><span>${
           f.url ? "Opens in your slides app" : "Held in this browser"}</span></div>`;
+      return;
+    }
+    /* The browser's own PDF viewer ignores "fit the page", so the first
+       slide is drawn here instead and shown whole: scaled down to fit the
+       panel, never stretched (object-fit: contain). */
+    box.innerHTML = `<div class="dp-none"><span>Loading the first slide…</span></div>`;
+    firstSlide(f.url, box.clientWidth || 800).then(src => {
+      if (token !== paintPreview.n) return;
+      box.innerHTML = `<img class="dp-slide" src="${src}" alt="First slide of ${esc(f.name)}">`;
+    }).catch(() => {
+      if (token !== paintPreview.n) return;
+      box.innerHTML = `<iframe src="${f.url}#toolbar=0&navpanes=0&view=Fit" title="The posted deck" loading="lazy"></iframe>`;
+    });
+  }
+  let pdfjsReady = null;
+  function loadPdfJs() {
+    if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+    if (pdfjsReady) return pdfjsReady;
+    const BASE = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/";
+    pdfjsReady = new Promise((res, rej) => {
+      const sc = document.createElement("script");
+      sc.src = BASE + "pdf.min.js";
+      sc.onload = () => { try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = BASE + "pdf.worker.min.js"; } catch (e) {} res(window.pdfjsLib); };
+      sc.onerror = () => { pdfjsReady = null; rej(new Error("pdf.js did not load")); };
+      document.head.appendChild(sc);
+    });
+    return pdfjsReady;
+  }
+  const slideCache = {};
+  function firstSlide(url, width) {
+    if (slideCache[url]) return slideCache[url];
+    return (slideCache[url] = (async () => {
+      const lib = await loadPdfJs();
+      const doc = await lib.getDocument({ url, disableAutoFetch: true, disableStream: true }).promise;
+      const page = await doc.getPage(1), base = page.getViewport({ scale: 1 });
+      const vp = page.getViewport({ scale: Math.min(3, (Math.max(width, 600) * 2) / base.width) });
+      const c = document.createElement("canvas");
+      c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+      await page.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise;
+      const out = c.toDataURL("image/jpeg", 0.9);
+      try { doc.destroy(); } catch (e) {}
+      return out;
+    })().catch(e => { delete slideCache[url]; throw e; }));
   }
 
   function syncView() {
