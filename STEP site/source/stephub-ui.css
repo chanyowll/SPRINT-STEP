@@ -5997,7 +5997,7 @@ body.on-gc .site-footer { display: none; }
 .ml-msg.person:not(.root) { margin-left: 22px; padding-left: 16px; border-left: 3px solid var(--line); border-bottom: 0; margin-top: 6px; padding-top: 8px; padding-bottom: 10px; }
 .ml-msg.team:not(.root) { margin-left: 22px; padding-left: 16px; border-left: 3px solid #b9d6ee; border-bottom: 0; margin-top: 6px; padding-top: 8px; padding-bottom: 10px; }
 .ml-msg.target { border-left-color: var(--mlb); }
-.ml-mh { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ml-mh { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
 .ml-mw { min-width: 0; flex: 1; }
 .ml-mw b { display: block; font-size: 14px; color: var(--ink); }
 .ml-mw span { display: block; font-size: 12.5px; color: var(--ink-soft); }
