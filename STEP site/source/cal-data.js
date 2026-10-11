@@ -330,18 +330,15 @@
   window.addEventListener("resize", place);
   window.addEventListener("hashchange", closePop);
 
-  /* ---------- the small number on the button: days to the next session ---------- */
+  /* ---------- the button's label says what's next (for screen readers and the hover tip) ---------- */
   async function paintBadge() {
-    let n = 0, label = "STEP Calendar";
+    let label = "STEP Calendar";
     try {
       const data = await load();
       const next = upcoming(visibleFor(data, data.team ? "all" : "").filter(e => e.k !== "deadline"), 1)[0];
-      if (next) { n = daysTo(next.d); label = "STEP Calendar. Next: " + next.title + (n === 0 ? ", today" : n === 1 ? ", tomorrow" : ", in " + n + " days"); }
+      if (next) { const n = daysTo(next.d); label = "STEP Calendar. Next: " + next.title + (n === 0 ? ", today" : n === 1 ? ", tomorrow" : ", in " + n + " days"); }
     } catch (e) {}
-    document.querySelectorAll(".nav-cal").forEach(b => {
-      b.setAttribute("aria-label", label); b.title = label;
-      const i = b.querySelector(".nav-cal-n"); if (i) { i.textContent = n > 99 ? "99+" : String(n); i.hidden = !(n > 0); }
-    });
+    document.querySelectorAll(".nav-cal").forEach(b => { b.setAttribute("aria-label", label); b.title = label; });
   }
   window.addEventListener("stephub_auth_changed", () => { teamFor = null; cache = null; paintBadge(); if (pop) load(true).then(d => { popData = d; paintPop(); }); });
   window.addEventListener("stephub_cal_changed", paintBadge);
