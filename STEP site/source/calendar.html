@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendar · SPRINT-STEP</title>
+<meta name="description" content="The STEP 2.5 calendar: learning and feedback sessions with their Zoom links, your team's mentoring, and every deadline.">
+<link rel="icon" href="assets/step-logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap">
+<link rel="stylesheet" href="stephub-ui.css">
+<script>document.documentElement.classList.add("js")</script>
+</head>
+<body>
+
+<!-- ===== Institutional bar ===== -->
+<div class="utility-bar">
+  <div class="wrap">
+    <span>A DOST-PCIEERD program implemented by the Ateneo Intellectual Property Office</span>
+    <span class="util-right">
+      <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a>
+      <!-- Placeholder only: sign-in is not built yet -->
+      <a class="util-login" href="#">Participant login</a>
+    </span>
+  </div>
+</div>
+
+<!-- ===== Header ===== -->
+<header class="site-header light">
+  <div class="wrap">
+    <a class="brand" href="index.html" aria-label="SPRINT-STEP home">
+      <img src="assets/step-logo-mark.png" alt="SPRINT-STEP — Science and Technology Entrepreneurship Program">
+    </a>
+    <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"
+            onclick="const n=document.getElementById('nav');n.classList.toggle('open');this.setAttribute('aria-expanded',n.classList.contains('open'))">☰</button>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="index.html">Home</a>
+      <a href="this-week.html">This Week <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <a href="program.html">Program</a>
+      <a href="groups.html">STEP Groups</a>
+      <a href="my-team.html">My Team's Work <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></a>
+      <span class="navdd"><a href="capstone.html" aria-haspopup="true" aria-expanded="false">Capstone <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="capstone.html#capstone"><b>FASTRAC proposal</b><em>DOST Form 2, item by item</em></a><a role="menuitem" href="capstone.html#capstone-deck"><b>Pitch deck</b><em>One slide per topic</em></a></span></span>
+      <span class="navdd"><a href="trainers.html" aria-haspopup="true" aria-expanded="false">Trainers <svg class="lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg><svg class="ddc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a><span class="ddm" role="menu"><a role="menuitem" href="trainers.html#trainers"><b>Trainers</b><em>Curriculum, topics and slides</em></a><a role="menuitem" href="trainers.html#trainers-mentors"><b>Mentors</b><em>Schedule and Zoom rooms</em></a><a role="menuitem" href="trainers.html#trainers-panel"><b>Panel</b><em>Panels and the score sheet</em></a></span></span>
+      <button type="button" class="nav-cal" aria-label="STEP Calendar" aria-haspopup="dialog" aria-expanded="false" title="STEP Calendar"><svg class="nav-cal-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M8 3v4M16 3v4M3.5 10h17"/></svg><span class="nav-cal-l">Calendar</span><i class="nav-cal-n" hidden></i></button>
+    </nav>
+  </div>
+  <script>
+  /* The Trainers tab opens its menu — a view is only reached by picking one. */
+  (function () {
+    if (window.__navdd) return; window.__navdd = 1;
+    function shut() {
+      document.querySelectorAll(".navdd.open").forEach(function (d) {
+        d.classList.remove("open");
+        var a = d.querySelector("a"); if (a) a.setAttribute("aria-expanded", "false");
+      });
+    }
+    document.addEventListener("click", function (e) {
+      var tab = e.target.closest && e.target.closest(".navdd > a[aria-haspopup]");
+      if (!tab) { shut(); return; }
+      /* in the stacked mobile menu the three views are already listed below */
+      if (window.matchMedia("(max-width: 900px)").matches) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dd = tab.parentNode, wasOpen = dd.classList.contains("open");
+      shut();
+      if (!wasOpen) { dd.classList.add("open"); tab.setAttribute("aria-expanded", "true"); }
+    });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") shut(); });
+  })();
+  </script>
+</header>
+
+
+<main class="cl-page" id="cl-page">
+  <div class="wrap">
+    <div class="cl-app" id="cl-app">
+      <section class="cl-mon" aria-label="Month">
+        <div class="cl-mh">
+          <button type="button" class="cl-nb" data-m="-1" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+          <h1 id="cl-title">Calendar</h1>
+          <button type="button" class="cl-nb" data-m="1" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+          <button type="button" class="cl-today" data-today>Today</button>
+          <div class="cl-who" id="cl-who"></div>
+        </div>
+        <div class="cl-leg" id="cl-leg"></div>
+        <div class="cl-grid" id="cl-grid" role="grid"></div>
+      </section>
+      <aside class="cl-side" id="cl-side" aria-live="polite"></aside>
+    </div>
+  </div>
+</main>
+<div class="cl-toast" id="cl-toast" role="status" hidden></div>
+
+<!-- ===== Footer ===== -->
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="grid c3">
+      <div>
+        <img src="assets/step-logo-white.png" alt="SPRINT-STEP" style="height:66px; margin-bottom:var(--s3)">
+        <p class="small">A DOST-PCIEERD funded program that helps Filipino research teams turn their
+           technology into a business.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <p class="small">
+          <a href="index.html">Home</a> · <a href="program.html">Program</a> ·
+          <a href="groups.html">STEP Groups</a><br>
+          <a href="this-week.html">This Week</a> · <a href="my-team.html">My Team's Work</a> ·
+          <a href="capstone.html">Capstone</a> · <a href="trainers.html">Trainers</a> · <a href="gc.html">STEP GC</a>
+        </p>
+      </div>
+      <div>
+        <h4>Contact</h4>
+        <p class="small">Ateneo Intellectual Property Office<br>
+           Rm 213, 2/F PLDT-CTC Building, Katipunan Ave., Loyola Heights, Quezon City<br>
+           <a href="mailto:aipo@ateneo.edu">aipo@ateneo.edu</a></p>
+      </div>
+    </div>
+    <p class="small mb-0" style="margin-top:var(--s5)">© <span class="yr">2026</span> Ateneo de Manila University · Ateneo Intellectual Property Office</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="site-clock.js"></script>
+<script src="supabase-client.js"></script>
+<script src="schedule-data.js"></script>
+<script src="mock-data.js"></script>
+<script src="tech-access.js"></script>
+<script src="cal-data.js"></script>
+<script>
+/* ---------- reveal on scroll ---------- */
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+
+/* ---------- STEP Calendar: the full page ---------- */
+(function () {
+  const $ = id => document.getElementById(id);
+  if (!$("cl-app") || !window.STEP_CAL) return;
+  const K = window.STEP_CAL, esc = K.esc, KIND = K.KIND;
+  const ZOOM = '<img class="cl-z" src="assets/zoom-logo.png" alt="">';
+  const IC = {
+    clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+    pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>',
+    ppl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M16 5a3 3 0 0 1 0 6M21 20c0-2.5-1.5-4-3.5-4.6"/></svg>',
+    flag: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 21V4M4 4h11l-2 4 2 4H4"/></svg>',
+    back: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>'
+  };
+
+  let D = null, month = null, selKey = null, selDay = null, form = null, pick = "all", busy = false;
+
+  const evs = () => (D ? K.visibleFor(D, pick) : K.programEvents());
+  const evOn = d => evs().filter(e => e.d === d);
+  const find = key => (D ? D.events : []).find(e => e.key === key) || K.programEvents().find(e => e.key === key);
+  function toast(m) { const t = $("cl-toast"); t.textContent = m; t.hidden = false; clearTimeout(toast.k); toast.k = setTimeout(() => { t.hidden = true; }, 2600); }
+  function startMonth() {
+    const S = window.STEP_SCHEDULE, now = K.today();
+    return (now < S.cohort.starts_on ? S.cohort.starts_on : now > S.cohort.ends_on ? S.cohort.ends_on : now).slice(0, 7);
+  }
+
+  /* ---------- the month ---------- */
+  function chipLabel(e) {
+    if (e.k === "mentoring") return D && D.team && pick === "all" ? e.teamName : "Mentoring";
+    if (e.k === "onsite") return e.title.replace(/ · Day \d$/, "");
+    return KIND[e.k].chip;
+  }
+  function chip(e) {
+    return '<button type="button" class="cl-ev k-' + e.k + (selKey === e.key ? " sel" : "") + '" data-ev="' + esc(e.key) + '" title="' + esc(e.title + (e.time ? " · " + e.time : "")) + '">'
+      + (e.zoom ? ZOOM : "") + "<span>" + esc(chipLabel(e)) + "</span></button>";
+  }
+  function drawMonth() {
+    $("cl-title").textContent = new Date(month + "-01T00:00:00Z").toLocaleDateString("en-PH", { timeZone: "UTC", month: "long", year: "numeric" });
+    const first = month + "-01", dow = (new Date(first + "T00:00:00Z").getUTCDay() + 6) % 7, start = K.add(first, -dow), now = K.today();
+    let g = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map(x => '<div class="cl-dow" role="columnheader">' + x + "</div>").join("");
+    for (let i = 0; i < 42; i++) {
+      const d = K.add(start, i), w = K.weekOf(d), on = evOn(d);
+      const max = 3, shown = on.length > max ? on.slice(0, max - 1) : on;
+      g += '<div class="cl-cell' + (d.slice(0, 7) !== month ? " out" : "") + (K.inBreak(d) ? " brk" : "") + (d === now ? " now" : "") + (d === selDay ? " sel" : "")
+        + '" data-day="' + d + '" role="gridcell"><span class="cl-n">' + (+d.slice(8)) + "</span>"
+        + (i % 7 === 0 && w ? '<span class="cl-wk">' + w.code + "</span>" : "")
+        + (i % 7 === 0 && K.inBreak(d) && K.inBreak(K.add(d, 6)) ? '<span class="cl-brk">Christmas break</span>' : "")
+        + shown.map(chip).join("")
+        + (on.length > max ? '<button type="button" class="cl-more" data-dayall="' + d + '">+' + (on.length - shown.length) + " more</button>" : "")
+        + "</div>";
+    }
+    $("cl-grid").innerHTML = g;
+    const kinds = ["learning", "feedback"].concat(D && D.signedIn ? ["mentoring"] : [], ["onsite", "deadline"]);
+    $("cl-leg").innerHTML = kinds.map(k => '<span><i class="k-' + k + '"></i>' + KIND[k].name + "</span>").join("") + '<span><i class="k-break"></i>Break</span>';
+    let who = "";
+    if (D && D.team) who = '<label class="cl-pick">Show mentoring for <select id="cl-team"><option value="all">All teams</option>'
+      + K.teams().map(t => '<option value="' + t.id + '"' + (pick === t.id ? " selected" : "") + ">Team " + esc(t.short) + "</option>").join("") + "</select></label>";
+    else if (D && D.myTeam) who = '<span class="cl-myteam">Team ' + esc(K.teamName(D.myTeam)) + "</span>";
+    $("cl-who").innerHTML = who;
+    const s = $("cl-team"); if (s) { s.value = pick; s.onchange = () => { pick = s.value; form = null; render(); }; }
+  }
+
+  /* ---------- the side: up next, a day, one event, or a form ---------- */
+  function item(e) {
+    return '<button type="button" class="cl-it k-' + e.k + '" data-ev="' + esc(e.key) + '"><span class="cl-bar"></span><span class="cl-tx"><em>' + esc(KIND[e.k].name + (e.w ? " · " + e.w : "") + (e.k === "mentoring" && D && D.team ? " · " + e.teamName : "")) + "</em>"
+      + "<b>" + esc(e.title) + "</b><small>" + esc((e.time ? e.time + " · " : "") + (e.where || "") + (e.mentor ? " · " + e.mentor : "")) + "</small>"
+      + (e.zoom ? '<span class="cl-ready">' + ZOOM + "Zoom link ready</span>" : "") + "</span></button>";
+  }
+  function list(items) {
+    let g = "", h = "";
+    items.forEach(e => { const lab = e.d === K.today() ? "Today" : K.daysTo(e.d) === 1 ? "Tomorrow" : K.fmt(e.d); if (lab !== g) h += '<div class="cl-day">' + esc(g = lab) + "</div>"; h += item(e); });
+    return h;
+  }
+  function upNext() {
+    const up = K.upcoming(evs(), 10), n = up[0];
+    let h = '<div class="cl-sh"><h2>Up next</h2><p>' + esc(!D || !D.signedIn ? "Program sessions. Sign in to see Zoom links and your team's mentoring."
+      : D.team ? (pick === "all" ? "Program sessions and every team's mentoring." : "Program sessions and Team " + K.teamName(pick) + "'s mentoring.")
+      : D.myTeam ? "Program sessions and your team's mentoring." : "Program sessions.") + "</p></div>";
+    if (D && D.error) h += '<p class="cl-warn">' + esc(D.error) + "</p>";
+    if (!n) return h + '<p class="cl-none">Nothing coming up. The program has ended.</p>';
+    const dt = K.daysTo(n.d);
+    h += '<div class="cl-next k-' + n.k + '"><small>Up next · ' + (dt === 0 ? "today" : dt === 1 ? "tomorrow" : "in " + dt + " days") + "</small><b>" + esc(n.title) + "</b><span>"
+      + esc(K.fmt(n.d, { weekday: "long", month: "long" }) + (n.time ? " · " + n.time : "") + (n.where ? " · " + n.where : "")) + "</span>"
+      + (n.zoom ? '<a class="cl-join" href="' + esc(n.zoom) + '" target="_blank" rel="noopener">' + ZOOM + "Join on Zoom</a>" : "")
+      + '<button type="button" class="cl-link" data-ev="' + esc(n.key) + '">Details</button></div>';
+    return h + list(up.slice(1));
+  }
+  function dayView() {
+    const w = K.weekOf(selDay), on = evOn(selDay);
+    return '<button type="button" class="cl-back" data-back>' + IC.back + "Up next</button>"
+      + '<div class="cl-sh"><h2>' + esc(K.fmt(selDay, { weekday: "long", month: "long" })) + "</h2><p>" + esc(w ? w.code + " · " + w.short : K.inBreak(selDay) ? "Christmas break" : "") + "</p></div>"
+      + (on.length ? list(on) : '<p class="cl-none">Nothing on this day.</p>');
+  }
+  function zoomPart(e) {
+    if (!KIND[e.k].zoom) return "";
+    let h = '<div class="cl-zbox"><div class="cl-lab">Zoom</div>';
+    if (!D || !D.signedIn) h += '<p class="cl-none">Sign in to see the Zoom link.</p>';
+    else if (e.zoom) h += '<a class="cl-join blue" href="' + esc(e.zoom) + '" target="_blank" rel="noopener">' + ZOOM + 'Join on Zoom</a><div class="cl-url"><span>' + esc(e.zoom) + '</span><button type="button" class="cl-link" data-copy>Copy link</button></div>';
+    else h += '<p class="cl-none">The STEP Team hasn\'t posted the link yet. It will appear here.</p>';
+    return h + "</div>";
+  }
+  function teamEdit(e) {
+    if (!D || !D.team) return "";
+    if (e.k === "mentoring") return mentForm(e);
+    if (!KIND[e.k].zoom) return "";
+    return '<div class="cl-edit"><div class="cl-lab">Zoom link · STEP Team only</div>'
+      + '<input type="url" id="cl-zin" placeholder="https://zoom.us/j/…" value="' + esc(e.zoom) + '" aria-label="Zoom link">'
+      + (e.k === "learning" || e.k === "feedback" ? '<label class="cl-ck"><input type="checkbox" id="cl-zall"> Also use it for every ' + e.k + " session that has no link yet</label>" : "")
+      + '<div class="cl-acts"><button type="button" class="cl-btn" data-savelink>Save link</button>' + (e.zoom ? '<button type="button" class="cl-btn sec" data-droplink>Remove link</button>' : "") + "</div>"
+      + '<p class="cl-err" id="cl-err" role="alert" hidden></p></div>';
+  }
+  function eventView(e) {
+    const w = K.weekOf(e.d);
+    return '<button type="button" class="cl-back" data-back>' + IC.back + (selDay ? "Back to the day" : "Up next") + "</button>"
+      + '<div class="cl-det k-' + e.k + '"><div class="cl-top"><em>' + esc(KIND[e.k].name + (e.k === "mentoring" ? " · Team " + e.teamName : "")) + "</em><h2>" + esc(e.title) + "</h2>"
+      + '<div class="cl-row">' + IC.clock + "<span>" + esc(K.fmt(e.d, { weekday: "long", month: "long", year: "numeric" })) + (e.time ? "<br>" + esc(e.time) : "") + "</span></div>"
+      + (e.where ? '<div class="cl-row">' + IC.pin + "<span>" + esc(e.where) + "</span></div>" : "")
+      + (e.mentor ? '<div class="cl-row">' + IC.ppl + "<span>" + esc(e.mentor) + " with Team " + esc(e.teamName) + "</span></div>" : "")
+      + (w ? '<div class="cl-row">' + IC.flag + "<span>" + esc(w.code + " · " + w.short) + "</span></div>" : "")
+      + (e.full && e.full !== e.title && e.k !== "holiday" ? '<p class="cl-full">' + esc(e.full) + "</p>" : "")
+      + "</div>" + zoomPart(e) + teamEdit(e) + "</div>";
+  }
+  /* add or edit a team's mentoring (STEP Team) */
+  function mentForm(e) {
+    const t = e ? e.team_id : (pick !== "all" ? pick : (K.teams()[0] || {}).id);
+    const tm = K.teams().find(x => x.id === t) || {};
+    const d = e ? e.d : (selDay || K.today()), st = e ? e.start : "16:00", en = e ? e.end : "17:30";
+    return '<div class="cl-edit' + (e ? "" : " new") + '">' + (e ? '<div class="cl-lab">Edit this session · STEP Team only</div>' : "")
+      + '<label class="cl-fl">Team<select id="cm-team"' + (e ? " disabled" : "") + ">" + K.teams().map(x => '<option value="' + x.id + '"' + (x.id === t ? " selected" : "") + ">Team " + esc(x.short) + "</option>").join("") + "</select></label>"
+      + '<div class="cl-f3"><label class="cl-fl">Date<input type="date" id="cm-date" value="' + d + '"></label><label class="cl-fl">Starts<input type="time" id="cm-st" value="' + st + '"></label><label class="cl-fl">Ends<input type="time" id="cm-en" value="' + en + '"></label></div>'
+      + '<label class="cl-fl">Mentor<input type="text" id="cm-mentor" maxlength="120" value="' + esc(e ? e.mentor : tm.mentor || "") + '" list="cm-mentors"></label>'
+      + '<datalist id="cm-mentors">' + [...new Set(K.teams().map(x => x.mentor).filter(Boolean))].map(m => '<option value="' + esc(m) + '">').join("") + "</datalist>"
+      + '<label class="cl-fl">Zoom link<input type="url" id="cm-zoom" placeholder="https://zoom.us/j/…" value="' + esc(e ? e.zoom : "") + '"></label>'
+      + (e ? "" : '<label class="cl-ck"><input type="checkbox" id="cm-rep" checked> Repeat every teaching week from this date, same day and time</label>')
+      + '<div class="cl-acts"><button type="button" class="cl-btn" data-' + (e ? "savement" : "addment") + ">" + (e ? "Save changes" : "Add mentoring") + "</button>"
+      + (e ? '<button type="button" class="cl-btn danger" data-delment>Delete</button>' : "") + "</div>"
+      + '<p class="cl-err" id="cl-err" role="alert" hidden></p></div>';
+  }
+  function drawSide() {
+    let h;
+    const e = selKey && find(selKey);
+    if (form === "add") h = '<button type="button" class="cl-back" data-back>' + IC.back + 'Back</button><div class="cl-sh"><h2>Add a team\'s mentoring</h2><p>Only that team, its mentor and the STEP Team will see it.</p></div>' + mentForm(null);
+    else if (e) h = eventView(e);
+    else if (selDay) h = dayView();
+    else h = upNext();
+    $("cl-side").innerHTML = '<div class="cl-sb">' + h + "</div>"
+      + '<div class="cl-sf">' + (D && D.team && form !== "add" ? '<button type="button" class="cl-add" data-add>+ Add a team\'s mentoring</button>' : "")
+      + '<button type="button" class="cl-dl" data-dl>Add the program to my calendar</button></div>';
+  }
+  function render() { drawMonth(); drawSide(); }
+
+  /* ---------- loading ---------- */
+  async function refresh(force) {
+    if (busy) return; busy = true;
+    try { D = await K.load(force); } catch (x) { D = null; }
+    busy = false;
+    if (D && D.team && pick !== "all" && !K.teams().some(t => t.id === pick)) pick = "all";
+    const f = window.__calFocus || decodeURIComponent((location.hash.match(/^#(\d{4}-\d{2}-\d{2}:[a-z]+|m:[\w-]+)$/) || [])[1] || "");
+    if (f) { window.__calFocus = null; const ev = find(f); if (ev) { selKey = f; selDay = null; month = ev.d.slice(0, 7); } }
+    render();
+  }
+  window.__renderCalendar = () => { if (!month) month = startMonth(); refresh(); };
+  window.addEventListener("stephub_auth_changed", () => { selKey = null; form = null; if (onPage()) refresh(true); });
+  window.addEventListener("stephub_cal_changed", () => { if (onPage()) refresh(); });
+  const onPage = () => { const p = $("cl-page"); return !!p && p.offsetParent !== null; };
+
+  /* ---------- clicks ---------- */
+  function err(m) { const x = $("cl-err"); if (x) { x.textContent = m; x.hidden = false; } else toast(m); }
+  async function act(btn, fn, done) {
+    btn.disabled = true;
+    try { await fn(); await refresh(true); toast(done); }
+    catch (x) { btn.disabled = false; err(x.message); }
+  }
+  function mentRow() {
+    return { team_id: $("cm-team").value, on_date: $("cm-date").value, start_time: $("cm-st").value, end_time: $("cm-en").value,
+             mentor: $("cm-mentor").value.trim(), zoom_url: $("cm-zoom").value.trim() || null };
+  }
+  $("cl-app").addEventListener("click", ev => {
+    const t = ev.target, b = sel => t.closest(sel);
+    let x;
+    if ((x = b("[data-m]"))) { const d = new Date(month + "-01T00:00:00Z"); d.setUTCMonth(d.getUTCMonth() + +x.dataset.m); month = d.toISOString().slice(0, 7); drawMonth(); return; }
+    if (b("[data-today]")) { month = startMonth(); selKey = selDay = form = null; render(); return; }
+    if ((x = b("[data-ev]"))) { selKey = x.dataset.ev; form = null; const e = find(selKey); if (e && e.d.slice(0, 7) !== month) month = e.d.slice(0, 7); render(); return; }
+    if ((x = b("[data-dayall]"))) { selDay = x.dataset.dayall; selKey = form = null; render(); return; }
+    if ((x = b("[data-day]")) && !b("button")) { selDay = selDay === x.dataset.day ? null : x.dataset.day; selKey = form = null; render(); return; }
+    if (b("[data-back]")) { if (form) form = null; else if (selKey) selKey = null; else selDay = null; render(); return; }
+    if (b("[data-dl]")) { K.download(evs()); return; }
+    if (b("[data-add]")) { form = "add"; selKey = null; drawSide(); return; }
+    if (b("[data-copy]")) { const e = find(selKey); if (e && navigator.clipboard) navigator.clipboard.writeText(e.zoom).then(() => toast("Link copied"), () => toast(e.zoom)); return; }
+    if ((x = b("[data-savelink]"))) {
+      const e = find(selKey), url = $("cl-zin").value.trim(), all = $("cl-zall") && $("cl-zall").checked;
+      if (!url) return err("Paste the Zoom link first, or use Remove link.");
+      const keys = [e.key].concat(all ? D.events.filter(y => y.k === e.k && !y.zoom && y.key !== e.key).map(y => y.key) : []);
+      return act(x, () => K.saveLinks(keys, url), keys.length > 1 ? "Link saved on " + keys.length + " sessions" : "Zoom link saved");
+    }
+    if ((x = b("[data-droplink]"))) { const e = find(selKey); return act(x, () => K.saveLinks([e.key], ""), "Link removed"); }
+    if ((x = b("[data-addment]"))) {
+      let r; try { r = mentRow(); } catch (y) { return err(y.message); }
+      const rows = [r];
+      if ($("cm-rep").checked) {
+        const S = window.STEP_SCHEDULE, w0 = K.weekOf(r.on_date);
+        if (w0) {
+          const off = Math.round((new Date(r.on_date + "T00:00:00Z") - new Date(w0.starts + "T00:00:00Z")) / 864e5);
+          S.weeks.filter(w => w.output && w.week > w0.week).forEach(w => rows.push(Object.assign({}, r, { on_date: K.add(w.starts, off) })));
+        }
+      }
+      return act(x, async () => { await K.addMentoring(rows); form = null; selKey = null; pick = r.team_id; },
+        rows.length > 1 ? "Mentoring added for " + rows.length + " weeks" : "Mentoring added");
+    }
+    if ((x = b("[data-savement]"))) { const e = find(selKey); let r; try { r = mentRow(); } catch (y) { return err(y.message); } return act(x, () => K.updateMentoring(e.id, r), "Mentoring updated"); }
+    if ((x = b("[data-delment]"))) {
+      if (x.dataset.sure !== "1") { x.dataset.sure = "1"; x.textContent = "Delete for good?"; return; }
+      const e = find(selKey); return act(x, async () => { await K.deleteMentoring(e.id); selKey = null; }, "Mentoring deleted");
+    }
+  });
+
+  /* ---------- the page fills the screen, like STEP GC ---------- */
+  window.__calFit = function () {
+    const top = ((document.querySelector(".utility-bar") || {}).offsetHeight || 0) + ((document.querySelector(".site-header") || {}).offsetHeight || 0);
+    document.documentElement.style.setProperty("--cl-top", (top || 128) + "px");
+  };
+  window.addEventListener("resize", window.__calFit);
+  month = startMonth();
+  render();
+  if (!document.getElementById("route-calendar")) { document.body.classList.add("on-cal"); window.__calFit(); refresh(); }
+})();
+</script>
+</body>
+</html>

@@ -475,11 +475,11 @@ window.MOCK = (function () {
       const u = user || auth.getCurrentUser();
       if (!u || u.role === "guest") {
         // Public routes — accessible without login
-        return ["home", "program", "groups"].includes(route);
+        return ["home", "program", "groups", "calendar"].includes(route);
       }
 
       // ── Public routes — always accessible to logged-in users
-      if (["home", "program", "groups"].includes(route)) return true;
+      if (["home", "program", "groups", "calendar"].includes(route)) return true;
 
       // ── This Week and STEP GC — all authenticated users
       if (route === "week" || route === "gc" || route === "mail") return true;

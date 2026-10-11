@@ -19,7 +19,7 @@ PAGES = [
     ("myteam",  "my-team.html", "My Team's Work"),
     ("capstone","capstone.html","Capstone"),
     ("trainers","trainers.html","Trainers"),
-    ("mail",    "mail.html",    "STEP Mail"),
+    ("calendar","calendar.html","Calendar"),
 ]
 
 def read(f):
@@ -92,7 +92,7 @@ LINKS = [
     ('href="capstone.html"',          'href="#capstone"'),
     ('href="this-week.html"',         'href="#week"'),
     ('href="gc.html"',                'href="#gc"'),
-    ('href="mail.html"',              'href="#mail"'),
+    ('href="calendar.html"',          'href="#calendar"'),
     ('href="trainers.html"',          'href="#trainers"'),
     ('href="groups.html"',            'href="#groups"'),
     ('href="index.html"',             'href="#home"'),
@@ -123,7 +123,7 @@ router = """
                  gc:      "STEP GC · SPRINT-STEP",
                  groups:  "STEP Groups · SPRINT-STEP",
                  trainers: "Trainers · SPRINT-STEP",
-                 mail:    "STEP Mail · SPRINT-STEP" };
+                 calendar: "Calendar · SPRINT-STEP" };
 
 
   /* ---------- the one "you cannot open this" popup ---------- */
@@ -215,8 +215,8 @@ router = """
     window.__lastHash = "#" + (location.hash || "#" + name).replace(/^#/, "");
     /* STEP GC is one screen: the page itself does not scroll, only its lists */
     document.body.classList.toggle("on-gc", name === "gc");
-    document.body.classList.toggle("on-mail", name === "mail");
-    if (name === "mail" && typeof window.__mlFit === "function") window.__mlFit();
+    document.body.classList.toggle("on-cal", name === "calendar");
+    if (name === "calendar" && typeof window.__calFit === "function") window.__calFit();
     if (name === "gc" && typeof window.__gcFit === "function") window.__gcFit();
     document.getElementById("nav").classList.remove("open");
     document.querySelector(".nav-toggle").setAttribute("aria-expanded", "false");
@@ -225,7 +225,7 @@ router = """
     if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
     if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();
     if (name === "trainers" && typeof window.__renderTrainers === "function") window.__renderTrainers();
-    if (name === "mail" && typeof window.__renderMail === "function") window.__renderMail();
+    if (name === "calendar" && typeof window.__renderCalendar === "function") window.__renderCalendar();
     // replay the scroll reveals for the page we just switched to
     var target = document.getElementById("route-" + name);
     target.querySelectorAll(".reveal").forEach(function (el) { el.classList.remove("in"); });
@@ -318,8 +318,8 @@ tagged = tagged.replace('<a href="#groups" data-route="groups">',
                         '<a class="nav-link" href="#groups" data-route="groups">')
 tagged = tagged.replace('<a href="#trainers" data-route="trainers" aria-haspopup',
                         '<a class="nav-link" href="#trainers" data-route="trainers" aria-haspopup')
-tagged = tagged.replace('<a href="#mail" data-route="mail" class="nav-mail"',
-                        '<a href="#mail" data-route="mail" class="nav-link nav-mail"')
+tagged = tagged.replace('<button type="button" class="nav-cal"',
+                        '<button type="button" class="nav-link nav-cal" data-route="calendar"')
 header = header.replace(nav_block, tagged)
 
 page = f"""<!doctype html>
@@ -354,7 +354,6 @@ page = f"""<!doctype html>
 <script src="materials-data.js"></script>
 <script src="announcements-data.js"></script>
 <script src="chat-data.js"></script>
-<script src="mail-data.js"></script>
 <script src="capstone-data.js"></script>
 <script src="panelplan-data.js"></script>
 <script src="panelsheets-data.js"></script>
@@ -365,6 +364,7 @@ page = f"""<!doctype html>
 <script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script src="tech-access.js"></script>
+<script src="cal-data.js"></script>
 <script>
 {observer}
 {chr(10).join(scripts)}
