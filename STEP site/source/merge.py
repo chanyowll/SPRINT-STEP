@@ -215,6 +215,8 @@ router = """
     window.__lastHash = "#" + (location.hash || "#" + name).replace(/^#/, "");
     /* STEP GC is one screen: the page itself does not scroll, only its lists */
     document.body.classList.toggle("on-gc", name === "gc");
+    document.body.classList.toggle("on-mail", name === "mail");
+    if (name === "mail" && typeof window.__mlFit === "function") window.__mlFit();
     if (name === "gc" && typeof window.__gcFit === "function") window.__gcFit();
     document.getElementById("nav").classList.remove("open");
     document.querySelector(".nav-toggle").setAttribute("aria-expanded", "false");

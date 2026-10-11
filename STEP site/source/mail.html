@@ -645,6 +645,14 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     return demo;
   }
 
+  /* the panel fills the screen under the header, like STEP GC */
+  window.__mlFit = function () {
+    const top = ((document.querySelector(".utility-bar") || {}).offsetHeight || 0) + ((document.querySelector(".site-header") || {}).offsetHeight || 0);
+    document.documentElement.style.setProperty("--ml-top", (top || 128) + "px");
+  };
+  window.addEventListener("resize", window.__mlFit);
+  if (!document.getElementById("route-mail")) { document.body.classList.add("on-mail"); window.__mlFit(); }
+
   render();
   if (onMail() || !document.querySelector(".route")) refresh();
 })();

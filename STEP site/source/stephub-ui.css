@@ -5905,10 +5905,12 @@ body.on-gc .site-footer { display: none; }
   .nav-mail-n { position: static; border: 0; }
 }
 
-/* the page */
+/* the page: one screen like STEP GC; only the two lists scroll */
+body.on-mail { overflow: hidden; }
+body.on-mail .site-footer { display: none; }
 .ml-page { padding: 22px 0 34px; background: var(--bg); }
 .ml-app { --mlb: #006eb9; display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
-  height: clamp(560px, calc(100 * var(--vh) - 200px), 880px); background: var(--surface, #fff);
+  height: calc(100 * var(--vh) - var(--ml-top, 128px) - 44px); min-height: 420px; background: var(--surface, #fff);
   border: 1px solid var(--line); border-radius: 16px; overflow: hidden; box-shadow: 0 1px 2px rgba(11, 60, 107, .04), 0 8px 28px rgba(11, 60, 107, .06); }
 
 /* left: the list */
@@ -6075,7 +6077,7 @@ body.on-gc .site-footer { display: none; }
 /* phones: the list, then the message */
 @media (max-width: 760px) {
   .ml-page { padding: 10px 0 20px; }
-  .ml-app { grid-template-columns: minmax(0, 1fr); height: calc(100 * var(--vh) - 150px); min-height: 480px; border-radius: 14px; }
+  .ml-app { grid-template-columns: minmax(0, 1fr); height: calc(100 * var(--vh) - var(--ml-top, 128px) - 30px); min-height: 380px; border-radius: 14px; }
   .ml-app .ml-read { display: none; }
   .ml-app.open .ml-list { display: none; }
   .ml-app.open .ml-read { display: flex; }
