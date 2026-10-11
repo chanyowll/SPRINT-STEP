@@ -10035,6 +10035,36 @@ window.__renderMyTeam = function(targetTeamId) {
 
     /* Paint the player from whatever we have: live signed URLs, or the
        files sitting in this browser. */
+    let pdfjsReady = null;
+    function loadPdfJs() {
+      if (window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+      if (pdfjsReady) return pdfjsReady;
+      const BASE = "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/";
+      pdfjsReady = new Promise((res, rej) => {
+        const sc = document.createElement("script");
+        sc.src = BASE + "pdf.min.js";
+        sc.onload = () => { try { window.pdfjsLib.GlobalWorkerOptions.workerSrc = BASE + "pdf.worker.min.js"; } catch (e) {} res(window.pdfjsLib); };
+        sc.onerror = () => { pdfjsReady = null; rej(new Error("pdf.js did not load")); };
+        document.head.appendChild(sc);
+      });
+      return pdfjsReady;
+    }
+    const slideCache = {};
+    function firstSlide(url, width) {
+      if (slideCache[url]) return slideCache[url];
+      return (slideCache[url] = (async () => {
+        const lib = await loadPdfJs();
+        const doc = await lib.getDocument({ url, disableAutoFetch: true, disableStream: true }).promise;
+        const page = await doc.getPage(1), base = page.getViewport({ scale: 1 });
+        const vp = page.getViewport({ scale: Math.min(3, (Math.max(width, 600) * 2) / base.width) });
+        const c = document.createElement("canvas");
+        c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+        await page.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise;
+        const out = c.toDataURL("image/jpeg", 0.9);
+        try { doc.destroy(); } catch (e) {}
+        return out;
+      })().catch(e => { delete slideCache[url]; throw e; }));
+    }
     function paintOutput(v, d, when, live) {
       const C = subBtn._ctx;
       const vid = document.getElementById("out-video");
@@ -10047,9 +10077,17 @@ window.__renderMyTeam = function(targetTeamId) {
       dl.href = d.url; dl.setAttribute("download", d.name);
       const prev = document.getElementById("out-deck");
       const isPdf = /\.pdf$/i.test(d.name || "") || d.type === "application/pdf";
-      prev.innerHTML = isPdf
-        ? `<iframe src="${d.url}#toolbar=0&view=FitH" title="The team's slide deck"></iframe>`
-        : `<div class="od-none">
+      const tok = (paintOutput.n = (paintOutput.n || 0) + 1);
+      if (isPdf && d.url) {
+        /* the browser's own PDF viewer won't fit a whole page, so the first
+           slide is drawn here and shown whole: scaled to fit, never stretched */
+        prev.innerHTML = `<div class="od-none"><span>Loading the first slide…</span></div>`;
+        firstSlide(d.url, prev.clientWidth || 600).then(src => {
+          if (tok === paintOutput.n) prev.innerHTML = `<img class="od-slide" src="${src}" alt="First slide of ${esc(d.name || "the deck")}">`;
+        }).catch(() => {
+          if (tok === paintOutput.n) prev.innerHTML = `<iframe src="${d.url}#toolbar=0&view=FitH" title="The team's slide deck"></iframe>`;
+        });
+      } else prev.innerHTML = `<div class="od-none">
              <b>${esc(((d.name || "file").split(".").pop() || "file").toUpperCase())}</b>
              <span>Preview opens in your slides app</span>
            </div>`;
