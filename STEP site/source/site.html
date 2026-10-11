@@ -6279,7 +6279,7 @@ window.MOCK = (function () {
           ` : isLoggedIn && isLiveUser ? `
             <!-- Signed-in state -->
             <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(46,125,50,.06);border-radius:12px;margin-bottom:var(--s4);">
-              <span class="card-av" style="background:#2e7d32;width:44px;height:44px;font-size:16px;flex-shrink:0;">${curr.initials || '??'}</span>
+              <span aria-hidden="true" style="display:grid;place-items:center;width:46px;height:46px;flex-shrink:0;border-radius:50%;background:#0b3c6b;color:#fff;font-size:15px;font-weight:700;letter-spacing:.04em;line-height:1;box-shadow:0 0 0 3px #fff,0 0 0 4px #d9e0e7;">${curr.initials || initialsOf(curr)}</span>
               <div>
                 <div style="font-weight:600;font-size:15px;color:var(--navy);">${curr.full_name || curr.email}</div>
                 <div style="font-size:13px;color:var(--ink-soft);">${curr.role_label || curr.role} ${curr.team_id ? '· ' + (curr.team_name || curr.team_id) : ''}</div>
@@ -6307,7 +6307,7 @@ window.MOCK = (function () {
           ` : isLoggedIn && !isLiveUser ? `
             <!-- Mock signed-in state -->
             <div style="display:flex;align-items:center;gap:14px;padding:16px 18px;background:rgba(46,125,50,.06);border-radius:12px;margin-bottom:var(--s4);">
-              <span class="card-av" style="width:44px;height:44px;font-size:16px;flex-shrink:0;">${curr.initials || initialsOf(curr)}</span>
+              <span aria-hidden="true" style="display:grid;place-items:center;width:46px;height:46px;flex-shrink:0;border-radius:50%;background:#0b3c6b;color:#fff;font-size:15px;font-weight:700;letter-spacing:.04em;line-height:1;box-shadow:0 0 0 3px #fff,0 0 0 4px #d9e0e7;">${curr.initials || initialsOf(curr)}</span>
               <div>
                 <div style="font-weight:600;font-size:15px;color:var(--navy);">${curr.name}</div>
                 <div style="font-size:13px;color:var(--ink-soft);">${curr.role_label || ROLE_NAMES[curr.role] || curr.role || ''} ${curr.team_name ? '· ' + curr.team_name : ''}</div>
