@@ -11813,7 +11813,7 @@ document.getElementById("fa-spec").innerHTML = `
     else open.hidden = true;
     const isPdf = /\.pdf$/i.test(f.name || "");
     document.getElementById("sp-prev").innerHTML = isPdf && f.url
-      ? `<iframe src="${f.url}#toolbar=0&navpanes=0&view=FitH" title="The posted deck" loading="lazy"></iframe>`
+      ? `<iframe src="${f.url}#toolbar=0&navpanes=0&view=Fit" title="The posted deck" loading="lazy"></iframe>`
       : `<div class="dp-none"><b>${esc(f.ext)}</b><span>${
           f.url ? "Opens in your slides app" : "Held in this browser"}</span></div>`;
   }
