@@ -115,7 +115,7 @@ router = """
 (function () {
   var routes = [].slice.call(document.querySelectorAll(".route"));
   var links  = [].slice.call(document.querySelectorAll("[data-route]"));
-  var titles = { home: "SPRINT-STEP — Turning Filipino Researches into Business",
+  var titles = { home: "SPRINT-STEP — Turning Filipino Research into Business",
                  program: "Program · SPRINT-STEP",
                  myteam:  "My Team's Work · SPRINT-STEP",
                  capstone: "Capstone · SPRINT-STEP",
@@ -327,7 +327,7 @@ page = f"""<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SPRINT-STEP — Turning Filipino Researches into Business</title>
+<title>SPRINT-STEP — Turning Filipino Research into Business</title>
 <meta name="description" content="SPRINT-STEP is a DOST-PCIEERD program run by the Ateneo Intellectual Property Office that turns Filipino research teams into businesses.">
 <link rel="icon" href="assets/step-logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
