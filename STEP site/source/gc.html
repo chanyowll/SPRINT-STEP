@@ -630,6 +630,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     { id: "dost", name: "PCIEERD x STEP", who: "DOST-PCIEERD", abbr: "PS",
       can: (roles, u) => roles.includes("dost") || /@pcieerd\.dost\.gov\.ph$/i.test(u.email || "") },
     { id: "mentors", name: "Mentors", who: "the mentors", abbr: "ME", can: roles => roles.includes("mentor") },
+    { id: "trainers", name: "Trainers", who: "the trainers", abbr: "TR", can: roles => roles.includes("trainer") },
     { id: "panels", name: "Panels", who: "the panelists", abbr: "PA", can: roles => roles.includes("panel") },
   ];
   const groups = () => {

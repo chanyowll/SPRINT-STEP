@@ -6,6 +6,7 @@
 --   'fam'           STEP Fam, the whole cohort (everyone signed in)
 --   'team:<id>'     a team's room, e.g. 'team:g1' for POSTE
 --   'group:mentors' all mentors      'group:panels' all panelists
+--   'group:trainers' all trainers
 --   'group:dost'    DOST-PCIEERD (role 'dost' or a pcieerd.dost.gov.ph email)
 -- Admins and the tech team are in every room. A team room is open to the
 -- people whose profile carries that team (team_id or teams): its
@@ -31,6 +32,7 @@ LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
        WHERE p.id = auth.uid()
          AND (p.team_id = substr(p_room, 6) OR substr(p_room, 6) = ANY (COALESCE(p.teams, ARRAY[]::text[]))))
     WHEN p_room = 'group:mentors' THEN public.has_role('mentor')
+    WHEN p_room = 'group:trainers' THEN public.has_role('trainer')
     WHEN p_room = 'group:panels'  THEN public.has_role('panel')
     WHEN p_room = 'group:dost'    THEN public.has_role('dost')
       OR lower(coalesce(auth.jwt() ->> 'email', '')) LIKE '%@pcieerd.dost.gov.ph'
