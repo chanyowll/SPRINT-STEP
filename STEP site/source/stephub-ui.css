@@ -4563,6 +4563,9 @@ body.modal-open { overflow: hidden; }
 .sheet2 .tmb:hover { border-color: #d3bf92; }
 .sheet2 .crow2.set .scin { background: #fffdf8; }         /* was a pale blue-white */
 .sheet2 .cdef-ic { color: #cbbd9c; }
+/* a criterion with a comment: solid blue bubble, so it stands out at a glance */
+.sheet2 .crow2.noted .cdef-ic, .sheet2 .crow2.noted .cdef:hover .cdef-ic { color: #fff; background: var(--blue); }
+.sheet2 .crow2.noted .cdef-ic svg { fill: currentColor; }
 .sheet2 .crow2 .scin::placeholder { color: #cbbd9c; }     /* the empty "—" marks */
 .sheet2 .tmh-tot:not(.hi):not(.ok):not(.mid):not(.lo) b { color: #cbbd9c; }
 .sheet2 .outof { color: #a89a7a; }
