@@ -242,7 +242,7 @@
   let pop = null, popMonth = null, popDay = null, popData = null, openBtn = null;
 
   function miniMonth(ym, evs) {
-    const first = ym + "-01", dow = (new Date(first + "T00:00:00Z").getUTCDay(), start = add(first, -dow), now = today();
+    const first = ym + "-01", dow = (new Date(first + "T00:00:00Z").getUTCDay()), start = add(first, -dow), now = today();
     let h = ["S", "M", "T", "W", "T", "F", "S"].map(x => '<span class="cq-h">' + x + "</span>").join("");
     for (let i = 0; i < 42; i++) {
       const d = add(start, i), on = evs.filter(e => e.d === d && e.k !== "holiday");

@@ -174,7 +174,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
   }
   function drawMonth() {
     $("cl-title").textContent = new Date(month + "-01T00:00:00Z").toLocaleDateString("en-PH", { timeZone: "UTC", month: "long", year: "numeric" });
-    const first = month + "-01", dow = (new Date(first + "T00:00:00Z").getUTCDay(), start = K.add(first, -dow), now = K.today();
+    const first = month + "-01", dow = (new Date(first + "T00:00:00Z").getUTCDay()), start = K.add(first, -dow), now = K.today();
     let g = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(x => '<div class="cl-dow" role="columnheader">' + x + "</div>").join("");
     for (let i = 0; i < 42; i++) {
       const d = K.add(start, i), w = K.weekOf(K.add(d, 1)), on = evOn(d);
