@@ -1795,7 +1795,7 @@ function initials(n) {
           </span>
         </button>
         <span class="inwrap">
-          <input class="scin" type="number" min="1" max="4" step="0.05" value="${v}"
+          <input class="scin" type="number" min="1" max="4" step="0.01" value="${v}"
                  data-i="${i}" placeholder="—" aria-label="Score out of 4, ${esc(a.label)}">
           <span class="outof">/&thinsp;4</span>
         </span>
@@ -2014,7 +2014,7 @@ function initials(n) {
       let v = parseFloat(el.value);
       if (isNaN(v)) { if (marks[team]) delete marks[team][el.dataset.i]; el.closest(".crow2").classList.remove("set"); }
       else {
-        v = Math.min(4, Math.max(1, v));
+        v = Math.round(Math.min(4, Math.max(1, v)) * 100) / 100;
         (marks[team] = marks[team] || {})[el.dataset.i] = v;
         el.closest(".crow2").classList.add("set");
       }

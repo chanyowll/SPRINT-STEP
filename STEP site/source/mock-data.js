@@ -206,7 +206,7 @@ window.MOCK = (function () {
       { grade: "Excellent", value: "4.00" }, { grade: "Good", value: "3.00" },
       { grade: "Fair", value: "2.00" }, { grade: "Poor", value: "1.00" },
     ],
-    scaleNote: "Decimals allowed to one place — 3.7, 2.6 and so on.",
+    scaleNote: "Decimals allowed to two places — 3.75, 2.60 and so on.",
 
     /* The STEP 2.5 trainers, from the Master Tracker. Which topic each one
        takes is not assigned yet, so every topic reads "Trainer to be

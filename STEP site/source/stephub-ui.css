@@ -3221,7 +3221,7 @@ table.fgrid td.money .fin { letter-spacing: .01em; }
 
 .scalewrap { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; }
 .scalewrap .scalekey { border: 0; border-radius: 0; border-bottom: 1px solid var(--line); }
-.scalenote { margin: 0; padding: 6px 9px; font-size: 10.5px; line-height: 1.4; color: var(--ink-soft); }
+.scalenote { margin: 0; padding: 7px 9px; font-size: 13px; font-weight: 600; line-height: 1.4; color: #c8373b; }
 
 /* On a short laptop screen the sheet compacts a little further, so a panelist
    never has to scroll mid-team. */
