@@ -1150,6 +1150,10 @@ window.__renderMyTeam = function(targetTeamId) {
       `${I.reviewed_by} on ${helpers.fmtDate(I.reviewed_on + "T09:00:00+08:00")}. Advisory only — it does not affect your grade.`;
   }
 
+  /* the session under each bar: LS learning session, FS feedback session
+     (a lone "L" read as "late"); other sessions keep their first letter */
+  const sesAbbr = label => { const w = String(label || "").split(" ")[1] || "";
+    return ({ Learning: "LS", Feedback: "FS" })[w] || w.charAt(0); };
   /* Attendance */
   const nSes = SES.length;
   const avgPresent = nSes ? perSession.reduce((a, b) => a + b, 0) / nSes : 0;
@@ -1184,7 +1188,7 @@ window.__renderMyTeam = function(targetTeamId) {
       g += h > 17
         ? `<text class="tw-bval${isFb && !short ? " fb" : ""}" x="${bx(i) + bw / 2}" y="${y(v) + 13}" text-anchor="middle">${v}</text>`
         : `<text class="tw-blab" x="${bx(i) + bw / 2}" y="${y(v) - 4}" text-anchor="middle" style="font-weight:800;fill:var(--tw-miss)">${v}</text>`;
-      g += `<text class="tw-blab" x="${bx(i) + bw / 2}" y="${H - padB + 14}" text-anchor="middle">${SES[i].label.split(" ")[1][0]}</text>`;
+      g += `<text class="tw-blab" x="${bx(i) + bw / 2}" y="${H - padB + 14}" text-anchor="middle">${sesAbbr(SES[i].label)}</text>`;
       if (i % 2 === 0) g += `<text class="tw-blab" x="${bx(i) + bw / 2 + slot / 2}" y="${H - padB + 28}" text-anchor="middle" style="font-weight:750">${SES[i].label.split(" ")[0]}</text>`;
       g += `<rect class="tw-bar-hit" data-i="${i}" x="${padL + slot * i}" y="${padT}" width="${slot}" height="${H - padT - padB}"/>`;
     });
@@ -1210,7 +1214,7 @@ window.__renderMyTeam = function(targetTeamId) {
     met === nSes ? "Every session compliant" : (nSes - met) + " session" + (nSes - met > 1 ? "s" : "") + " short";
 
   const attHead = `<thead><tr><th class="who">Member</th>${
-    SES.map(s => `<th title="${s.label}">${s.label.split(" ")[0].replace("W", "")}<br>${s.label.split(" ")[1][0]}</th>`).join("")
+    SES.map(s => `<th title="${s.label}">${s.label.split(" ")[0].replace("W", "")}<br>${sesAbbr(s.label)}</th>`).join("")
   }<th>Total</th></tr></thead>`;
   const attBody = `<tbody>${TW.members.map(m => {
     const row = G[m.initials] || SES.map(() => 0), surname = m.name.split(" ").slice(-1)[0];
