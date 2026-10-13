@@ -18,3 +18,28 @@ INSERT INTO public.modules (code, week_no, title, trainer) VALUES
 ON CONFLICT (code) DO UPDATE SET week_no = EXCLUDED.week_no, title = EXCLUDED.title, trainer = EXCLUDED.trainer;
 
 SELECT code, week_no, title FROM public.modules ORDER BY week_no;
+
+-- ---------------------------------------------------------------------
+-- Panel groupings for the simulation weeks
+-- panel_plans only accepted real week numbers, so saving the Week S1
+-- board failed (panel_plans_week_from_check). Widen the range to include
+-- the two simulation weeks (-2, -1); real weeks 0–12 are unaffected.
+-- ---------------------------------------------------------------------
+ALTER TABLE public.panel_plans DROP CONSTRAINT IF EXISTS panel_plans_week_from_check;
+ALTER TABLE public.panel_plans ADD CONSTRAINT panel_plans_week_from_check
+  CHECK (week_from BETWEEN -2 AND 12);
+DO $$ BEGIN
+  IF EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'panel_plans_week_to_check'
+               AND conrelid = 'public.panel_plans'::regclass) THEN
+    ALTER TABLE public.panel_plans DROP CONSTRAINT panel_plans_week_to_check;
+    ALTER TABLE public.panel_plans ADD CONSTRAINT panel_plans_week_to_check
+      CHECK (week_to IS NULL OR week_to BETWEEN -2 AND 12);
+  END IF;
+END $$;
+
+-- any other week checks that could block the simulation weeks
+SELECT conrelid::regclass AS table_name, conname, pg_get_constraintdef(oid) AS rule
+FROM pg_constraint
+WHERE contype = 'c' AND connamespace = 'public'::regnamespace
+  AND pg_get_constraintdef(oid) ILIKE '%week%'
+ORDER BY 1, 2;
