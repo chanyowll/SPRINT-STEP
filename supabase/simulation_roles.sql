@@ -52,18 +52,18 @@ LEFT JOIN public.profiles p ON p.id = s.profile_id ORDER BY s.seat;
 -- ---------------------------------------------------------------------
 INSERT INTO public.sim_role_backup
   SELECT id, email, role, roles, role_label, team_id, teams, now() FROM public.profiles
-  WHERE lower(email) = 'cpiano@ateneo.edu'
-    AND NOT EXISTS (SELECT 1 FROM public.sim_role_backup WHERE lower(email) = 'cpiano@ateneo.edu');
+  WHERE lower(email) = 'mpiano@ateneo.edu'
+    AND NOT EXISTS (SELECT 1 FROM public.sim_role_backup WHERE lower(email) = 'mpiano@ateneo.edu');
 INSERT INTO public.sim_invite_backup
   SELECT *, now() FROM public.role_invites
-  WHERE lower(email) = 'cpiano@ateneo.edu'
-    AND NOT EXISTS (SELECT 1 FROM public.sim_invite_backup WHERE lower(email) = 'cpiano@ateneo.edu');
+  WHERE lower(email) = 'mpiano@ateneo.edu'
+    AND NOT EXISTS (SELECT 1 FROM public.sim_invite_backup WHERE lower(email) = 'mpiano@ateneo.edu');
 
 INSERT INTO public.role_invites (email, role, role_label, full_name, initials, team_id, teams, institution, roles)
-VALUES ('cpiano@ateneo.edu', 'participant', 'Participant (meSHM)', 'Mary Joy Piano', 'MP', 'g8', NULL, 'AIPO', NULL)
+VALUES ('mpiano@ateneo.edu', 'participant', 'Participant (meSHM)', 'Mary Joy Piano', 'MP', 'g8', NULL, 'AIPO', NULL)
 ON CONFLICT (email) DO UPDATE SET role = EXCLUDED.role, role_label = EXCLUDED.role_label,
   team_id = EXCLUDED.team_id, teams = EXCLUDED.teams, roles = EXCLUDED.roles;
 
 UPDATE public.profiles
 SET role = 'participant', role_label = 'Participant (meSHM)', team_id = 'g8', teams = NULL, roles = NULL
-WHERE lower(email) = 'cpiano@ateneo.edu';
+WHERE lower(email) = 'mpiano@ateneo.edu';
