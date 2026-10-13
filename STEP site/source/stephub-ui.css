@@ -6310,5 +6310,10 @@ body.on-cal .site-footer { display: none; }
 .od-prev { position: relative; }
 .od-prev .od-slide { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; display: block; padding: 8px; box-sizing: border-box; }
 
-/* panel score box: a score above 4 is brought back to 4, with a short red flash */
-.scin.capped { border-color: #c8373b !important; box-shadow: 0 0 0 3px rgba(200, 55, 59, .18); }
+/* panel score box out of range: red box and a small note under it */
+.inwrap { position: relative; }
+.scin.bad { border-color: #c8373b !important; box-shadow: 0 0 0 3px rgba(200, 55, 59, .18); color: #c8373b; }
+.sc-pop { position: absolute; right: 0; top: calc(100% + 8px); z-index: 5; width: max-content; max-width: 220px;
+  padding: 7px 10px; border-radius: 8px; background: #c8373b; color: #fff; font-size: 12px; font-weight: 600; line-height: 1.35;
+  box-shadow: 0 6px 18px rgba(16, 24, 40, .18); }
+.sc-pop::before { content: ""; position: absolute; right: 22px; top: -5px; width: 10px; height: 10px; background: #c8373b; transform: rotate(45deg); }

@@ -2011,13 +2011,16 @@ function initials(n) {
   body.addEventListener("input", e => {
     const el = e.target, team = P.teams[cur].team;
     if (el.classList.contains("scin")) {
-      /* the box itself never shows more than 4.00 or more than two decimals */
+      /* at most two decimals */
       if (/\.\d{3,}/.test(el.value)) el.value = el.value.replace(/(\.\d{2})\d+/, "$1");
-      if (parseFloat(el.value) > 4) { el.value = "4"; el.classList.add("capped"); setTimeout(() => el.classList.remove("capped"), 900); }
       let v = parseFloat(el.value);
-      if (isNaN(v)) { if (marks[team]) delete marks[team][el.dataset.i]; el.closest(".crow2").classList.remove("set"); }
+      /* above 4.00 the box turns red with a note; the number is left as typed and not counted */
+      const over = !isNaN(v) && v > 4;
+      scorePop(el, over ? "Scores can't be higher than 4.00." : "");
+      if (!over && !(v < 1)) scorePop(el, "");
+      if (isNaN(v) || over || v < 1) { if (marks[team]) delete marks[team][el.dataset.i]; el.closest(".crow2").classList.remove("set"); }
       else {
-        v = Math.round(Math.min(4, Math.max(1, v)) * 100) / 100;
+        v = Math.round(v * 100) / 100;
         (marks[team] = marks[team] || {})[el.dataset.i] = v;
         el.closest(".crow2").classList.add("set");
       }
@@ -2030,15 +2033,25 @@ function initials(n) {
     }
     if (el.classList.contains("scin") || el.id === "sc-note" || el.classList.contains("pnote")) queue(team);
   });
-  /* a score box takes digits and one point only (no e, +, -), and below 1 becomes 1 on leaving it */
+  /* a score box takes digits and one point only (no e, +, -); below 1 is flagged on leaving it */
   body.addEventListener("keydown", e => {
     if (e.target.classList && e.target.classList.contains("scin") && /^[eE+\-]$/.test(e.key)) e.preventDefault();
   });
   body.addEventListener("change", e => {
     const el = e.target;
     if (!el.classList || !el.classList.contains("scin") || el.value === "") return;
-    if (parseFloat(el.value) < 1) { el.value = "1"; el.dispatchEvent(new Event("input", { bubbles: true })); }
+    if (parseFloat(el.value) < 1) scorePop(el, "Scores can't be lower than 1.00.");
   });
+  /* the note beside a score box that is out of range; "" clears it */
+  function scorePop(el, msg) {
+    const wrap = el.closest(".inwrap"); if (!wrap) return;
+    let pop = wrap.querySelector(".sc-pop");
+    el.classList.toggle("bad", !!msg);
+    el.setAttribute("aria-invalid", msg ? "true" : "false");
+    if (!msg) { if (pop) pop.remove(); return; }
+    if (!pop) { pop = document.createElement("span"); pop.className = "sc-pop"; pop.setAttribute("role", "alert"); wrap.appendChild(pop); }
+    pop.textContent = msg;
+  }
 
   /* ---- opening a sheet ---- */
   /* ---- seats: whose sheet this is ----
