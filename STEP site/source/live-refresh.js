@@ -7,9 +7,10 @@
    safe moment, so new materials, announcements and a newly pushed version
    of the site reach everyone without anyone pressing refresh.
 
-   Safe moment = nothing is uploading and nobody has typed for a while
-   (or the tab is in the background). Score sheets and FASTRAC items save
-   as they are typed, so a reload never loses work. No message is shown.
+   It reloads at once, with a thin bar sliding across the top of the page,
+   unless something is uploading or the person is typing in a field right
+   now; then it waits until they stop for a few seconds. Score sheets and
+   FASTRAC items save as they are typed, so a reload never loses work.
 
    A page that missed the signal (phone asleep, connection dropped) checks
    for a newer one whenever it comes back into view.
@@ -19,8 +20,8 @@
 
   const client = () => (window.STEP_SUPABASE && window.STEP_SUPABASE.getClient ? window.STEP_SUPABASE.getClient() : null);
   let baseline = null;                            // the newest signal when this page opened (its id)
-  const IDLE_MS = 20000;                          // quiet this long before a visible page reloads
-  let due = false, lastActive = Date.now(), sentAt = 0, channel = null;
+  const TYPE_MS = 6000;                           // someone typing: wait until they pause this long
+  let due = false, lastType = 0, sentAt = 0, channel = null;
 
   /* ---- uploads in flight: a reload must never cut one off ---- */
   let uploads = 0;
@@ -44,23 +45,37 @@
     };
   } catch (e) {}
 
-  /* ---- activity: typing, clicking, scrolling ---- */
-  ['keydown', 'input', 'pointerdown', 'wheel', 'touchstart'].forEach(ev =>
-    document.addEventListener(ev, () => { lastActive = Date.now(); }, { capture: true, passive: true }));
+  /* ---- typing: only a person typing in a field holds the reload back ---- */
+  ['keydown', 'input'].forEach(ev =>
+    document.addEventListener(ev, () => { lastType = Date.now(); }, { capture: true, passive: true }));
+  function typing() {
+    const a = document.activeElement;
+    const field = a && (a.tagName === 'TEXTAREA' || a.isContentEditable ||
+      (a.tagName === 'INPUT' && !/^(button|submit|checkbox|radio|file|range|color)$/i.test(a.type || '')));
+    return !!field && Date.now() - lastType < TYPE_MS;
+  }
+  const safe = () => uploads === 0 && !typing();
 
-  function safe() {
-    if (uploads > 0) return false;
-    if (document.hidden) return Date.now() - lastActive > 3000;
-    return Date.now() - lastActive > IDLE_MS;
+  /* the thin bar across the top, so the refresh is seen */
+  function showBar() {
+    try {
+      const bar = document.createElement('div');
+      bar.setAttribute('aria-hidden', 'true');
+      bar.style.cssText = 'position:fixed;left:0;top:0;height:3px;width:0;z-index:2147483647;background:#1f6fb2;' +
+        'box-shadow:0 0 8px rgba(31,111,178,.6);transition:width .55s ease-out;';
+      document.body.appendChild(bar);
+      requestAnimationFrame(() => { bar.style.width = '100%'; });
+    } catch (e) {}
   }
   function reloadWhenSafe() {
     if (!due) return;
     if (!safe()) return;
     due = false;
     try { window.dispatchEvent(new CustomEvent('stephub_before_reload')); } catch (e) {}
-    setTimeout(() => location.reload(), 600);    // a moment for any last save to go out
+    if (!document.hidden) showBar();
+    setTimeout(() => location.reload(), 650);    // the bar runs, and any last save goes out
   }
-  setInterval(reloadWhenSafe, 3000);
+  setInterval(reloadWhenSafe, 1000);
   document.addEventListener('visibilitychange', () => { if (document.hidden) reloadWhenSafe(); else catchUp(); });
 
   function heard(row) {
@@ -105,7 +120,8 @@
     if (channel && sb) { try { sb.removeChannel(channel); } catch (e) {} channel = null; }
     listen();
   });
-  setInterval(() => { if (!document.hidden) catchUp(); }, 300000);
+  /* safety net if the live link is down: a tiny check every 15 seconds */
+  setInterval(() => { if (!document.hidden) catchUp(); }, 15000);
 
   /* for the tech console's button */
   async function sendRefresh() {
