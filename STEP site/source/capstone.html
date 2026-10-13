@@ -404,6 +404,7 @@ function renderItemBar() {
     counts.textContent = n("submitted") + " submitted · " + n("started") + " in draft · " +
                          n("none") + " not started";
   }
+  paintPresence();
 }
 
 /* ---------- the item list ---------- */
@@ -423,6 +424,7 @@ function renderItemList() {
     </button>`;
   });
   list.innerHTML = html;
+  paintPresence();
 }
 
 /* ---------- the editor ---------- */
@@ -630,6 +632,7 @@ function hydrate(saved) {
   });
 }
 function openItem(n) {
+  if (capClaim && capClaim.n !== n) { capClaim = null; capTrack(); }   // moving on frees the item we were in
   current = n;
   const f = FORM.find(x => x.n === n);
   const ed = document.getElementById("editor");
@@ -800,6 +803,17 @@ function openItem(n) {
     ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add]").forEach(x => { x.disabled = true; });
     const sv = document.getElementById("saved");
     if (sv) { sv.textContent = "View only — only the team can edit"; sv.classList.add("on"); }
+  }
+  /* soft lock: a teammate is in this item — read it, edit it once they move on */
+  const holder = CAP_EDIT ? capHolder(n) : null;
+  ed.dataset.lock = holder ? holder.tab : "";
+  if (holder) {
+    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add]").forEach(x => { x.disabled = true; });
+    const head = ed.querySelector(".ehead");
+    if (head) head.insertAdjacentHTML("afterend", `<div class="cap-lock" role="status"><b>${esc(holder.name)} is editing this item.</b>
+      You can read it as they write; it opens for you as soon as they move on.${Date.now() - (capLostNote || 0) < 15000 ? " Your last few changes here weren't saved because they started first." : ""}</div>`);
+    const sv = document.getElementById("saved");
+    if (sv) { sv.textContent = "Being edited by " + holder.name; sv.classList.add("on"); }
   }
   syncSheet(n, true);                 // follow the team to the item they just opened
 }
@@ -1472,6 +1486,7 @@ window.__renderCapstone = function(targetTeamId) {
        here within a few seconds, without a reload */
     capPoll = setInterval(() => syncTeam(activeId, token), 15000);
   }
+  if (live) capLiveStart(activeId); else capLiveStop();
 };
 
 /* ---------- keeping the whole team on the same proposal and deck ---------- */
@@ -1518,6 +1533,135 @@ async function syncTeam(team, token) {
 /* back on the tab, or back on the page: catch up at once */
 document.addEventListener("visibilitychange", () => { if (!document.hidden && CAP_LIVE) syncTeam(CAP_TEAM, capToken); });
 window.addEventListener("hashchange", () => { if (/^#capstone/.test(location.hash) && CAP_LIVE) syncTeam(CAP_TEAM, capToken); });
+
+/* ---------- live: a teammate's save shows up at once; one person per item ----------
+   The team's proposal travels on one Supabase channel per team:
+   - changes to capstone_items arrive the moment they are saved (the polling
+     above stays as a safety net)
+   - presence says who has the proposal open and which item each is editing.
+   Soft lock: whoever starts editing an item first holds it; teammates see it
+   read-only, with that person's text arriving as it saves. The item frees up
+   when they open another item, close the page, or stop for two minutes. */
+/* var, not let: openItem and the item list can run before this point on first paint */
+var CAP_TAB = Math.random().toString(36).slice(2, 10);
+var CAP_IDLE_MS = 120000;
+var capCh = null, capChTeam = null, capPeers = {}, capClaim = null, capIdle = null, capLostNote = 0;
+function capMe() {
+  const u = (window.MOCK && window.MOCK.auth && window.MOCK.auth.getCurrentUser()) || {};
+  const name = u.name || u.full_name || u.email || "A teammate";
+  return { uid: u.id || "", name, initials: u.initials || name.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase() };
+}
+function capTrack() {
+  if (!capCh) return;
+  const m = capMe();
+  try { capCh.track({ tab: CAP_TAB, uid: m.uid, name: m.name, initials: m.initials, edit: !!CAP_EDIT,
+                      editing: capClaim ? capClaim.n : null, since: capClaim ? capClaim.since : 0 }); } catch (e) {}
+}
+/* everyone on the proposal right now, one entry per open tab */
+function capAll() { return Object.values(capPeers || {}).flat(); }
+/* who holds item n: the first to claim it (ties go to the lower tab id) */
+function capOwner(n) {
+  let best = null;
+  capAll().forEach(p => {
+    if (p.editing !== n) return;
+    if (!best || p.since < best.since || (p.since === best.since && p.tab < best.tab)) best = p;
+  });
+  return best;
+}
+/* the holder, if it is someone else (another person, or this person in another tab) */
+function capHolder(n) { const o = capOwner(n); return o && o.tab !== CAP_TAB ? o : null; }
+
+function paintPresence() {
+  const others = capAll().filter(p => p.tab !== CAP_TAB);
+  document.querySelectorAll("#itembar button[data-n], #itemlist button[data-n]").forEach(b => {
+    const h = capHolder(+b.dataset.n);
+    b.classList.toggle("cap-held", !!h);
+    if (h) { b.setAttribute("data-held", h.initials); b.dataset.title0 = b.dataset.title0 || b.title || ""; b.title = h.name + " is editing this item"; }
+    else { b.removeAttribute("data-held"); if (b.dataset.title0 != null) { b.title = b.dataset.title0; delete b.dataset.title0; } }
+  });
+  const counts = document.getElementById("fa-counts");
+  if (!counts) return;
+  let here = document.getElementById("cap-here");
+  if (!here) { here = document.createElement("span"); here.id = "cap-here"; here.className = "cap-here"; counts.after(here); }
+  const seen = {}, names = [];
+  others.forEach(p => { if (!seen[p.uid || p.tab]) { seen[p.uid || p.tab] = 1; names.push(p); } });
+  here.innerHTML = names.length
+    ? "Also here: " + names.map(p => `<i title="${esc(p.name)}${p.editing ? " · editing item " + p.editing : ""}">${esc(p.initials)}</i>`).join("")
+    : "";
+}
+
+/* presence changed: lose a race, free or lock the open item, repaint the markers */
+function capApply() {
+  if (capClaim) {
+    const o = capOwner(capClaim.n);
+    if (o && o.tab !== CAP_TAB) {                       // someone started first
+      clearTimeout(saveTimers[capClaim.n]); delete saveTimers[capClaim.n];
+      capClaim = null; capLostNote = Date.now(); capTrack();
+      capReloadCurrent(); paintPresence(); return;
+    }
+  }
+  const ed = document.getElementById("editor");
+  const holder = current != null && CAP_EDIT ? capHolder(current) : null;
+  const shown = ed ? ed.dataset.lock || "" : "";
+  if ((holder ? holder.tab : "") !== shown) {
+    if (holder) openItem(current);                       // lock it now
+    else capReloadCurrent();                             // freed: take the holder's final text, then edit
+  }
+  paintPresence();
+}
+/* the open item, fresh from the database */
+async function capReloadCurrent() {
+  if (!CAP_LIVE || !CAPDB() || current == null) { if (current != null) openItem(current); return; }
+  const n = current, token = capToken;
+  try {
+    const saved = await CAPDB().load(CAP_TEAM);
+    if (token !== capToken) return;
+    const r = saved.items[n];
+    if (r) hydrateItem(r);
+  } catch (e) {}
+  if (current === n) { openItem(n); refreshCounts(); renderItemBar(); renderItemList(); if (sheetOpen) buildSheet(); }
+}
+
+/* typing (or clicking into a field) in the open item claims it */
+function capClaimNow() {
+  if (!capCh || !CAP_LIVE || !CAP_EDIT || current == null) return;
+  if (capHolder(current)) return;
+  if (!capClaim || capClaim.n !== current) { capClaim = { n: current, since: Date.now() }; capTrack(); paintPresence(); }
+  clearTimeout(capIdle);
+  capIdle = setTimeout(() => {                           // two quiet minutes: let it go
+    if (!capClaim) return;
+    capClaim = null; capTrack(); paintPresence();
+  }, CAP_IDLE_MS);
+}
+(function () {
+  const ed = document.getElementById("editor"); if (!ed) return;
+  ed.addEventListener("input", capClaimNow, true);
+  ed.addEventListener("change", capClaimNow, true);
+  ed.addEventListener("focusin", e => { if (e.target.matches && e.target.matches("textarea, input, select")) capClaimNow(); });
+})();
+
+function capLiveStop() {
+  const sb = window.STEP_SUPABASE && window.STEP_SUPABASE.getClient && window.STEP_SUPABASE.getClient();
+  if (capCh && sb) { try { capCh.untrack(); sb.removeChannel(capCh); } catch (e) {} }
+  capCh = null; capChTeam = null; capPeers = {}; capClaim = null; clearTimeout(capIdle);
+  paintPresence();
+}
+function capLiveStart(team) {
+  if (capCh && capChTeam === team) { capTrack(); return; }
+  capLiveStop();
+  const sb = window.STEP_SUPABASE && window.STEP_SUPABASE.getClient && window.STEP_SUPABASE.getClient();
+  if (!sb || !team) return;
+  capChTeam = team;
+  try {
+    const ch = sb.channel("capstone-" + team, { config: { presence: { key: CAP_TAB } } });
+    ch.on("postgres_changes", { event: "*", schema: "public", table: "capstone_items", filter: "team_id=eq." + team },
+          () => syncTeam(team, capToken))
+      .on("presence", { event: "sync" }, () => { capPeers = ch.presenceState(); capApply(); })
+      .subscribe(status => { if (status === "SUBSCRIBED") capTrack(); });
+    capCh = ch;
+  } catch (e) { capCh = null; }
+}
+window.addEventListener("pagehide", () => { if (capCh) { try { capCh.untrack(); } catch (e) {} } });
 
 window.addEventListener("stephub_auth_changed", () => {
   if (typeof window.__renderCapstone === "function") window.__renderCapstone();
