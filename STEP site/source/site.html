@@ -13183,6 +13183,9 @@ function initials(n) {
   body.addEventListener("input", e => {
     const el = e.target, team = P.teams[cur].team;
     if (el.classList.contains("scin")) {
+      /* the box itself never shows more than 4.00 or more than two decimals */
+      if (/\.\d{3,}/.test(el.value)) el.value = el.value.replace(/(\.\d{2})\d+/, "$1");
+      if (parseFloat(el.value) > 4) { el.value = "4"; el.classList.add("capped"); setTimeout(() => el.classList.remove("capped"), 900); }
       let v = parseFloat(el.value);
       if (isNaN(v)) { if (marks[team]) delete marks[team][el.dataset.i]; el.closest(".crow2").classList.remove("set"); }
       else {
@@ -13198,6 +13201,15 @@ function initials(n) {
       el.closest(".crow2").classList.toggle("noted", !!el.value.trim());
     }
     if (el.classList.contains("scin") || el.id === "sc-note" || el.classList.contains("pnote")) queue(team);
+  });
+  /* a score box takes digits and one point only (no e, +, -), and below 1 becomes 1 on leaving it */
+  body.addEventListener("keydown", e => {
+    if (e.target.classList && e.target.classList.contains("scin") && /^[eE+\-]$/.test(e.key)) e.preventDefault();
+  });
+  body.addEventListener("change", e => {
+    const el = e.target;
+    if (!el.classList || !el.classList.contains("scin") || el.value === "") return;
+    if (parseFloat(el.value) < 1) { el.value = "1"; el.dispatchEvent(new Event("input", { bubbles: true })); }
   });
 
   /* ---- opening a sheet ---- */
