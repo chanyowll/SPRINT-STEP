@@ -906,7 +906,10 @@ window.__renderMyTeam = function(targetTeamId) {
   /* Trajectory */
   const T = TW.trajectory, NOW = TW.week_no;
   const lastT = T[T.length - 1] || { week: NOW, score: 0 };
-  const lastWk = Math.max(2, NOW, lastT.week);
+  /* the simulation weeks (Week S1, S2) are charted on their own axis */
+  const SIMW = !!(window.STEP_SCHEDULE && window.STEP_SCHEDULE.isSim && window.STEP_SCHEDULE.isSim(NOW));
+  const firstWk = SIMW ? window.STEP_SCHEDULE.simulation.weeks[0] : 1;
+  const lastWk = SIMW ? window.STEP_SCHEDULE.simulation.weeks[window.STEP_SCHEDULE.simulation.weeks.length - 1] : Math.max(2, NOW, lastT.week);
   const tjHost = document.getElementById("tj-plot"), tjTip = document.getElementById("tj-tip");
   let tjGeo = null;
 
@@ -915,7 +918,7 @@ window.__renderMyTeam = function(targetTeamId) {
 
   const repaintTrajectory = !T.length ? null : fitChart(tjHost, (W, H) => {
     const padL = 36, padR = 30, padT = 14, padB = 40;
-    const x = wk => padL + ((wk - 1) / (lastWk - 1)) * (W - padL - padR);
+    const x = wk => padL + ((wk - firstWk) / (lastWk - firstWk)) * (W - padL - padR);
     const y = v  => padT + ((MAXS - v) / (MAXS - 1)) * (H - padT - padB);
     const p = (wk, v) => x(wk).toFixed(1) + "," + y(v).toFixed(1);
     tjGeo = { x, y };
@@ -925,12 +928,12 @@ window.__renderMyTeam = function(targetTeamId) {
       g += `<line class="tw-grid" x1="${padL}" y1="${y(v)}" x2="${W - padR}" y2="${y(v)}"/>
             <text class="tw-axis" x="${padL - 7}" y="${y(v) + 4}" text-anchor="end">${fx2(v)}</text>`;
     });
-    g += `<polygon class="tw-under" points="${x(1).toFixed(1)},${y(1)} ${
+    g += `<polygon class="tw-under" points="${x(firstWk).toFixed(1)},${y(1)} ${
       T.map(r => p(r.week, r.score)).join(" ")} ${x(lastT.week).toFixed(1)},${y(1)}"/>`;
     g += `<polyline class="tw-line" points="${T.map(r => p(r.week, r.score)).join(" ")}"/>`;
     if (lastWk > lastT.week) g += `<line class="tw-med" x1="${x(lastWk)}" y1="${padT}" x2="${x(lastWk)}" y2="${H - padB}"/>`;
     g += `<line class="tw-cross" id="tj-cross" x1="0" y1="${padT}" x2="0" y2="${H - padB}"/>`;
-    for (let wk = 1; wk <= lastWk; wk++) {
+    for (let wk = firstWk; wk <= lastWk; wk++) {
       const r = T.find(t => t.week === wk);
       g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 18}" text-anchor="middle" ${r ? "" : 'style="fill:#96a2ad"'}>W${wk}</text>`;
       if (!r && wk === NOW) g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 31}" text-anchor="middle" style="fill:#96a2ad;font-weight:700">now</text>`;
@@ -939,7 +942,7 @@ window.__renderMyTeam = function(targetTeamId) {
       g += `<circle class="tw-dot" cx="${x(r.week)}" cy="${y(r.score)}" r="4.5"/>`;
       g += `<text class="tw-ptlab" x="${x(r.week)}" y="${y(r.score) - 12}" text-anchor="middle">${fx2(r.score)}</text>`;
     });
-    const half = (W - padL - padR) / (lastWk - 1) / 2;
+    const half = (W - padL - padR) / (lastWk - firstWk) / 2;
     T.forEach(r => {
       g += `<rect class="tw-hit" data-w="${r.week}" x="${x(r.week) - half}" y="${padT}" width="${half * 2}" height="${H - padT - padB}"/>`;
     });

@@ -126,6 +126,19 @@ window.MOCK = (function () {
      roadmapping and W11 the FASTRAC proposal are STEP 2.5 sheets written
      from each week's stated outputs; weights add to 100. */
   const SCORE_SHEETS = {
+      /* the two simulation weeks (Week S1, Week S2) — practice sheets only */
+      "W-2": [
+          { label: "Customer Conversations", weight: 30, hint: "Assess whether the team talked to three possible customers and recorded what each one said, in the customer's own words." },
+          { label: "Problem Statement", weight: 30, hint: "Assess how clearly the team turned those conversations into one problem statement that a customer would recognise." },
+          { label: "Evidence and Honesty", weight: 20, hint: "Assess whether the team separated what customers actually said from what the team assumed." },
+          { label: "Presentation", weight: 20, hint: "Assess how clearly the deck and the video walked the panel through the week's work." },
+        ],
+      "W-1": [
+          { label: "Pricing Logic", weight: 30, hint: "Assess whether the team put a first price on its solution and explained how it arrived at that price." },
+          { label: "Link to Last Week", weight: 20, hint: "Assess whether the pitch builds on the problem statement from Week S1 and the customers behind it." },
+          { label: "One-Minute Pitch", weight: 30, hint: "Assess how clear, confident and complete the one-minute pitch was: problem, solution, price and ask." },
+          { label: "Handling Questions", weight: 20, hint: "Assess whether the team answered the panel's questions directly and without losing the thread." },
+        ],
       W2: [
           { label: "Ecosystem Mapping", weight: 30, hint: "Assess whether the group mapped the players in its technology’s ecosystem (suppliers, users, buyers, regulators, funders and competitors) and how value and money move between them." },
           { label: "Vertical Markets", weight: 25, hint: "Assess whether the group identified the vertical markets where the technology could be applied." },
@@ -256,7 +269,16 @@ window.MOCK = (function () {
        word. Weeks with a topic that is new in STEP 2.5 (W1, W2, W8, W10)
        are drafted from the schedule itself and marked source: "schedule";
        W11's activities are drafted from that week's panel score sheet. */
-    mentorPlans: [
+    mentorPlans: (SCHED.simulation ? [
+      { code: "W-2", week: -2, topic: SCHED.byWeek(-2).title, source: "schedule", tasks: [
+        { text: "Help the team line up three short customer conversations for the week (simulation)." },
+        { text: "Review the team's notes with them and help them write one problem statement." },
+      ] },
+      { code: "W-1", week: -1, topic: SCHED.byWeek(-1).title, source: "schedule", tasks: [
+        { text: "Help the team put a first price on its solution and explain the reasoning (simulation)." },
+        { text: "Listen to the team's one-minute pitch and give feedback before the panel." },
+      ] },
+    ] : []).concat([
       { code: "W1", week: 1, topic: "Program Launch and Mentor Introduction", source: "schedule", tasks: [
         { text: "Meet the team at the program launch and agree on a regular weekly mentoring slot (Wednesday to Friday)." },
         { text: "Support the team in choosing the commercialization pathway they will test first." },
@@ -325,7 +347,7 @@ window.MOCK = (function () {
       { code: "W12", week: 12, topic: "Preparation for Demo Day", tasks: [
         { text: "Provide guidance and support to the team as they prepare for their final pitch at the STEP Demo Day" },
       ] },
-    ],
+    ]),
 
     /* Nine panel seats, three per panel — the STEP 2.5 panel list. The third
        seat on each panel is an industry panelist, named "Industry Panel 1–3"
@@ -347,7 +369,7 @@ window.MOCK = (function () {
        a STEP 2.5 sheet for the new topics; every feedback session and the
        checkpoint has one. Demo Day (W12) uses the STEP 2 Demo Day sheet. */
     sessions: SCHED.weeks.map(w => ({
-      code: w.code, week: w.week, title: w.title, short: w.short, topic: w.topic,
+      code: w.code, week: w.week, sim: !!w.sim, title: w.title, short: w.short, topic: w.topic,
       tag: w.week === 12 ? "Demo Day" : undefined,
       trainer: w.trainer || "Trainer to be announced",
       mode: Array.from(new Set(w.sessions.filter(x => x.kind !== "holiday").map(x => x.mode))).join(" + "),

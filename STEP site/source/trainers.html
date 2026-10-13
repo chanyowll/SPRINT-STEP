@@ -542,7 +542,7 @@ document.getElementById("fa-spec").innerHTML = `
     <div class="r"><dt>Trainers</dt><dd><b>${F.trainers.length}</b><em>across the tracks</em></dd></div>
     <div class="r"><dt>Mentors</dt><dd><b>${F.mentors.length}</b><em>one per team</em></dd></div>
     <div class="r"><dt>Panels</dt><dd><b>${F.panels.length}</b><em>running in parallel</em></dd></div>
-    <div class="r"><dt>Weeks</dt><dd><b>${F.sessions.length}</b><em>W0 to W12</em></dd></div>
+    <div class="r"><dt>Weeks</dt><dd><b>${F.sessions.filter(s => !s.sim).length}</b><em>W0 to W12</em></dd></div>
   </dl>`;
 
 /* ---------- view switch (driven by nav dropdown, no toggle bar) ---------- */
@@ -1669,7 +1669,7 @@ document.getElementById("fa-spec").innerHTML = `
      This picker, the score-sheet week and the hand-in week all show the same one. */
   const selPW = document.getElementById("pnl-week");
   if (selPW) {
-    const wk = [...new Set(F.sessions.filter(x => x.assess.length && x.week >= 1).map(x => x.week))].sort((a, b) => a - b);
+    const wk = [...new Set(F.sessions.filter(x => x.assess.length && (x.week >= 1 || x.sim)).map(x => x.week))].sort((a, b) => a - b);
     selPW.innerHTML = wk.map(w => `<option value="${w}">Week ${w}${w === CUR ? " (this week)" : ""}</option>`).join("");
     selPW.value = String(wk.includes(CUR) ? CUR : (wk.filter(w => w <= CUR).pop() || wk[0]));
     selPW.addEventListener("change", () => window.__panelWeek(selPW.value));
@@ -2309,7 +2309,7 @@ function initials(n) {
 
   /* the weeks that have a team output, in order */
   const weeks = [];
-  F.sessions.filter(s => s.assess.length && s.week >= 1).forEach(s => {
+  F.sessions.filter(s => s.assess.length && (s.week >= 1 || s.sim)).forEach(s => {
     if (!weeks.some(w => w.week === s.week)) weeks.push({ week: s.week, title: s.title, code: s.code });
   });
   weeks.sort((a, b) => a.week - b.week);

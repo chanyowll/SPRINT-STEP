@@ -32,7 +32,7 @@
   const FB_TIME = "9:00 AM – 12:00 NN";
 
   /* one entry per program week */
-  const weeks = [
+  const real = [
     {
       week: 0, code: "W0", starts: "2026-10-19", ends: "2026-10-25",
       title: "Pre-Program: STEP Onboarding", short: "Pre-Program: STEP Onboarding", axis: "Pre-Program\nonboarding",
@@ -446,6 +446,93 @@
     },
   ];
 
+  /* =====================================================================
+     SIMULATION — two practice weeks for testing STEP Hub end to end
+     (Week S1 and Week S2). They have their own week numbers (-2 and -1)
+     and codes (W-2 and W-1), so nothing they create — hand-ins, panel
+     sheets, attendance, materials — ever lands on a real week. On screen
+     they read "Week S1" / "Week S2".
+
+     SIM_ACTIVE picks the simulated "this week":
+       "S1"  Week S1 is this week        "S2"  Week S2 is this week
+       null  simulation off: S1 and S2 disappear, the real schedule runs
+     ===================================================================== */
+  const SIM_ACTIVE = "S1";
+
+  const SIM_WEEKS = [
+    {
+      week: -2, code: "W-2", sim: "S1", starts: "2026-10-12", ends: "2026-10-18",
+      title: "Simulation: Customer Discovery Sprint", short: "Simulation: Customer Discovery Sprint", axis: "Simulation\nweek 1",
+      topic: "Simulation Week 1 — Customer Discovery Sprint (a practice week for testing STEP Hub; it does not count toward the program)",
+      review: "Customer Discovery Sprint Review", trainer: "STEP Team",
+      sessions: [
+        { date: "2026-10-13", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+          title: "Customer Discovery Sprint (simulation)" },
+        { date: "2026-10-17", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+          title: "Customer Discovery Sprint Review (simulation)" },
+      ],
+      output: true,
+      tagline: "A practice week: test every part of STEP Hub before the program starts.",
+      brief: "This is a simulation week for testing STEP Hub. Each team talks to three possible customers (a colleague playing the customer is fine), writes down what they heard, and turns it into one problem statement. Hand in a short deck and a test video, get scored by your panel, and check that everything shows up where it should. Nothing here counts toward the program.",
+      able: [
+        "Run three short customer conversations and take notes",
+        "Turn what you heard into one clear problem statement",
+        "Hand in your output on My Team's Work and see it scored",
+      ],
+      produce: "A short slide deck (three customer notes and one problem statement) and a test video — any short clip will do. Simulation only.",
+      game: {
+        title: "Run a customer interview",
+        prompt: "Practice round. Drag the cards into the order you would run the interview.",
+        steps: [
+          { order: 1, label: "Introduce yourself and the purpose", why: "People talk more when they know why you are asking." },
+          { order: 2, label: "Ask how they handle the problem today", why: "Their current workaround tells you what they value." },
+          { order: 3, label: "Ask what it costs them", why: "Time, money or risk: the size of the pain." },
+          { order: 4, label: "Listen, don't pitch", why: "You are there to learn, not to sell." },
+          { order: 5, label: "Ask who else you should talk to", why: "One interview leads to the next." },
+        ],
+      },
+    },
+    {
+      week: -1, code: "W-1", sim: "S2", starts: "2026-10-19", ends: "2026-10-25",
+      title: "Simulation: Pricing & Pitch Practice", short: "Simulation: Pricing & Pitch Practice", axis: "Simulation\nweek 2",
+      topic: "Simulation Week 2 — Pricing & Pitch Practice (a practice week for testing STEP Hub; it does not count toward the program)",
+      review: "Pricing & Pitch Practice Review", trainer: "STEP Team",
+      sessions: [
+        { date: "2026-10-20", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+          title: "Pricing & Pitch Practice (simulation)" },
+        { date: "2026-10-24", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+          title: "Pricing & Pitch Practice Review (simulation)" },
+      ],
+      output: true,
+      tagline: "The second practice week: build on last week's output and check the week-to-week views.",
+      brief: "The second simulation week. Using the problem statement from Week S1, each team sketches a first price and a one-minute pitch. Hand in again, get scored again, and check that the trend charts, averages and history now show two weeks. Nothing here counts toward the program.",
+      able: [
+        "Put a first price on your solution and say why",
+        "Deliver a one-minute pitch built on last week's problem statement",
+        "Check that your two weeks of work and scores show up correctly",
+      ],
+      produce: "A short slide deck (price, reasoning and the one-minute pitch) and a test video. Simulation only.",
+      game: {
+        title: "Build a one-minute pitch",
+        prompt: "Practice round. Drag the cards into the order of a short pitch.",
+        steps: [
+          { order: 1, label: "The problem", why: "Start with what the customer feels." },
+          { order: 2, label: "Your solution", why: "What you do about it, in plain words." },
+          { order: 3, label: "Who pays and how much", why: "The price and the customer who pays it." },
+          { order: 4, label: "Why you", why: "What makes your team the one to do it." },
+          { order: 5, label: "The ask", why: "What you need next." },
+        ],
+      },
+    },
+  ];
+  const SIM_ON = SIM_ACTIVE === "S1" || SIM_ACTIVE === "S2";
+  const weeks = SIM_ON ? SIM_WEEKS.concat(real) : real;
+  const isSim = n => SIM_ON && SIM_WEEKS.some(w => w.week === Number(n));
+  /* how a week is named on screen: "S1", "S2", or the number */
+  const tag = n => { const w = SIM_ON && SIM_WEEKS.find(x => x.week === Number(n)); return w ? w.sim : String(n); };
+  const simulation = SIM_ON ? { active: SIM_ACTIVE, week: SIM_WEEKS.find(w => w.sim === SIM_ACTIVE).week,
+                                weeks: SIM_WEEKS.map(w => w.week) } : null;
+
   const BREAK = { starts: "2026-12-21", ends: "2027-01-03", resumes: "2027-01-05" };
   const cohort = {
     code: "STEP2.5", name: "STEP 2.5", timezone: "Asia/Manila",
@@ -480,7 +567,7 @@
 
   const byWeek = n => weeks.find(w => w.week === Number(n)) || null;
   const byCode = c => weeks.find(w => w.code === String(c).toUpperCase()) || null;
-  const weekOfCode = c => { const m = String(c || "").match(/^W(\d+)/i); return m ? +m[1] : null; };
+  const weekOfCode = c => { const m = String(c || "").match(/^W(-?\d+)/i); return m ? +m[1] : null; };
   const label = n => "Week " + n;
 
   const sessionOf = (n, kind) => { const w = byWeek(n); return w ? w.sessions.find(s => s.kind === kind) || null : null; };
@@ -497,8 +584,9 @@
 
   /* where the program is today: the week, and whether it has started */
   function current(now) {
+    if (simulation) return { week: simulation.week, status: "live", note: "", sim: true };
     const t = manilaDay(now);
-    const first = weeks[0], last = weeks[weeks.length - 1];
+    const first = real[0], last = real[real.length - 1];
     if (t < first.starts) { const d0 = (first.sessions[0] || {}).date || first.starts;
       return { week: 0, status: "pre", note: "The program starts " + dayName(d0) + ", " + long(d0) + "." }; }
     if (t > last.ends) return { week: last.week, status: "post", note: "The STEP 2.5 cycle closed on " + long(cohort.ends_on) + "." };
@@ -602,13 +690,52 @@
   }
 
   const teachingWeeks = () => weeks.filter(w => w.output);
-  const learningCount = () => weeks.filter(w => w.sessions.some(s => s.kind === "learning")).length;
+  const learningCount = () => real.filter(w => w.sessions.some(s => s.kind === "learning")).length;
 
   window.STEP_SCHEDULE = {
     cohort, weeks, BREAK,
     byWeek, byCode, weekOfCode, label, current, dueOf,
     learningOf, feedbackOf, attendanceSessions, periodOf, daysOf, timeline,
     teachingWeeks, learningCount,
+    simulation, isSim, tag,
     manilaDay, addDays, dayName, fmtShort: short, fmtLong: long, fmtRange: range,
   };
+
+  /* ---------- simulation: show the practice weeks by their names ----------
+     The pages print weeks as "Week " + number and "W" + number; while the
+     simulation is on, every "Week -2" / "W-2" on screen is shown as
+     "Week S1" / "S1" (and -1 as S2). Text only: nothing stored changes. */
+  if (SIM_ON) {
+    const NAME = { 2: "S1", 1: "S2" };
+    const fix = t => t
+      .replace(/\b(Weeks?) -([12])\s*[–-]\s*-([12])\b/g, (m, w, a, b) => w + " " + NAME[a] + "–" + NAME[b])
+      .replace(/\b(Week|week|WEEK) -([12])(?![\d])( of \d+)?/g, (m, w, n) => w + " " + NAME[n])
+      .replace(/\bW-([12])(?![\d])/g, (m, n) => NAME[n]);
+    const hit = t => t && /-[12]/.test(t) && /W/i.test(t);
+    function walk(root) {
+      if (!root) return;
+      const skip = el => el && /^(SCRIPT|STYLE|TEXTAREA|NOSCRIPT)$/.test(el.nodeName);
+      if (root.nodeType === 3) { if (skip(root.parentNode)) return; if (hit(root.nodeValue)) { const v = fix(root.nodeValue); if (v !== root.nodeValue) root.nodeValue = v; } return; }
+      if (root.nodeType !== 1 && root.nodeType !== 9 && root.nodeType !== 11) return;
+      if (root.nodeType === 1 && skip(root)) return;
+      const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      let n; while ((n = tw.nextNode())) {
+        if (skip(n.parentNode)) continue;
+        if (hit(n.nodeValue)) { const v = fix(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; }
+      }
+      if (root.querySelectorAll) root.querySelectorAll("[aria-label],[title]").forEach(el => {
+        ["aria-label", "title"].forEach(a => { const v = el.getAttribute(a); if (hit(v)) { const f = fix(v); if (f !== v) el.setAttribute(a, f); } });
+      });
+    }
+    function start() {
+      walk(document.body);
+      if (hit(document.title)) document.title = fix(document.title);
+      new MutationObserver(list => list.forEach(m => {
+        if (m.type === "characterData") walk(m.target);
+        else m.addedNodes.forEach(walk);
+      })).observe(document.body, { childList: true, subtree: true, characterData: true });
+    }
+    /* only once the page's own scripts have been read: their text is never touched */
+    if (document.readyState !== "loading") start(); else document.addEventListener("DOMContentLoaded", start);
+  }
 })();

@@ -2403,8 +2403,9 @@
     /* the weeks that have a team output and a feedback session (W2–W11
        in STEP 2.5), plus Demo Day (W12), which the panel also scores */
     const S = window.STEP_SCHEDULE;
+    const isSim = n => !!(S && S.isSim && S.isSim(n));
     const scoredWeek = n => !S || !S.byWeek(n) ? n >= 1 : (S.byWeek(n).output || n === 12);
-    const weekly = mods.filter(m => Number(m.week_no) >= 1 && scoredWeek(Number(m.week_no)))
+    const weekly = mods.filter(m => (Number(m.week_no) >= 1 || isSim(m.week_no)) && scoredWeek(Number(m.week_no)))
       .map(m => Object.assign({}, m, S && S.byWeek(m.week_no) ? { short: S.byWeek(m.week_no).short, axis: S.byWeek(m.week_no).axis } : {}));
     const handinWeek = n => !S || !S.byWeek(n) ? true : !!S.byWeek(n).output;
     const modOfWeek = wk => weekly.find(m => Number(m.week_no) === wk);
@@ -2452,7 +2453,7 @@
        learning session, on-site days, the feedback session, Demo Day */
     const RANK = { OR: 0, LS: 1, OS: 2, FB: 3, DD: 4, GR: 5 };
     const sesOrder = x => {
-      const wk = +((String(x.code).match(/W(\d+)/i) || [])[1] || 0);
+      const wk = +((String(x.code).match(/W(-?\d+)/i) || [])[1] || 0);
       const k = (String(x.code).split('-')[1] || '').toUpperCase();
       return wk * 10 + (k in RANK ? RANK[k] : (/fb|feedback/i.test(x.code + ' ' + x.label) ? 3 : 1));
     };
@@ -2465,7 +2466,7 @@
     roster.forEach(m => { attendance_grid[m.initials] = sessions.map(s => (s.present[m.name] ? 1 : 0)); });
 
     /* ── hand-ins: from the first week this team has anything, to now ── */
-    const activeWeeks = subRows.map(s => Number(s.week_no)).concat(outputs.map(o => o.week)).filter(w => w >= 1);
+    const activeWeeks = subRows.map(s => Number(s.week_no)).concat(outputs.map(o => o.week)).filter(w => w >= 1 || isSim(w));
     const firstWk = Math.min(cw, ...(activeWeeks.length ? activeWeeks : [cw]));
     const handins = [], submissions = [];
     for (let wk = firstWk; wk <= cw; wk++) {
@@ -2571,6 +2572,8 @@
   function blankCapstone(cap, cw) {
     if (!cap) return cap;
     cw = Number(cw) || cap.week_no;
+    /* simulation weeks: open every FASTRAC item and deck slide so the whole proposal can be tested */
+    if (window.STEP_SCHEDULE && window.STEP_SCHEDULE.isSim && window.STEP_SCHEDULE.isSim(cw)) cw = 12;
     return Object.assign({}, cap, {
       live: true,
       week_no: cw,
@@ -4567,7 +4570,7 @@
   const FB_TIME = "9:00 AM – 12:00 NN";
 
   /* one entry per program week */
-  const weeks = [
+  const real = [
     {
       week: 0, code: "W0", starts: "2026-10-19", ends: "2026-10-25",
       title: "Pre-Program: STEP Onboarding", short: "Pre-Program: STEP Onboarding", axis: "Pre-Program\nonboarding",
@@ -4981,6 +4984,93 @@
     },
   ];
 
+  /* =====================================================================
+     SIMULATION — two practice weeks for testing STEP Hub end to end
+     (Week S1 and Week S2). They have their own week numbers (-2 and -1)
+     and codes (W-2 and W-1), so nothing they create — hand-ins, panel
+     sheets, attendance, materials — ever lands on a real week. On screen
+     they read "Week S1" / "Week S2".
+
+     SIM_ACTIVE picks the simulated "this week":
+       "S1"  Week S1 is this week        "S2"  Week S2 is this week
+       null  simulation off: S1 and S2 disappear, the real schedule runs
+     ===================================================================== */
+  const SIM_ACTIVE = "S1";
+
+  const SIM_WEEKS = [
+    {
+      week: -2, code: "W-2", sim: "S1", starts: "2026-10-12", ends: "2026-10-18",
+      title: "Simulation: Customer Discovery Sprint", short: "Simulation: Customer Discovery Sprint", axis: "Simulation\nweek 1",
+      topic: "Simulation Week 1 — Customer Discovery Sprint (a practice week for testing STEP Hub; it does not count toward the program)",
+      review: "Customer Discovery Sprint Review", trainer: "STEP Team",
+      sessions: [
+        { date: "2026-10-13", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+          title: "Customer Discovery Sprint (simulation)" },
+        { date: "2026-10-17", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+          title: "Customer Discovery Sprint Review (simulation)" },
+      ],
+      output: true,
+      tagline: "A practice week: test every part of STEP Hub before the program starts.",
+      brief: "This is a simulation week for testing STEP Hub. Each team talks to three possible customers (a colleague playing the customer is fine), writes down what they heard, and turns it into one problem statement. Hand in a short deck and a test video, get scored by your panel, and check that everything shows up where it should. Nothing here counts toward the program.",
+      able: [
+        "Run three short customer conversations and take notes",
+        "Turn what you heard into one clear problem statement",
+        "Hand in your output on My Team's Work and see it scored",
+      ],
+      produce: "A short slide deck (three customer notes and one problem statement) and a test video — any short clip will do. Simulation only.",
+      game: {
+        title: "Run a customer interview",
+        prompt: "Practice round. Drag the cards into the order you would run the interview.",
+        steps: [
+          { order: 1, label: "Introduce yourself and the purpose", why: "People talk more when they know why you are asking." },
+          { order: 2, label: "Ask how they handle the problem today", why: "Their current workaround tells you what they value." },
+          { order: 3, label: "Ask what it costs them", why: "Time, money or risk: the size of the pain." },
+          { order: 4, label: "Listen, don't pitch", why: "You are there to learn, not to sell." },
+          { order: 5, label: "Ask who else you should talk to", why: "One interview leads to the next." },
+        ],
+      },
+    },
+    {
+      week: -1, code: "W-1", sim: "S2", starts: "2026-10-19", ends: "2026-10-25",
+      title: "Simulation: Pricing & Pitch Practice", short: "Simulation: Pricing & Pitch Practice", axis: "Simulation\nweek 2",
+      topic: "Simulation Week 2 — Pricing & Pitch Practice (a practice week for testing STEP Hub; it does not count toward the program)",
+      review: "Pricing & Pitch Practice Review", trainer: "STEP Team",
+      sessions: [
+        { date: "2026-10-20", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+          title: "Pricing & Pitch Practice (simulation)" },
+        { date: "2026-10-24", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+          title: "Pricing & Pitch Practice Review (simulation)" },
+      ],
+      output: true,
+      tagline: "The second practice week: build on last week's output and check the week-to-week views.",
+      brief: "The second simulation week. Using the problem statement from Week S1, each team sketches a first price and a one-minute pitch. Hand in again, get scored again, and check that the trend charts, averages and history now show two weeks. Nothing here counts toward the program.",
+      able: [
+        "Put a first price on your solution and say why",
+        "Deliver a one-minute pitch built on last week's problem statement",
+        "Check that your two weeks of work and scores show up correctly",
+      ],
+      produce: "A short slide deck (price, reasoning and the one-minute pitch) and a test video. Simulation only.",
+      game: {
+        title: "Build a one-minute pitch",
+        prompt: "Practice round. Drag the cards into the order of a short pitch.",
+        steps: [
+          { order: 1, label: "The problem", why: "Start with what the customer feels." },
+          { order: 2, label: "Your solution", why: "What you do about it, in plain words." },
+          { order: 3, label: "Who pays and how much", why: "The price and the customer who pays it." },
+          { order: 4, label: "Why you", why: "What makes your team the one to do it." },
+          { order: 5, label: "The ask", why: "What you need next." },
+        ],
+      },
+    },
+  ];
+  const SIM_ON = SIM_ACTIVE === "S1" || SIM_ACTIVE === "S2";
+  const weeks = SIM_ON ? SIM_WEEKS.concat(real) : real;
+  const isSim = n => SIM_ON && SIM_WEEKS.some(w => w.week === Number(n));
+  /* how a week is named on screen: "S1", "S2", or the number */
+  const tag = n => { const w = SIM_ON && SIM_WEEKS.find(x => x.week === Number(n)); return w ? w.sim : String(n); };
+  const simulation = SIM_ON ? { active: SIM_ACTIVE, week: SIM_WEEKS.find(w => w.sim === SIM_ACTIVE).week,
+                                weeks: SIM_WEEKS.map(w => w.week) } : null;
+
   const BREAK = { starts: "2026-12-21", ends: "2027-01-03", resumes: "2027-01-05" };
   const cohort = {
     code: "STEP2.5", name: "STEP 2.5", timezone: "Asia/Manila",
@@ -5015,7 +5105,7 @@
 
   const byWeek = n => weeks.find(w => w.week === Number(n)) || null;
   const byCode = c => weeks.find(w => w.code === String(c).toUpperCase()) || null;
-  const weekOfCode = c => { const m = String(c || "").match(/^W(\d+)/i); return m ? +m[1] : null; };
+  const weekOfCode = c => { const m = String(c || "").match(/^W(-?\d+)/i); return m ? +m[1] : null; };
   const label = n => "Week " + n;
 
   const sessionOf = (n, kind) => { const w = byWeek(n); return w ? w.sessions.find(s => s.kind === kind) || null : null; };
@@ -5032,8 +5122,9 @@
 
   /* where the program is today: the week, and whether it has started */
   function current(now) {
+    if (simulation) return { week: simulation.week, status: "live", note: "", sim: true };
     const t = manilaDay(now);
-    const first = weeks[0], last = weeks[weeks.length - 1];
+    const first = real[0], last = real[real.length - 1];
     if (t < first.starts) { const d0 = (first.sessions[0] || {}).date || first.starts;
       return { week: 0, status: "pre", note: "The program starts " + dayName(d0) + ", " + long(d0) + "." }; }
     if (t > last.ends) return { week: last.week, status: "post", note: "The STEP 2.5 cycle closed on " + long(cohort.ends_on) + "." };
@@ -5137,15 +5228,54 @@
   }
 
   const teachingWeeks = () => weeks.filter(w => w.output);
-  const learningCount = () => weeks.filter(w => w.sessions.some(s => s.kind === "learning")).length;
+  const learningCount = () => real.filter(w => w.sessions.some(s => s.kind === "learning")).length;
 
   window.STEP_SCHEDULE = {
     cohort, weeks, BREAK,
     byWeek, byCode, weekOfCode, label, current, dueOf,
     learningOf, feedbackOf, attendanceSessions, periodOf, daysOf, timeline,
     teachingWeeks, learningCount,
+    simulation, isSim, tag,
     manilaDay, addDays, dayName, fmtShort: short, fmtLong: long, fmtRange: range,
   };
+
+  /* ---------- simulation: show the practice weeks by their names ----------
+     The pages print weeks as "Week " + number and "W" + number; while the
+     simulation is on, every "Week -2" / "W-2" on screen is shown as
+     "Week S1" / "S1" (and -1 as S2). Text only: nothing stored changes. */
+  if (SIM_ON) {
+    const NAME = { 2: "S1", 1: "S2" };
+    const fix = t => t
+      .replace(/\b(Weeks?) -([12])\s*[–-]\s*-([12])\b/g, (m, w, a, b) => w + " " + NAME[a] + "–" + NAME[b])
+      .replace(/\b(Week|week|WEEK) -([12])(?![\d])( of \d+)?/g, (m, w, n) => w + " " + NAME[n])
+      .replace(/\bW-([12])(?![\d])/g, (m, n) => NAME[n]);
+    const hit = t => t && /-[12]/.test(t) && /W/i.test(t);
+    function walk(root) {
+      if (!root) return;
+      const skip = el => el && /^(SCRIPT|STYLE|TEXTAREA|NOSCRIPT)$/.test(el.nodeName);
+      if (root.nodeType === 3) { if (skip(root.parentNode)) return; if (hit(root.nodeValue)) { const v = fix(root.nodeValue); if (v !== root.nodeValue) root.nodeValue = v; } return; }
+      if (root.nodeType !== 1 && root.nodeType !== 9 && root.nodeType !== 11) return;
+      if (root.nodeType === 1 && skip(root)) return;
+      const tw = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+      let n; while ((n = tw.nextNode())) {
+        if (skip(n.parentNode)) continue;
+        if (hit(n.nodeValue)) { const v = fix(n.nodeValue); if (v !== n.nodeValue) n.nodeValue = v; }
+      }
+      if (root.querySelectorAll) root.querySelectorAll("[aria-label],[title]").forEach(el => {
+        ["aria-label", "title"].forEach(a => { const v = el.getAttribute(a); if (hit(v)) { const f = fix(v); if (f !== v) el.setAttribute(a, f); } });
+      });
+    }
+    function start() {
+      walk(document.body);
+      if (hit(document.title)) document.title = fix(document.title);
+      new MutationObserver(list => list.forEach(m => {
+        if (m.type === "characterData") walk(m.target);
+        else m.addedNodes.forEach(walk);
+      })).observe(document.body, { childList: true, subtree: true, characterData: true });
+    }
+    /* only once the page's own scripts have been read: their text is never touched */
+    if (document.readyState !== "loading") start(); else document.addEventListener("DOMContentLoaded", start);
+  }
 })();
 
 </script>
@@ -5278,6 +5408,19 @@ window.MOCK = (function () {
      roadmapping and W11 the FASTRAC proposal are STEP 2.5 sheets written
      from each week's stated outputs; weights add to 100. */
   const SCORE_SHEETS = {
+      /* the two simulation weeks (Week S1, Week S2) — practice sheets only */
+      "W-2": [
+          { label: "Customer Conversations", weight: 30, hint: "Assess whether the team talked to three possible customers and recorded what each one said, in the customer's own words." },
+          { label: "Problem Statement", weight: 30, hint: "Assess how clearly the team turned those conversations into one problem statement that a customer would recognise." },
+          { label: "Evidence and Honesty", weight: 20, hint: "Assess whether the team separated what customers actually said from what the team assumed." },
+          { label: "Presentation", weight: 20, hint: "Assess how clearly the deck and the video walked the panel through the week's work." },
+        ],
+      "W-1": [
+          { label: "Pricing Logic", weight: 30, hint: "Assess whether the team put a first price on its solution and explained how it arrived at that price." },
+          { label: "Link to Last Week", weight: 20, hint: "Assess whether the pitch builds on the problem statement from Week S1 and the customers behind it." },
+          { label: "One-Minute Pitch", weight: 30, hint: "Assess how clear, confident and complete the one-minute pitch was: problem, solution, price and ask." },
+          { label: "Handling Questions", weight: 20, hint: "Assess whether the team answered the panel's questions directly and without losing the thread." },
+        ],
       W2: [
           { label: "Ecosystem Mapping", weight: 30, hint: "Assess whether the group mapped the players in its technology’s ecosystem (suppliers, users, buyers, regulators, funders and competitors) and how value and money move between them." },
           { label: "Vertical Markets", weight: 25, hint: "Assess whether the group identified the vertical markets where the technology could be applied." },
@@ -5408,7 +5551,16 @@ window.MOCK = (function () {
        word. Weeks with a topic that is new in STEP 2.5 (W1, W2, W8, W10)
        are drafted from the schedule itself and marked source: "schedule";
        W11's activities are drafted from that week's panel score sheet. */
-    mentorPlans: [
+    mentorPlans: (SCHED.simulation ? [
+      { code: "W-2", week: -2, topic: SCHED.byWeek(-2).title, source: "schedule", tasks: [
+        { text: "Help the team line up three short customer conversations for the week (simulation)." },
+        { text: "Review the team's notes with them and help them write one problem statement." },
+      ] },
+      { code: "W-1", week: -1, topic: SCHED.byWeek(-1).title, source: "schedule", tasks: [
+        { text: "Help the team put a first price on its solution and explain the reasoning (simulation)." },
+        { text: "Listen to the team's one-minute pitch and give feedback before the panel." },
+      ] },
+    ] : []).concat([
       { code: "W1", week: 1, topic: "Program Launch and Mentor Introduction", source: "schedule", tasks: [
         { text: "Meet the team at the program launch and agree on a regular weekly mentoring slot (Wednesday to Friday)." },
         { text: "Support the team in choosing the commercialization pathway they will test first." },
@@ -5477,7 +5629,7 @@ window.MOCK = (function () {
       { code: "W12", week: 12, topic: "Preparation for Demo Day", tasks: [
         { text: "Provide guidance and support to the team as they prepare for their final pitch at the STEP Demo Day" },
       ] },
-    ],
+    ]),
 
     /* Nine panel seats, three per panel — the STEP 2.5 panel list. The third
        seat on each panel is an industry panelist, named "Industry Panel 1–3"
@@ -5499,7 +5651,7 @@ window.MOCK = (function () {
        a STEP 2.5 sheet for the new topics; every feedback session and the
        checkpoint has one. Demo Day (W12) uses the STEP 2 Demo Day sheet. */
     sessions: SCHED.weeks.map(w => ({
-      code: w.code, week: w.week, title: w.title, short: w.short, topic: w.topic,
+      code: w.code, week: w.week, sim: !!w.sim, title: w.title, short: w.short, topic: w.topic,
       tag: w.week === 12 ? "Demo Day" : undefined,
       trainer: w.trainer || "Trainer to be announced",
       mode: Array.from(new Set(w.sessions.filter(x => x.kind !== "holiday").map(x => x.mode))).join(" + "),
@@ -7573,7 +7725,8 @@ const daysAway = iso => {
   })();
   document.getElementById("wk-tp-tagline").textContent = T.tagline;
   /* the big mark behind the week bar: the week number, W0–W12 */
-  document.getElementById("wk-split").setAttribute("data-code", "W" + W.week_no);
+  const SCw = window.STEP_SCHEDULE;
+  document.getElementById("wk-split").setAttribute("data-code", SCw && SCw.isSim && SCw.isSim(W.week_no) ? SCw.tag(W.week_no) : "W" + W.week_no);
   document.getElementById("tp-eyebrow").textContent = "Week " + W.week_no + " · what this week is about";
   /* the banner carries the week's short name; here, the topic as the
      STEP 2.5 schedule words it in full */
@@ -8802,9 +8955,9 @@ const daysAway = iso => {
     </div>`).join("") : '<p class="gc-none">Nothing else is scheduled this week.</p>');
 
   const dues = [];
-  if (S) for (let n = Math.max(1, W.week_no); n <= W.weeks_total && dues.length < 3; n++) {
-    const due = S.dueOf(n); if (due && new Date(due) > NOW) dues.push({ n, due, w: S.byWeek(n) });
-  }
+  if (S) S.weeks.slice(Math.max(0, S.weeks.findIndex(w => w.week === W.week_no))).forEach(w => {
+    const n = w.week, due = dues.length < 3 && S.dueOf(n); if (due && new Date(due) > NOW) dues.push({ n, due, w });
+  });
   const left = iso => { const h = Math.round((new Date(iso) - NOW) / 3600000);
     return h < 24 ? h + (h === 1 ? " hour left" : " hours left") : Math.round(h / 24) + (Math.round(h / 24) === 1 ? " day left" : " days left"); };
   /* the FASTRAC proposal items each week's output feeds; only this week's
@@ -9574,7 +9727,10 @@ window.__renderMyTeam = function(targetTeamId) {
   /* Trajectory */
   const T = TW.trajectory, NOW = TW.week_no;
   const lastT = T[T.length - 1] || { week: NOW, score: 0 };
-  const lastWk = Math.max(2, NOW, lastT.week);
+  /* the simulation weeks (Week S1, S2) are charted on their own axis */
+  const SIMW = !!(window.STEP_SCHEDULE && window.STEP_SCHEDULE.isSim && window.STEP_SCHEDULE.isSim(NOW));
+  const firstWk = SIMW ? window.STEP_SCHEDULE.simulation.weeks[0] : 1;
+  const lastWk = SIMW ? window.STEP_SCHEDULE.simulation.weeks[window.STEP_SCHEDULE.simulation.weeks.length - 1] : Math.max(2, NOW, lastT.week);
   const tjHost = document.getElementById("tj-plot"), tjTip = document.getElementById("tj-tip");
   let tjGeo = null;
 
@@ -9583,7 +9739,7 @@ window.__renderMyTeam = function(targetTeamId) {
 
   const repaintTrajectory = !T.length ? null : fitChart(tjHost, (W, H) => {
     const padL = 36, padR = 30, padT = 14, padB = 40;
-    const x = wk => padL + ((wk - 1) / (lastWk - 1)) * (W - padL - padR);
+    const x = wk => padL + ((wk - firstWk) / (lastWk - firstWk)) * (W - padL - padR);
     const y = v  => padT + ((MAXS - v) / (MAXS - 1)) * (H - padT - padB);
     const p = (wk, v) => x(wk).toFixed(1) + "," + y(v).toFixed(1);
     tjGeo = { x, y };
@@ -9593,12 +9749,12 @@ window.__renderMyTeam = function(targetTeamId) {
       g += `<line class="tw-grid" x1="${padL}" y1="${y(v)}" x2="${W - padR}" y2="${y(v)}"/>
             <text class="tw-axis" x="${padL - 7}" y="${y(v) + 4}" text-anchor="end">${fx2(v)}</text>`;
     });
-    g += `<polygon class="tw-under" points="${x(1).toFixed(1)},${y(1)} ${
+    g += `<polygon class="tw-under" points="${x(firstWk).toFixed(1)},${y(1)} ${
       T.map(r => p(r.week, r.score)).join(" ")} ${x(lastT.week).toFixed(1)},${y(1)}"/>`;
     g += `<polyline class="tw-line" points="${T.map(r => p(r.week, r.score)).join(" ")}"/>`;
     if (lastWk > lastT.week) g += `<line class="tw-med" x1="${x(lastWk)}" y1="${padT}" x2="${x(lastWk)}" y2="${H - padB}"/>`;
     g += `<line class="tw-cross" id="tj-cross" x1="0" y1="${padT}" x2="0" y2="${H - padB}"/>`;
-    for (let wk = 1; wk <= lastWk; wk++) {
+    for (let wk = firstWk; wk <= lastWk; wk++) {
       const r = T.find(t => t.week === wk);
       g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 18}" text-anchor="middle" ${r ? "" : 'style="fill:#96a2ad"'}>W${wk}</text>`;
       if (!r && wk === NOW) g += `<text class="tw-axis" x="${x(wk)}" y="${H - padB + 31}" text-anchor="middle" style="fill:#96a2ad;font-weight:700">now</text>`;
@@ -9607,7 +9763,7 @@ window.__renderMyTeam = function(targetTeamId) {
       g += `<circle class="tw-dot" cx="${x(r.week)}" cy="${y(r.score)}" r="4.5"/>`;
       g += `<text class="tw-ptlab" x="${x(r.week)}" y="${y(r.score) - 12}" text-anchor="middle">${fx2(r.score)}</text>`;
     });
-    const half = (W - padL - padR) / (lastWk - 1) / 2;
+    const half = (W - padL - padR) / (lastWk - firstWk) / 2;
     T.forEach(r => {
       g += `<rect class="tw-hit" data-w="${r.week}" x="${x(r.week) - half}" y="${padT}" width="${half * 2}" height="${H - padT - padB}"/>`;
     });
@@ -11558,7 +11714,7 @@ document.getElementById("fa-spec").innerHTML = `
     <div class="r"><dt>Trainers</dt><dd><b>${F.trainers.length}</b><em>across the tracks</em></dd></div>
     <div class="r"><dt>Mentors</dt><dd><b>${F.mentors.length}</b><em>one per team</em></dd></div>
     <div class="r"><dt>Panels</dt><dd><b>${F.panels.length}</b><em>running in parallel</em></dd></div>
-    <div class="r"><dt>Weeks</dt><dd><b>${F.sessions.length}</b><em>W0 to W12</em></dd></div>
+    <div class="r"><dt>Weeks</dt><dd><b>${F.sessions.filter(s => !s.sim).length}</b><em>W0 to W12</em></dd></div>
   </dl>`;
 
 /* ---------- view switch (driven by nav dropdown, no toggle bar) ---------- */
@@ -12685,7 +12841,7 @@ document.getElementById("fa-spec").innerHTML = `
      This picker, the score-sheet week and the hand-in week all show the same one. */
   const selPW = document.getElementById("pnl-week");
   if (selPW) {
-    const wk = [...new Set(F.sessions.filter(x => x.assess.length && x.week >= 1).map(x => x.week))].sort((a, b) => a - b);
+    const wk = [...new Set(F.sessions.filter(x => x.assess.length && (x.week >= 1 || x.sim)).map(x => x.week))].sort((a, b) => a - b);
     selPW.innerHTML = wk.map(w => `<option value="${w}">Week ${w}${w === CUR ? " (this week)" : ""}</option>`).join("");
     selPW.value = String(wk.includes(CUR) ? CUR : (wk.filter(w => w <= CUR).pop() || wk[0]));
     selPW.addEventListener("change", () => window.__panelWeek(selPW.value));
@@ -13325,7 +13481,7 @@ function initials(n) {
 
   /* the weeks that have a team output, in order */
   const weeks = [];
-  F.sessions.filter(s => s.assess.length && s.week >= 1).forEach(s => {
+  F.sessions.filter(s => s.assess.length && (s.week >= 1 || s.sim)).forEach(s => {
     if (!weeks.some(w => w.week === s.week)) weeks.push({ week: s.week, title: s.title, code: s.code });
   });
   weeks.sort((a, b) => a.week - b.week);

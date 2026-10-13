@@ -351,7 +351,8 @@ const daysAway = iso => {
   })();
   document.getElementById("wk-tp-tagline").textContent = T.tagline;
   /* the big mark behind the week bar: the week number, W0–W12 */
-  document.getElementById("wk-split").setAttribute("data-code", "W" + W.week_no);
+  const SCw = window.STEP_SCHEDULE;
+  document.getElementById("wk-split").setAttribute("data-code", SCw && SCw.isSim && SCw.isSim(W.week_no) ? SCw.tag(W.week_no) : "W" + W.week_no);
   document.getElementById("tp-eyebrow").textContent = "Week " + W.week_no + " · what this week is about";
   /* the banner carries the week's short name; here, the topic as the
      STEP 2.5 schedule words it in full */

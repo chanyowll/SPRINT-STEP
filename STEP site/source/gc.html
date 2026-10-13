@@ -769,9 +769,9 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     </div>`).join("") : '<p class="gc-none">Nothing else is scheduled this week.</p>');
 
   const dues = [];
-  if (S) for (let n = Math.max(1, W.week_no); n <= W.weeks_total && dues.length < 3; n++) {
-    const due = S.dueOf(n); if (due && new Date(due) > NOW) dues.push({ n, due, w: S.byWeek(n) });
-  }
+  if (S) S.weeks.slice(Math.max(0, S.weeks.findIndex(w => w.week === W.week_no))).forEach(w => {
+    const n = w.week, due = dues.length < 3 && S.dueOf(n); if (due && new Date(due) > NOW) dues.push({ n, due, w });
+  });
   const left = iso => { const h = Math.round((new Date(iso) - NOW) / 3600000);
     return h < 24 ? h + (h === 1 ? " hour left" : " hours left") : Math.round(h / 24) + (Math.round(h / 24) === 1 ? " day left" : " days left"); };
   /* the FASTRAC proposal items each week's output feeds; only this week's

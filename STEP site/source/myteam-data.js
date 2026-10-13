@@ -99,8 +99,9 @@
     /* the weeks that have a team output and a feedback session (W2–W11
        in STEP 2.5), plus Demo Day (W12), which the panel also scores */
     const S = window.STEP_SCHEDULE;
+    const isSim = n => !!(S && S.isSim && S.isSim(n));
     const scoredWeek = n => !S || !S.byWeek(n) ? n >= 1 : (S.byWeek(n).output || n === 12);
-    const weekly = mods.filter(m => Number(m.week_no) >= 1 && scoredWeek(Number(m.week_no)))
+    const weekly = mods.filter(m => (Number(m.week_no) >= 1 || isSim(m.week_no)) && scoredWeek(Number(m.week_no)))
       .map(m => Object.assign({}, m, S && S.byWeek(m.week_no) ? { short: S.byWeek(m.week_no).short, axis: S.byWeek(m.week_no).axis } : {}));
     const handinWeek = n => !S || !S.byWeek(n) ? true : !!S.byWeek(n).output;
     const modOfWeek = wk => weekly.find(m => Number(m.week_no) === wk);
@@ -148,7 +149,7 @@
        learning session, on-site days, the feedback session, Demo Day */
     const RANK = { OR: 0, LS: 1, OS: 2, FB: 3, DD: 4, GR: 5 };
     const sesOrder = x => {
-      const wk = +((String(x.code).match(/W(\d+)/i) || [])[1] || 0);
+      const wk = +((String(x.code).match(/W(-?\d+)/i) || [])[1] || 0);
       const k = (String(x.code).split('-')[1] || '').toUpperCase();
       return wk * 10 + (k in RANK ? RANK[k] : (/fb|feedback/i.test(x.code + ' ' + x.label) ? 3 : 1));
     };
@@ -161,7 +162,7 @@
     roster.forEach(m => { attendance_grid[m.initials] = sessions.map(s => (s.present[m.name] ? 1 : 0)); });
 
     /* ── hand-ins: from the first week this team has anything, to now ── */
-    const activeWeeks = subRows.map(s => Number(s.week_no)).concat(outputs.map(o => o.week)).filter(w => w >= 1);
+    const activeWeeks = subRows.map(s => Number(s.week_no)).concat(outputs.map(o => o.week)).filter(w => w >= 1 || isSim(w));
     const firstWk = Math.min(cw, ...(activeWeeks.length ? activeWeeks : [cw]));
     const handins = [], submissions = [];
     for (let wk = firstWk; wk <= cw; wk++) {
@@ -267,6 +268,8 @@
   function blankCapstone(cap, cw) {
     if (!cap) return cap;
     cw = Number(cw) || cap.week_no;
+    /* simulation weeks: open every FASTRAC item and deck slide so the whole proposal can be tested */
+    if (window.STEP_SCHEDULE && window.STEP_SCHEDULE.isSim && window.STEP_SCHEDULE.isSim(cw)) cw = 12;
     return Object.assign({}, cap, {
       live: true,
       week_no: cw,

@@ -639,7 +639,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const MODS = M.modules || [];
   const modOf = w => MODS.find(m => m.week_no === w) || { code: "", title: "" };
   const NOW = M.thisWeek && M.thisWeek.week_no != null ? M.thisWeek.week_no : 0;
-  const WEEKS = Array.from({ length: 13 }, (_, i) => i);
+  const WEEKS = SCH ? SCH.weeks.map(w => w.week) : Array.from({ length: 13 }, (_, i) => i);
+  const wtag = w => SCH && SCH.tag ? SCH.tag(w) : String(w);
   if (M.cohort && M.cohort.name) { const sc = document.getElementById("side-cohort"); if (sc) sc.textContent = M.cohort.name; }
   const rnd = (seed => () => (seed = (seed * 16807) % 2147483647) / 2147483647)(20260930);
 
@@ -685,7 +686,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const sb = e.target.closest(".seg button"); if (sb && !sb.closest("#att-kind")) { sb.parentElement.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === sb)); }
   });
   function weekStrip(el, marks, onPick, sel) {
-    el.innerHTML = WEEKS.map(w => `<button data-w="${w}" class="${marks[w] || ""}${w === NOW ? " now" : ""}" aria-pressed="${w === sel}"><b>${w}</b>Week<i></i></button>`).join("");
+    el.innerHTML = WEEKS.map(w => `<button data-w="${w}" class="${marks[w] || ""}${w === NOW ? " now" : ""}" aria-pressed="${w === sel}"><b>${wtag(w)}</b>Week<i></i></button>`).join("");
     el.onclick = e => { const b = e.target.closest("button[data-w]"); if (!b) return; el.querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); onPick(+b.dataset.w); };
   }
 
@@ -763,7 +764,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   }
   async function loadWeeksWith() {
     const { data } = await SBC().from("attendance").select("session_code");
-    attWeeksWith = new Set((data || []).map(r => +((String(r.session_code).match(/^W(\d+)/) || [])[1])).filter(n => !isNaN(n)));
+    attWeeksWith = new Set((data || []).map(r => +((String(r.session_code).match(/^W(-?\d+)/) || [])[1])).filter(n => !isNaN(n)));
   }
   function paintWeeks() {
     const marks = {};
@@ -1082,7 +1083,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const pubN = WEEKS.filter(w => stateOf(w) === "pub").length;
     const missN = WEEKS.filter(w => stateOf(w) === "missing").length;
     $("#rec-sum").textContent = pubN + " published" + (missN ? " · " + missN + " missing" : "");
-    $("#ct-rec").textContent = pubN + "/" + NOW;
+    $("#ct-rec").textContent = pubN + "/" + (SCH && SCH.isSim && SCH.isSim(NOW) ? SCH.simulation.weeks.filter(w => w <= NOW).length : NOW);
   }
   async function loadRecs() {
     try { RECS = await MAT().listRecordings(); } catch (e) { RECS = []; toast("Couldn't load recordings: " + (e.message || e)); }
@@ -1462,7 +1463,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     }));
     pbBusy = true; $("#pb-save").disabled = true; $("#pb-save").textContent = "Saving…";
     try {
-      await window.STEP_PANELPLAN.save(pbWeek, onward ? null : pbWeek, payload);
+      /* a simulation week's "onward" stops at the last simulation week, so it never reaches the real program */
+      const simEnd = SCH && SCH.isSim && SCH.isSim(pbWeek) ? SCH.simulation.weeks[SCH.simulation.weeks.length - 1] : null;
+      await window.STEP_PANELPLAN.save(pbWeek, onward ? simEnd : pbWeek, payload);
       await pbLoad(pbWeek);
       const unseated = PB.flatMap(p => p.panelists).filter(n => seatOfName(n) == null);
       toast("Saved — the Panel tab shows these panels for Week " + pbWeek + (onward ? " onward." : " only.") +
@@ -1500,7 +1503,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   (function () {
     const SS = () => window.STEP_SCORESHEETS;
     const ssLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
-    const SESSIONS = () => ((M.faculty && M.faculty.sessions) || []).filter(s => s.week >= 2);
+    const SESSIONS = () => ((M.faculty && M.faculty.sessions) || []).filter(s => s.week >= 2 || s.sim);
     const sel = $("#ss-week"), rowsEl = $("#ss-rows"), sumEl = $("#ss-sum"), msgEl = $("#ss-msg"),
           lockEl = $("#ss-lock"), srcEl = $("#ss-src");
     if (!sel) return;
@@ -1891,7 +1894,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const dLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
   const fx = n => (n == null || isNaN(n)) ? "—" : Number(n).toFixed(2);
   const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
-  const wkOfCode = c => +((String(c).match(/^W(\d+)/) || [])[1] || 0);
+  const wkOfCode = c => +((String(c).match(/^W(-?\d+)/) || [])[1] || 0);
   const isFb = c => /FB/i.test(c);
   /* session kinds in the order they happen within a week */
   const SES_KIND = { OR: ["Orientation", 0], LS: ["Learning", 1], OS: ["On-site", 2], FB: ["Feedback", 3], DD: ["Demo Day", 4], GR: ["Graduation", 5] };
@@ -1961,7 +1964,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
      before the site was in use are not counted as missing */
   function firstWeek() {
     const ws = D.subs.map(s => +s.week_no).concat(D.att.map(a => wkOfCode(a.session_code)))
-      .concat(D.sheets.map(s => sessOf(s.session_code).week)).filter(w => w >= 1);
+      .concat(D.sheets.map(s => sessOf(s.session_code).week)).filter(w => w >= 1 || (SCH && SCH.isSim && SCH.isSim(w)));
     return ws.length ? Math.min(...ws) : NOW;
   }
   const sheetsFor = (team, code) => D.sheets.filter(s => s.team_id === team && s.session_code === code);
