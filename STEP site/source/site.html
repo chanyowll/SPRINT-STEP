@@ -13733,6 +13733,9 @@ try {
     return '<button type="button" class="cl-ev k-' + e.k + (selKey === e.key ? " sel" : "") + '" data-ev="' + esc(e.key) + '" title="' + esc(e.title + (e.time ? " · " + e.time : "")) + '">'
       + (e.zoom ? mark(e) : "") + "<span>" + esc(chipLabel(e)) + "</span></button>";
   }
+  /* the link as shown: host and path only ("ateneo-edu.zoom.us/j/85943235911");
+     Join and Copy link still use the full link */
+  const shortUrl = u => { try { const x = new URL(u); return (x.host + x.pathname).replace(/\/$/, ""); } catch (er) { return String(u || ""); } };
   function drawMonth() {
     $("cl-title").textContent = new Date(month + "-01T00:00:00Z").toLocaleDateString("en-PH", { timeZone: "UTC", month: "long", year: "numeric" });
     const first = month + "-01", dow = (new Date(first + "T00:00:00Z").getUTCDay()), start = K.add(first, -dow), now = K.today();
@@ -13794,7 +13797,7 @@ try {
     if (!KIND[e.k].zoom) return "";
     let h = '<div class="cl-zbox"><div class="cl-lab">' + (isZ(e) ? "Zoom" : "Link") + '</div>';
     if (!D || !D.signedIn) h += '<p class="cl-none">Sign in to see the link.</p>';
-    else if (e.zoom) h += '<a class="cl-join blue" href="' + esc(e.zoom) + '" target="_blank" rel="noopener">' + mark(e) + (isZ(e) ? "Join on Zoom" : "Open link") + '</a><div class="cl-url"><span>' + esc(e.zoom) + '</span><button type="button" class="cl-link" data-copy>Copy link</button></div>';
+    else if (e.zoom) h += '<a class="cl-join blue" href="' + esc(e.zoom) + '" target="_blank" rel="noopener">' + mark(e) + (isZ(e) ? "Join on Zoom" : "Open link") + '</a><div class="cl-url"><span title="' + esc(e.zoom) + '">' + esc(shortUrl(e.zoom)) + '</span><button type="button" class="cl-link" data-copy>Copy link</button></div>';
     else h += '<p class="cl-none">The STEP Team hasn\'t posted the link yet. It will appear here.</p>';
     return h + "</div>";
   }
