@@ -677,14 +677,13 @@ window.__renderMyTeam = function(targetTeamId) {
   const rTip = document.getElementById("radar-tip");
   let rGeo = null;
 
-  if (N < 3) {
-    emptyIn(rWrap, N ? "Not enough scores for the web-chart yet" : "No scores yet",
-      N ? "It draws once three weekly outputs are scored. Scored so far: " +
-          O.map(o => `<b>Week ${o.week}</b> ${fx2(o.score)}`).join(" · ") + "."
-        : "Your panel's score for each weekly output appears here after its feedback session.");
+  /* drawn from the first scored output: one score is a point on its spoke,
+     two are a line, three or more the full web */
+  if (!N) {
+    emptyIn(rWrap, "No scores yet", "Your panel's score for each weekly output appears here after its feedback session.");
   } else clearEmpty(rWrap);
 
-  if (N >= 3) fitChart(rWrap, (W, H) => {
+  if (N >= 1) fitChart(rWrap, (W, H) => {
     const tight = W < 520;
     const mx = tight ? 48 : 112, my = tight ? 50 : 74, LAB = tight ? 18 : 30;
     const R = Math.max(70, Math.min((W - mx * 2) / 2, (H - my * 2) / 2));
@@ -695,6 +694,9 @@ window.__renderMyTeam = function(targetTeamId) {
     rGeo = { pt, rOf, R };
 
     const poly = (r) => O.map((_, i) => pt(i, r).map(n => n.toFixed(1)).join(",")).join(" ");
+    /* with fewer than three spokes the rings are circles */
+    const ring = (cls, r, style) => N >= 3 ? `<polygon class="${cls}" points="${poly(r)}"${style || ""}/>`
+      : `<circle class="${cls}" cx="${C}" cy="${CY}" r="${r.toFixed(1)}"${style || ""}/>`;
     const avg = O.reduce((a, o) => a + o.score, 0) / N;
     const hi = Math.max(...O.map(o => o.score)), lo = Math.min(...O.map(o => o.score));
 
@@ -710,20 +712,22 @@ window.__renderMyTeam = function(targetTeamId) {
     </defs>`;
 
     [4, 3, 2, 1].forEach((v, k) => {
-      g += `<polygon class="radar-band" points="${poly(rOf(v))}" style="opacity:${(.2 + k * .17).toFixed(2)}"/>`;
+      g += ring("radar-band", rOf(v), ` style="opacity:${(.2 + k * .17).toFixed(2)}"`);
     });
     [1, 2, 3, 4].forEach(v => {
-      g += `<polygon class="radar-grid${v === MAXS ? " outer" : ""}" points="${poly(rOf(v))}"/>`;
+      g += ring("radar-grid" + (v === MAXS ? " outer" : ""), rOf(v));
       if (v > 1) g += `<text class="radar-ring-label" x="${C + 5}" y="${(CY - rOf(v) + 4).toFixed(1)}">${fx2(v)}</text>`;
     });
     O.forEach((_, i) => {
       const [x, y] = pt(i, R);
       g += `<line class="radar-spoke" x1="${C}" y1="${CY}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}"/>`;
     });
-    g += `<polygon class="radar-avg" points="${poly(rOf(avg))}"/>`;
+    g += ring("radar-avg", rOf(avg));
     if (!tight) g += `<text class="radar-avg-lab" x="${(C - 22).toFixed(1)}" y="${(CY - rOf(avg) - 5).toFixed(1)}" text-anchor="end">avg ${fx2(avg)}</text>`;
-    g += `<polygon class="radar-shape" filter="url(#rdLift)" points="${
+    if (N >= 3) g += `<polygon class="radar-shape" filter="url(#rdLift)" points="${
       O.map((o, i) => pt(i, rOf(o.score)).map(n => n.toFixed(1)).join(",")).join(" ")}"/>`;
+    else if (N === 2) { const [a, b] = [pt(0, rOf(O[0].score)), pt(1, rOf(O[1].score))];
+      g += `<line x1="${a[0].toFixed(1)}" y1="${a[1].toFixed(1)}" x2="${b[0].toFixed(1)}" y2="${b[1].toFixed(1)}" stroke="#1f6fb2" stroke-width="2.5" stroke-linecap="round"/>`; }
     g += `<circle class="radar-hub" cx="${C}" cy="${CY}" r="3"/>`;
     O.forEach((o, i) => {
       const [lx, ly] = pt(i, R + LAB);
@@ -770,6 +774,8 @@ window.__renderMyTeam = function(targetTeamId) {
     setTxt("rd-low", fx2(low.score));
     setTxt("rd-best-n", " · " + best.axis.replace("\n", " "));
     setTxt("rd-low-n", " · " + low.axis.replace("\n", " "));
+    /* one scored output is both the strongest and the weakest: show it once */
+    { const lw = document.getElementById("rd-low"); if (lw && lw.parentElement) lw.parentElement.hidden = N < 2; }
   } else {
     ["rd-avg", "rd-best", "rd-low"].forEach(id => setTxt(id, "—"));
     setTxt("rd-best-n", ""); setTxt("rd-low-n", "");
