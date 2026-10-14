@@ -4672,8 +4672,7 @@
       a.forEach((l, i) => doc.runs(l, C1 + RP, y + RP + 10 + i * RL, RS));
       if (!r.lead) {
         const mid = (C2 + C3) / 2;
-        if (r.done) { doc.dot(mid - 9, y + RP + 6.5, 1.9); doc.check(mid + 1, y + RP + 1.5, 9); }
-        else doc.dot(mid, y + RP + 6.5, 1.9);
+        if (r.done) doc.check(mid - 4.5, y + RP + 1.5, 9);   // a tick when done, empty when not
         c.forEach((l, i) => doc.runs(l, C3 + RP, y + RP + 10 + i * RL, RS));
       }
       y += h;
