@@ -6346,3 +6346,7 @@ body.on-cal .site-footer { display: none; }
 .pr-empty p { margin: 0; max-width: 46ch; color: var(--ink-soft); font-size: 14.5px; line-height: 1.55; }
 .pr-empty .btn:disabled { opacity: .5; cursor: not-allowed; }
 #pr-stale .lnk { margin-left: 6px; }
+
+/* Panelists' report card: 15% shorter than the mentors' card */
+#pr-sec .mrep { height: calc((min(75cqw, 100 * var(--vh) - 120px) - 7rem) * .85); min-height: calc((440px - 7rem) * .85); }
+@media (max-width: 640px) { #pr-sec .mrep { height: calc((100 * var(--vh) - 90px - 7rem) * .85); } }
