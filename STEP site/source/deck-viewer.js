@@ -26,6 +26,21 @@
     return ready;
   }
 
+  /* Fetch the PDF engine (and its worker) ahead of time, so the first deck
+     is not waiting on two downloads. Best effort: nothing depends on it. */
+  var warmed = false;
+  function warm() {
+    if (warmed) return;
+    warmed = true;
+    lib().catch(function () { warmed = false; });
+    try { fetch(BASE + "pdf.worker.min.js", { mode: "no-cors" }).catch(function () {}); } catch (e) {}
+  }
+  function warmIfNeeded() {
+    if (/(^|[#\/])(myteam|my-team|trainers)/.test((location.hash || "") + " " + (location.pathname || ""))) warm();
+  }
+  warmIfNeeded();
+  window.addEventListener("hashchange", warmIfNeeded);
+
   function release(box) {
     box.__deckTok = (box.__deckTok || 0) + 1;
     if (box.__deckIO) { try { box.__deckIO.disconnect(); } catch (e) {} box.__deckIO = null; }
@@ -45,12 +60,19 @@
     box.innerHTML = '<div class="od-none"><span>Loading the slides…</span></div>';
 
     return lib().then(function (L) {
-      return L.getDocument({ url: url, disableAutoFetch: true, disableStream: true }).promise;
+      var task = L.getDocument({ url: url, disableAutoFetch: true });
+      task.onProgress = function (p) {
+        if (tok !== box.__deckTok || !p || !p.total) return;
+        var span = box.querySelector(".od-none span");
+        if (span) span.textContent = "Loading the slides\u2026 " + Math.min(99, Math.round(p.loaded / p.total * 100)) + "%";
+      };
+      return task.promise;
     }).then(function (doc) {
       if (tok !== box.__deckTok) { try { doc.destroy(); } catch (e) {} return; }
       box.__deckDoc = doc;
       var n = doc.numPages;
-      var width = Math.max(box.clientWidth || 600, 600);
+      var width = box.clientWidth || 600;
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
 
       var sc = document.createElement("div");
       sc.className = "dk-scroll";
@@ -86,7 +108,7 @@
         doc.getPage(i).then(function (page) {
           if (tok !== box.__deckTok) return;
           var base = page.getViewport({ scale: 1 });
-          var vp = page.getViewport({ scale: Math.min(3, (width * 2) / base.width) });
+          var vp = page.getViewport({ scale: Math.max(1, Math.min(2.5, (width * dpr) / base.width)) });
           var c = document.createElement("canvas");
           c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
           c.setAttribute("role", "img");
@@ -127,5 +149,5 @@
     });
   }
 
-  window.StepDeck = { mount: mount, stop: release };
+  window.StepDeck = { mount: mount, stop: release, warm: warm };
 })();

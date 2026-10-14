@@ -123,8 +123,8 @@
     if (error || !data || !data.length) return null;
 
     const out = {};
-    for (const r of data) {
-      if (!r.storage_path) continue;
+    /* the video's and the deck's links are asked for together, not one after the other */
+    await Promise.all(data.filter(r => r.storage_path).map(async r => {
       const { data: signed } = await sb.storage.from(BUCKET)
         .createSignedUrl(r.storage_path, SIGNED_SECONDS);
       out[r.kind] = {
@@ -136,7 +136,7 @@
         status: r.status,
         submitted_at: r.submitted_at,
       };
-    }
+    }));
     return Object.keys(out).length ? out : null;
   }
 
