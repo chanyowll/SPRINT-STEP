@@ -2286,15 +2286,26 @@
 
   // ── Auto-init: listen for auth changes and dispatch stephub_auth_changed ──
   if (getClient()) {
-    onAuthChange(async (event, profile) => {
+    /* Supabase re-announces the same sign-in when the browser tab comes back
+       into focus and every hour when it renews the session. Those are not
+       changes: only a different account (or sign-in / sign-out, or a change
+       of role or team) is passed on, so pages are not redrawn for nothing. */
+    let lastSig = null;
+    const sigOf = p => p ? JSON.stringify([p.id, p.role, p.roles || [], p.team_id || null, p.teams || []]) : '';
+    const announce = profile => {
+      const sig = sigOf(profile);
+      if (sig === lastSig) return;
+      lastSig = sig;
       window.dispatchEvent(new CustomEvent('stephub_auth_changed', { detail: { user: profile } }));
+    };
+    onAuthChange(async (event, profile) => {
+      if (event === 'TOKEN_REFRESHED') return;
+      announce(profile);
     });
 
     // Check for existing session on page load
     getCurrentUser().then(profile => {
-      if (profile) {
-        window.dispatchEvent(new CustomEvent('stephub_auth_changed', { detail: { user: profile } }));
-      }
+      if (profile) announce(profile);
     });
   }
 
@@ -14354,16 +14365,25 @@ try {
     if (name === "gc" && typeof window.__gcFit === "function") window.__gcFit();
     document.getElementById("nav").classList.remove("open");
     document.querySelector(".nav-toggle").setAttribute("aria-expanded", "false");
-    // Trigger dynamic renders if available
-    if (name === "week" && typeof window.__renderThisWeek === "function") window.__renderThisWeek();
-    if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
-    if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();
-    if (name === "trainers" && typeof window.__renderTrainers === "function") window.__renderTrainers();
-    if (name === "calendar" && typeof window.__renderCalendar === "function") window.__renderCalendar();
-    // replay the scroll reveals for the page we just switched to
+    /* A page is drawn (and its data fetched) the first time it is opened.
+       Coming back to it later shows it exactly as it was left — no reload,
+       no fetch, no replayed animations. Fresh data comes with a real page
+       load: the console's "Refresh everyone's site", a sign-in change, or
+       the browser's own refresh. */
+    var visited = window.__routeVisited || (window.__routeVisited = {});
+    var first = !visited[name];
+    visited[name] = true;
     var target = document.getElementById("route-" + name);
-    target.querySelectorAll(".reveal").forEach(function (el) { el.classList.remove("in"); });
-    if (window.__stepObserve) window.__stepObserve(target);
+    if (first) {
+      if (name === "week" && typeof window.__renderThisWeek === "function") window.__renderThisWeek();
+      if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
+      if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();
+      if (name === "trainers" && typeof window.__renderTrainers === "function") window.__renderTrainers();
+      if (name === "calendar" && typeof window.__renderCalendar === "function") window.__renderCalendar();
+      // play the scroll reveals for the page we just opened
+      target.querySelectorAll(".reveal").forEach(function (el) { el.classList.remove("in"); });
+      if (window.__stepObserve) window.__stepObserve(target);
+    }
     if (anchor) {
       var el = document.getElementById(anchor);
       if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
@@ -14386,6 +14406,8 @@ try {
     if (window.__pendingRoute) { window.__pendingRoute = false; fromHash(); return; }
     var h = (location.hash || "#home").slice(1);
     var name = h.split("-")[0];
+    /* a different account sees different data: every page is drawn afresh when next opened */
+    window.__routeVisited = {}; window.__routeVisited[name] = true;
     if (name === "week" && typeof window.__renderThisWeek === "function") window.__renderThisWeek();
     if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
     if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();

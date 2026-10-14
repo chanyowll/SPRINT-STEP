@@ -220,16 +220,25 @@ router = """
     if (name === "gc" && typeof window.__gcFit === "function") window.__gcFit();
     document.getElementById("nav").classList.remove("open");
     document.querySelector(".nav-toggle").setAttribute("aria-expanded", "false");
-    // Trigger dynamic renders if available
-    if (name === "week" && typeof window.__renderThisWeek === "function") window.__renderThisWeek();
-    if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
-    if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();
-    if (name === "trainers" && typeof window.__renderTrainers === "function") window.__renderTrainers();
-    if (name === "calendar" && typeof window.__renderCalendar === "function") window.__renderCalendar();
-    // replay the scroll reveals for the page we just switched to
+    /* A page is drawn (and its data fetched) the first time it is opened.
+       Coming back to it later shows it exactly as it was left — no reload,
+       no fetch, no replayed animations. Fresh data comes with a real page
+       load: the console's "Refresh everyone's site", a sign-in change, or
+       the browser's own refresh. */
+    var visited = window.__routeVisited || (window.__routeVisited = {});
+    var first = !visited[name];
+    visited[name] = true;
     var target = document.getElementById("route-" + name);
-    target.querySelectorAll(".reveal").forEach(function (el) { el.classList.remove("in"); });
-    if (window.__stepObserve) window.__stepObserve(target);
+    if (first) {
+      if (name === "week" && typeof window.__renderThisWeek === "function") window.__renderThisWeek();
+      if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
+      if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();
+      if (name === "trainers" && typeof window.__renderTrainers === "function") window.__renderTrainers();
+      if (name === "calendar" && typeof window.__renderCalendar === "function") window.__renderCalendar();
+      // play the scroll reveals for the page we just opened
+      target.querySelectorAll(".reveal").forEach(function (el) { el.classList.remove("in"); });
+      if (window.__stepObserve) window.__stepObserve(target);
+    }
     if (anchor) {
       var el = document.getElementById(anchor);
       if (el) { el.scrollIntoView({ behavior: "smooth", block: "start" }); return; }
@@ -252,6 +261,8 @@ router = """
     if (window.__pendingRoute) { window.__pendingRoute = false; fromHash(); return; }
     var h = (location.hash || "#home").slice(1);
     var name = h.split("-")[0];
+    /* a different account sees different data: every page is drawn afresh when next opened */
+    window.__routeVisited = {}; window.__routeVisited[name] = true;
     if (name === "week" && typeof window.__renderThisWeek === "function") window.__renderThisWeek();
     if (name === "myteam" && typeof window.__renderMyTeam === "function") window.__renderMyTeam();
     if (name === "capstone" && typeof window.__renderCapstone === "function") window.__renderCapstone();

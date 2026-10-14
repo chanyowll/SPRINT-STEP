@@ -217,15 +217,26 @@
 
   // ── Auto-init: listen for auth changes and dispatch stephub_auth_changed ──
   if (getClient()) {
-    onAuthChange(async (event, profile) => {
+    /* Supabase re-announces the same sign-in when the browser tab comes back
+       into focus and every hour when it renews the session. Those are not
+       changes: only a different account (or sign-in / sign-out, or a change
+       of role or team) is passed on, so pages are not redrawn for nothing. */
+    let lastSig = null;
+    const sigOf = p => p ? JSON.stringify([p.id, p.role, p.roles || [], p.team_id || null, p.teams || []]) : '';
+    const announce = profile => {
+      const sig = sigOf(profile);
+      if (sig === lastSig) return;
+      lastSig = sig;
       window.dispatchEvent(new CustomEvent('stephub_auth_changed', { detail: { user: profile } }));
+    };
+    onAuthChange(async (event, profile) => {
+      if (event === 'TOKEN_REFRESHED') return;
+      announce(profile);
     });
 
     // Check for existing session on page load
     getCurrentUser().then(profile => {
-      if (profile) {
-        window.dispatchEvent(new CustomEvent('stephub_auth_changed', { detail: { user: profile } }));
-      }
+      if (profile) announce(profile);
     });
   }
 
