@@ -6337,3 +6337,12 @@ body.on-cal .site-footer { display: none; }
 .dk-badge { position: absolute; right: 12px; bottom: 10px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700;
   background: rgba(16, 32, 48, .78); color: #fff; pointer-events: none; font-variant-numeric: tabular-nums; }
 @media (prefers-reduced-motion: no-preference) { .od-prev .dk-scroll { scroll-behavior: smooth; } }
+
+
+/* Panelists: the weekly accomplishment report (#prep) — same card as the mentors' report */
+#pr-sec { container-type: inline-size; }
+.mrep > .pr-empty { flex: 1 1 auto; display: grid; place-content: center; justify-items: center; gap: var(--s4);
+  padding: var(--s5); text-align: center; }
+.pr-empty p { margin: 0; max-width: 46ch; color: var(--ink-soft); font-size: 14.5px; line-height: 1.55; }
+.pr-empty .btn:disabled { opacity: .5; cursor: not-allowed; }
+#pr-stale .lnk { margin-left: 6px; }

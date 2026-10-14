@@ -370,6 +370,7 @@ page = f"""<!doctype html>
 <script src="panelsheets-data.js"></script>
 <script src="scoresheets-data.js"></script>
 <script src="mentorreports-data.js"></script>
+<script src="panelreports-data.js"></script>
 <script src="mentorreport-pdf.js"></script>
 <script src="articles-data.js"></script>
 <script src="schedule-data.js"></script>

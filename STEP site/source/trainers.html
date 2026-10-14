@@ -387,6 +387,73 @@
          across the panel.</p>
     </section>
 
+    <!-- the panelist's weekly accomplishment report: built from the score sheet above,
+         then edited here, downloaded to sign, and uploaded back signed -->
+    <section class="mt-7" id="pr-sec">
+      <div class="section-head">
+        <div class="eyebrow">Weekly accomplishment report</div>
+        <h2>Your accomplishment report</h2>
+        <p class="lede">Score your teams above, then press Create. The report is written from the scores and
+           comments on your score sheet. Edit anything you like, download it to sign, and upload the signed
+           copy as your submission.</p>
+      </div>
+
+      <div class="mrep" id="prep">
+        <div class="sh-top">
+          <div class="sh-tx">
+            <div class="sh-code" id="pr-code">—</div>
+            <h3 id="pr-topic">—</h3>
+            <div class="sh-meta" id="pr-meta">—</div>
+          </div>
+        </div>
+
+        <div class="pr-empty" id="pr-empty">
+          <p id="pr-empty-t">—</p>
+          <button class="btn" id="pr-create" type="button">Create accomplishment report</button>
+        </div>
+
+        <div class="mr-info" id="pr-info" hidden>
+          <label class="mr-in"><span>Panelist name</span><input id="pr-name" type="text" autocomplete="name" placeholder="Your name as it should appear on the report"></label>
+          <label class="mr-in"><span>Period covered</span><input id="pr-period" type="text" placeholder="Week of …"></label>
+          <span class="mr-state" id="pr-state">Draft</span>
+        </div>
+
+        <div class="mr-scroll" id="pr-scroll" hidden>
+          <p class="mr-src" id="pr-stale" hidden>Your score sheet has changed since this report was created.
+             <button class="lnk" id="pr-refresh" type="button">Update from my score sheet</button>
+             <span id="pr-refresh-n"></span></p>
+          <div class="mr-table" role="table" aria-label="Teams evaluated">
+            <div class="mr-head" role="row">
+              <span role="columnheader">Activities for the period</span>
+              <span role="columnheader">Task status</span>
+              <span role="columnheader">Remarks</span>
+            </div>
+            <div id="pr-list"></div>
+          </div>
+        </div>
+
+        <div class="mr-signed" id="pr-signed" hidden></div>
+
+        <div class="sh-foot" id="pr-foot" hidden>
+          <span class="sh-status">
+            <span class="msg" id="pr-msg">—</span>
+            <span class="save-st" id="pr-save" aria-live="polite"></span>
+          </span>
+          <span class="row mr-acts">
+            <button class="btn secondary" id="pr-rebuild" type="button">Rebuild from score sheet</button>
+            <button class="btn secondary" id="pr-dl" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+              Download report</button>
+            <button class="btn" id="pr-up" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>
+              <span id="pr-up-l">Upload signed copy</span></button>
+            <input type="file" id="pr-file" accept="application/pdf,image/*" hidden>
+          </span>
+        </div>
+        <div class="mr-prog" id="pr-prog" hidden><i></i></div>
+      </div>
+    </section>
+
     <!-- asked before an admin changes a panelist's sheet (once per sheet opened) -->
     <div class="confirm" id="sa-confirm" hidden>
       <div class="confirm-box" role="alertdialog" aria-modal="true" aria-labelledby="sa-title" aria-describedby="sa-body">
@@ -522,6 +589,7 @@
 <script src="panelsheets-data.js"></script>
 <script src="scoresheets-data.js"></script>
 <script src="mentorreports-data.js"></script>
+<script src="panelreports-data.js"></script>
 <script src="mentorreport-pdf.js"></script>
 <script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
@@ -2494,6 +2562,409 @@ function initials(n) {
   paintPicker();
   refreshStatus();
   load();
+})();
+
+/* ---------- the panelist's weekly accomplishment report ----------
+   Follows the score sheet on screen (session, panel, panelist). "Create"
+   writes the report from that sheet: one row per team the panelist scored,
+   the score given and what they commented, in report sentences using their
+   own words. The text is then theirs to edit; "Download report" draws the
+   form as a PDF to sign, "Upload signed copy" files it as the submission. */
+(function () {
+  const PR = () => window.STEP_PANELREPORTS;
+  const PS = () => window.STEP_PANELSHEETS;
+  const $ = id => document.getElementById(id);
+  const selS = $("sc-session"), selP = $("sc-panel"), selN = $("sc-panelist");
+  if (!$("prep") || !selS || !PR()) return;
+
+  const scored = F.sessions.filter(s => s.assess.length).concat(F.panelSheets || []);
+  const TW = window.MOCK.thisWeek;
+  /* the practice weeks are stored as -2 / -1 but are called Week S1 / Week S2 */
+  const wk = w => w === -2 ? "S1" : w === -1 ? "S2" : String(w);
+  const REPORT = { title: "SPRINT-STEP PANELISTS ACCOMPLISHMENTS REPORT",
+                   endorsedBy: (F.mentorReport || {}).endorsedBy, endorsedRole: (F.mentorReport || {}).endorsedRole };
+
+  /* ---- dates: the same weeks as the mentors' report ---- */
+  const DAY = 86400000;
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  function periodOf(week) {
+    const w = week == null ? TW.week_no : week;
+    if (window.STEP_SCHEDULE && window.STEP_SCHEDULE.byWeek(w)) return window.STEP_SCHEDULE.periodOf(w);
+    const base = new Date(TW.starts + "T00:00:00");
+    const a = new Date(+base + (w - TW.week_no) * 7 * DAY), b = new Date(+a + 6 * DAY);
+    const A = MONTHS[a.getMonth()] + " " + a.getDate();
+    const B = (a.getMonth() === b.getMonth() ? "" : MONTHS[b.getMonth()] + " ") + b.getDate();
+    return "Week of " + A + "–" + B + ", " + b.getFullYear();
+  }
+
+  /* ---- which sheet is on screen ---- */
+  function ctx() {
+    const S = scored.find(s => s.code === selS.value);
+    const P = F.panels.find(p => p.letter === selP.value) || F.panels[0];
+    const seat = +selN.value;
+    const me = $("sc-me");
+    const noSeat = me && !me.hidden && /No seat assigned/i.test(($("sc-me-name") || {}).textContent || "");
+    if (!S || !P || !seat || noSeat) return null;
+    const opt = selN.options[selN.selectedIndex];
+    return { S, P, seat, panelist: opt ? opt.textContent.trim() : "" };
+  }
+  const keyOf = c => ({ session: c.S.code, seat: c.seat, week_no: c.S.week, panel: c.P.letter });
+
+  /* ---- writing the report from a score sheet ---- */
+  const clean = t => String(t == null ? "" : t).replace(/\s+/g, " ").trim();
+  const lab = a => clean(a.label).replace(/[.:;]+$/, "");
+  const sentence = t => /[.!?…]$/.test(t) ? t : t + ".";
+  function clip(t, n) {
+    t = clean(t);
+    if (t.length <= n) return t;
+    const cut = t.slice(0, n);
+    const end = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("? "), cut.lastIndexOf("! "));
+    return end > n * 0.5 ? cut.slice(0, end + 1) : cut.replace(/\s+\S*$/, "") + "…";
+  }
+  const VERBS = ["commented", "noted", "observed", "pointed out"];
+
+  function remarkFor(S, e) {
+    const crit = S.assess.filter(a => !a.group);
+    const marks = [];
+    let sum = 0;
+    crit.forEach((a, i) => {
+      const v = e.scores && +e.scores[i];
+      if (v) { marks.push({ a, v }); sum += v * (a.weight / 100); }
+    });
+    const all = crit.length > 0 && marks.length === crit.length;
+    const paras = [];
+
+    let p1 = all ? "Scored " + sum.toFixed(2) + " out of 4.00."
+      : marks.length ? "Scored " + marks.length + " of " + crit.length + " criteria (running total " + sum.toFixed(2) + " out of 4.00)."
+      : "";
+    if (marks.length >= 3) {
+      const hi = marks.reduce((m, x) => x.v > m.v ? x : m), lo = marks.reduce((m, x) => x.v < m.v ? x : m);
+      if (hi.v !== lo.v) p1 += " Highest mark: " + lab(hi.a) + " (" + hi.v.toFixed(2) + "); lowest: " + lab(lo.a) + " (" + lo.v.toFixed(2) + ").";
+    }
+    if (p1) paras.push(p1);
+
+    const bits = [];
+    crit.forEach((a, i) => {
+      const n = clean(e.notes && e.notes[i]);
+      if (!n) return;
+      const v = e.scores && +e.scores[i];
+      bits.push("On " + lab(a) + (v ? " (" + v.toFixed(2) + ")" : "") + ", " + VERBS[bits.length % VERBS.length] +
+                ": “" + sentence(clip(n, 240)) + "”");
+    });
+    if (bits.length) paras.push(bits.join(" "));
+
+    const g = clean(e.comment);
+    if (g) paras.push("Overall feedback: “" + sentence(clip(g, 320)) + "”");
+    return { text: paras.join("\n"), done: all, any: marks.length > 0 || paras.length > 0 };
+  }
+
+  /* the version of the score sheet the text came from */
+  const stampOf = teams => {
+    const list = Object.keys(teams || {}).map(k => teams[k]).filter(e => e && (e.updated_at || e.submitted_at));
+    return list.length + "|" + list.map(e => e.updated_at || e.submitted_at).sort().pop();
+  };
+
+  function compose(c, teams) {
+    const rows = [{ lead: true,
+      text: "**Panel " + c.P.letter + " scoring, Week " + wk(c.S.week) + ".** Reviewed and scored the team outputs." }];
+    let n = 0;
+    c.P.teams.forEach(t => {
+      const e = teams[t.team_id || t.team];
+      if (!e) return;
+      const r = remarkFor(c.S, e);
+      if (!r.any) return;
+      n++;
+      rows.push({ team_id: t.team_id || t.team, team: t.team,
+        text: "Evaluated the Week " + wk(c.S.week) + " output of Team " + t.team + (t.at ? " (" + t.at + " slot)" : "") + ".",
+        done: r.done, remark: r.text });
+    });
+    return { rows, teams: n };
+  }
+
+  /* ---- state ---- */
+  let state = null;                 // { c, key, report, stale }
+  let saveT = null, seq = 0, sig = "";
+
+  const NO_SEAT = "Your score sheet needs a panel seat first. Ask the STEP team to assign one.";
+
+  function header(c) {
+    $("pr-code").textContent = c ? "Week " + wk(c.S.week) + " · Panel " + c.P.letter : "Panel report";
+    $("pr-topic").textContent = c ? c.S.title : "—";
+    $("pr-meta").textContent = c ? c.panelist : "";
+  }
+
+  const rich = t => esc(t).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>");
+  function autoGrow(ta) { ta.style.height = "auto"; ta.style.height = Math.max(34, ta.scrollHeight + 2) + "px"; }
+
+  function show(created) {
+    $("pr-empty").hidden = created;
+    ["pr-info", "pr-scroll", "pr-foot"].forEach(id => { $(id).hidden = !created; });
+    if (!created) { $("pr-signed").hidden = true; $("pr-signed").innerHTML = ""; }
+  }
+
+  function drawRows() {
+    const R = state.report.rows;
+    let n = 0;
+    $("pr-list").innerHTML = R.map((r, i) => {
+      if (r.lead) return `<div class="mr-row lead" role="row"><span role="cell">${rich(r.text)}</span></div>`;
+      n++;
+      return `
+      <div class="mr-row${r.done ? " done" : ""}" role="row" data-i="${i}">
+        <span class="mr-task" role="cell"><i class="mr-n">${n}</i><span>${rich(r.text)}</span></span>
+        <span class="mr-stat" role="cell">
+          <button type="button" class="mr-chk" aria-pressed="${r.done ? "true" : "false"}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+            <span>${r.done ? "Done" : "Mark done"}</span>
+          </button>
+        </span>
+        <span class="mr-rem" role="cell">
+          <textarea rows="3" aria-label="Remarks on ${esc(r.team || "team")}">${esc(r.remark || "")}</textarea>
+        </span>
+      </div>`;
+    }).join("");
+    $("pr-list").querySelectorAll("textarea").forEach(autoGrow);
+    status();
+  }
+
+  function status() {
+    const r = state.report;
+    const sub = r.status === "submitted", stale = sub && state.stale;
+    const chip = $("pr-state");
+    chip.className = "mr-state" + (sub ? (stale ? " stale" : " ok") : "");
+    chip.textContent = sub ? (stale ? "Changed since submitted" : "Submitted") : "Draft";
+    const teams = r.rows.filter(x => !x.lead);
+    const done = teams.filter(x => x.done).length;
+    const msg = $("pr-msg");
+    msg.className = "msg" + (teams.length && done === teams.length ? " ok" : "");
+    msg.textContent = teams.length + (teams.length === 1 ? " team" : " teams") + " in the report · " + done + " fully scored";
+    $("pr-up-l").textContent = sub ? "Replace signed copy" : "Upload signed copy";
+    $("pr-stale").hidden = !state.sourceChanged;
+
+    const box = $("pr-signed");
+    if (r.signed && sub) {
+      const when = r.submitted_at ? new Date(r.submitted_at).toLocaleString("en-PH",
+        { timeZone: "Asia/Manila", day: "numeric", month: "short", hour: "numeric", minute: "2-digit" }) : "";
+      const size = r.signed.size ? (r.signed.size / 1048576 >= 1 ? (r.signed.size / 1048576).toFixed(1) + " MB"
+                                                                  : Math.max(1, Math.round(r.signed.size / 1024)) + " KB") : "";
+      box.classList.toggle("stale", !!stale);
+      box.innerHTML = `
+        <span class="mr-sig-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>${stale ? '<path d="M12 11v3"/><path d="M12 17h.01"/>' : '<path d="m9 14 2 2 4-4"/>'}</svg></span>
+        <b>${stale ? "Changed after signing" : "Signed copy submitted"}</b>
+        <em title="${esc(r.signed.name)}">${stale ? "Download again, sign, and replace the copy" : esc(r.signed.name)}</em>
+        <i>${[size, when].filter(Boolean).map(esc).join(" · ")}</i>
+        ${r.signed.url ? `<a class="mr-view" href="${esc(r.signed.url)}" target="_blank" rel="noopener">View</a>` : ""}`;
+      box.title = stale ? "You have changed the report since this copy was signed. Download it again, sign, and replace the copy." : "";
+      box.hidden = false;
+    } else { box.hidden = true; box.innerHTML = ""; }
+  }
+
+  function setSave(t, cls) { const el = $("pr-save"); el.textContent = t || ""; el.className = "save-st" + (cls ? " " + cls : ""); }
+
+  /* the score sheet saves a moment after typing; wait for it before reading */
+  async function sheetSettled() {
+    for (let i = 0; i < 12; i++) {
+      const t = ($("sc-save") || {}).textContent || "";
+      if (!/^(Unsaved|Saving)/i.test(t)) return;
+      await new Promise(r => setTimeout(r, 300));
+    }
+  }
+  async function sheetFor(c) {
+    const res = await PS().load({ session: c.S.code, panel: c.P.letter, seat: c.seat, panelist: c.panelist });
+    return res.teams || {};
+  }
+
+  async function open() {
+    const my = ++seq, c = ctx();
+    state = null;
+    header(c);
+    sig = [selS.value, selP.value, selN.value].join("|");
+    if (!c) { show(false); $("pr-empty-t").textContent = NO_SEAT; $("pr-create").hidden = true; return; }
+    $("pr-create").hidden = false;
+    $("pr-empty-t").textContent = "Loading…"; $("pr-create").disabled = true; show(false);
+    let res, teams;
+    try { [res, teams] = await Promise.all([PR().load(keyOf(c)), sheetFor(c)]); }
+    catch (e) { if (my === seq) { $("pr-empty-t").textContent = e.message || "Could not load this report."; } return; }
+    if (my !== seq) return;
+    const r = res.report;
+    if (!r) {
+      const n = compose(c, teams).teams;
+      $("pr-create").disabled = false;
+      $("pr-empty-t").textContent = n
+        ? n + (n === 1 ? " team" : " teams") + " scored on your Week " + wk(c.S.week) + " sheet. Press Create and the report is written from your scores and comments."
+        : "Nothing is scored on your Week " + wk(c.S.week) + " sheet yet. Score at least one team above, then come back here.";
+      return;
+    }
+    state = { c, key: keyOf(c), report: r,
+              stale: r.status === "submitted" && !!r.updated_at && !!r.submitted_at &&
+                     new Date(r.updated_at) - new Date(r.submitted_at) > 1500,
+              sourceChanged: !!r.source_stamp && r.source_stamp !== stampOf(teams) };
+    $("pr-name").value = r.panelist; $("pr-period").value = r.period;
+    show(true); setSave(res.live ? "" : "Saved in this browser only — sign in to keep it on the STEP Hub.");
+    drawRows();
+  }
+
+  /* ---- create (or rebuild) the report from the score sheet ---- */
+  async function create(rebuild) {
+    const c = ctx(); if (!c) return;
+    const btn = rebuild ? $("pr-rebuild") : $("pr-create");
+    btn.disabled = true;
+    try {
+      await sheetSettled();
+      const teams = await sheetFor(c);
+      const made = compose(c, teams);
+      if (!made.teams) { setSave("Nothing is scored on your sheet yet.", "err"); $("pr-empty-t").textContent = "Nothing is scored on your Week " + wk(c.S.week) + " sheet yet. Score at least one team above, then come back here."; return; }
+      const prev = state && state.report;
+      const report = {
+        panelist: (prev && prev.panelist) || c.panelist, topic: "Week " + wk(c.S.week) + " · " + c.S.title,
+        period: (prev && prev.period) || periodOf(c.S.week), rows: made.rows, source_stamp: stampOf(teams),
+        status: prev ? prev.status : "draft", signed: prev ? prev.signed : null, submitted_at: prev ? prev.submitted_at : null,
+      };
+      const saved = await PR().save(keyOf(c), report);
+      report.updated_at = saved.updated_at;
+      state = { c, key: keyOf(c), report,
+                stale: report.status === "submitted", sourceChanged: false };
+      $("pr-name").value = report.panelist; $("pr-period").value = report.period;
+      show(true); drawRows(); setSave(rebuild ? "Rebuilt from your score sheet" : "Report created", "ok");
+      const sc = $("pr-scroll"); if (sc) sc.scrollTop = 0;
+    } catch (e) { setSave(e.message || "Could not create the report.", "err"); }
+    finally { btn.disabled = false; }
+  }
+  $("pr-create").addEventListener("click", () => create(false));
+
+  /* rebuilding replaces what was edited: the button asks once */
+  let rebT = null;
+  function askRebuild(btn, run, label) {
+    if (btn.dataset.sure) { clearTimeout(rebT); delete btn.dataset.sure; btn.textContent = label; run(); return; }
+    btn.dataset.sure = "1"; btn.textContent = "Replace my edits? Click again";
+    clearTimeout(rebT);
+    rebT = setTimeout(() => { delete btn.dataset.sure; btn.textContent = label; }, 4000);
+  }
+  $("pr-rebuild").addEventListener("click", e => askRebuild(e.currentTarget, () => create(true), "Rebuild from score sheet"));
+  $("pr-refresh").addEventListener("click", () => { if (state) create(true); });
+
+  /* ---- saving edits ---- */
+  function queueSave() {
+    if (!state) return;
+    if (state.report.status === "submitted") state.stale = true;
+    status();
+    clearTimeout(saveT); setSave("Saving…");
+    saveT = setTimeout(doSave, 650);
+  }
+  async function doSave() {
+    const s = state; if (!s) return;
+    try { await PR().save(s.key, s.report); if (s === state) setSave("Saved", "ok"); }
+    catch (e) { if (s === state) setSave(e.message || "Could not save.", "err"); }
+  }
+  $("pr-list").addEventListener("click", e => {
+    const b = e.target.closest(".mr-chk"); if (!b || !state) return;
+    const i = +b.closest(".mr-row").dataset.i, r = state.report.rows[i];
+    r.done = !r.done;
+    b.setAttribute("aria-pressed", r.done ? "true" : "false");
+    b.querySelector("span").textContent = r.done ? "Done" : "Mark done";
+    b.closest(".mr-row").classList.toggle("done", r.done);
+    queueSave();
+  });
+  $("pr-list").addEventListener("input", e => {
+    const ta = e.target.closest("textarea"); if (!ta || !state) return;
+    state.report.rows[+ta.closest(".mr-row").dataset.i].remark = ta.value;
+    autoGrow(ta); queueSave();
+  });
+  $("pr-name").addEventListener("input", () => { if (state) { state.report.panelist = $("pr-name").value; queueSave(); } });
+  $("pr-period").addEventListener("input", () => { if (state) { state.report.period = $("pr-period").value; queueSave(); } });
+
+  /* ---- download: the form, filled in ---- */
+  $("pr-dl").addEventListener("click", () => {
+    if (!state) return;
+    const r = state.report, c = state.c;
+    if (!String(r.panelist || "").trim()) { $("pr-name").focus(); setSave("Add your name first — it goes on the Prepared by line.", "err"); return; }
+    const blob = window.STEP_REPORTPDF.build({
+      title: REPORT.title, nameLabel: "Panelist Name:", topicLabel: "Feedback Session:", teamLabel: "Panel:",
+      colA: "ACTIVITIES / OUTPUTS FOR THE PERIOD",
+      mentor: r.panelist.trim(), team: "Panel " + c.P.letter, topic: r.topic || ("Week " + wk(c.S.week) + " · " + c.S.title),
+      period: r.period,
+      rows: r.rows.map(x => x.lead ? { text: x.text, lead: true } : { text: x.text, done: !!x.done, remark: x.remark || "" }),
+      endorsedBy: REPORT.endorsedBy, endorsedRole: REPORT.endorsedRole,
+      stamp: "Generated from STEP Hub · " + new Date().toLocaleDateString("en-PH", { day: "numeric", month: "long", year: "numeric" }),
+    });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = ((r.period || "Week") + "_STEP PANELISTS ACCOMPLISHMENTS REPORT_" + (r.panelist || "Panelist")).replace(/[\\/:*?"<>|]+/g, "-") + ".pdf";
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    setSave("Downloaded. Sign it, then upload the signed copy.", "ok");
+  });
+
+  /* ---- upload the signed copy ---- */
+  const fileIn = $("pr-file");
+  $("pr-up").addEventListener("click", () => { if (state) fileIn.click(); });
+  fileIn.addEventListener("change", async () => {
+    const f = fileIn.files && fileIn.files[0];
+    fileIn.value = "";
+    if (!f || !state) return;
+    if (!/pdf$|^image\//i.test(f.type) && !/\.(pdf|png|jpe?g)$/i.test(f.name)) {
+      setSave("Upload the signed report as a PDF or a photo (PNG, JPG).", "err"); return;
+    }
+    if (f.size > 25 * 1048576) { setSave("That file is over 25 MB.", "err"); return; }
+    clearTimeout(saveT);
+    const s = state, bar = $("pr-prog"), btn = $("pr-up");
+    btn.disabled = true; bar.hidden = false; bar.firstElementChild.style.width = "0%";
+    setSave("Uploading " + f.name + "…");
+    try {
+      const saved = await PR().submit({ key: s.key, report: s.report, file: f,
+        onProgress: x => { bar.firstElementChild.style.width = Math.round(x * 100) + "%"; } });
+      if (s !== state) return;
+      Object.assign(s.report, { status: saved.status, submitted_at: saved.submitted_at, signed: saved.signed });
+      s.stale = false;
+      setSave("Submitted", "ok");
+      status();
+    } catch (e) { setSave(e.message || "Upload failed.", "err"); }
+    finally { btn.disabled = false; setTimeout(() => { bar.hidden = true; }, 500); }
+  });
+
+  /* the list scrolls inside the card; its bar shows only while scrolling */
+  (function () {
+    const sc = $("pr-scroll"); let t = null;
+    sc.addEventListener("scroll", () => {
+      sc.classList.add("scrolling"); clearTimeout(t);
+      t = setTimeout(() => sc.classList.remove("scrolling"), 900);
+    }, { passive: true });
+  })();
+
+  /* the score sheet saves as the panelist types: keep this section in step with it —
+     before a report exists, the line above the button; after, the "sheet has changed" note */
+  let reT = null;
+  async function refreshFromSheet() {
+    const c = ctx(); if (!c) return;
+    const my = seq;
+    try {
+      const teams = await sheetFor(c);
+      if (my !== seq) return;
+      if (!state) {
+        const n = compose(c, teams).teams;
+        $("pr-empty-t").textContent = n
+          ? n + (n === 1 ? " team" : " teams") + " scored on your Week " + wk(c.S.week) + " sheet. Press Create and the report is written from your scores and comments."
+          : "Nothing is scored on your Week " + wk(c.S.week) + " sheet yet. Score at least one team above, then come back here.";
+      } else {
+        state.sourceChanged = !!state.report.source_stamp && state.report.source_stamp !== stampOf(teams);
+        status();
+      }
+    } catch (e) {}
+  }
+  const sheetSaved = $("sc-save");
+  if (sheetSaved && window.MutationObserver) {
+    new MutationObserver(() => {
+      if (!/^Saved/i.test(sheetSaved.textContent || "")) return;
+      clearTimeout(reT); reT = setTimeout(refreshFromSheet, 1000);
+    }).observe(sheetSaved, { childList: true, characterData: true, subtree: true });
+  }
+
+  /* follow the score sheet: another session, panel or panelist, a new grouping, a new account */
+  const follow = () => { if ([selS.value, selP.value, selN.value].join("|") !== sig) open(); };
+  [selS, selP, selN].forEach(el => el.addEventListener("change", () => setTimeout(follow, 0)));
+  setInterval(follow, 800);
+  window.addEventListener("stephub_roster", () => setTimeout(open, 80));
+  window.addEventListener("stephub_auth_changed", () => setTimeout(open, 200));
+  setTimeout(open, 400);
 })();
 
 /* ---------- reveal on scroll ---------- */

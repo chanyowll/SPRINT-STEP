@@ -12,6 +12,7 @@
    STEP_REPORTPDF.build(d) → Blob, where d = {
      mentor, team, topic, topicLines: [..], period,
      rows: [{ text, lead?, done?, remark? }],   // **bold** allowed in text
+     title?, nameLabel?, topicLabel?, teamLabel?, colA?   // the panelists' report reuses this form with its own wording
      endorsedBy, endorsedRole, stamp }
    ===================================================================== */
 
@@ -176,18 +177,18 @@
     const BOTTOM = PH - 56;
 
     /* title */
-    const title = 'SPRINT-STEP MENTORS ACCOMPLISHMENTS REPORT';
+    const title = d.title || 'SPRINT-STEP MENTORS ACCOMPLISHMENTS REPORT';
     doc.text(title, (PW - textW(title, 10.5, true)) / 2, 88, 10.5, true);
 
     /* header box */
     const HS = 10, HL = 13.2, PAD = 9;
     const left = [];
-    wrap('**Mentor Name:** ' + (d.mentor || ''), MID - L - 2 * PAD, HS).forEach(l => left.push(l));
-    left.push([{ t: 'Learning Session Topic:', b: true }]);
+    wrap('**' + (d.nameLabel || 'Mentor Name:') + '** ' + (d.mentor || ''), MID - L - 2 * PAD, HS).forEach(l => left.push(l));
+    left.push([{ t: d.topicLabel || 'Learning Session Topic:', b: true }]);
     wrap(d.topic || '', MID - L - 2 * PAD, HS).forEach(l => left.push(l));
     (d.topicLines || []).forEach(t => wrap(t, MID - L - 2 * PAD, HS).forEach(l => left.push(l)));
     const right = [];
-    wrap('**Mentee:** ' + (d.team || ''), R - MID - 2 * PAD, HS).forEach(l => right.push(l));
+    wrap('**' + (d.teamLabel || 'Mentee:') + '** ' + (d.team || ''), R - MID - 2 * PAD, HS).forEach(l => right.push(l));
     right.push([]);
     wrap('**Period Covered:** ' + (d.period || ''), R - MID - 2 * PAD, HS).forEach(l => right.push(l));
     const hTop = 106;
@@ -202,7 +203,7 @@
     const th = 74;
     doc.rect(L, y, R - L, th);
     doc.line(C2, y, C2, y + th); doc.line(C3, y, C3, y + th);
-    wrap('PLANNED ACTIVITIES / OUTPUTS FOR THE PERIOD', C2 - C1 - 16, 10.5, true)
+    wrap(d.colA || 'PLANNED ACTIVITIES / OUTPUTS FOR THE PERIOD', C2 - C1 - 16, 10.5, true)
       .forEach((l, i) => doc.runs(l, C1 + 8, y + 22 + i * 14, 10.5));
     const ts = 'TASK STATUS';
     doc.text(ts, C2 + (C3 - C2 - textW(ts, 10.5, true)) / 2, y + 22, 10.5, true);
