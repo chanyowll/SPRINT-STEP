@@ -387,72 +387,6 @@
          across the panel.</p>
     </section>
 
-    <!-- the panelist's weekly accomplishment report: built from the score sheet above,
-         then edited here, downloaded to sign, and uploaded back signed -->
-    <section class="mt-7" id="pr-sec">
-      <div class="section-head">
-        <div class="eyebrow">Weekly accomplishment report</div>
-        <h2>Your accomplishment report</h2>
-        <p class="lede">Score your teams above, then press Create. The report is written from the scores and
-           comments on your score sheet. Edit anything you like, download it to sign, and upload the signed
-           copy as your submission.</p>
-      </div>
-
-      <div class="mrep" id="prep">
-        <div class="sh-top">
-          <div class="sh-tx">
-            <div class="sh-code" id="pr-code">—</div>
-            <h3 id="pr-topic">—</h3>
-            <div class="sh-meta" id="pr-meta">—</div>
-          </div>
-        </div>
-
-        <div class="pr-empty" id="pr-empty">
-          <p id="pr-empty-t">—</p>
-          <button class="btn" id="pr-create" type="button">Create accomplishment report</button>
-        </div>
-
-        <div class="mr-info" id="pr-info" hidden>
-          <label class="mr-in"><span>Panelist name</span><input id="pr-name" type="text" autocomplete="name" placeholder="Your name as it should appear on the report"></label>
-          <label class="mr-in"><span>Period covered</span><input id="pr-period" type="text" placeholder="Week of …"></label>
-          <span class="mr-state" id="pr-state">Draft</span>
-        </div>
-
-        <div class="mr-scroll" id="pr-scroll" hidden>
-          <p class="mr-src" id="pr-stale" hidden>Your score sheet has changed since this report was created.
-             <button class="lnk" id="pr-refresh" type="button">Update from my score sheet</button>
-             <span id="pr-refresh-n"></span></p>
-          <div class="mr-table" role="table" aria-label="Teams evaluated">
-            <div class="mr-head" role="row">
-              <span role="columnheader">Activities for the period</span>
-              <span role="columnheader">Task status</span>
-              <span role="columnheader">Remarks</span>
-            </div>
-            <div id="pr-list"></div>
-          </div>
-        </div>
-
-        <div class="mr-signed" id="pr-signed" hidden></div>
-
-        <div class="sh-foot" id="pr-foot" hidden>
-          <span class="sh-status">
-            <span class="msg" id="pr-msg">—</span>
-            <span class="save-st" id="pr-save" aria-live="polite"></span>
-          </span>
-          <span class="row mr-acts">
-            <button class="btn secondary" id="pr-rebuild" type="button">Rebuild from score sheet</button>
-            <button class="btn secondary" id="pr-dl" type="button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
-              Download report</button>
-            <button class="btn" id="pr-up" type="button">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>
-              <span id="pr-up-l">Upload signed copy</span></button>
-            <input type="file" id="pr-file" accept="application/pdf,image/*" hidden>
-          </span>
-        </div>
-        <div class="mr-prog" id="pr-prog" hidden><i></i></div>
-      </div>
-    </section>
 
     <!-- asked before an admin changes a panelist's sheet (once per sheet opened) -->
     <div class="confirm" id="sa-confirm" hidden>
@@ -545,6 +479,73 @@
         <label class="fld" style="max-width:320px;margin-top:14px"><span>Grouping for</span><select id="pnl-week"></select></label>
       </div>
       <div class="pgrid" id="pnl-grid"></div>
+    </section>
+
+    <!-- the panelist's weekly accomplishment report: built from the score sheet above,
+         then edited here, downloaded to sign, and uploaded back signed -->
+    <section class="mt-7" id="pr-sec">
+      <div class="section-head">
+        <div class="eyebrow">Weekly accomplishment report</div>
+        <h2>Your accomplishment report</h2>
+        <p class="lede">Score your teams above, then press Create. The report is written from the scores and
+           comments on your score sheet. Edit anything you like, download it to sign, and upload the signed
+           copy as your submission.</p>
+      </div>
+
+      <div class="mrep" id="prep">
+        <div class="sh-top">
+          <div class="sh-tx">
+            <div class="sh-code" id="pr-code">—</div>
+            <h3 id="pr-topic">—</h3>
+            <div class="sh-meta" id="pr-meta">—</div>
+          </div>
+        </div>
+
+        <div class="pr-empty" id="pr-empty">
+          <p id="pr-empty-t">—</p>
+          <button class="btn" id="pr-create" type="button">Create accomplishment report</button>
+        </div>
+
+        <div class="mr-info" id="pr-info" hidden>
+          <label class="mr-in"><span>Panelist name</span><input id="pr-name" type="text" autocomplete="name" placeholder="Your name as it should appear on the report"></label>
+          <label class="mr-in"><span>Period covered</span><input id="pr-period" type="text" placeholder="Week of …"></label>
+          <span class="mr-state" id="pr-state">Draft</span>
+        </div>
+
+        <div class="mr-scroll" id="pr-scroll" hidden>
+          <p class="mr-src" id="pr-stale" hidden>Your score sheet has changed since this report was created.
+             <button class="lnk" id="pr-refresh" type="button">Update from my score sheet</button>
+             <span id="pr-refresh-n"></span></p>
+          <div class="mr-table" role="table" aria-label="Teams evaluated">
+            <div class="mr-head" role="row">
+              <span role="columnheader">Activities for the period</span>
+              <span role="columnheader">Task status</span>
+              <span role="columnheader">Remarks</span>
+            </div>
+            <div id="pr-list"></div>
+          </div>
+        </div>
+
+        <div class="mr-signed" id="pr-signed" hidden></div>
+
+        <div class="sh-foot" id="pr-foot" hidden>
+          <span class="sh-status">
+            <span class="msg" id="pr-msg">—</span>
+            <span class="save-st" id="pr-save" aria-live="polite"></span>
+          </span>
+          <span class="row mr-acts">
+            <button class="btn secondary" id="pr-rebuild" type="button">Rebuild from score sheet</button>
+            <button class="btn secondary" id="pr-dl" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/></svg>
+              Download report</button>
+            <button class="btn" id="pr-up" type="button">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/></svg>
+              <span id="pr-up-l">Upload signed copy</span></button>
+            <input type="file" id="pr-file" accept="application/pdf,image/*" hidden>
+          </span>
+        </div>
+        <div class="mr-prog" id="pr-prog" hidden><i></i></div>
+      </div>
     </section>
 
   </div>
