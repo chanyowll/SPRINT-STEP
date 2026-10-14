@@ -3028,7 +3028,7 @@ table.fgrid td.money .fin { letter-spacing: .01em; }
              background: var(--blue-100); border-radius: 6px; padding: 4px 8px; }
 .cdef { display: flex; gap: 9px; align-items: flex-start; width: 100%; text-align: left; font: inherit;
         background: none; border: 0; padding: 3px 0; margin: 0; cursor: pointer; border-radius: 6px; }
-.cdef-t { flex: 1 1 auto; font-size: 13.5px; line-height: 1.42; color: var(--ink); }
+.cdef-t { flex: 1 1 auto; font-size: 14.5px; line-height: 1.42; color: var(--ink); }
 .cdef-ic { flex: none; width: 24px; height: 24px; border-radius: 7px; display: grid; place-items: center;
            color: #c3ced8; background: transparent; transition: color .16s ease, background .16s ease; }
 .cdef-ic svg { width: 14px; height: 14px; }
@@ -3232,7 +3232,7 @@ table.fgrid td.money .fin { letter-spacing: .01em; }
   .sheet2 .tmb { padding: 6px 12px 6px 8px; }
   .sheet2 .crit { padding: 6px var(--s5); }
   .sheet2 .crow2 { padding: 5px 0; }
-  .sheet2 .crow2 p, .sheet2 .cdef-t { font-size: 13px; line-height: 1.4; }
+  .sheet2 .crow2 p, .sheet2 .cdef-t { font-size: 14px; line-height: 1.4; }
   .sheet2 .pnote { height: 48px; }
   .sheet2 .cgrp { margin: 4px 0 1px; padding: 5px var(--s4); font-size: 12px; }
   .sheet2 .tmside { padding: 11px; gap: 9px; }
@@ -4576,7 +4576,7 @@ body.modal-open { overflow: hidden; }
 .sheet2 .cgrp { background: #f3e9d2; }
 
 /* what to look for under a criterion, straight from the STEP 2 score sheet */
-.cdef-h { display: block; white-space: pre-line; margin-top: 3px; font-size: 12px; line-height: 1.45; font-weight: 400; color: var(--ink-soft); }
+.cdef-h { display: block; white-space: pre-line; margin-top: 3px; font-size: 13px; line-height: 1.45; font-weight: 400; color: var(--ink-soft); }
 .crow2.set .cdef-h { font-weight: 400; color: var(--ink-soft); }
 .cass-h { display: block; white-space: pre-line; margin-top: 2px; font-size: 12px; line-height: 1.45; color: var(--ink-soft); }
 
