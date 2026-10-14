@@ -526,6 +526,7 @@
 <script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script src="cal-data.js"></script>
+<script src="deck-viewer.js"></script>
 <script>
 const F = window.MOCK.faculty;
 const G = window.MOCK.groups;
@@ -2429,6 +2430,7 @@ function initials(n) {
 
   function showEmpty(title, sub) {
     vid.pause(); vid.removeAttribute("src"); vid.load();
+    window.StepDeck.stop(document.getElementById("po-deck"));
     document.getElementById("po-deck").innerHTML = "";
     document.getElementById("po-empty-t").textContent = title;
     document.getElementById("po-empty-s").textContent = sub;
@@ -2466,13 +2468,18 @@ function initials(n) {
     const deck = document.getElementById("po-deck"), dl = document.getElementById("po-dl");
     if (d && d.url) {
       const isPdf = /\.pdf$/i.test(d.name || "") || d.type === "application/pdf";
-      deck.innerHTML = isPdf
-        ? `<iframe src="${d.url}#toolbar=0&view=FitH" title="${esc(name)}\u2019s slide deck"></iframe>`
-        : `<div class="od-none"><b>${esc(((d.name || "file").split(".").pop() || "file").toUpperCase())}</b>
+      if (isPdf) {
+        /* every slide shown whole; scroll inside the box for the next one */
+        window.StepDeck.mount(deck, d.url, { title: name + "\u2019s slide deck" });
+      } else {
+        window.StepDeck.stop(deck);
+        deck.innerHTML = `<div class="od-none"><b>${esc(((d.name || "file").split(".").pop() || "file").toUpperCase())}</b>
              <span>Preview opens in your slides app</span></div>`;
+      }
       document.getElementById("po-dcap").textContent = d.name + (d.size ? " · " + size(d.size) : "");
       dl.href = d.url; dl.setAttribute("download", d.name); dl.hidden = false;
     } else {
+      window.StepDeck.stop(deck);
       deck.innerHTML = `<div class="od-none"><b>—</b><span>No slide deck submitted</span></div>`;
       document.getElementById("po-dcap").textContent = "—";
       dl.hidden = true;

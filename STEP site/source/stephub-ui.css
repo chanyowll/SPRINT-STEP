@@ -6326,3 +6326,14 @@ body.on-cal .site-footer { display: none; }
 .cap-here { display: inline-flex; align-items: center; gap: 4px; margin-left: 10px; font-size: 12px; color: var(--ink-soft, #5b6b7a); }
 .cap-here i { font-style: normal; display: inline-grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
   background: #0b3c6b; color: #fff; font-size: 10px; font-weight: 700; letter-spacing: .02em; }
+
+
+/* Deck viewer: every slide shown whole inside the preview box; scrolling the box moves to the next slide */
+.od-prev .dk-scroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scroll-snap-type: y mandatory;
+  overscroll-behavior: contain; scrollbar-width: thin; outline-offset: -2px; }
+.dk-pg { height: 100%; box-sizing: border-box; padding: 8px; scroll-snap-align: start; scroll-snap-stop: always; display: grid; place-items: center; }
+.dk-pg + .dk-pg { border-top: 1px solid var(--line-soft); }
+.dk-pg canvas { width: 100%; height: 100%; object-fit: contain; display: block; }
+.dk-badge { position: absolute; right: 12px; bottom: 10px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700;
+  background: rgba(16, 32, 48, .78); color: #fff; pointer-events: none; font-variant-numeric: tabular-nums; }
+@media (prefers-reduced-motion: no-preference) { .od-prev .dk-scroll { scroll-behavior: smooth; } }

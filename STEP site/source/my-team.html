@@ -444,6 +444,7 @@
 <script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script src="cal-data.js"></script>
+<script src="deck-viewer.js"></script>
 <script>
 const MAXS = 4;
 const fx2 = n => Number(n).toFixed(2);
@@ -1425,18 +1426,13 @@ window.__renderMyTeam = function(targetTeamId) {
       const isPdf = /\.pdf$/i.test(d.name || "") || d.type === "application/pdf";
       const tok = (paintOutput.n = (paintOutput.n || 0) + 1);
       if (isPdf && d.url) {
-        /* the browser's own PDF viewer won't fit a whole page, so the first
-           slide is drawn here and shown whole: scaled to fit, never stretched */
-        prev.innerHTML = `<div class="od-none"><span>Loading the first slide…</span></div>`;
-        firstSlide(d.url, prev.clientWidth || 600).then(src => {
-          if (tok === paintOutput.n) prev.innerHTML = `<img class="od-slide" src="${src}" alt="First slide of ${esc(d.name || "the deck")}">`;
-        }).catch(() => {
-          if (tok === paintOutput.n) prev.innerHTML = `<iframe src="${d.url}#toolbar=0&view=FitH" title="The team's slide deck"></iframe>`;
-        });
-      } else prev.innerHTML = `<div class="od-none">
+        /* every slide shown whole (scaled to fit, never stretched); scroll
+           inside the box for the next slide */
+        window.StepDeck.mount(prev, d.url, { title: "The team's slide deck" });
+      } else { window.StepDeck.stop(prev); prev.innerHTML = `<div class="od-none">
              <b>${esc(((d.name || "file").split(".").pop() || "file").toUpperCase())}</b>
              <span>Preview opens in your slides app</span>
-           </div>`;
+           </div>`; }
       document.getElementById("out-title").textContent =
         C.canSubmit ? "Your output is in" : C.teamShort + " handed this in";
       document.getElementById("out-when").textContent =
@@ -1546,7 +1542,7 @@ window.__renderMyTeam = function(targetTeamId) {
       const C = subBtn._ctx;
       const vid = document.getElementById("out-video");
       vid.pause(); vid.removeAttribute("src"); vid.load();
-      document.getElementById("out-deck").innerHTML = "";
+      if (window.StepDeck) window.StepDeck.stop(document.getElementById("out-deck")); document.getElementById("out-deck").innerHTML = "";
       freeUrls();
       try { if (SUB() && await SUB().isLive()) await SUB().clearWeek(C.teamId, C.sub.week); } catch (e) {}
       if (window.__refreshMyTeamLive) setTimeout(() => window.__refreshMyTeamLive(C.teamId), 0);

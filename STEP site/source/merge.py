@@ -376,6 +376,7 @@ page = f"""<!doctype html>
 <script src="mock-data.js"></script>
 <script src="tech-access.js"></script>
 <script src="cal-data.js"></script>
+<script src="deck-viewer.js"></script>
 <script src="live-refresh.js"></script>
 <script>
 {observer}
