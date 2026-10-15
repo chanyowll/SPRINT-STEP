@@ -171,5 +171,13 @@
     };
   }
 
-  window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, subscribe };
+  /** Who is in a room (supabase/chat_members.sql): [{ name, initials, role, role_label, staff, joined, team_id, teams }].
+      The database applies the room rule, so only a member of the room gets the list. */
+  async function members(room) {
+    const { data, error } = await client().rpc('chat_room_members', { p_room: room || 'fam' });
+    if (error) throw new Error(error.message);
+    return Array.isArray(data) ? data : [];
+  }
+
+  window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, members, subscribe };
 })();

@@ -708,8 +708,15 @@
             <h3 id="ch-title">STEP Fam · the whole cohort</h3>
             <p><i class="live" aria-hidden="true"></i><span id="ch-count">—</span></p>
           </div>
-          <span class="ch-faces" id="ch-faces" aria-hidden="true"></span>
+          <button type="button" class="ch-members" id="ch-members" aria-expanded="false" aria-controls="ch-mlist" title="Who is in this room">
+            <span class="ch-faces" id="ch-faces" aria-hidden="true"></span>
+            <span class="ch-mt">Members</span>
+          </button>
         </header>
+        <div class="ch-mlist" id="ch-mlist" hidden>
+          <div class="ch-mh"><b id="ch-mh-t">Members</b><button type="button" class="ch-mx" id="ch-mx" aria-label="Close the member list">&times;</button></div>
+          <div class="ch-mb" id="ch-mb"></div>
+        </div>
         <button class="ch-pin" id="ch-pin" type="button" hidden></button>
         <div class="thread" id="thread"></div>
         <div class="msg-menu" id="msg-menu" role="menu" hidden></div>
@@ -3573,7 +3580,15 @@
     };
   }
 
-  window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, subscribe };
+  /** Who is in a room (supabase/chat_members.sql): [{ name, initials, role, role_label, staff, joined, team_id, teams }].
+      The database applies the room rule, so only a member of the room gets the list. */
+  async function members(room) {
+    const { data, error } = await client().rpc('chat_room_members', { p_room: room || 'fam' });
+    if (error) throw new Error(error.message);
+    return Array.isArray(data) ? data : [];
+  }
+
+  window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, members, subscribe };
 })();
 
 </script>
@@ -9144,12 +9159,59 @@ const daysAway = iso => {
   let members = 48;
   function setCount(text) { const c = document.getElementById("ch-count"); if (c) c.textContent = text; }
 
+  /* ---- Members: who is in the room on screen (supabase/chat_members.sql) ---- */
+  (function membersPanel() {
+    const btn = document.getElementById("ch-members"), panel = document.getElementById("ch-mlist"),
+          body = document.getElementById("ch-mb"), head = document.getElementById("ch-mh-t");
+    if (!btn || !panel) return;
+    const cache = {};                                        // room -> { at, rows }
+    const SECTION = [["staff", "STEP Team"], ["facilitator", "Facilitator"], ["mentor", "Mentor"], ["trainer", "Trainers"],
+                     ["panel", "Panelists"], ["dost", "DOST-PCIEERD"], ["participant", "Participants"], ["other", "Others"]];
+    const sectionOf = m => m.staff ? "staff" : (SECTION.some(([k]) => k === m.role) ? m.role : "other");
+    const teamName = id => { const G = (window.MOCK && window.MOCK.groups) || []; const g = G.find(x => x.id === id); return g ? (g.short || g.name) : id; };
+    const label = m => {
+      if (m.role_label) return m.role_label;
+      const r = m.staff ? "STEP Team" : (m.role || "").replace(/^./, c => c.toUpperCase());
+      const t = m.team_id ? teamName(m.team_id) : (m.teams || []).map(teamName).join(" & ");
+      return t ? r + " (" + t + ")" : r;
+    };
+    function draw(rows) {
+      const n = rows.length, joined = rows.filter(m => m.joined).length;
+      head.textContent = n + (n === 1 ? " member" : " members") + (joined < n ? " · " + (n - joined) + " not yet signed up" : "");
+      const groups = {};
+      rows.forEach(m => { const k = sectionOf(m); (groups[k] = groups[k] || []).push(m); });
+      body.innerHTML = SECTION.filter(([k]) => groups[k]).map(([k, title]) => `
+        <div class="ch-msec"><span class="ch-mst">${esc(k === "mentor" && groups[k].length > 1 ? "Mentors" : k === "facilitator" && groups[k].length > 1 ? "Facilitators" : title)}</span>
+          ${groups[k].map(m => `<div class="ch-mrow${m.joined ? "" : " off"}">
+            <span class="av">${esc(m.initials || initials(m.name || ""))}</span>
+            <span class="who"><b>${esc(m.name || "")}</b><small>${esc(label(m))}${m.joined ? "" : " · not yet signed up"}</small></span>
+          </div>`).join("")}
+        </div>`).join("") || `<p class="ch-mnone">No one is in this room yet.</p>`;
+    }
+    async function open() {
+      panel.hidden = false; btn.setAttribute("aria-expanded", "true");
+      if (!live) { head.textContent = "Members"; body.innerHTML = `<p class="ch-mnone">Sign in with your STEP account to see who is in this room.</p>`; return; }
+      const r = ROOM, c = cache[r];
+      if (c && Date.now() - c.at < 60000) { draw(c.rows); return; }
+      head.textContent = "Members"; body.innerHTML = `<p class="ch-mnone">Loading…</p>`;
+      try { const rows = await CH.members(r); if (r !== ROOM) return; cache[r] = { at: Date.now(), rows }; draw(rows); }
+      catch (e) { if (r === ROOM) body.innerHTML = `<p class="ch-mnone">Couldn't load the list: ${esc(e.message || e)}</p>`; }
+    }
+    function close() { panel.hidden = true; btn.setAttribute("aria-expanded", "false"); }
+    btn.addEventListener("click", () => { panel.hidden ? open() : close(); });
+    document.getElementById("ch-mx").addEventListener("click", close);
+    document.addEventListener("click", e => { if (!panel.hidden && !panel.contains(e.target) && !btn.contains(e.target)) close(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !panel.hidden) close(); });
+    window.__gcCloseMembers = close;
+  })();
+
   /* ---- switching rooms (from the list on the left) ---- */
   let roomSeq = 0;
   window.__gcRoom = () => ROOM;
   window.__gcOpenRoom = async function (id, meta) {
     if (id === ROOM) return;
     ROOM = id; META = id === "fam" ? null : meta; editingId = null; unstage();
+    if (window.__gcCloseMembers) window.__gcCloseMembers();
     document.getElementById("ch-title").textContent = roomMeta().title;
     setCount(id === "fam" ? famCount() : meta.count);
     if (!box.disabled) box.placeholder = roomMeta().ph;
@@ -9381,8 +9443,8 @@ const daysAway = iso => {
               ph: "Message " + g.name + ", or paste a screenshot…" } }));
     teams().forEach(t => { const n = "Team " + (t.short || t.name);
       list.push({ id: "team:" + t.id, kind: "team", name: n, icon: esc(String(t.short || t.name).slice(0, 2).toUpperCase()),
-        meta: { title: n, count: "Only the team, its mentor and the STEP team", note: "Only " + n + ", its mentor and the STEP team can see this room.",
-                empty: "Start the conversation. Only " + n + ", its mentor and the STEP team will see it.",
+        meta: { title: n, count: "Only the team, its facilitator and mentor, and the STEP team", note: "Only " + n + ", its facilitator and mentor, and the STEP team can see this room.",
+                empty: "Start the conversation. Only " + n + ", its facilitator and mentor, and the STEP team will see it.",
                 ph: "Message " + n + ", or paste a screenshot…" } }); });
     return list;
   }
