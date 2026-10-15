@@ -1212,6 +1212,8 @@ window.MOCK = (function () {
               </button>
               <button type="button" class="auth-link" id="pw-forgot" onclick="window.MOCK._showForgot()"
                       style="background:none;border:0;padding:4px 0 0;font:inherit;font-size:13px;color:var(--blue);cursor:pointer;text-align:left;text-decoration:underline;">Forgot your password?</button>
+              <button type="button" class="auth-link" id="su-open" onclick="window.MOCK._showSignup()"
+                      style="background:none;border:0;padding:0;font:inherit;font-size:13px;color:var(--blue);cursor:pointer;text-align:left;text-decoration:underline;">First time here? Create your account</button>
             </form>
             <form id="forgot-form" onsubmit="window.MOCK._doForgot(event)" style="display:none;flex-direction:column;gap:12px;">
               <p style="font-size:13.5px;color:var(--ink-soft);margin:0;">Enter the email you signed up with. We will send a link that lets you set a new password.</p>
@@ -1220,6 +1222,18 @@ window.MOCK = (function () {
                 <input type="email" id="forgot-email" required placeholder="you@example.com" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
               <button type="submit" class="btn solid" id="forgot-btn" style="width:100%;margin-top:4px;">Send reset link</button>
               <button type="button" onclick="window.MOCK._showForgot(false)" style="background:none;border:0;padding:0;font:inherit;font-size:13px;color:var(--blue);cursor:pointer;text-decoration:underline;">Back to sign in</button>
+            </form>
+            <form id="signup-form" onsubmit="window.MOCK._doSignUp(event)" style="display:none;flex-direction:column;gap:12px;">
+              <p style="font-size:13.5px;color:var(--ink-soft);margin:0;">Use the email address the STEP team registered for you, then choose a password. Only registered emails can create an account.</p>
+              <div id="signup-msg" style="display:none;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+              <label style="font-size:13px;font-weight:500;color:var(--navy);">Email
+                <input type="email" id="signup-email" required autocomplete="email" placeholder="you@example.com" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+              <label style="font-size:13px;font-weight:500;color:var(--navy);">Password
+                <input type="password" id="signup-pw" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+              <label style="font-size:13px;font-weight:500;color:var(--navy);">Confirm password
+                <input type="password" id="signup-pw2" required minlength="8" autocomplete="new-password" placeholder="Type it again" style="width:100%;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px;margin-top:4px;box-sizing:border-box;"></label>
+              <button type="submit" class="btn solid" id="signup-btn" style="width:100%;margin-top:4px;">Create account</button>
+              <button type="button" onclick="window.MOCK._showSignup(false)" style="background:none;border:0;padding:0;font:inherit;font-size:13px;color:var(--blue);cursor:pointer;text-decoration:underline;text-align:left;">Back to sign in</button>
             </form>
           `}
 
@@ -1411,6 +1425,51 @@ window.MOCK = (function () {
     btn.disabled = false; btn.textContent = "Send reset link";
     if (error) { _note("forgot-msg", error.message || "Couldn't send the link.", true); return; }
     _note("forgot-msg", "If " + email + " has a STEP account, a reset link is on its way. Check your inbox (and spam) and open the link on this device.");
+  }
+  function _showSignup(on) {
+    const login = document.getElementById("stephub-login-form"), forgot = document.getElementById("forgot-form"), su = document.getElementById("signup-form");
+    if (!login || !su) return;
+    const show = on !== false;
+    login.style.display = show ? "none" : "flex"; su.style.display = show ? "flex" : "none";
+    if (forgot) forgot.style.display = "none";
+    if (show) { const em = document.getElementById("login-email"), se = document.getElementById("signup-email"); if (em && em.value && !se.value) se.value = em.value; se.focus(); }
+  }
+  /* First-time account: only an email the STEP team has registered is accepted.
+     The refusal comes from the database (the invite-only sign-up rule), not from this page. */
+  async function _doSignUp(e) {
+    e.preventDefault();
+    const email = document.getElementById("signup-email").value.trim(), a = document.getElementById("signup-pw").value, b = document.getElementById("signup-pw2").value;
+    const btn = document.getElementById("signup-btn");
+    if (!email) return;
+    if (!window.STEP_SUPABASE || !window.STEP_SUPABASE.isOnline()) { _note("signup-msg", "Not connected — try again in a moment.", true); return; }
+    const bad = a.length < 8 ? "Use at least 8 characters for the password." : a !== b ? "The two passwords do not match." : "";
+    if (bad) { _note("signup-msg", bad, true); return; }
+    btn.disabled = true; btn.textContent = "Creating your account…"; _note("signup-msg", "");
+    const reset = () => { btn.disabled = false; btn.textContent = "Create account"; };
+    let res;
+    try { res = await window.STEP_SUPABASE.signUp(email, a, ""); } catch (err) { res = { error: { message: String((err && err.message) || err) } }; }
+    const { data, error } = res || {};
+    if (error) {
+      const m = String(error.message || "");
+      reset();
+      if (/already registered|already been registered/i.test(m)) _note("signup-msg", email + " already has an account. Go back and sign in, or use “Forgot your password?”.", true);
+      else if (/database error|not been given access|not.*invited/i.test(m)) _note("signup-msg", "This email has not been registered for STEP Hub. Use the exact email address the STEP team has on file for you.", true);
+      else if (/rate limit|too many/i.test(m)) _note("signup-msg", "Too many tries. Wait a few minutes and try again.", true);
+      else _note("signup-msg", m || "Couldn't create the account.", true);
+      return;
+    }
+    /* an address that already has an account comes back without an error and without any identity */
+    if (data && data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      reset(); _note("signup-msg", email + " already has an account. Go back and sign in, or use “Forgot your password?”.", true); return;
+    }
+    if (data && data.session) {
+      /* signed straight in: carry on through the normal sign-in so the page loads as this person */
+      document.getElementById("login-email").value = email; document.getElementById("login-password").value = a;
+      _showSignup(false);
+      return _doSignIn({ preventDefault() {} });
+    }
+    reset(); btn.disabled = true;
+    _note("signup-msg", "Account created. We sent a confirmation link to " + email + ". Open it, then come back and sign in with your password.");
   }
   async function _doRecover(e) {
     e.preventDefault();
@@ -1616,7 +1675,7 @@ window.MOCK = (function () {
     get teamWork() { return getTeamWork(); },
     get capstone() { return getCapstone(); },
     openAuthModal,
-    _doChangePassword, _showForgot, _doForgot, _doRecover,
+    _doChangePassword, _showForgot, _doForgot, _doRecover, _showSignup, _doSignUp,
     closeAuthModal,
     /* true only for a real STEP account — the page then shows real data */
     isLiveUser: () => !!_liveUser,
