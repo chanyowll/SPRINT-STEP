@@ -41,6 +41,9 @@ a { color: var(--blue); }
 
 /* ---------- frame ---------- */
 .app { display: grid; grid-template-columns: 244px minmax(0, 1fr); min-height: 100vh; }
+/* the whole console at 70% so more of it shows without scrolling; heights are divided by the zoom so it still fills the window */
+.app { zoom: .7; min-height: calc(100vh / .7); }
+.side { height: calc(100vh / .7); }
 .side { background: var(--side); color: var(--side-ink); display: flex; flex-direction: column; position: sticky; top: 0; height: 100vh; }
 .side-head { display: flex; align-items: center; gap: 10px; padding: 18px 18px 16px; border-bottom: 1px solid var(--side-2); }
 .side-head img { width: 34px; height: 34px; object-fit: contain; }
