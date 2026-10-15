@@ -2301,12 +2301,12 @@ function initials(n) {
     }
     clearTimeout(clearArmed); clearArmed = null;
     btnClear.textContent = "Clear sheet"; btnClear.classList.remove("armed");
-    Object.keys(timers).forEach(t => clearTimeout(timers[t])); pending.clear();
+    { const cn = P.teams[cur].team; clearTimeout(timers[cn]); delete timers[cn]; pending.delete(cn); }
     try {
       await PS().clear(key);
       marks = {}; notes = {}; pnotes = {}; meta = {}; openRow = -1;
       drawTabs(); drawBody();
-      setSave("Sheet cleared", "ok");
+      setSave(P.teams[cur].team + " cleared", "ok");
     } catch (err) {
       setSave("Could not clear: " + (err && err.message ? err.message : err), "err");
     }

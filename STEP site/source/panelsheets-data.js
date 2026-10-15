@@ -112,13 +112,16 @@
   }
 
   /** Wipe this panelist's sheet for this session and panel. */
-  async function clear(k) {
+  async function clear(k, teamId) {
     if (await isLive()) {
-      const { error } = await client().from(TABLE).delete()
+      let q = client().from(TABLE).delete()
         .eq('session_code', k.session).eq('seat', k.seat);
+      if (teamId) q = q.eq('team_id', teamId);
+      const { error } = await q;
       if (error) throw new Error(error.message);
       return;
     }
+    if (teamId) { const all = lsRead(k); delete all[teamId]; lsWrite(k, all); return; }
     try { localStorage.removeItem(sheetKey(k)); } catch (e) {}
   }
 

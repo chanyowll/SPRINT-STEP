@@ -6366,3 +6366,6 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 
 /* Criterion titles look the same scored or not: the weight and colour they take once a score is in */
 .cdef-t { font-weight: 550; color: var(--navy); }
+
+.tm-tabs, .sheet2 .tm-tabs { scrollbar-width: none; }
+.tm-tabs::-webkit-scrollbar, .sheet2 .tm-tabs::-webkit-scrollbar { display: none; height: 0; }
