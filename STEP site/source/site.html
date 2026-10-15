@@ -3885,13 +3885,16 @@
   }
 
   /** Wipe this panelist's sheet for this session and panel. */
-  async function clear(k) {
+  async function clear(k, teamId) {
     if (await isLive()) {
-      const { error } = await client().from(TABLE).delete()
+      let q = client().from(TABLE).delete()
         .eq('session_code', k.session).eq('seat', k.seat);
+      if (teamId) q = q.eq('team_id', teamId);
+      const { error } = await q;
       if (error) throw new Error(error.message);
       return;
     }
+    if (teamId) { const all = lsRead(k); delete all[teamId]; lsWrite(k, all); return; }
     try { localStorage.removeItem(sheetKey(k)); } catch (e) {}
   }
 
@@ -14099,12 +14102,12 @@ function initials(n) {
     }
     clearTimeout(clearArmed); clearArmed = null;
     btnClear.textContent = "Clear sheet"; btnClear.classList.remove("armed");
-    Object.keys(timers).forEach(t => clearTimeout(timers[t])); pending.clear();
+    { const cn = P.teams[cur].team; clearTimeout(timers[cn]); delete timers[cn]; pending.delete(cn); }
     try {
       await PS().clear(key);
       marks = {}; notes = {}; pnotes = {}; meta = {}; openRow = -1;
       drawTabs(); drawBody();
-      setSave("Sheet cleared", "ok");
+      setSave(P.teams[cur].team + " cleared", "ok");
     } catch (err) {
       setSave("Could not clear: " + (err && err.message ? err.message : err), "err");
     }
