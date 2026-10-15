@@ -15,9 +15,9 @@ window.MOCK = (function () {
      STEP Groups / Teams — the 10 official teams in SPRINT-STEP.
      --------------------------------------------------------------------- */
   const groups = [
-    { id: "g1", name: "POSTE (USC)", short: "POSTE", abbr: "USC", logo: "assets/logos/wm/usc.png", mark: "assets/logos/sm/usc.png",
+    { id: "g1", name: "POSTe (USC)", short: "POSTe", abbr: "USC", logo: "assets/logos/wm/usc.png", mark: "assets/logos/sm/usc.png",
       institution: "University of San Carlos", city: "Cebu City", region: "Visayas",
-      about: "POSTE (Interconnected Poste Kits for Environmental Sensing)",
+      about: "POSTe (Interconnected Poste Kits for Environmental Sensing)",
       technology_title: "Interconnected Poste Kits for Environmental Sensing",
       implementing_agency: "University of San Carlos",
       mentor_id: "mn1", mentor_name: "Dr. Jon Fernandez", panel_letter: "A",
@@ -31,7 +31,7 @@ window.MOCK = (function () {
       mentor_id: "mn2", mentor_name: "Dr. John Lagdameo", panel_letter: "A",
       initials: "SI", accent: "hsl(196 56% 56%)", glow: "hsla(196, 56%, 56%, .30)", is_public: true },
 
-    { id: "g3", name: "BRICKS (USC)", short: "BRICKS", abbr: "USC", logo: "assets/logos/wm/usc.png", mark: "assets/logos/sm/usc.png",
+    { id: "g3", name: "Bricks (USC)", short: "Bricks", abbr: "USC", logo: "assets/logos/wm/usc.png", mark: "assets/logos/sm/usc.png",
       institution: "University of San Carlos", city: "Cebu City", region: "Visayas",
       about: "Conversion of Quarry Waste (Silt) Into High Temperature Refractory Bricks",
       technology_title: "High-temperature refractory bricks synthesized from quarry silt waste",
@@ -39,7 +39,7 @@ window.MOCK = (function () {
       mentor_id: "mn3", mentor_name: "Mr. Bienvenido Garcia", panel_letter: "A",
       initials: "BR", accent: "hsl(186 56% 56%)", glow: "hsla(186, 56%, 56%, .30)", is_public: true },
 
-    { id: "g4", name: "Halal Blockchain (USEP)", short: "Halal Blockchain", abbr: "USeP", logo: "assets/logos/wm/usep.png", mark: "assets/logos/sm/usep.png",
+    { id: "g4", name: "HATTS (USEP)", short: "HATTS", abbr: "USeP", logo: "assets/logos/wm/usep.png", mark: "assets/logos/sm/usep.png",
       institution: "University of Southeastern Philippines", city: "Davao City", region: "Mindanao",
       about: "Blockchain-Based Novel System/Application for Transparent Traceability of Halal-and-Tayeb Cacao Products",
       technology_title: "Distributed ledger traceability platform for farm-to-table Halal cacao certification",
@@ -240,10 +240,10 @@ window.MOCK = (function () {
     ],
 
     mentors: [
-      { id: "mn1", name: "Dr. Jon Fernandez",          initials: "JF", team: "POSTE",            team_id: "g1",  day: "Wed", time: "14:00", zoom: "https://zoom.us/j/0000000001" },
+      { id: "mn1", name: "Dr. Jon Fernandez",          initials: "JF", team: "POSTe",            team_id: "g1",  day: "Wed", time: "14:00", zoom: "https://zoom.us/j/0000000001" },
       { id: "mn2", name: "Dr. John Lagdameo", initials: "JL", team: "SINAG",            team_id: "g2",  day: "Wed", time: "16:00", zoom: "https://zoom.us/j/0000000002" },
-      { id: "mn3", name: "Mr. Bienvenido Garcia",           initials: "BG", team: "BRICKS",           team_id: "g3",  day: "Thu", time: "09:00", zoom: "https://zoom.us/j/0000000003" },
-      { id: "mn4", name: "Mr. Michael Tan",              initials: "MT", team: "Halal Blockchain", team_id: "g4",  day: "Thu", time: "11:00", zoom: "https://zoom.us/j/0000000004" },
+      { id: "mn3", name: "Mr. Bienvenido Garcia",           initials: "BG", team: "Bricks",           team_id: "g3",  day: "Thu", time: "09:00", zoom: "https://zoom.us/j/0000000003" },
+      { id: "mn4", name: "Mr. Michael Tan",              initials: "MT", team: "HATTS", team_id: "g4",  day: "Thu", time: "11:00", zoom: "https://zoom.us/j/0000000004" },
       { id: "mn5", name: "Mr. Armando Miclat",     initials: "AM", team: "Zeoskin",          team_id: "g5",  day: "Thu", time: "14:00", zoom: "https://zoom.us/j/0000000005" },
       { id: "mn6", name: "Mr. George Quitoriano",        initials: "GQ", team: "CAPPS",            team_id: "g6",  day: "Thu", time: "17:00", zoom: "https://zoom.us/j/0000000006" },
       { id: "mn7", name: "Engr. Benjamin N. Mirasol",                       initials: "BM", team: "SPArC",            team_id: "g7",  day: "Fri", time: "09:00", zoom: "https://zoom.us/j/0000000007" },
@@ -355,8 +355,8 @@ window.MOCK = (function () {
        panel_seats table (each seat tied to the panelist's email). */
     panels: [
       { letter: "A", seats: [1, 2, 3], panelists: ["Dr. Jon Fernandez", "Ms. Janine Chiong", "Industry Panel 1"],
-        teams: [{ team: "POSTE", team_id: "g1", at: "09:00" }, { team: "SINAG", team_id: "g2", at: "09:35" },
-                { team: "BRICKS", team_id: "g3", at: "10:10" }, { team: "Halal Blockchain", team_id: "g4", at: "10:45" }] },
+        teams: [{ team: "POSTe", team_id: "g1", at: "09:00" }, { team: "SINAG", team_id: "g2", at: "09:35" },
+                { team: "Bricks", team_id: "g3", at: "10:10" }, { team: "HATTS", team_id: "g4", at: "10:45" }] },
       { letter: "B", seats: [4, 5, 6], panelists: ["Mr. George Quitoriano", "Mr. Bienvenido Garcia", "Industry Panel 2"],
         teams: [{ team: "Zeoskin", team_id: "g5", at: "09:00" }, { team: "CAPPS", team_id: "g6", at: "09:35" }, { team: "SPArC", team_id: "g7", at: "10:10" }] },
       { letter: "C", seats: [7, 8, 9], panelists: ["Mr. Tony Feria", "Engr. Benjamin N. Mirasol", "Industry Panel 3"],
@@ -389,10 +389,10 @@ window.MOCK = (function () {
      --------------------------------------------------------------------- */
   const users = [
     // --- 10 Team Participants ---
-    { id: "u_poste", name: "Dr. Roland Emerito", email: "remerito@usc.edu.ph", role: "participant", role_label: "Participant", team_id: "g1", team_name: "POSTE (USC)", initials: "RE", institution: "University of San Carlos" },
+    { id: "u_poste", name: "Dr. Roland Emerito", email: "remerito@usc.edu.ph", role: "participant", role_label: "Participant", team_id: "g1", team_name: "POSTe (USC)", initials: "RE", institution: "University of San Carlos" },
     { id: "u_sinag", name: "Engr. Mark Anthony", email: "manthony@usm.edu.ph", role: "participant", role_label: "Participant", team_id: "g2", team_name: "SINAG (USM)", initials: "MA", institution: "University of Southern Mindanao" },
-    { id: "u_bricks", name: "Dr. Ramon Del Fierro", email: "rdelfierro@usc.edu.ph", role: "participant", role_label: "Participant", team_id: "g3", team_name: "BRICKS (USC)", initials: "RF", institution: "University of San Carlos" },
-    { id: "u_halal", name: "Dr. Tamara Cher", email: "tcher@usep.edu.ph", role: "participant", role_label: "Participant", team_id: "g4", team_name: "Halal Blockchain (USEP)", initials: "TC", institution: "University of Southeastern Philippines" },
+    { id: "u_bricks", name: "Dr. Ramon Del Fierro", email: "rdelfierro@usc.edu.ph", role: "participant", role_label: "Participant", team_id: "g3", team_name: "Bricks (USC)", initials: "RF", institution: "University of San Carlos" },
+    { id: "u_halal", name: "Dr. Tamara Cher", email: "tcher@usep.edu.ph", role: "participant", role_label: "Participant", team_id: "g4", team_name: "HATTS (USEP)", initials: "TC", institution: "University of Southeastern Philippines" },
     { id: "u_zeoskin", name: "Engr. Janine Macabulos", email: "jmacabulos@slu.edu.ph", role: "participant", role_label: "Participant", team_id: "g5", team_name: "Zeoskin (SLU)", initials: "JM", institution: "Saint Louis University" },
     { id: "u_capps", name: "Dr. Ephraim Ibarra", email: "eibarra@msuiit.edu.ph", role: "participant", role_label: "Participant", team_id: "g6", team_name: "CAPPS (MSU IIT)", initials: "EI", institution: "MSU - IIT" },
     { id: "u_sparc", name: "Dr. Roberto Malaluan", email: "rmalaluan@msuiit.edu.ph", role: "participant", role_label: "Participant", team_id: "g7", team_name: "SPArC (MSU IIT)", initials: "RM", institution: "MSU - IIT" },
@@ -401,10 +401,10 @@ window.MOCK = (function () {
     { id: "u_laser", name: "Dr. Raymond Sucgang", email: "rsucgang@pnri.dost.gov.ph", role: "participant", role_label: "Participant", team_id: "g10", team_name: "LASER (DOST PNRI)", initials: "RS", institution: "DOST - PNRI" },
 
     // --- Mentors ---
-    { id: "u_mentor_pfernandez", name: "Dr. Jon Fernandez", email: "pfernandez@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (POSTE)", assigned_teams: ["g1"], team_id: "g1", initials: "JF", institution: "AIPO" },
+    { id: "u_mentor_pfernandez", name: "Dr. Jon Fernandez", email: "pfernandez@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (POSTe)", assigned_teams: ["g1"], team_id: "g1", initials: "JF", institution: "AIPO" },
     { id: "u_mentor_jlagdameo", name: "Dr. John Lagdameo", email: "jlagdameo@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (SINAG)", assigned_teams: ["g2"], team_id: "g2", initials: "JL", institution: "AIPO" },
-    { id: "u_mentor_bgarcia", name: "Mr. Bienvenido Garcia", email: "bgarcia@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (BRICKS)", assigned_teams: ["g3"], team_id: "g3", initials: "BG", institution: "AIPO" },
-    { id: "u_mentor_mctan", name: "Mr. Michael Tan", email: "mctan@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (Halal Blockchain)", assigned_teams: ["g4"], team_id: "g4", initials: "MT", institution: "AIPO" },
+    { id: "u_mentor_bgarcia", name: "Mr. Bienvenido Garcia", email: "bgarcia@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (Bricks)", assigned_teams: ["g3"], team_id: "g3", initials: "BG", institution: "AIPO" },
+    { id: "u_mentor_mctan", name: "Mr. Michael Tan", email: "mctan@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (HATTS)", assigned_teams: ["g4"], team_id: "g4", initials: "MT", institution: "AIPO" },
     { id: "u_mentor_amiclat", name: "Mr. Armando Miclat", email: "amiclat@ateneo.edu", role: "mentor", role_label: "Mentor (Zeoskin)", assigned_teams: ["g5"], team_id: "g5", initials: "AM", institution: "AIPO" },
     { id: "u_mentor_gquitoriano", name: "Mr. George Quitoriano", email: "gquitoriano@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (CAPPS)", assigned_teams: ["g6"], team_id: "g6", initials: "GQ", institution: "AIPO" },
     { id: "u_mentor_bmirasol", name: "Engr. Benjamin N. Mirasol", email: "bmirasol@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (SPArC)", assigned_teams: ["g7"], team_id: "g7", initials: "BM", institution: "AIPO" },
@@ -560,7 +560,7 @@ window.MOCK = (function () {
         { name: "Ms. Nicole Yap", role: "Researcher", initials: "NY" },
       ],
       scores: [3.55, 3.20, 3.65, 3.60, 3.10, 3.40, 3.00],
-      claim: "POSTE proves environmental sensing reliability but needs clearer unit economics per municipality.",
+      claim: "POSTe proves environmental sensing reliability but needs clearer unit economics per municipality.",
       quote: "Show the recurring cellular telemetry and maintenance costs in pesos per pole."
     },
     g2: {
@@ -584,7 +584,7 @@ window.MOCK = (function () {
         { name: "Ms. Sarah Uy", role: "Researcher", initials: "SU" },
       ],
       scores: [3.70, 3.50, 3.80, 3.65, 3.40, 3.55, 3.30],
-      claim: "BRICKS demonstrates superior refractory durability; customer discovery with foundry operators is strong.",
+      claim: "Bricks demonstrates superior refractory durability; customer discovery with foundry operators is strong.",
       quote: "Demonstrate batch consistency and quarry hauling costs to prove the margin against imported bricks."
     },
     g4: {
@@ -596,7 +596,7 @@ window.MOCK = (function () {
         { name: "Ms. Angelie Torres", role: "Researcher", initials: "AT" },
       ],
       scores: [3.45, 3.30, 3.40, 3.50, 3.35, 3.40, 3.15],
-      claim: "Halal Blockchain solves certification opacity; prioritize simple QR verification for farm coops.",
+      claim: "HATTS solves certification opacity; prioritize simple QR verification for farm coops.",
       quote: "Ensure the blockchain layer adds trust without imposing high data-entry friction on smallholder farmers."
     },
     g5: {
