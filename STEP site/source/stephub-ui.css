@@ -6363,3 +6363,6 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 /* the same 12px (to the arrow's visible edge) on the pickers and the team switcher */
 .team-switcher-bar select { background-position: right 12px center; padding-right: 34px; }
 .pk-ch { right: 9px; }
+
+/* Criterion titles look the same scored or not: the weight and colour they take once a score is in */
+.cdef-t { font-weight: 550; color: var(--navy); }
