@@ -5230,85 +5230,11 @@
     },
   ];
 
-  /* =====================================================================
-     SIMULATION — two practice weeks for testing STEP Hub end to end
-     (Week S1 and Week S2). They have their own week numbers (-2 and -1)
-     and codes (W-2 and W-1), so nothing they create — hand-ins, panel
-     sheets, attendance, materials — ever lands on a real week. On screen
-     they read "Week S1" / "Week S2".
-
-     SIM_ACTIVE picks the simulated "this week":
-       "S1"  Week S1 is this week        "S2"  Week S2 is this week
-       null  simulation off: S1 and S2 disappear, the real schedule runs
-     ===================================================================== */
-  const SIM_ACTIVE = "S1";
-
-  const SIM_WEEKS = [
-    {
-      week: -2, code: "W-2", sim: "S1", starts: "2026-10-12", ends: "2026-10-18",
-      title: "Simulation: Customer Discovery Sprint", short: "Simulation: Customer Discovery Sprint", axis: "Simulation\nweek 1",
-      topic: "Simulation Week 1 — Customer Discovery Sprint (a practice week for testing STEP Hub; it does not count toward the program)",
-      review: "Customer Discovery Sprint Review", trainer: "STEP Team",
-      sessions: [
-        { date: "2026-10-13", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
-          title: "Customer Discovery Sprint (simulation)" },
-        { date: "2026-10-17", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
-          title: "Customer Discovery Sprint Review (simulation)" },
-      ],
-      output: true,
-      tagline: "A practice week: test every part of STEP Hub before the program starts.",
-      brief: "This is a simulation week for testing STEP Hub. Each team talks to three possible customers (a colleague playing the customer is fine), writes down what they heard, and turns it into one problem statement. Hand in a short deck and a test video, get scored by your panel, and check that everything shows up where it should. Nothing here counts toward the program.",
-      able: [
-        "Run three short customer conversations and take notes",
-        "Turn what you heard into one clear problem statement",
-        "Hand in your output on My Team's Work and see it scored",
-      ],
-      produce: "A short slide deck (three customer notes and one problem statement) and a test video — any short clip will do. Simulation only.",
-      game: {
-        title: "Run a customer interview",
-        prompt: "Practice round. Drag the cards into the order you would run the interview.",
-        steps: [
-          { order: 1, label: "Introduce yourself and the purpose", why: "People talk more when they know why you are asking." },
-          { order: 2, label: "Ask how they handle the problem today", why: "Their current workaround tells you what they value." },
-          { order: 3, label: "Ask what it costs them", why: "Time, money or risk: the size of the pain." },
-          { order: 4, label: "Listen, don't pitch", why: "You are there to learn, not to sell." },
-          { order: 5, label: "Ask who else you should talk to", why: "One interview leads to the next." },
-        ],
-      },
-    },
-    {
-      week: -1, code: "W-1", sim: "S2", starts: "2026-10-19", ends: "2026-10-25",
-      title: "Simulation: Pricing & Pitch Practice", short: "Simulation: Pricing & Pitch Practice", axis: "Simulation\nweek 2",
-      topic: "Simulation Week 2 — Pricing & Pitch Practice (a practice week for testing STEP Hub; it does not count toward the program)",
-      review: "Pricing & Pitch Practice Review", trainer: "STEP Team",
-      sessions: [
-        { date: "2026-10-20", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
-          title: "Pricing & Pitch Practice (simulation)" },
-        { date: "2026-10-24", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
-          title: "Pricing & Pitch Practice Review (simulation)" },
-      ],
-      output: true,
-      tagline: "The second practice week: build on last week's output and check the week-to-week views.",
-      brief: "The second simulation week. Using the problem statement from Week S1, each team sketches a first price and a one-minute pitch. Hand in again, get scored again, and check that the trend charts, averages and history now show two weeks. Nothing here counts toward the program.",
-      able: [
-        "Put a first price on your solution and say why",
-        "Deliver a one-minute pitch built on last week's problem statement",
-        "Check that your two weeks of work and scores show up correctly",
-      ],
-      produce: "A short slide deck (price, reasoning and the one-minute pitch) and a test video. Simulation only.",
-      game: {
-        title: "Build a one-minute pitch",
-        prompt: "Practice round. Drag the cards into the order of a short pitch.",
-        steps: [
-          { order: 1, label: "The problem", why: "Start with what the customer feels." },
-          { order: 2, label: "Your solution", why: "What you do about it, in plain words." },
-          { order: 3, label: "Who pays and how much", why: "The price and the customer who pays it." },
-          { order: 4, label: "Why you", why: "What makes your team the one to do it." },
-          { order: 5, label: "The ask", why: "What you need next." },
-        ],
-      },
-    },
-  ];
+  /* Simulation weeks (S1 / S2): removed. The practice weeks have been taken
+     out of the site and the program runs on the real schedule. The hooks
+     below stay, switched off, because other pages ask about them. */
+  const SIM_ACTIVE = null;
+  const SIM_WEEKS = [];
   const SIM_ON = SIM_ACTIVE === "S1" || SIM_ACTIVE === "S2";
   const weeks = SIM_ON ? SIM_WEEKS.concat(real) : real;
   const isSim = n => SIM_ON && SIM_WEEKS.some(w => w.week === Number(n));
