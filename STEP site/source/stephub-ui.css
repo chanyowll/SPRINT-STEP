@@ -6347,16 +6347,19 @@ body.on-cal .site-footer { display: none; }
 .pr-empty .btn:disabled { opacity: .5; cursor: not-allowed; }
 #pr-stale .lnk { margin-left: 6px; }
 
-/* Dropdown selects: the chevron sits 14px in from the right edge instead of touching it.
+/* Dropdown selects: the chevron sits 12px in from the right edge instead of touching it.
    (The picker and team-switcher selects draw their own chevron and are left alone.) */
 select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar select) {
   -webkit-appearance: none; appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23667085' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
   background-repeat: no-repeat !important;
-  background-position: right 14px center !important;
+  background-position: right 12px center !important;
   background-size: 12px 12px !important;
-  padding-right: 36px !important;
+  padding-right: 34px !important;
 }
 .sh-picks select:not([multiple]):not([size]) {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
 }
+/* the same 12px (to the arrow's visible edge) on the pickers and the team switcher */
+.team-switcher-bar select { background-position: right 12px center; padding-right: 34px; }
+.pk-ch { right: 9px; }
