@@ -3,7 +3,7 @@
 -- participants on their rosters, and their emails for team access.
 -- Run in the Supabase SQL Editor. Safe to run more than once.
 --
--- 1. Team names: POSTE -> POSTe, BRICKS -> Bricks, Halal Blockchain -> HATTS
+-- 1. Team names: POSTE -> POSTe, Halal Blockchain -> HATTS (BRICKS and ZEOSKIN stay in capitals)
 -- 2. team_members: the participants from the travel & logistics form.
 --    Nobody already on a roster is duplicated; the console's "+ Add
 --    member" keeps working and can add or remove anyone afterwards.
@@ -15,14 +15,15 @@
 
 -- 1. team names -------------------------------------------------------
 UPDATE public.teams SET name = 'POSTe (USC)',   short = 'POSTe'   WHERE id = 'g1';
-UPDATE public.teams SET name = 'Bricks (USC)',  short = 'Bricks'  WHERE id = 'g3';
+UPDATE public.teams SET name = 'BRICKS (USC)',  short = 'BRICKS'  WHERE id = 'g3';
+UPDATE public.teams SET name = 'ZEOSKIN (SLU)',  short = 'ZEOSKIN' WHERE id = 'g5';
 UPDATE public.teams SET name = 'HATTS (USEP)',  short = 'HATTS'   WHERE id = 'g4';
 
 -- the team name inside role labels such as "Mentor (POSTE)"
-UPDATE public.role_invites SET role_label = replace(replace(replace(role_label, 'POSTE', 'POSTe'), 'BRICKS', 'Bricks'), 'Halal Blockchain', 'HATTS')
-  WHERE role_label ~ 'POSTE|BRICKS|Halal Blockchain';
-UPDATE public.profiles SET role_label = replace(replace(replace(role_label, 'POSTE', 'POSTe'), 'BRICKS', 'Bricks'), 'Halal Blockchain', 'HATTS')
-  WHERE role_label ~ 'POSTE|BRICKS|Halal Blockchain';
+UPDATE public.role_invites SET role_label = replace(replace(replace(role_label, 'POSTE', 'POSTe'), 'Zeoskin', 'ZEOSKIN'), 'Halal Blockchain', 'HATTS')
+  WHERE role_label ~ 'POSTE|Zeoskin|Halal Blockchain';
+UPDATE public.profiles SET role_label = replace(replace(replace(role_label, 'POSTE', 'POSTe'), 'Zeoskin', 'ZEOSKIN'), 'Halal Blockchain', 'HATTS')
+  WHERE role_label ~ 'POSTE|Zeoskin|Halal Blockchain';
 
 -- 2. rosters ----------------------------------------------------------
 INSERT INTO public.team_members (team_id, name, role, initials, sort_order)
