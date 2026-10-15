@@ -401,15 +401,18 @@ const daysAway = iso => {
     window.dispatchEvent(new CustomEvent("stephub_chat_render", { detail: { msgs: MSGS, live, room: ROOM, me: meId } }));
     if (editingId) { const t = document.getElementById("ed-box"); if (t && document.activeElement !== t) { t.focus(); t.setSelectionRange(t.value.length, t.value.length); } }
 
-    /* who is in the room, drawn from the people who have spoken lately */
-    const faces = [], seen = {};
-    MSGS.slice().reverse().forEach(m => { if (m.me || seen[m.who]) return; seen[m.who] = 1; faces.push(initials(m.who)); });
-    const facesEl = document.getElementById("ch-faces");
-    if (facesEl) facesEl.innerHTML = faces.slice(0, 4).map(f => `<span>${esc(f)}</span>`).join("") +
-      (ROOM === "fam" && members > faces.slice(0, 4).length ? `<span class="more">+${members - faces.slice(0, 4).length}</span>` : "");
+    paintBadge();
+  }
+  /* the badge on the Members button: how many people the room admits (the same count the list shows) */
+  const roomSize = {};                                     // room -> count, once known
+  function paintBadge() {
+    const el = document.getElementById("ch-faces"); if (!el) return;
+    const n = roomSize[ROOM];
+    el.innerHTML = n ? `<span class="more">${n}</span>` : "";
   }
   let members = 48;
   function setCount(text) { const c = document.getElementById("ch-count"); if (c) c.textContent = text; }
+  function noteSize(r, n) { roomSize[r] = n; if (r === "fam") { members = n; if (ROOM === "fam") setCount(famCount()); } if (r === ROOM) paintBadge(); }
 
   /* ---- Members: who is in the room on screen (supabase/chat_members.sql) ---- */
   (function membersPanel() {
@@ -446,10 +449,16 @@ const daysAway = iso => {
       const r = ROOM, c = cache[r];
       if (c && Date.now() - c.at < 60000) { draw(c.rows); return; }
       head.textContent = "Members"; body.innerHTML = `<p class="ch-mnone">Loading…</p>`;
-      try { const rows = await CH.members(r); if (r !== ROOM) return; cache[r] = { at: Date.now(), rows }; draw(rows); }
+      try { const rows = await CH.members(r); if (r !== ROOM) return; cache[r] = { at: Date.now(), rows }; noteSize(r, rows.length); draw(rows); }
       catch (e) { if (r === ROOM) body.innerHTML = `<p class="ch-mnone">Couldn't load the list: ${esc(e.message || e)}</p>`; }
     }
     function close() { panel.hidden = true; btn.setAttribute("aria-expanded", "false"); }
+    /* the count is fetched for the room on screen as soon as it opens, so the badge is right before anyone clicks */
+    async function size(r) {
+      if (!live || roomSize[r]) return;
+      try { const rows = await CH.members(r); cache[r] = { at: Date.now(), rows }; noteSize(r, rows.length); } catch (e) {}
+    }
+    window.__gcRoomSize = size;
     btn.addEventListener("click", () => { panel.hidden ? open() : close(); });
     document.getElementById("ch-mx").addEventListener("click", close);
     document.addEventListener("click", e => { if (!panel.hidden && !panel.contains(e.target) && !btn.contains(e.target)) close(); });
@@ -464,6 +473,7 @@ const daysAway = iso => {
     if (id === ROOM) return;
     ROOM = id; META = id === "fam" ? null : meta; editingId = null; unstage();
     if (window.__gcCloseMembers) window.__gcCloseMembers();
+    paintBadge(); if (window.__gcRoomSize) window.__gcRoomSize(id);
     document.getElementById("ch-title").textContent = roomMeta().title;
     setCount(id === "fam" ? famCount() : meta.count);
     if (!box.disabled) box.placeholder = roomMeta().ph;
@@ -529,7 +539,7 @@ const daysAway = iso => {
     try { MSGS = (await CH.list(200, ROOM)).map(toMsg); }
     catch (e) { thread.innerHTML = `<div class="ch-empty"><b>Couldn't load the chat</b><span>${esc(e.message || e)}</span></div>`; return; }
     render(true);
-    CH.info().then(i => { if (i && i.members) { members = i.members; if (ROOM === "fam") setCount(famCount()); render(); } });
+    if (window.__gcRoomSize) window.__gcRoomSize(ROOM);
     stop = CH.subscribe(ev => {
       if (ev.type === "resync") return resync();
       /* a message in another room only lights that room up on the left */
