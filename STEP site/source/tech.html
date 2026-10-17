@@ -1737,14 +1737,21 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 
     async function fetchAll(w) {
       const sb = SBC(), c = code(w);
-      const [seats, pr, mr] = await Promise.all([
+      const [seats, pr, mr, plans] = await Promise.all([
         sb.from("panel_seats").select("seat, panel_letter, display_name").order("seat"),
         sb.from("panel_reports").select("seat, panel_letter, panelist, status, submitted_at, updated_at, signed_path, signed_name").eq("session_code", c),
         sb.from("mentor_reports").select("team_id, mentor_name, status, submitted_at, updated_at, signed_path, signed_name").eq("week_code", c),
+        sb.from("panel_plans").select("week_from, week_to, panels, saved_at").order("saved_at", { ascending: false }),
       ]);
       const bad = seats.error || pr.error || mr.error;
       if (bad) throw new Error(bad.message);
-      return { seats: seats.data || [], pr: pr.data || [], mr: mr.data || [] };
+      /* the panel a seat sits on that week: the grouping saved on the Panels page, else the seat's own panel */
+      const plan = (plans.data || []).find(x => x.week_from <= w && (x.week_to == null || x.week_to >= w));
+      const letterOf = x => {
+        const p = plan && (plan.panels || []).find(q => (q.panelists || []).some(m => m.seat === x.seat));
+        return (p && p.letter) || x.panel_letter || "";
+      };
+      return { seats: (seats.data || []).map(x => Object.assign({}, x, { panel_letter: letterOf(x) })), pr: pr.data || [], mr: mr.data || [] };
     }
 
     function paintWeeks() {
@@ -1786,7 +1793,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       $("#rp-msub").textContent = hasMentor ? mSub + " of " + GROUPS.length + " submitted" : "";
       pb.innerHTML = !hasPanel ? `<tr><td colspan="5" class="note">The panels do not score in this week, so there is no panelist report.</td></tr>`
         : seats.map(x => { const r = prBySeat[x.seat];
-          return `<tr><td>Panel ${esc(x.panel_letter)}</td><td>${esc((r && r.panelist) || x.display_name)}</td><td>${pill(r)}</td>
+          return `<tr><td>${x.panel_letter ? "Panel " + esc(x.panel_letter) : "Not placed yet"}</td><td>${esc((r && r.panelist) || x.display_name)}</td><td>${pill(r)}</td>
             <td class="mono">${r ? fmt(r.status === "submitted" ? r.submitted_at : r.updated_at) : "—"}</td><td>${link(PR_BUCKET, r)}</td></tr>`; }).join("");
       mb.innerHTML = !hasMentor ? `<tr><td colspan="5" class="note">There is no mentor report in this week.</td></tr>`
         : GROUPS.map(g => { const r = mrByTeam[g.id];
