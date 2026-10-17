@@ -665,7 +665,15 @@ window.__renderMyTeam = function(targetTeamId) {
   }
   const tbRoster = document.getElementById("tb-roster");
   if (tbRoster) {
-    tbRoster.innerHTML = TW.members.map(m => `<span class="avatar" title="${esc(m.name)} · ${esc(m.role)}">${esc(m.initials)}</span>`).join("");
+    tbRoster.innerHTML = TW.members.map((m, i) => `<span class="avatar rm" style="--i:${i}" title="${esc(m.name)} · ${esc(m.role)}"><span class="in">${esc(m.initials)}</span><span class="nm"><b>${esc(m.name)}</b>${m.role ? `<small>${esc(m.role)}</small>` : ""}</span></span>`).join("");
+    /* rest the pointer here for about a second and the initials unfold into full names */
+    tbRoster.classList.add("rm"); tbRoster.tabIndex = 0;
+    let rmT = null;
+    const rmOpen = on => { clearTimeout(rmT); tbRoster.classList.toggle("open", on); };
+    tbRoster.addEventListener("mouseenter", () => { clearTimeout(rmT); rmT = setTimeout(() => rmOpen(true), 1000); });
+    tbRoster.addEventListener("mouseleave", () => rmOpen(false));
+    tbRoster.addEventListener("focus", () => rmOpen(true));
+    tbRoster.addEventListener("blur", () => rmOpen(false));
   }
   const tbRosterCap = document.getElementById("tb-rostercap");
   if (tbRosterCap) tbRosterCap.textContent = TW.members.length
