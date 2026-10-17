@@ -10147,7 +10147,7 @@ window.__renderMyTeam = function(targetTeamId) {
   }
   const tbRoster = document.getElementById("tb-roster");
   if (tbRoster) {
-    tbRoster.innerHTML = TW.members.map((m, i) => `<span class="avatar rm" style="--i:${i}" title="${esc(m.name)} · ${esc(m.role)}"><span class="in">${esc(m.initials)}</span><span class="nm"><b>${esc(m.name)}</b>${m.role ? `<small>${esc(m.role)}</small>` : ""}</span></span>`).join("");
+    tbRoster.innerHTML = TW.members.map((m, i) => `<span class="avatar rm" style="--i:${i}"><span class="in">${esc(m.initials)}</span><span class="nm"><b>${esc(m.name)}</b>${m.role ? `<small>${esc(m.role)}</small>` : ""}</span></span>`).join("");
     /* rest the pointer here for about a second and the initials unfold into full names */
     tbRoster.classList.add("rm"); tbRoster.tabIndex = 0;
     let rmT = null;
