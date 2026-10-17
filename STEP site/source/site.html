@@ -13384,7 +13384,12 @@ document.getElementById("fa-spec").innerHTML = `
     catch (e) { if (my === seq) setSave(e.message || "Could not load this report.", "err"); return; }
     if (my !== seq) return;
     const r = res.report;
-    if (!r.mentor_name) { const u = me(); r.mentor_name = u && u.role !== "guest" ? (u.name || u.full_name || "") : ""; }
+    { const u = me(), mine = u && u.role !== "guest" ? (u.name || u.full_name || "") : "";
+      /* an unsubmitted draft carries the name of whoever opened it last (or of another
+         account on this browser) — the signed-in mentor's own name goes in instead */
+      const theirs = r.mentor_id && u && u.id && r.mentor_id !== u.id;
+      if (mine && r.status !== "submitted" && (!r.mentor_name || !r.mentor_id || theirs)) r.mentor_name = mine;
+      else if (!r.mentor_name) r.mentor_name = mine; }
     if (!r.period) r.period = periodOf(plan().week);
     state = { key: key(), report: r,
               stale: r.status === "submitted" && !!r.updated_at && !!r.submitted_at &&
