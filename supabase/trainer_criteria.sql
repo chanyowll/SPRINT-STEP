@@ -31,10 +31,9 @@ INSERT INTO public.session_trainers (session_code, trainer_email, week_starts, w
   ('W7',  'gquitoriano@ateneo.edu', '2026-12-07', '2026-12-13'),
   ('W8',  'gquitoriano@ateneo.edu', '2026-12-14', '2026-12-20'),
   ('W9',  'gquitoriano@ateneo.edu', '2027-01-04', '2027-01-10'),
-  ('W10', 'bmirasol@ateneo.edu',    '2027-01-11', '2027-01-17')
+  ('W10', 'bmirasol@ateneo.edu',    '2027-01-11', '2027-01-17'),
+  ('W11', 'schaves@ateneo.edu',      '2027-01-18', '2027-01-24')
 ON CONFLICT DO NOTHING;
--- W11 (Sir Steve): add his row here once his email is known:
--- INSERT INTO public.session_trainers VALUES ('W11','<his email>','2027-01-18','2027-01-24');
 
 CREATE OR REPLACE FUNCTION public.can_edit_score_sheet(p_code text)
 RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO 'public' AS $$
