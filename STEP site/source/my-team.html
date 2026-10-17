@@ -666,14 +666,19 @@ window.__renderMyTeam = function(targetTeamId) {
   const tbRoster = document.getElementById("tb-roster");
   if (tbRoster) {
     tbRoster.innerHTML = TW.members.map((m, i) => `<span class="avatar rm" style="--i:${i}"><span class="in">${esc(m.initials)}</span><span class="nm"><b>${esc(m.name)}</b>${m.role ? `<small>${esc(m.role)}</small>` : ""}</span></span>`).join("");
-    /* rest the pointer here for about a second and the initials unfold into full names */
+    /* rest the pointer here for about a second and the initials unfold into full names;
+       they fold back three seconds after the pointer has left */
     tbRoster.classList.add("rm"); tbRoster.tabIndex = 0;
-    let rmT = null;
-    const rmOpen = on => { clearTimeout(rmT); tbRoster.classList.toggle("open", on); };
-    tbRoster.addEventListener("mouseenter", () => { clearTimeout(rmT); rmT = setTimeout(() => rmOpen(true), 1000); });
-    tbRoster.addEventListener("mouseleave", () => rmOpen(false));
-    tbRoster.addEventListener("focus", () => rmOpen(true));
-    tbRoster.addEventListener("blur", () => rmOpen(false));
+    const rmBox = tbRoster.parentElement, n = TW.members.length;
+    /* at rest the initials sit where they always did, at the right-hand end of the box */
+    const rmShift = () => rmBox.style.setProperty("--shift", Math.max(0, tbRoster.clientWidth - (42 + 32 * (n - 1))) + "px");
+    rmShift(); window.addEventListener("resize", rmShift);
+    let openT = null, closeT = null, isOpen = false;
+    const rmSet = on => { isOpen = on; clearTimeout(openT); clearTimeout(closeT); tbRoster.classList.toggle("open", on); rmBox.classList.toggle("rm-open", on); };
+    tbRoster.addEventListener("mouseenter", () => { clearTimeout(closeT); if (!isOpen) { clearTimeout(openT); openT = setTimeout(() => rmSet(true), 1000); } });
+    tbRoster.addEventListener("mouseleave", () => { clearTimeout(openT); if (isOpen) closeT = setTimeout(() => rmSet(false), 3000); });
+    tbRoster.addEventListener("focus", () => rmSet(true));
+    tbRoster.addEventListener("blur", () => rmSet(false));
   }
   const tbRosterCap = document.getElementById("tb-rostercap");
   if (tbRosterCap) tbRosterCap.textContent = TW.members.length
