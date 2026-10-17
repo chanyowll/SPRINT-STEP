@@ -1773,7 +1773,7 @@
         <div class="eyebrow">Panel scoring</div>
         <h2>Panel scoring criteria</h2>
         <p class="lede">These are the criteria the panels score your teams on, and how much each one counts.
-           Anyone can read a week's criteria. You can change them only in the week your own topic is running.</p>
+           Anyone can read a week's criteria. You can change them only for the week of your own topic.</p>
       </div>
 
       <div class="sheet2 cr-sheet">
@@ -14993,7 +14993,6 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
     const t = myTrainer();
     if (!rolesOf(me()).includes("trainer") || !t) return { ok: false, why: "Only the trainer teaching this week’s topic can change its criteria." };
     if (!(t.modules || []).includes(s.code)) return { ok: false, why: "This is not your topic. Only " + (F.trainers.find(x => (x.modules || []).includes(s.code)) || {}).short + " can change its criteria." };
-    if (s.week !== CUR) return { ok: false, why: "You can change these criteria during Week " + s.week + ", while your topic is running." };
     return { ok: true, why: "" };
   }
 

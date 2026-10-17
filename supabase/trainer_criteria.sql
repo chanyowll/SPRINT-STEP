@@ -1,6 +1,6 @@
 -- =====================================================================
 -- STEP Hub — trainers edit the panel scoring criteria of their own topic,
--- only during that topic's week. Admins can edit any week.
+-- for that topic's week. Admins can edit any week.
 -- Safe to run more than once.
 -- =====================================================================
 
@@ -41,8 +41,7 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path TO 'public'
       OR (public.has_role('trainer') AND EXISTS (
             SELECT 1 FROM public.session_trainers st
             WHERE st.session_code = p_code
-              AND lower(st.trainer_email) = lower(coalesce(auth.jwt() ->> 'email', ''))
-              AND (now() AT TIME ZONE 'Asia/Manila')::date BETWEEN st.week_starts AND st.week_ends));
+              AND lower(st.trainer_email) = lower(coalesce(auth.jwt() ->> 'email', ''))));
 $$;
 
 DROP POLICY IF EXISTS score_sheets_read_all ON public.score_sheets;
