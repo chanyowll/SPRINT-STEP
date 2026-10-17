@@ -385,6 +385,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <button data-s="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8" fill="currentColor"/><circle cx="18" cy="13.5" r=".8" fill="currentColor"/></svg>Games<span class="ct" id="ct-game"></span></button>
       <button data-s="articles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M18 8h2v10a2 2 0 0 1-2 2"/><path d="M8 8h6M8 12h6M8 16h4"/></svg>Articles<span class="ct" id="ct-art"></span></button>
       <div class="grp">Reports</div>
+      <button data-s="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/></svg>Accomplishment reports</button>
       <button data-s="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Team data</button>
     </nav>
     <div class="side-foot">
@@ -596,6 +597,26 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         </div>
       </section>
 
+      <!-- ===================== Accomplishment reports ===================== -->
+      <section class="sec" data-sec="reports" hidden>
+        <div class="sec-head">
+          <div><h1>Accomplishment reports</h1><p>Who has handed in the weekly accomplishment report: each panelist's, and each mentor's for their team. A report counts as submitted once the signed copy is uploaded.</p></div>
+          <div class="acts"><button class="btn" id="rp-refresh">Refresh</button></div>
+        </div>
+        <div class="wk-strip" id="rp-weeks"></div>
+        <div class="stats" id="rp-stats"></div>
+        <div class="split">
+          <div class="card">
+            <header><h2>Panelists</h2><span class="sub" id="rp-psub"></span></header>
+            <div class="scroll"><table class="t"><thead><tr><th>Panel</th><th>Panelist</th><th>Status</th><th>Last update</th><th>Signed copy</th></tr></thead><tbody id="rp-pbody"></tbody></table></div>
+          </div>
+          <div class="card">
+            <header><h2>Mentors</h2><span class="sub" id="rp-msub"></span></header>
+            <div class="scroll"><table class="t"><thead><tr><th>Team</th><th>Mentor</th><th>Status</th><th>Last update</th><th>Signed copy</th></tr></thead><tbody id="rp-mbody"></tbody></table></div>
+          </div>
+        </div>
+      </section>
+
       <!-- ===================== 7. Team data ===================== -->
       <section class="sec" data-sec="data" hidden>
         <div class="sec-head">
@@ -682,7 +703,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   decide();
 
   /* ---------------- shell ---------------- */
-  const TITLES = { attendance: "Attendance", recordings: "Session recordings", panels: "Panels", announcements: "Announcements", games: "Games", articles: "Articles", data: "Team data" };
+  const TITLES = { attendance: "Attendance", recordings: "Session recordings", panels: "Panels", announcements: "Announcements", games: "Games", articles: "Articles", data: "Team data", reports: "Accomplishment reports" };
   function show(s) {
     if (!TITLES[s]) s = "attendance";
     $$(".sec").forEach(el => el.hidden = el.dataset.sec !== s);
@@ -1633,6 +1654,95 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     fillWeeks(); open();
     window.addEventListener("stephub_scoresheets", () => { if (!dirty()) open(); });
     window.addEventListener("stephub_auth_changed", () => open());
+  })();
+
+
+  /* ---------------- accomplishment reports: who has handed theirs in ---------------- */
+  (function () {
+    const PR_BUCKET = "panel-reports", MR_BUCKET = "mentor-reports";
+    const live = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
+    const SESSIONS = (M.faculty && M.faculty.sessions) || [];
+    const PLANS = (M.faculty && M.faculty.mentorPlans) || [];
+    const GROUPS = M.groups || [];
+    let week = NOW || 1, seq = 0;
+    const code = w => "W" + w;
+    const fmt = t => t ? new Date(t).toLocaleString("en-PH", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Manila" }) : "—";
+    const pill = r => !r ? `<span class="pill idle">Not started</span>`
+      : r.status === "submitted" ? `<span class="pill ok">Submitted</span>` : `<span class="pill warn">Draft</span>`;
+    const link = (bucket, r) => r && r.signed_path
+      ? `<a href="#" class="rp-open" data-b="${bucket}" data-p="${esc(r.signed_path)}">${esc(r.signed_name || "Open")}</a>` : "—";
+
+    async function fetchAll(w) {
+      const sb = SBC(), c = code(w);
+      const [seats, pr, mr] = await Promise.all([
+        sb.from("panel_seats").select("seat, panel_letter, display_name").order("seat"),
+        sb.from("panel_reports").select("seat, panel_letter, panelist, status, submitted_at, updated_at, signed_path, signed_name").eq("session_code", c),
+        sb.from("mentor_reports").select("team_id, mentor_name, status, submitted_at, updated_at, signed_path, signed_name").eq("week_code", c),
+      ]);
+      const bad = seats.error || pr.error || mr.error;
+      if (bad) throw new Error(bad.message);
+      return { seats: seats.data || [], pr: pr.data || [], mr: mr.data || [] };
+    }
+
+    function paintWeeks() {
+      weekStrip($("#rp-weeks"), {}, w => { week = w; load(); }, week);
+    }
+
+    async function load() {
+      const my = ++seq, w = week;
+      const hasPanel = SESSIONS.some(s => s.code === code(w) && (s.assess || []).length || s.code === code(w) && s.criteria_pending);
+      const hasMentor = PLANS.some(p => p.code === code(w));
+      paintWeeks();
+      const pb = $("#rp-pbody"), mb = $("#rp-mbody");
+      if (!live()) {
+        pb.innerHTML = mb.innerHTML = `<tr><td colspan="5" class="note">Sign in with a STEP team account to see who has submitted.</td></tr>`;
+        $("#rp-stats").innerHTML = ""; return;
+      }
+      pb.innerHTML = mb.innerHTML = `<tr><td colspan="5" class="note">Loading…</td></tr>`;
+      let d;
+      try { d = await fetchAll(w); }
+      catch (e) { if (my === seq) pb.innerHTML = mb.innerHTML = `<tr><td colspan="5" class="note">Could not load: ${esc(e.message || e)}</td></tr>`; return; }
+      if (my !== seq) return;
+
+      const prBySeat = Object.fromEntries(d.pr.map(r => [r.seat, r]));
+      const mrByTeam = Object.fromEntries(d.mr.map(r => [r.team_id, r]));
+      const seats = d.seats.slice().sort((a, b) => a.seat - b.seat);
+      const pSub = seats.filter(x => (prBySeat[x.seat] || {}).status === "submitted").length;
+      const pDraft = seats.filter(x => (prBySeat[x.seat] || {}).status === "draft").length;
+      const mSub = GROUPS.filter(g => (mrByTeam[g.id] || {}).status === "submitted").length;
+      const mDraft = GROUPS.filter(g => (mrByTeam[g.id] || {}).status === "draft").length;
+
+      $("#rp-stats").innerHTML = [
+        [hasPanel ? pSub + " of " + seats.length : "—", "panelist reports submitted"],
+        [hasPanel ? seats.length - pSub - pDraft : "—", "panelists not started"],
+        [hasMentor ? mSub + " of " + GROUPS.length : "—", "mentor reports submitted"],
+        [hasMentor ? GROUPS.length - mSub - mDraft : "—", "mentors not started"],
+      ].map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+
+      $("#rp-psub").textContent = hasPanel ? pSub + " of " + seats.length + " submitted" : "";
+      $("#rp-msub").textContent = hasMentor ? mSub + " of " + GROUPS.length + " submitted" : "";
+      pb.innerHTML = !hasPanel ? `<tr><td colspan="5" class="note">The panels do not score in this week, so there is no panelist report.</td></tr>`
+        : seats.map(x => { const r = prBySeat[x.seat];
+          return `<tr><td>Panel ${esc(x.panel_letter)}</td><td>${esc((r && r.panelist) || x.display_name)}</td><td>${pill(r)}</td>
+            <td class="mono">${r ? fmt(r.status === "submitted" ? r.submitted_at : r.updated_at) : "—"}</td><td>${link(PR_BUCKET, r)}</td></tr>`; }).join("");
+      mb.innerHTML = !hasMentor ? `<tr><td colspan="5" class="note">There is no mentor report in this week.</td></tr>`
+        : GROUPS.map(g => { const r = mrByTeam[g.id];
+          return `<tr><td>${esc(String(g.name).replace(/\s*\(.*\)$/, ""))}</td><td>${esc((r && r.mentor_name) || g.mentor_name || "—")}</td><td>${pill(r)}</td>
+            <td class="mono">${r ? fmt(r.status === "submitted" ? r.submitted_at : r.updated_at) : "—"}</td><td>${link(MR_BUCKET, r)}</td></tr>`; }).join("");
+    }
+
+    document.addEventListener("click", async e => {
+      const a = e.target.closest("a.rp-open"); if (!a) return;
+      e.preventDefault();
+      try {
+        const { data, error } = await SBC().storage.from(a.dataset.b).createSignedUrl(a.dataset.p, 300);
+        if (error) throw error; window.open(data.signedUrl, "_blank", "noopener");
+      } catch (err) { toast("Could not open the file: " + (err.message || err)); }
+    });
+    $("#rp-refresh").addEventListener("click", load);
+    paintWeeks(); load();
+    window.addEventListener("stephub_auth_changed", () => setTimeout(load, 200));
+    $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-s]"); if (b && b.dataset.s === "reports") load(); });
   })();
 
   /* ---------------- 4. announcements: the This Week board ---------------- */
