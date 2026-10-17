@@ -376,6 +376,11 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .fbs { display: flex; gap: 0; margin-top: 5px; flex-wrap: wrap; }
 .wk-out button s { display: block; text-decoration: none; font-size: 11px; margin-top: 2px; }
 .wk-out button.off { opacity: .55; }
+.dv-table.o-all { table-layout: fixed; width: 100%; min-width: 1380px; }
+.dv-table.o-all th, .dv-table.o-all td { overflow-wrap: anywhere; white-space: normal; vertical-align: top; }
+.dv-table.o-all th:first-child, .dv-table.o-all td:first-child { width: 170px; }
+.dv-table.o-all th:last-child, .dv-table.o-all td:last-child { width: 84px; }
+.dv-table.o-all th .note { overflow-wrap: normal; word-break: normal; min-height: 2.6em; }
 .o-file { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
 .o-file .no { color: var(--ink-3); font-size: 12.5px; }
 </style>
@@ -2338,7 +2343,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         return;
       }
 
-      $("#o-weeks").hidden = true;
+      $("#o-weeks").hidden = true; $("#d-table").classList.add("o-all");
       const weeks = allW;
       const data = rows.map(g => ({ g, outs: weeks.map(w => outputFor(g.id, w)) }));
       $("#d-head").innerHTML = "<tr><th>Team</th>" + weeks.map(w => `<th title="${esc(modOf(w).title)}">W${w}<div class="note">${esc((SCH && SCH.byWeek(w) && SCH.byWeek(w).short) || "")}</div></th>`).join("") + '<th class="num">In / due</th></tr>';
@@ -2414,7 +2419,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   function renderData() {
     $("#d-sess-f").hidden = DV !== "scores";
     $("#d-week-f").hidden = DV === "scores" || DV === "fastrac" || DV === "outputs";
-    $("#o-mode").hidden = true; $("#o-weeks").hidden = true;
+    $("#o-mode").hidden = true; $("#o-weeks").hidden = true; $("#d-table").classList.remove("o-all");
     if (!D) {
       $("#d-head").innerHTML = ""; $("#d-stats").innerHTML = ""; CSV = [];
       $("#d-title").textContent = "Team data"; $("#d-sub").textContent = "";
