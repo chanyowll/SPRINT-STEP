@@ -13286,6 +13286,9 @@ document.getElementById("fa-spec").innerHTML = `
     selT.innerHTML = list.map(g =>
       `<option value="${esc(g.id)}">${esc(g.name)}${st[g.id] ? " — submitted" : ""}</option>`).join("");
     selT.value = list.some(g => g.id === keep) ? keep : defaultTeam(list);
+    /* one mentee only: show the name, not a dropdown with nothing else in it */
+    const one = list.length === 1;
+    selT.classList.toggle("one", one); selT.disabled = one;
   }
 
   function header() {

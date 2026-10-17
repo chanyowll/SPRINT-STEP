@@ -6403,3 +6403,6 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 
 .tm-tabs, .sheet2 .tm-tabs { scrollbar-width: none; }
 .tm-tabs::-webkit-scrollbar, .sheet2 .tm-tabs::-webkit-scrollbar { display: none; height: 0; }
+
+.sh-picks select.one:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar select) {
+  background-image: none !important; padding-right: 10px; pointer-events: none; opacity: 1; cursor: default; }
