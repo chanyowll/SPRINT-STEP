@@ -235,19 +235,28 @@
       <div class="section-head">
         <div class="eyebrow">Panel scoring</div>
         <h2>Panel scoring criteria</h2>
-        <p class="lede">What the panels score each week, and how much each criterion counts. Anyone can read a
-           week's criteria. You can edit them only in the week your own topic is running.</p>
+        <p class="lede">These are the criteria the panels score your teams on, and how much each one counts.
+           Anyone can read a week's criteria. You can change them only in the week your own topic is running.</p>
       </div>
-      <div class="card cr-card">
-        <div class="cr-top">
-          <label class="fld"><span>Week</span><select id="cr-week"></select></label>
-          <div class="cr-who" id="cr-who">—</div>
+
+      <div class="sheet2 cr-sheet">
+        <div class="sh-top">
+          <div class="sh-tx">
+            <div class="sh-code">Panel scoring criteria</div>
+            <h3 id="cr-title">—</h3>
+            <div class="sh-meta" id="cr-who">—</div>
+          </div>
+          <div class="sh-picks">
+            <label class="fld"><span>Week</span><select id="cr-week"></select></label>
+          </div>
         </div>
-        <div class="cr-lock" id="cr-lock" hidden></div>
-        <div id="cr-rows"></div>
-        <div class="cr-foot">
+
+        <div class="cr-note" id="cr-lock" hidden></div>
+        <div class="cr-body" id="cr-rows"></div>
+
+        <div class="sh-foot">
           <span class="cr-sum" id="cr-sum">—</span>
-          <span class="ds-note" id="cr-msg" style="margin:0"></span>
+          <span class="msg" id="cr-msg"></span>
           <span class="cr-btns" id="cr-btns" hidden>
             <button class="btn secondary" id="cr-add" type="button">Add a criterion</button>
             <button class="btn secondary" id="cr-undo" type="button">Undo changes</button>
@@ -3124,38 +3133,48 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
     const ss = SESS();
     sel.value = ss.some(s => s.code === keep) ? keep : (ss.find(s => s.week === CUR) || ss.filter(s => s.week <= CUR).pop() || ss[0] || {}).code;
   }
+  const grow = t => { t.style.height = "auto"; t.style.height = (t.scrollHeight + 2) + "px"; };
   function paint() {
     const s = cur(), rule = editRule(s), live = !!SS() && !!(window.MOCK.isLiveUser && window.MOCK.isLiveUser());
     const can = rule.ok && !locked;
     const tr = F.trainers.find(x => (x.modules || []).includes(s.code));
-    whoEl.textContent = tr ? "Topic taught by " + tr.short : "Trainer to be announced";
-    lockEl.hidden = !(locked || !rule.ok);
+    document.getElementById("cr-title").textContent = s.week != null ? "Week " + s.week + " · " + (s.short || s.title) : "—";
+    whoEl.textContent = (tr ? "Topic taught by " + tr.short : "Trainer to be announced") + " · " + (can ? "You can edit this week" : "View only");
+    lockEl.hidden = false;
+    lockEl.className = "cr-note " + (locked && rule.ok ? "warn" : can ? "edit" : "view");
     lockEl.textContent = locked && rule.ok
-      ? locked + " panel sheet" + (locked === 1 ? " has" : "s have") + " already been saved for this week, so its criteria are locked — scores are stored by criterion position."
+      ? locked + " panel sheet" + (locked === 1 ? " has" : "s have") + " already been saved for this week, so its criteria are locked. Scores are stored by criterion position."
+      : can ? "You are editing the criteria the panels will score. The title is the bold line panelists read first; the definition under it tells them what to look for. Weights must add up to 100%."
       : rule.why;
     if (!rows.length && !can) {
-      rowsEl.innerHTML = `<p class="ds-note">${s.criteria_pending ? "The score sheet for this week is still to come." : "No criteria for this week."}</p>`;
+      rowsEl.innerHTML = `<p class="cr-empty">${s.criteria_pending ? "The score sheet for this week is still to come." : "No criteria for this week."}</p>`;
     } else if (can) {
       rowsEl.innerHTML = rows.map((c, i) => `
-        <div class="cr-row edit" data-i="${i}">
-          <span class="n">${i + 1}</span>
-          <div class="cr-f">
-            <textarea class="in" rows="2" data-k="label" aria-label="Criterion ${i + 1}" placeholder="What the panel is scoring, written as a question">${esc(c.label)}</textarea>
-            <input class="in" data-k="hint" aria-label="Note to the panelist" placeholder="Optional note to the panelist: what a strong answer looks like" value="${esc(c.hint)}">
+        <div class="crow2 cr-edit" data-i="${i}">
+          <span class="cr-n">${i + 1}</span>
+          <div class="cr-fields">
+            <label class="cr-l"><span>Criterion title</span>
+              <input class="cr-ti" data-k="label" value="${esc(c.label)}" placeholder="e.g. Ecosystem Mapping"></label>
+            <label class="cr-l"><span>Definition: what the panel should look for</span>
+              <textarea class="cr-de" rows="2" data-k="hint" placeholder="e.g. Assess whether the group mapped the suppliers, users, buyers and regulators in its ecosystem.">${esc(c.hint)}</textarea></label>
           </div>
-          <span class="wt"><input class="in" type="number" min="1" max="100" step="1" data-k="weight" value="${c.weight || ""}" aria-label="Weight, percent">%</span>
-          <span class="ops">
-            <button type="button" data-op="up" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
-            <button type="button" data-op="down" title="Move down" ${i === rows.length - 1 ? "disabled" : ""}>↓</button>
-            <button type="button" data-op="del" title="Remove">×</button>
-          </span>
-        </div>`).join("") || `<p class="ds-note">No criteria yet. Add the first one.</p>`;
+          <div class="cr-side">
+            <label class="cr-l"><span>Weight</span>
+              <span class="cr-wt"><input type="number" min="1" max="100" step="1" data-k="weight" value="${c.weight || ""}" aria-label="Weight, percent">%</span></label>
+            <span class="ops">
+              <button type="button" data-op="up" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
+              <button type="button" data-op="down" title="Move down" ${i === rows.length - 1 ? "disabled" : ""}>↓</button>
+              <button type="button" data-op="del" title="Remove">×</button>
+            </span>
+          </div>
+        </div>`).join("") || `<p class="cr-empty">No criteria yet. Add the first one.</p>`;
+      rowsEl.querySelectorAll("textarea").forEach(grow);
     } else {
       rowsEl.innerHTML = rows.map((c, i) => `
-        <div class="cr-row">
-          <span class="n">${i + 1}</span>
-          <div class="cr-f"><b>${esc(c.label)}</b>${c.hint ? `<em>${esc(c.hint)}</em>` : ""}</div>
-          <span class="wt"><b>${c.weight}%</b></span>
+        <div class="crow2">
+          <span class="cr-n">${i + 1}</span>
+          <div class="cdef-w"><span class="cdef-t">${esc(c.label)}</span>${c.hint ? `<span class="cdef-h">${esc(c.hint)}</span>` : ""}</div>
+          <span class="wt">${c.weight}%</span>
         </div>`).join("");
     }
     const t = total();
@@ -3178,7 +3197,8 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
     sel.dataset.was = sel.value; open();
   });
   rowsEl.addEventListener("input", e => {
-    const row = e.target.closest(".cr-row.edit"), k = e.target.dataset.k; if (!row || !k) return;
+    const row = e.target.closest(".cr-edit"), k = e.target.dataset.k; if (!row || !k) return;
+    if (e.target.tagName === "TEXTAREA") grow(e.target);
     rows[+row.dataset.i][k] = k === "weight" ? (e.target.value === "" ? 0 : Math.round(+e.target.value)) : e.target.value;
     const t = total(); sumEl.textContent = "Weights add up to " + t + "%"; sumEl.className = "cr-sum " + (t === 100 ? "ok" : "bad");
     const problems = SS() ? SS().validate(rows) : [];
@@ -3188,7 +3208,7 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
   });
   rowsEl.addEventListener("click", e => {
     const b = e.target.closest("[data-op]"); if (!b || b.disabled) return;
-    const i = +b.closest(".cr-row").dataset.i, op = b.dataset.op;
+    const i = +b.closest(".cr-edit").dataset.i, op = b.dataset.op;
     if (op === "del") { if (rows[i].label && !confirm("Remove criterion " + (i + 1) + "?")) return; rows.splice(i, 1); }
     if (op === "up" && i > 0) rows.splice(i - 1, 0, rows.splice(i, 1)[0]);
     if (op === "down" && i < rows.length - 1) rows.splice(i + 1, 0, rows.splice(i, 1)[0]);
@@ -3196,7 +3216,7 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
   });
   document.getElementById("cr-add").addEventListener("click", () => {
     rows.push({ label: "", hint: "", weight: Math.max(0, 100 - total()) }); paint();
-    const last = rowsEl.querySelector(".cr-row:last-child textarea"); if (last) last.focus();
+    const last = rowsEl.querySelector(".cr-edit:last-child input"); if (last) last.focus();
   });
   document.getElementById("cr-undo").addEventListener("click", () => { rows = copy(saved); paint(); });
   document.getElementById("cr-save").addEventListener("click", async () => {
