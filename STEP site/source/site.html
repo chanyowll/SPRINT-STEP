@@ -11652,6 +11652,7 @@ const heatOf = s => "heat heat-" + (s >= 3.5 ? 4 : s >= 3.0 ? 3 : s >= 2.5 ? 2 :
 const sizeOf = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
 const SCHD = window.STEP_SCHEDULE;
 const DWEEKS = (SCHD && SCHD.teachingWeeks ? SCHD.teachingWeeks() : [])
+  .filter(w => w.week !== 11)      // the FASTRAC proposal week has no slide in the pitch deck
   .map(w => ({ week: w.week, title: w.short || w.title }));
 const nowWeek = () => { const M = window.MOCK || {};
   return (M.cohort && M.cohort.current_week) || (M.thisWeek && M.thisWeek.week_no) || 0; };
@@ -12703,10 +12704,10 @@ document.getElementById("fa-spec").innerHTML = `
   /* Starts on the session the programme is actually running this week —
      right nearly every time, and plainly labelled so it reads as a
      suggestion the trainer can override, not a hidden default. */
-  sel.innerHTML = F.sessions.filter(s => !/FASTRAC/i.test(s.title)).sort((a, b) => a.week - b.week)
+  sel.innerHTML = F.sessions.slice().sort((a, b) => a.week - b.week)
     .map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}${
       s.week === CUR ? " (this week)" : ""}</option>`).join("");
-  const SUGGESTED = (F.sessions.find(s => s.week === CUR && !/FASTRAC/i.test(s.title)) || F.sessions.find(s => !/FASTRAC/i.test(s.title))).code;
+  const SUGGESTED = (F.sessions.find(s => s.week === CUR) || F.sessions[0]).code;
   sel.value = SUGGESTED;
 
   const kb = n => !n ? "" : n < 1024 * 1024 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";

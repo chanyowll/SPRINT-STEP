@@ -857,6 +857,7 @@ const heatOf = s => "heat heat-" + (s >= 3.5 ? 4 : s >= 3.0 ? 3 : s >= 2.5 ? 2 :
 const sizeOf = b => b > 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(b / 1024)) + " KB";
 const SCHD = window.STEP_SCHEDULE;
 const DWEEKS = (SCHD && SCHD.teachingWeeks ? SCHD.teachingWeeks() : [])
+  .filter(w => w.week !== 11)      // the FASTRAC proposal week has no slide in the pitch deck
   .map(w => ({ week: w.week, title: w.short || w.title }));
 const nowWeek = () => { const M = window.MOCK || {};
   return (M.cohort && M.cohort.current_week) || (M.thisWeek && M.thisWeek.week_no) || 0; };
