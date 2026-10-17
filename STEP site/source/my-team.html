@@ -667,7 +667,7 @@ window.__renderMyTeam = function(targetTeamId) {
   if (tbRoster) {
     tbRoster.innerHTML = TW.members.map((m, i) => `<span class="avatar rm" style="--i:${i}"><span class="in">${esc(m.initials)}</span><span class="nm"><b>${esc(m.name)}</b>${m.role ? `<small>${esc(m.role)}</small>` : ""}</span></span>`).join("");
     /* rest the pointer here for about a second and the initials open into a list of names;
-       they fold back three seconds after the pointer has left. Every member is moved with a
+       they fold back 1.75 seconds after the pointer has left. Every member is moved with a
        transform, so opening and closing are the same glide in opposite directions. */
     tbRoster.classList.add("rm"); tbRoster.tabIndex = 0;
     const rmBox = tbRoster.parentElement, n = TW.members.length, items = [...tbRoster.children];
@@ -705,7 +705,7 @@ window.__renderMyTeam = function(targetTeamId) {
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => quiet(() => { measure(); place(); }));
     if (window.ResizeObserver) new ResizeObserver(relayout).observe(tbRoster); else window.addEventListener("resize", relayout);
     tbRoster.addEventListener("mouseenter", () => { arm(); clearTimeout(closeT); if (!isOpen) { clearTimeout(openT); openT = setTimeout(() => rmSet(true), 1000); } });
-    tbRoster.addEventListener("mouseleave", () => { clearTimeout(openT); if (isOpen) closeT = setTimeout(() => rmSet(false), 3000); });
+    tbRoster.addEventListener("mouseleave", () => { clearTimeout(openT); if (isOpen) closeT = setTimeout(() => rmSet(false), 1750); });
     tbRoster.addEventListener("focus", () => { arm(); rmSet(true); });
     tbRoster.addEventListener("blur", () => rmSet(false));
   }
