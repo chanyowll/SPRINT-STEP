@@ -10155,13 +10155,17 @@ window.__renderMyTeam = function(targetTeamId) {
     const rmBox = tbRoster.parentElement, n = TW.members.length, items = [...tbRoster.children];
     let isOpen = false, openT = null, closeT = null, lay = null;
     const measure = () => {
-      /* columns are only as wide as their longest name, so the names sit close together */
+      /* the names stay anchored to the right, where the initials were: each column is only as wide
+         as its longest name and the last letter of every name lines up at the right-hand edge */
       const W = tbRoster.clientWidth, gap = 28, cap = Math.max(60, Math.floor((W - gap) / 2));
       items.forEach(it => { it.style.width = "max-content"; it.style.maxWidth = cap + "px"; });
       const colW = [0, 0], rowH = [];
-      items.forEach((it, i) => { const c = i % 2, r = i >> 1; colW[c] = Math.max(colW[c], it.offsetWidth); rowH[r] = Math.max(rowH[r] || 24, it.querySelector(".nm").offsetHeight); });
+      items.forEach((it, i) => { const c = i % 2, r = i >> 1; colW[c] = Math.max(colW[c], it.offsetWidth + 2);   /* layout px (the page is zoomed, so getBoundingClientRect would be off); +2 so a rounded-down width never wraps the name */ });
+      items.forEach((it, i) => { it.style.width = colW[i % 2] + "px"; });
+      items.forEach((it, i) => { const r = i >> 1; rowH[r] = Math.max(rowH[r] || 24, it.querySelector(".nm").offsetHeight); });
       const rowY = []; let y = 0; rowH.forEach((h, r) => { rowY[r] = y; y += h + 12; });
-      lay = { W, colX: [0, colW[0] + gap], rowY, total: Math.max(24, y - 12), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
+      const x1 = W - colW[1], x0 = n > 1 ? x1 - gap - colW[0] : W - colW[0];
+      lay = { W, colX: [x0, x1], rowY, total: Math.max(24, y - 12), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
       rmBox.style.setProperty("--shift", lay.shift + "px");
     };
     const place = () => {
@@ -10180,6 +10184,7 @@ window.__renderMyTeam = function(targetTeamId) {
     /* a re-measure (page settling, window resize) never animates */
     const quiet = fn => { tbRoster.classList.add("noanim"); rmBox.classList.add("noanim"); fn(); void tbRoster.offsetWidth; tbRoster.classList.remove("noanim"); rmBox.classList.remove("noanim"); };
     const relayout = () => { const w = tbRoster.clientWidth; if (w !== lastW) { lastW = w; quiet(() => { measure(); place(); }); } };
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => quiet(() => { measure(); place(); }));
     if (window.ResizeObserver) new ResizeObserver(relayout).observe(tbRoster); else window.addEventListener("resize", relayout);
     tbRoster.addEventListener("mouseenter", () => { arm(); clearTimeout(closeT); if (!isOpen) { clearTimeout(openT); openT = setTimeout(() => rmSet(true), 1000); } });
     tbRoster.addEventListener("mouseleave", () => { clearTimeout(openT); if (isOpen) closeT = setTimeout(() => rmSet(false), 3000); });
