@@ -1380,6 +1380,13 @@ document.getElementById("fa-spec").innerHTML = `
       const mine = G.filter(g => g.id === u.team_id);
       if (mine.length) return mine;
     }
+    /* otherwise match the signed-in mentor to the programme's mentor list: one mentor, one team */
+    if (!isAdmin() && rolesOf(u).includes("mentor")) {
+      const nm = String(u.name || u.full_name || "").toLowerCase();
+      const m = nm && F.mentors.find(x => x.name.toLowerCase() === nm);
+      const mine = m ? G.filter(g => g.id === m.team_id) : [];
+      if (mine.length) return mine;
+    }
     return G.slice();
   }
   function defaultTeam(list) {
