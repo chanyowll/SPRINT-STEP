@@ -12703,10 +12703,10 @@ document.getElementById("fa-spec").innerHTML = `
   /* Starts on the session the programme is actually running this week —
      right nearly every time, and plainly labelled so it reads as a
      suggestion the trainer can override, not a hidden default. */
-  sel.innerHTML = F.sessions.slice().sort((a, b) => a.week - b.week)
+  sel.innerHTML = F.sessions.filter(s => !/FASTRAC/i.test(s.title)).sort((a, b) => a.week - b.week)
     .map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}${
       s.week === CUR ? " (this week)" : ""}</option>`).join("");
-  const SUGGESTED = (F.sessions.find(s => s.week === CUR) || F.sessions[0]).code;
+  const SUGGESTED = (F.sessions.find(s => s.week === CUR && !/FASTRAC/i.test(s.title)) || F.sessions.find(s => !/FASTRAC/i.test(s.title))).code;
   sel.value = SUGGESTED;
 
   const kb = n => !n ? "" : n < 1024 * 1024 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
