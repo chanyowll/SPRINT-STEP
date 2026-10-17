@@ -5735,7 +5735,7 @@ window.MOCK = (function () {
         focus: "Technology roadmapping", modules: ["W10"] },
       { id: "tr5", name: "Dr. Proceso “Jon” Fernandez", short: "Doc Jon", initials: "JF", org: "Ateneo de Manila University",
         focus: "Intellectual property, at the Mid-Program Checkpoint", modules: ["W6"] },
-      { id: "tr6", name: "Mr. Steve Chavez", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
+      { id: "tr6", name: "Mr. Steve Chaves", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
     ],
 
@@ -14971,7 +14971,7 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
   /* which trainer is signed in: their surname is in their name or the start of their email */
   function myTrainer() {
     const u = me(); if (!u || !u.email && !u.name && !u.full_name) return null;
-    const sz = x => x.replace(/z/g, "s");          // Chavez / Chaves, Fernandez / Fernandes
+    const sz = x => x.replace(/z/g, "s");          // Chaves / Chaves, Fernandez / Fernandes
     const words = sz(String(u.name || u.full_name || "").toLowerCase()).split(/[^a-z]+/).filter(Boolean);
     const local = sz(String(u.email || "").toLowerCase().split("@")[0]);
     return F.trainers.find(t => {

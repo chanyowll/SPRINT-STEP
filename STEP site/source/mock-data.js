@@ -235,7 +235,7 @@ window.MOCK = (function () {
         focus: "Technology roadmapping", modules: ["W10"] },
       { id: "tr5", name: "Dr. Proceso “Jon” Fernandez", short: "Doc Jon", initials: "JF", org: "Ateneo de Manila University",
         focus: "Intellectual property, at the Mid-Program Checkpoint", modules: ["W6"] },
-      { id: "tr6", name: "Mr. Steve Chavez", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
+      { id: "tr6", name: "Mr. Steve Chaves", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
     ],
 

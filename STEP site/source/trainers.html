@@ -3101,7 +3101,7 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
   /* which trainer is signed in: their surname is in their name or the start of their email */
   function myTrainer() {
     const u = me(); if (!u || !u.email && !u.name && !u.full_name) return null;
-    const sz = x => x.replace(/z/g, "s");          // Chavez / Chaves, Fernandez / Fernandes
+    const sz = x => x.replace(/z/g, "s");          // Chaves / Chaves, Fernandez / Fernandes
     const words = sz(String(u.name || u.full_name || "").toLowerCase()).split(/[^a-z]+/).filter(Boolean);
     const local = sz(String(u.email || "").toLowerCase().split("@")[0]);
     return F.trainers.find(t => {
