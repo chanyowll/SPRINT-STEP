@@ -1553,7 +1553,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 
     function fillWeeks() {
       sel.innerHTML = SESSIONS().map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.short || s.title)}</option>`).join("");
-      const cur = SESSIONS().find(s => s.week === NOW) || SESSIONS()[0];
+      const ss = SESSIONS(), cur = ss.find(s => s.week === NOW) || ss.filter(s => s.week <= NOW).pop() || ss[0];
       if (cur) sel.value = cur.code;
     }
     function paint() {
