@@ -6451,9 +6451,9 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
   margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; font-size: inherit; color: inherit; will-change: transform; }
 .roster .avatar.rm .in { position: absolute; left: 0; top: 0; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; line-height: 1;
   background: #dceaf8; color: var(--navy); box-shadow: 0 0 0 2px #0b3c6b; transform-origin: 50% 50%; }
-.roster .avatar.rm .nm { display: flex; flex-direction: column; gap: 3px; min-width: 0; text-align: left; pointer-events: none; opacity: 0; transform: translateY(6px); }
-.roster .avatar.rm .nm b { display: block; font-size: 15px; line-height: 1.2; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
-.roster .avatar.rm .nm small { display: block; font-size: 12px; line-height: 1.2; font-weight: 600; color: #bcd0e4; }
+.roster .avatar.rm .nm { display: flex; flex-direction: column; gap: 2px; min-width: 0; text-align: left; pointer-events: none; opacity: 0; transform: translateY(6px); }
+.roster .avatar.rm .nm b { display: block; font-size: 12px; line-height: 1.2; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
+.roster .avatar.rm .nm small { display: block; font-size: 9.6px; line-height: 1.2; font-weight: 600; color: #bcd0e4; }
 .roster.rm.open .avatar.rm .in { opacity: 0; transform: scale(.25); }
 .roster.rm.open .avatar.rm .nm { opacity: 1; transform: none; }
 #tb-rostercap { margin-left: var(--shift, 0px); }
@@ -6467,7 +6467,7 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .roster.rm.ready.open .avatar.rm .in { transition: opacity .25s ease calc(var(--i, 0) * 55ms), transform .4s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms); }
 .roster.rm.ready.open .avatar.rm .nm { transition: opacity .45s ease calc(var(--i, 0) * 55ms + 280ms), transform .6s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms + 280ms); }
 .rm-ready #tb-rostercap { transition: margin-left .75s cubic-bezier(.22,1,.36,1); }
-.roster.rm.noanim, .roster.rm.noanim * { transition: none !important; }
+.roster.rm.noanim, .roster.rm.noanim *, .rm-ready.noanim #tb-rostercap { transition: none !important; }
 @media (max-width: 800px) { .roster.rm { width: 100%; max-width: 520px; } }
 @media (max-width: 640px) { .roster.rm { width: 100%; } }
 @media (prefers-reduced-motion: reduce) { .roster.rm.ready, .roster.rm.ready .avatar.rm, .roster.rm.ready .avatar.rm .in, .roster.rm.ready .avatar.rm .nm, .rm-ready #tb-rostercap { transition-duration: .01ms !important; transition-delay: 0s !important; } }
