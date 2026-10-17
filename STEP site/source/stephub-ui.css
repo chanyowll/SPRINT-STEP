@@ -6442,24 +6442,32 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .cr-btns { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
 @media (max-width: 640px) { .cr-body .crow2 { grid-template-columns: 30px minmax(0, 1fr); } .cr-body .wt, .cr-side { grid-column: 2; justify-items: start; } }
 
-/* ---- My team's work: hover the roster for a moment and the initials open into a list of names ----
+/* ---- My team's work: hover the roster for a moment and the initials turn into names ----
    Each member is placed with transforms (see my-team.html), so the open and the close are the same
-   smooth glide in opposite directions. Names are plain text beside the initials, no panel. */
-.roster.rm { position: relative; display: block; width: min(520px, 42vw); height: 42px; cursor: default; outline-offset: 8px;
-  transition: height .7s cubic-bezier(.22,1,.36,1); }
-.roster .avatar.rm { position: absolute; left: 0; top: 0; display: flex; align-items: flex-start; gap: 12px; box-sizing: border-box; min-height: 42px; height: auto;
-  margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; font-size: inherit; color: inherit;
-  transition: transform .75s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms); will-change: transform; }
-.roster .avatar.rm .in { flex: none; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; line-height: 1;
-  background: #dceaf8; color: var(--navy); box-shadow: 0 0 0 2px #0b3c6b; }
-.roster .avatar.rm .nm { display: flex; flex-direction: column; justify-content: center; gap: 3px; min-width: 0; min-height: 42px; text-align: left; pointer-events: none;
-  opacity: 0; transform: translateX(-10px); transition: opacity .22s ease, transform .3s ease; }
-.roster .avatar.rm .nm b { display: block; font-size: 14px; line-height: 1.2; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
+   smooth glide in opposite directions. On open the initials circle shrinks away and the name takes
+   its place: plain text, no panel. Nothing animates until the pointer asks for it (.ready). */
+.roster.rm { position: relative; display: block; width: min(520px, 42vw); height: 42px; cursor: default; outline-offset: 8px; }
+.roster .avatar.rm { position: absolute; left: 0; top: 0; display: block; place-items: start; justify-items: start; text-align: left; box-sizing: border-box; height: auto;
+  margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; font-size: inherit; color: inherit; will-change: transform; }
+.roster .avatar.rm .in { position: absolute; left: 0; top: 0; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; line-height: 1;
+  background: #dceaf8; color: var(--navy); box-shadow: 0 0 0 2px #0b3c6b; transform-origin: 50% 50%; }
+.roster .avatar.rm .nm { display: flex; flex-direction: column; gap: 3px; min-width: 0; text-align: left; pointer-events: none; opacity: 0; transform: translateY(6px); }
+.roster .avatar.rm .nm b { display: block; font-size: 15px; line-height: 1.2; font-weight: 800; color: #fff; overflow-wrap: anywhere; }
 .roster .avatar.rm .nm small { display: block; font-size: 12px; line-height: 1.2; font-weight: 600; color: #bcd0e4; }
-.roster.rm.open .avatar.rm .in { transform: rotate(360deg); transition: transform .75s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms); }   /* the spin plays on the way open only; on the way closed the glide is all that moves */
-.roster.rm.open .avatar.rm .nm { opacity: 1; transform: none; transition: opacity .45s ease calc(var(--i, 0) * 55ms + 300ms), transform .6s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms + 300ms); }
-#tb-rostercap { margin-left: var(--shift, 0px); transition: margin-left .75s cubic-bezier(.22,1,.36,1); }
+.roster.rm.open .avatar.rm .in { opacity: 0; transform: scale(.25); }
+.roster.rm.open .avatar.rm .nm { opacity: 1; transform: none; }
+#tb-rostercap { margin-left: var(--shift, 0px); }
 .rm-open #tb-rostercap { margin-left: 0; }
+
+/* animation only once the page has settled, and only in answer to the pointer */
+.roster.rm.ready { transition: height .7s cubic-bezier(.22,1,.36,1); }
+.roster.rm.ready .avatar.rm { transition: transform .75s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms); }
+.roster.rm.ready .avatar.rm .in { transition: opacity .3s ease calc(var(--i, 0) * 55ms + 250ms), transform .45s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms + 250ms); }
+.roster.rm.ready .avatar.rm .nm { transition: opacity .2s ease, transform .2s ease; }
+.roster.rm.ready.open .avatar.rm .in { transition: opacity .25s ease calc(var(--i, 0) * 55ms), transform .4s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms); }
+.roster.rm.ready.open .avatar.rm .nm { transition: opacity .45s ease calc(var(--i, 0) * 55ms + 280ms), transform .6s cubic-bezier(.22,1,.36,1) calc(var(--i, 0) * 55ms + 280ms); }
+.rm-ready #tb-rostercap { transition: margin-left .75s cubic-bezier(.22,1,.36,1); }
+.roster.rm.noanim, .roster.rm.noanim * { transition: none !important; }
 @media (max-width: 800px) { .roster.rm { width: 100%; max-width: 520px; } }
 @media (max-width: 640px) { .roster.rm { width: 100%; } }
-@media (prefers-reduced-motion: reduce) { .roster.rm, .roster .avatar.rm, .roster .avatar.rm .in, .roster .avatar.rm .nm, #tb-rostercap { transition-duration: .01ms; transition-delay: 0s !important; } .roster.rm.open .avatar.rm .in { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .roster.rm.ready, .roster.rm.ready .avatar.rm, .roster.rm.ready .avatar.rm .in, .roster.rm.ready .avatar.rm .nm, .rm-ready #tb-rostercap { transition-duration: .01ms !important; transition-delay: 0s !important; } }

@@ -10157,9 +10157,9 @@ window.__renderMyTeam = function(targetTeamId) {
     const measure = () => {
       const W = tbRoster.clientWidth, gap = 16, cw = Math.floor((W - gap) / 2);
       items.forEach(it => { it.style.width = cw + "px"; });
-      const rowH = []; items.forEach((it, i) => { const r = i >> 1; rowH[r] = Math.max(rowH[r] || 42, it.offsetHeight); });
+      const rowH = []; items.forEach((it, i) => { const r = i >> 1, h = it.querySelector(".nm").offsetHeight; rowH[r] = Math.max(rowH[r] || 30, h); });
       const rowY = []; let y = 0; rowH.forEach((h, r) => { rowY[r] = y; y += h + 14; });
-      lay = { W, cw, gap, rowY, total: Math.max(42, y - 14), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
+      lay = { W, cw, gap, rowY, total: Math.max(30, y - 14), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
       rmBox.style.setProperty("--shift", lay.shift + "px");
     };
     const place = () => {
@@ -10172,8 +10172,12 @@ window.__renderMyTeam = function(targetTeamId) {
     };
     const rmSet = on => { clearTimeout(openT); clearTimeout(closeT); if (on) measure(); isOpen = on; tbRoster.classList.toggle("open", on); rmBox.classList.toggle("rm-open", on); place(); };
     measure(); place();
+    /* switch the transitions on only after the first frames, so nothing plays on arrival */
+    requestAnimationFrame(() => requestAnimationFrame(() => { tbRoster.classList.add("ready"); rmBox.classList.add("rm-ready"); }));
     let lastW = tbRoster.clientWidth;
-    const relayout = () => { const w = tbRoster.clientWidth; if (w !== lastW) { lastW = w; measure(); place(); } };
+    /* a re-measure (page settling, window resize) never animates */
+    const quiet = fn => { tbRoster.classList.add("noanim"); fn(); void tbRoster.offsetWidth; tbRoster.classList.remove("noanim"); };
+    const relayout = () => { const w = tbRoster.clientWidth; if (w !== lastW) { lastW = w; quiet(() => { measure(); place(); }); } };
     if (window.ResizeObserver) new ResizeObserver(relayout).observe(tbRoster); else window.addEventListener("resize", relayout);
     tbRoster.addEventListener("mouseenter", () => { clearTimeout(closeT); if (!isOpen) { clearTimeout(openT); openT = setTimeout(() => rmSet(true), 1000); } });
     tbRoster.addEventListener("mouseleave", () => { clearTimeout(openT); if (isOpen) closeT = setTimeout(() => rmSet(false), 3000); });
