@@ -359,6 +359,21 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   .wk-strip { grid-auto-flow: row; grid-template-columns: repeat(6, minmax(0, 1fr)); }
   .lcard { grid-template-columns: 96px minmax(0, 1fr); }
 }
+
+/* file preview */
+.fv { position: fixed; inset: 0; z-index: 60; background: rgba(8,20,36,.62); display: grid; place-items: center; padding: 24px; }
+.fv[hidden] { display: none; }
+.fv-box { background: var(--panel); border-radius: 10px; width: min(1100px, 100%); height: min(760px, 100%); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,.35); }
+.fv-box header { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--rule); }
+.fv-box header b { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.fv-box .sp { flex: 1; }
+.fv-body { flex: 1; min-height: 0; background: #0d1520; display: grid; place-items: center; }
+.fv-body video, .fv-body img { max-width: 100%; max-height: 100%; }
+.fv-body iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+.fv-body .none { color: #cfe3f6; font-size: 14px; padding: 24px; text-align: center; line-height: 1.6; }
+.fb { all: unset; cursor: pointer; font-size: 11.5px; font-weight: 600; color: var(--blue, #1f6fb2); padding: 2px 7px; border: 1px solid var(--rule); border-radius: 5px; background: #fff; margin-right: 4px; }
+.fb:hover { background: var(--blue-2, #e6f0fa); }
+.fbs { display: flex; gap: 0; margin-top: 5px; flex-wrap: wrap; }
 </style>
 </head>
 <body>
@@ -645,6 +660,14 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   </div>
 </div>
 
+<div class="fv" id="fv" hidden role="dialog" aria-modal="true" aria-labelledby="fv-name">
+  <div class="fv-box">
+    <header><b id="fv-name">File</b><span class="sp"></span>
+      <button class="btn pri sm" id="fv-dl" type="button">Download</button>
+      <button class="btn sm" id="fv-x" type="button" aria-label="Close preview">Close</button></header>
+    <div class="fv-body" id="fv-body"></div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
@@ -1657,6 +1680,46 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   })();
 
 
+
+  /* ---------------- file viewer: see a submitted file, or download it ---------------- */
+  (function () {
+    const box = $("#fv"), body = $("#fv-body");
+    let cur = null;
+    const kindOf = (name, mime) => /^video\//.test(mime || "") || /\.(mp4|mov|m4v|webm)$/i.test(name || "") ? "video"
+      : /^image\//.test(mime || "") || /\.(png|jpe?g|gif|webp)$/i.test(name || "") ? "img"
+      : /pdf/.test(mime || "") || /\.pdf$/i.test(name || "") ? "pdf" : "other";
+    async function url(b, p, dl) {
+      const { data, error } = await SBC().storage.from(b).createSignedUrl(p, 600, dl ? { download: dl } : undefined);
+      if (error) throw error; return data.signedUrl;
+    }
+    async function download(b, p, n) {
+      try { const a = document.createElement("a"); a.href = await url(b, p, n || true); a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); }
+      catch (e) { toast("Could not download: " + (e.message || e)); }
+    }
+    async function view(b, p, n, mime) {
+      cur = { b, p, n };
+      $("#fv-name").textContent = n || "File";
+      body.innerHTML = '<div class="none">Loading…</div>'; box.hidden = false;
+      try {
+        const u = await url(b, p), k = kindOf(n, mime);
+        body.innerHTML = k === "video" ? `<video controls autoplay src="${esc(u)}"></video>`
+          : k === "img" ? `<img alt="" src="${esc(u)}">`
+          : k === "pdf" ? `<iframe title="${esc(n)}" src="${esc(u)}"></iframe>`
+          : `<div class="none">${esc(n || "This file")} can’t be previewed here.<br>Use Download to open it on your computer.</div>`;
+      } catch (e) { body.innerHTML = `<div class="none">Could not open the file: ${esc(e.message || e)}</div>`; }
+    }
+    const close = () => { box.hidden = true; body.innerHTML = ""; cur = null; };
+    $("#fv-x").addEventListener("click", close);
+    box.addEventListener("click", e => { if (e.target === box) close(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) close(); });
+    $("#fv-dl").addEventListener("click", () => cur && download(cur.b, cur.p, cur.n));
+    document.addEventListener("click", e => {
+      const b = e.target.closest("button.fb"); if (!b) return;
+      if (b.hasAttribute("data-view")) view(b.dataset.b, b.dataset.p, b.dataset.n, b.dataset.m);
+      else if (b.hasAttribute("data-dl")) download(b.dataset.b, b.dataset.p, b.dataset.n);
+    });
+  })();
+
   /* ---------------- accomplishment reports: who has handed theirs in ---------------- */
   (function () {
     const PR_BUCKET = "panel-reports", MR_BUCKET = "mentor-reports";
@@ -1670,7 +1733,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const pill = r => !r ? `<span class="pill idle">Not started</span>`
       : r.status === "submitted" ? `<span class="pill ok">Submitted</span>` : `<span class="pill warn">Draft</span>`;
     const link = (bucket, r) => r && r.signed_path
-      ? `<a href="#" class="rp-open" data-b="${bucket}" data-p="${esc(r.signed_path)}">${esc(r.signed_name || "Open")}</a>` : "—";
+      ? `<button class="fb" data-view data-b="${bucket}" data-p="${esc(r.signed_path)}" data-n="${esc(r.signed_name || "Signed report")}">View</button><button class="fb" data-dl data-b="${bucket}" data-p="${esc(r.signed_path)}" data-n="${esc(r.signed_name || "Signed report")}">Download</button>` : "—";
 
     async function fetchAll(w) {
       const sb = SBC(), c = code(w);
@@ -1731,14 +1794,6 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
             <td class="mono">${r ? fmt(r.status === "submitted" ? r.submitted_at : r.updated_at) : "—"}</td><td>${link(MR_BUCKET, r)}</td></tr>`; }).join("");
     }
 
-    document.addEventListener("click", async e => {
-      const a = e.target.closest("a.rp-open"); if (!a) return;
-      e.preventDefault();
-      try {
-        const { data, error } = await SBC().storage.from(a.dataset.b).createSignedUrl(a.dataset.p, 300);
-        if (error) throw error; window.open(data.signedUrl, "_blank", "noopener");
-      } catch (err) { toast("Could not open the file: " + (err.message || err)); }
-    });
     $("#rp-refresh").addEventListener("click", load);
     paintWeeks(); load();
     window.addEventListener("stephub_auth_changed", () => setTimeout(load, 200));
@@ -2073,7 +2128,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     try {
       const [sheets, subs, att, mem, roster, cap, plans] = await Promise.all([
         q(sb.from("panel_sheets").select("session_code, seat, panelist, panel_letter, team_id, scores, general_comment, total, complete, status, submitted_at, updated_at")),
-        q(sb.from("submissions").select("team_id, week_no, kind, status, submitted_at")),
+        q(sb.from("submissions").select("team_id, week_no, kind, status, submitted_at, storage_path, file_name, mime_type")),
         q(sb.from("attendance").select("team_id, member_name, session_code, status, present")),
         q(sb.from("team_members").select("team_id, name")),
         q(sb.rpc("panel_roster")),
@@ -2138,7 +2193,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       const due = dueOf(w), past = Date.now() > due.getTime();
       const late = rows.some(r => r.status === "late");
       const state = v && d ? (late ? "late" : "ok") : (v || d) ? (past ? "part" : "partopen") : (past ? "miss" : "open");
-      out.push({ w, state, at: (v || d || {}).submitted_at, due });
+      out.push({ w, state, at: (v || d || {}).submitted_at, due, v, d });
     }
     return out;
   }
@@ -2256,6 +2311,12 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     },
 
     outputs() {
+      const fileBtns = o => {
+        const one = (r, label) => r && r.storage_path
+          ? `<button class="fb" data-view data-b="submissions" data-p="${esc(r.storage_path)}" data-n="${esc(r.file_name || label)}" data-m="${esc(r.mime_type || "")}" title="See ${label.toLowerCase()}">${label}</button><button class="fb" data-dl data-b="submissions" data-p="${esc(r.storage_path)}" data-n="${esc(r.file_name || label)}" title="Download ${label.toLowerCase()}" aria-label="Download ${label.toLowerCase()}">↓</button>` : "";
+        const h = one(o.v, "Video") + one(o.d, "Slides");
+        return h ? `<div class="fbs">${h}</div>` : "";
+      };
       const upTo = +$("#d-week").value, rows = teamsShown(), f0 = firstWeek();
       const weeks = []; for (let w = f0; w <= upTo; w++) if (outputWeek(w)) weeks.push(w);
       const LBL = { ok: ["ok", "On time"], late: ["warn", "Late"], part: ["warn", "1 of 2 files"], partopen: ["idle", "1 of 2 so far"], miss: ["bad", "Missing"], open: ["idle", "Not due yet"] };
@@ -2263,7 +2324,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       $("#d-head").innerHTML = "<tr><th>Team</th>" + weeks.map(w => `<th title="${esc(modOf(w).title)}">W${w}<div class="note">${esc((SCH && SCH.byWeek(w) && SCH.byWeek(w).short) || "")}</div></th>`).join("") + '<th class="num">In / due</th></tr>';
       $("#d-body").innerHTML = data.map(r => {
         const due = r.outs.filter(o => !["open", "partopen"].includes(o.state)), inN = due.filter(o => ["ok", "late"].includes(o.state)).length;
-        return `<tr>${teamCell(r.g)}${r.outs.map(o => `<td title="Week ${o.w} · due ${dWhen(o.due.toISOString())}${o.at ? " · handed in " + dWhen(o.at) : ""}"><span class="pill ${LBL[o.state][0]}">${LBL[o.state][1]}</span></td>`).join("")}
+        return `<tr>${teamCell(r.g)}${r.outs.map(o => `<td title="Week ${o.w} · due ${dWhen(o.due.toISOString())}${o.at ? " · handed in " + dWhen(o.at) : ""}"><span class="pill ${LBL[o.state][0]}">${LBL[o.state][1]}</span>${fileBtns(o)}</td>`).join("")}
           <td class="num"><b>${inN}</b> / ${due.length}</td></tr>`;
       }).join("");
       const cells = data.flatMap(r => r.outs), due = cells.filter(o => !["open", "partopen"].includes(o.state));
