@@ -666,15 +666,33 @@ window.__renderMyTeam = function(targetTeamId) {
   const tbRoster = document.getElementById("tb-roster");
   if (tbRoster) {
     tbRoster.innerHTML = TW.members.map((m, i) => `<span class="avatar rm" style="--i:${i}"><span class="in">${esc(m.initials)}</span><span class="nm"><b>${esc(m.name)}</b>${m.role ? `<small>${esc(m.role)}</small>` : ""}</span></span>`).join("");
-    /* rest the pointer here for about a second and the initials unfold into full names;
-       they fold back three seconds after the pointer has left */
+    /* rest the pointer here for about a second and the initials open into a list of names;
+       they fold back three seconds after the pointer has left. Every member is moved with a
+       transform, so opening and closing are the same glide in opposite directions. */
     tbRoster.classList.add("rm"); tbRoster.tabIndex = 0;
-    const rmBox = tbRoster.parentElement, n = TW.members.length;
-    /* at rest the initials sit where they always did, at the right-hand end of the box */
-    const rmShift = () => rmBox.style.setProperty("--shift", Math.max(0, tbRoster.clientWidth - (42 + 32 * (n - 1))) + "px");
-    rmShift(); window.addEventListener("resize", rmShift);
-    let openT = null, closeT = null, isOpen = false;
-    const rmSet = on => { isOpen = on; clearTimeout(openT); clearTimeout(closeT); tbRoster.classList.toggle("open", on); rmBox.classList.toggle("rm-open", on); };
+    const rmBox = tbRoster.parentElement, n = TW.members.length, items = [...tbRoster.children];
+    let isOpen = false, openT = null, closeT = null, lay = null;
+    const measure = () => {
+      const W = tbRoster.clientWidth, gap = 16, cw = Math.floor((W - gap) / 2);
+      items.forEach(it => { it.style.width = cw + "px"; });
+      const rowH = []; items.forEach((it, i) => { const r = i >> 1; rowH[r] = Math.max(rowH[r] || 42, it.offsetHeight); });
+      const rowY = []; let y = 0; rowH.forEach((h, r) => { rowY[r] = y; y += h + 14; });
+      lay = { W, cw, gap, rowY, total: Math.max(42, y - 14), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
+      rmBox.style.setProperty("--shift", lay.shift + "px");
+    };
+    const place = () => {
+      if (!lay) measure();
+      items.forEach((it, i) => {
+        const x = isOpen ? (i % 2) * (lay.cw + lay.gap) : lay.shift + 32 * i, y = isOpen ? lay.rowY[i >> 1] : 0;
+        it.style.transform = `translate(${x}px, ${y}px)`;
+      });
+      tbRoster.style.height = (isOpen ? lay.total : 42) + "px";
+    };
+    const rmSet = on => { clearTimeout(openT); clearTimeout(closeT); if (on) measure(); isOpen = on; tbRoster.classList.toggle("open", on); rmBox.classList.toggle("rm-open", on); place(); };
+    measure(); place();
+    let lastW = tbRoster.clientWidth;
+    const relayout = () => { const w = tbRoster.clientWidth; if (w !== lastW) { lastW = w; measure(); place(); } };
+    if (window.ResizeObserver) new ResizeObserver(relayout).observe(tbRoster); else window.addEventListener("resize", relayout);
     tbRoster.addEventListener("mouseenter", () => { clearTimeout(closeT); if (!isOpen) { clearTimeout(openT); openT = setTimeout(() => rmSet(true), 1000); } });
     tbRoster.addEventListener("mouseleave", () => { clearTimeout(openT); if (isOpen) closeT = setTimeout(() => rmSet(false), 3000); });
     tbRoster.addEventListener("focus", () => rmSet(true));
