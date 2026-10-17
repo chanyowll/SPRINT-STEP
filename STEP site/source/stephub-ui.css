@@ -6406,3 +6406,27 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 
 .sh-picks select.one:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar select) {
   background-image: none !important; padding-right: 10px; pointer-events: none; opacity: 1; cursor: default; }
+
+/* ---- trainers: panel scoring criteria ---- */
+.cr-card { padding: var(--s5); display: grid; gap: var(--s4); }
+.cr-top { display: flex; flex-wrap: wrap; gap: var(--s4); align-items: end; justify-content: space-between; }
+.cr-top .fld { min-width: 280px; }
+.cr-who { font-size: 13px; color: var(--ink-soft); }
+.cr-lock { font-size: 13px; line-height: 1.5; color: #7a5a12; background: #fdf6e3; border: 1px solid #ecd9a3; border-radius: 10px; padding: 10px 14px; }
+.cr-row { display: grid; grid-template-columns: 28px 1fr auto auto; gap: 14px; align-items: start; padding: 14px 0; border-top: 1px solid var(--line); }
+.cr-row:first-child { border-top: 0; }
+.cr-row .n { font-weight: 800; color: var(--ink-soft); padding-top: 6px; }
+.cr-f { display: grid; gap: 6px; }
+.cr-f b { font-weight: 650; color: var(--navy); }
+.cr-f em { font-style: normal; font-size: 13px; color: var(--ink-soft); }
+.cr-row .wt { font-weight: 700; color: var(--navy); display: flex; align-items: center; gap: 4px; padding-top: 4px; }
+.cr-row .wt input { width: 64px; }
+.cr-row .in { font: inherit; font-size: 14px; color: var(--navy); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; width: 100%; box-sizing: border-box; }
+.cr-row .ops { display: flex; gap: 4px; }
+.cr-row .ops button { width: 30px; height: 30px; border: 1px solid var(--line); background: var(--surface); border-radius: 8px; cursor: pointer; color: var(--navy); }
+.cr-row .ops button:disabled { opacity: .35; cursor: default; }
+.cr-foot { display: flex; flex-wrap: wrap; gap: var(--s3); align-items: center; border-top: 1px solid var(--line); padding-top: var(--s4); }
+.cr-sum { font-weight: 800; font-size: 13px; }
+.cr-sum.ok { color: #1c7a46; } .cr-sum.bad { color: #b3261e; }
+.cr-btns { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+@media (max-width: 640px) { .cr-row { grid-template-columns: 24px 1fr; } .cr-row .wt, .cr-row .ops { grid-column: 2; } }

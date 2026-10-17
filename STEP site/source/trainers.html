@@ -231,6 +231,32 @@
 
     </section>
 
+    <section class="mt-7" id="crit-sec">
+      <div class="section-head">
+        <div class="eyebrow">Panel scoring</div>
+        <h2>Panel scoring criteria</h2>
+        <p class="lede">What the panels score each week, and how much each criterion counts. Anyone can read a
+           week's criteria. You can edit them only in the week your own topic is running.</p>
+      </div>
+      <div class="card cr-card">
+        <div class="cr-top">
+          <label class="fld"><span>Week</span><select id="cr-week"></select></label>
+          <div class="cr-who" id="cr-who">—</div>
+        </div>
+        <div class="cr-lock" id="cr-lock" hidden></div>
+        <div id="cr-rows"></div>
+        <div class="cr-foot">
+          <span class="cr-sum" id="cr-sum">—</span>
+          <span class="ds-note" id="cr-msg" style="margin:0"></span>
+          <span class="cr-btns" id="cr-btns" hidden>
+            <button class="btn secondary" id="cr-add" type="button">Add a criterion</button>
+            <button class="btn secondary" id="cr-undo" type="button">Undo changes</button>
+            <button class="btn" id="cr-save" type="button">Save criteria</button>
+          </span>
+        </div>
+      </div>
+    </section>
+
     <section class="mt-7">
       <div class="section-head">
         <div class="eyebrow">Who teaches what</div>
@@ -3054,6 +3080,134 @@ window.__renderTrainers = function() {
 };
 window.__renderTrainers();
 window.addEventListener("stephub_auth_changed", () => window.__renderTrainers());
+
+/* ---------- panel scoring criteria: read for everyone, edit in your own week ---------- */
+(function () {
+  const sel = document.getElementById("cr-week"); if (!sel) return;
+  const rowsEl = document.getElementById("cr-rows"), sumEl = document.getElementById("cr-sum"),
+        msgEl = document.getElementById("cr-msg"), lockEl = document.getElementById("cr-lock"),
+        whoEl = document.getElementById("cr-who"), btns = document.getElementById("cr-btns");
+  const SS = () => window.STEP_SCORESHEETS;
+  const SESS = () => F.sessions.filter(s => s.week >= 2 && !s.sim).sort((a, b) => a.week - b.week);
+  const me = () => window.MOCK.auth.getCurrentUser() || {};
+  const rolesOf = u => (window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role]);
+  const isAdmin = () => rolesOf(me()).includes("admin");
+  const copy = a => (a || []).filter(c => !c.group).map(c => ({ label: c.label || "", hint: c.hint || "", weight: Number(c.weight) || 0 }));
+  const total = () => rows.reduce((t, c) => t + (Number(c.weight) || 0), 0);
+  let rows = [], saved = [], locked = 0, busy = false;
+  const dirty = () => JSON.stringify(rows) !== JSON.stringify(saved);
+  const cur = () => SESS().find(s => s.code === sel.value) || {};
+
+  /* which trainer is signed in: their surname is in their name or the start of their email */
+  function myTrainer() {
+    const u = me(); if (!u || !u.email && !u.name && !u.full_name) return null;
+    const words = String(u.name || u.full_name || "").toLowerCase().split(/[^a-z]+/).filter(Boolean);
+    const local = String(u.email || "").toLowerCase().split("@")[0];
+    return F.trainers.find(t => {
+      const sur = t.name.toLowerCase().replace(/[“”".,]/g, "").split(/\s+/).pop();
+      return words.includes(sur) || (local && local.endsWith(sur));
+    }) || null;
+  }
+  function editRule(s) {
+    if (isAdmin()) return { ok: true, why: "" };
+    const t = myTrainer();
+    if (!rolesOf(me()).includes("trainer") || !t) return { ok: false, why: "Only the trainer teaching this week’s topic can change its criteria." };
+    if (!(t.modules || []).includes(s.code)) return { ok: false, why: "This is not your topic. Only " + (F.trainers.find(x => (x.modules || []).includes(s.code)) || {}).short + " can change its criteria." };
+    if (s.week !== CUR) return { ok: false, why: "You can change these criteria during Week " + s.week + ", while your topic is running." };
+    return { ok: true, why: "" };
+  }
+
+  function fill() {
+    const keep = sel.value;
+    sel.innerHTML = SESS().map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.short || s.title)}${s.week === CUR ? " (this week)" : ""}</option>`).join("");
+    const ss = SESS();
+    sel.value = ss.some(s => s.code === keep) ? keep : (ss.find(s => s.week === CUR) || ss.filter(s => s.week <= CUR).pop() || ss[0] || {}).code;
+  }
+  function paint() {
+    const s = cur(), rule = editRule(s), live = !!SS() && !!(window.MOCK.isLiveUser && window.MOCK.isLiveUser());
+    const can = rule.ok && !locked;
+    const tr = F.trainers.find(x => (x.modules || []).includes(s.code));
+    whoEl.textContent = tr ? "Topic taught by " + tr.short : "Trainer to be announced";
+    lockEl.hidden = !(locked || !rule.ok);
+    lockEl.textContent = locked && rule.ok
+      ? locked + " panel sheet" + (locked === 1 ? " has" : "s have") + " already been saved for this week, so its criteria are locked — scores are stored by criterion position."
+      : rule.why;
+    if (!rows.length && !can) {
+      rowsEl.innerHTML = `<p class="ds-note">${s.criteria_pending ? "The score sheet for this week is still to come." : "No criteria for this week."}</p>`;
+    } else if (can) {
+      rowsEl.innerHTML = rows.map((c, i) => `
+        <div class="cr-row edit" data-i="${i}">
+          <span class="n">${i + 1}</span>
+          <div class="cr-f">
+            <textarea class="in" rows="2" data-k="label" aria-label="Criterion ${i + 1}" placeholder="What the panel is scoring, written as a question">${esc(c.label)}</textarea>
+            <input class="in" data-k="hint" aria-label="Note to the panelist" placeholder="Optional note to the panelist: what a strong answer looks like" value="${esc(c.hint)}">
+          </div>
+          <span class="wt"><input class="in" type="number" min="1" max="100" step="1" data-k="weight" value="${c.weight || ""}" aria-label="Weight, percent">%</span>
+          <span class="ops">
+            <button type="button" data-op="up" title="Move up" ${i === 0 ? "disabled" : ""}>↑</button>
+            <button type="button" data-op="down" title="Move down" ${i === rows.length - 1 ? "disabled" : ""}>↓</button>
+            <button type="button" data-op="del" title="Remove">×</button>
+          </span>
+        </div>`).join("") || `<p class="ds-note">No criteria yet. Add the first one.</p>`;
+    } else {
+      rowsEl.innerHTML = rows.map((c, i) => `
+        <div class="cr-row">
+          <span class="n">${i + 1}</span>
+          <div class="cr-f"><b>${esc(c.label)}</b>${c.hint ? `<em>${esc(c.hint)}</em>` : ""}</div>
+          <span class="wt"><b>${c.weight}%</b></span>
+        </div>`).join("");
+    }
+    const t = total();
+    sumEl.textContent = rows.length ? "Weights add up to " + t + "%" : "";
+    sumEl.className = "cr-sum " + (t === 100 ? "ok" : "bad");
+    btns.hidden = !can;
+    const problems = SS() ? SS().validate(rows) : [];
+    document.getElementById("cr-save").disabled = !live || busy || !dirty() || problems.length > 0;
+    document.getElementById("cr-undo").disabled = !dirty() || busy;
+    document.getElementById("cr-add").disabled = busy;
+    msgEl.textContent = !can ? "" : !live ? "Sign in with your STEP account to save changes." : dirty() ? (problems.length ? problems[0] : "Not saved yet.") : "";
+  }
+  async function open() {
+    const s = cur(); if (!s.code) { rowsEl.innerHTML = ""; return; }
+    saved = copy(s.assess); rows = copy(s.assess); locked = 0; paint();
+    if (SS() && editRule(s).ok) { try { locked = await SS().sheetsSaved(s.code); } catch (e) {} paint(); }
+  }
+  sel.addEventListener("change", () => {
+    if (dirty() && !confirm("Leave this week and discard the unsaved changes?")) { sel.value = sel.dataset.was; return; }
+    sel.dataset.was = sel.value; open();
+  });
+  rowsEl.addEventListener("input", e => {
+    const row = e.target.closest(".cr-row.edit"), k = e.target.dataset.k; if (!row || !k) return;
+    rows[+row.dataset.i][k] = k === "weight" ? (e.target.value === "" ? 0 : Math.round(+e.target.value)) : e.target.value;
+    const t = total(); sumEl.textContent = "Weights add up to " + t + "%"; sumEl.className = "cr-sum " + (t === 100 ? "ok" : "bad");
+    const problems = SS() ? SS().validate(rows) : [];
+    document.getElementById("cr-save").disabled = busy || !dirty() || problems.length > 0;
+    document.getElementById("cr-undo").disabled = !dirty();
+    msgEl.textContent = dirty() ? (problems.length ? problems[0] : "Not saved yet.") : "";
+  });
+  rowsEl.addEventListener("click", e => {
+    const b = e.target.closest("[data-op]"); if (!b || b.disabled) return;
+    const i = +b.closest(".cr-row").dataset.i, op = b.dataset.op;
+    if (op === "del") { if (rows[i].label && !confirm("Remove criterion " + (i + 1) + "?")) return; rows.splice(i, 1); }
+    if (op === "up" && i > 0) rows.splice(i - 1, 0, rows.splice(i, 1)[0]);
+    if (op === "down" && i < rows.length - 1) rows.splice(i + 1, 0, rows.splice(i, 1)[0]);
+    paint();
+  });
+  document.getElementById("cr-add").addEventListener("click", () => {
+    rows.push({ label: "", hint: "", weight: Math.max(0, 100 - total()) }); paint();
+    const last = rowsEl.querySelector(".cr-row:last-child textarea"); if (last) last.focus();
+  });
+  document.getElementById("cr-undo").addEventListener("click", () => { rows = copy(saved); paint(); });
+  document.getElementById("cr-save").addEventListener("click", async () => {
+    if (!SS() || busy || !editRule(cur()).ok) return;
+    busy = true; paint();
+    try { await SS().save(sel.value, rows); msgEl.textContent = "Saved. Panelists see the new criteria on the Panel page."; busy = false; saved = copy(cur().assess); rows = copy(cur().assess); paint(); msgEl.textContent = "Saved. Panelists see the new criteria on the Panel page."; }
+    catch (err) { busy = false; paint(); msgEl.textContent = "Could not save: " + (err && err.message ? err.message : err); }
+  });
+  fill(); sel.dataset.was = sel.value; open();
+  window.addEventListener("stephub_scoresheets", () => { if (!dirty()) { saved = copy(cur().assess); rows = copy(cur().assess); paint(); } });
+  window.addEventListener("stephub_auth_changed", () => { if (!dirty()) open(); else paint(); });
+})();
 </script>
 </body>
 </html>
