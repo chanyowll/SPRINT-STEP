@@ -2036,6 +2036,9 @@
             <h3 id="pr-topic">—</h3>
             <div class="sh-meta" id="pr-meta">—</div>
           </div>
+          <div class="sh-picks">
+            <label class="fld"><span>Week</span><select id="pr-week"></select></label>
+          </div>
         </div>
 
         <div class="pr-empty" id="pr-empty">
@@ -14845,6 +14848,19 @@ function initials(n) {
       if (!/^Saved/i.test(sheetSaved.textContent || "")) return;
       clearTimeout(reT); reT = setTimeout(refreshFromSheet, 1000);
     }).observe(sheetSaved, { childList: true, characterData: true, subtree: true });
+  }
+
+  /* the report's own Week picker: a panelist can open an earlier week's report after its date has passed.
+     It drives the score sheet's session, which the report is written from. */
+  const prWeek = $("pr-week");
+  if (prWeek) {
+    prWeek.innerHTML = selS.innerHTML;
+    prWeek.value = selS.value;
+    prWeek.addEventListener("change", () => {
+      selS.value = prWeek.value;
+      selS.dispatchEvent(new Event("change"));
+    });
+    selS.addEventListener("change", () => { prWeek.value = selS.value; });
   }
 
   /* follow the score sheet: another session, panel or panelist, a new grouping, a new account */
