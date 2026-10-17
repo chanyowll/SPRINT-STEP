@@ -374,6 +374,10 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .fb { all: unset; cursor: pointer; font-size: 11.5px; font-weight: 600; color: var(--blue, #1f6fb2); padding: 2px 7px; border: 1px solid var(--rule); border-radius: 5px; background: #fff; margin-right: 4px; }
 .fb:hover { background: var(--blue-2, #e6f0fa); }
 .fbs { display: flex; gap: 0; margin-top: 5px; flex-wrap: wrap; }
+.wk-out button s { display: block; text-decoration: none; font-size: 11px; margin-top: 2px; }
+.wk-out button.off { opacity: .55; }
+.o-file { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
+.o-file .no { color: var(--ink-3); font-size: 12.5px; }
 </style>
 </head>
 <body>
@@ -620,10 +624,10 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         <div class="toolbar">
           <label class="field" id="d-sess-f" hidden><span>Session</span><select class="in" id="d-sess" style="width:300px"></select></label>
           <label class="field" id="d-week-f"><span>Up to week</span><select class="in" id="d-week" style="width:130px"></select></label>
-          <label class="field"><span>Region</span><select class="in" id="d-reg" style="width:140px"><option value="">All</option><option>Luzon</option><option>Visayas</option><option>Mindanao</option></select></label>
-          <label class="field"><span>Panel</span><select class="in" id="d-pan" style="width:120px"><option value="">All</option><option>A</option><option>B</option><option>C</option><option>D</option></select></label>
+          <div class="seg" id="o-mode" role="group" aria-label="How to show submitted outputs" hidden><button aria-pressed="true" data-m="week">By week</button><button aria-pressed="false" data-m="all">All teams</button></div>
           <span class="note" id="d-asof" style="margin-left:auto;align-self:center"></span>
         </div>
+        <div class="wk-strip wk-out" id="o-weeks" hidden></div>
         <div class="stats" id="d-stats"></div>
         <div class="card">
           <header><h2 id="d-title">Team data</h2><span class="sub" id="d-sub"></span></header>
@@ -2087,7 +2091,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const sesKey = c => (String(c).split("-")[1] || "LS").toUpperCase();
   const sesName = c => (SES_KIND[sesKey(c)] || [sesKey(c)])[0];
   const sesRank = c => (SES_KIND[sesKey(c)] || [0, 9])[1];
-  let DV = "overview", D = null, dOpen = new Set(), CSV = [];
+  let DV = "overview", OM = "week", OW = null, D = null, dOpen = new Set(), CSV = [];
 
   $("#d-week").innerHTML = WEEKS.filter(w => w <= NOW).map(w => `<option value="${w}" ${w === NOW ? "selected" : ""}>Week ${w}</option>`).join("");
   $("#d-sess").innerHTML = SESS.map(s => `<option value="${esc(s.code)}">${esc(sessLabel(s.code))}</option>`).join("");
@@ -2143,8 +2147,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 
   /* ---- what each team has, worked out once per render ---- */
   function teamsShown(w) {
-    const reg = $("#d-reg").value, pan = $("#d-pan").value;
-    return G.filter(g => (!reg || g.region === reg) && (!pan || D.letter(g.id, w) === pan));
+    return G.slice();
   }
   /* weeks count from the first week this cohort has any record, so weeks
      before the site was in use are not counted as missing */
@@ -2167,16 +2170,19 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const done = panelSheets(team, code).filter(scoredSheet).map(s => +s.total);
     return done.length ? { avg: mean(done), n: done.length } : null;
   }
+  function outputFor(team, w) {
+    const rows = D.subs.filter(s => s.team_id === team && +s.week_no === w);
+    const v = rows.find(r => r.kind === "video"), d = rows.find(r => r.kind === "slide" || r.kind === "slides");
+    const due = dueOf(w), past = Date.now() > due.getTime();
+    const late = rows.some(r => r.status === "late");
+    const state = v && d ? (late ? "late" : "ok") : (v || d) ? (past ? "part" : "partopen") : (past ? "miss" : "open");
+    return { w, state, at: (v || d || {}).submitted_at, due, v, d };
+  }
   function outputsOf(team, upTo) {
     const out = [];
     for (let w = firstWeek(); w <= upTo; w++) {
       if (!outputWeek(w)) continue;                 // orientation, launch and Demo Day have no weekly output
-      const rows = D.subs.filter(s => s.team_id === team && +s.week_no === w);
-      const v = rows.find(r => r.kind === "video"), d = rows.find(r => r.kind === "slide" || r.kind === "slides");
-      const due = dueOf(w), past = Date.now() > due.getTime();
-      const late = rows.some(r => r.status === "late");
-      const state = v && d ? (late ? "late" : "ok") : (v || d) ? (past ? "part" : "partopen") : (past ? "miss" : "open");
-      out.push({ w, state, at: (v || d || {}).submitted_at, due, v, d });
+      out.push(outputFor(team, w));
     }
     return out;
   }
@@ -2300,22 +2306,53 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         const h = one(o.v, "Video") + one(o.d, "Slides");
         return h ? `<div class="fbs">${h}</div>` : "";
       };
-      const upTo = +$("#d-week").value, rows = teamsShown(), f0 = firstWeek();
-      const weeks = []; for (let w = f0; w <= upTo; w++) if (outputWeek(w)) weeks.push(w);
       const LBL = { ok: ["ok", "On time"], late: ["warn", "Late"], part: ["warn", "1 of 2 files"], partopen: ["idle", "1 of 2 so far"], miss: ["bad", "Missing"], open: ["idle", "Not due yet"] };
-      const data = rows.map(g => ({ g, outs: outputsOf(g.id, upTo) }));
+      const OK = o => ["ok", "late"].includes(o.state), OPEN = o => ["open", "partopen"].includes(o.state);
+      const rows = teamsShown(), f0 = firstWeek();
+      const allW = WEEKS.filter(w => w >= 1 && outputWeek(w));
+      $("#o-mode").hidden = false;
+      $$("#o-mode button").forEach(x => x.setAttribute("aria-pressed", x.dataset.m === OM));
+      $("#d-week-f").hidden = true;
+
+      if (OM === "week") {
+        if (!allW.includes(OW)) OW = allW.filter(w => w <= NOW).pop() || allW[0];
+        const per = Object.fromEntries(allW.map(w => [w, rows.map(g => ({ g, o: outputFor(g.id, w) }))]));
+        const strip = $("#o-weeks"); strip.hidden = false;
+        strip.innerHTML = allW.map(w => {
+          const n = per[w].filter(x => OK(x.o)).length, cls = !per[w].length ? "" : n === per[w].length ? "has" : (w >= f0 && per[w].some(x => !OK(x.o) && !OPEN(x.o))) ? "miss" : "";
+          return `<button data-w="${w}" class="${cls}${w === NOW ? " now" : ""}${w > NOW ? " off" : ""}" aria-pressed="${w === OW}" title="${esc(modOf(w).title)} · due ${dWhen(dueOf(w).toISOString())}"><b>W${wtag(w)}</b><s>${n} / ${per[w].length}</s><i></i></button>`;
+        }).join("");
+        const list = per[OW] || [], got = list.filter(x => OK(x.o)), part = list.filter(x => x.o.v || x.o.d).length - got.length;
+        const none = list.filter(x => !x.o.v && !x.o.d).length;
+        const file = (o, r, label) => r
+          ? `<div class="o-file"><span class="pill ok">Handed in</span>${r.storage_path ? `<span class="fbs" style="margin:0 0 0 6px">${fileBtns({ [label === "Video" ? "v" : "d"]: r }).replace(/^<div class="fbs">|<\/div>$/g, "")}</span>` : ""}</div>`
+          : `<span class="no">Not handed in</span>`;
+        $("#d-head").innerHTML = "<tr><th>Team</th><th>Video</th><th>Slides</th><th>Status</th><th>Handed in</th></tr>";
+        $("#d-body").innerHTML = list.map(({ g, o }) => `<tr>${teamCell(g)}<td>${file(o, o.v, "Video")}</td><td>${file(o, o.d, "Slides")}</td><td><span class="pill ${LBL[o.state][0]}">${LBL[o.state][1]}</span></td><td class="note">${o.at ? dWhen(o.at) : "—"}</td></tr>`).join("");
+        $("#d-stats").innerHTML = dStat(got.length + " / " + list.length, "teams with both files in") + dStat(part, "with one file only")
+          + dStat(none, "with nothing yet") + dStat(list.filter(x => x.o.state === "late").length, "handed in late");
+        $("#d-title").textContent = "Week " + OW + " · " + modOf(OW).title;
+        $("#d-sub").textContent = "Due " + dWhen(dueOf(OW).toISOString()) + " (12:00 NN the day before the feedback session). Click a week square above to switch.";
+        $("#d-foot").textContent = "A team counts as in when both the video and the slide deck are handed in.";
+        CSV = [["Team", "Video", "Slides", "Status", "Handed in"]].concat(list.map(({ g, o }) => [g.name, o.v ? "Handed in" : "Not handed in", o.d ? "Handed in" : "Not handed in", LBL[o.state][1], o.at || ""]));
+        return;
+      }
+
+      $("#o-weeks").hidden = true;
+      const weeks = allW;
+      const data = rows.map(g => ({ g, outs: weeks.map(w => outputFor(g.id, w)) }));
       $("#d-head").innerHTML = "<tr><th>Team</th>" + weeks.map(w => `<th title="${esc(modOf(w).title)}">W${w}<div class="note">${esc((SCH && SCH.byWeek(w) && SCH.byWeek(w).short) || "")}</div></th>`).join("") + '<th class="num">In / due</th></tr>';
       $("#d-body").innerHTML = data.map(r => {
-        const due = r.outs.filter(o => !["open", "partopen"].includes(o.state)), inN = due.filter(o => ["ok", "late"].includes(o.state)).length;
+        const due = r.outs.filter(o => !OPEN(o)), inN = due.filter(OK).length;
         return `<tr>${teamCell(r.g)}${r.outs.map(o => `<td title="Week ${o.w} · due ${dWhen(o.due.toISOString())}${o.at ? " · handed in " + dWhen(o.at) : ""}"><span class="pill ${LBL[o.state][0]}">${LBL[o.state][1]}</span>${fileBtns(o)}</td>`).join("")}
           <td class="num"><b>${inN}</b> / ${due.length}</td></tr>`;
       }).join("");
-      const cells = data.flatMap(r => r.outs), due = cells.filter(o => !["open", "partopen"].includes(o.state));
+      const cells = data.flatMap(r => r.outs), due = cells.filter(o => !OPEN(o));
       $("#d-stats").innerHTML = dStat(due.length ? Math.round(due.filter(o => o.state === "ok").length / due.length * 100) + "%" : "—", "handed in on time")
         + dStat(due.filter(o => o.state === "late").length, "late") + dStat(due.filter(o => ["miss", "part"].includes(o.state)).length, "missing or incomplete")
-        + dStat(data.filter(r => r.outs.filter(o => !["open", "partopen"].includes(o.state)).every(o => ["ok", "late"].includes(o.state))).length + " / " + data.length, "teams with everything in");
-      $("#d-title").textContent = "Submitted outputs"; $("#d-sub").textContent = "Video and slide deck, week by week · due 12:00 NN the day before the feedback session";
-      $("#d-foot").textContent = "A week counts as in when both files are handed in. Weeks start at Week " + f0 + ", the first week with any record.";
+        + dStat(data.filter(r => r.outs.filter(o => !OPEN(o)).every(OK)).length + " / " + data.length, "teams with everything in");
+      $("#d-title").textContent = "Submitted outputs · all teams"; $("#d-sub").textContent = "Video and slide deck, every week · due 12:00 NN the day before the feedback session";
+      $("#d-foot").textContent = "A week counts as in when both files are handed in. Weeks that have not come up yet show Not due yet.";
       CSV = [["Team"].concat(weeks.map(w => "Week " + w))].concat(data.map(r => [r.g.name].concat(r.outs.map(o => LBL[o.state][1]))));
     },
 
@@ -2376,7 +2413,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 
   function renderData() {
     $("#d-sess-f").hidden = DV !== "scores";
-    $("#d-week-f").hidden = DV === "scores" || DV === "fastrac";
+    $("#d-week-f").hidden = DV === "scores" || DV === "fastrac" || DV === "outputs";
+    $("#o-mode").hidden = true; $("#o-weeks").hidden = true;
     if (!D) {
       $("#d-head").innerHTML = ""; $("#d-stats").innerHTML = ""; CSV = [];
       $("#d-title").textContent = "Team data"; $("#d-sub").textContent = "";
@@ -2395,7 +2433,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const tr = e.target.closest("tr.dv-row"); if (!tr) return;
     const id = tr.dataset.team; dOpen.has(id) ? dOpen.delete(id) : dOpen.add(id); renderData();
   });
-  ["#d-reg", "#d-pan", "#d-week", "#d-sess"].forEach(s => $(s).addEventListener("change", renderData));
+  ["#d-week", "#d-sess"].forEach(s => $(s).addEventListener("change", renderData));
+  $("#o-mode").addEventListener("click", e => { const b = e.target.closest("button[data-m]"); if (!b) return; OM = b.dataset.m; renderData(); });
+  $("#o-weeks").addEventListener("click", e => { const b = e.target.closest("button[data-w]"); if (!b) return; OW = +b.dataset.w; renderData(); });
   $("#d-refresh").addEventListener("click", dLoad);
   $("#d-csv").addEventListener("click", () => {
     if (!CSV.length) { toast("Nothing to download yet."); return; }
@@ -2403,7 +2443,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const blob = new Blob(["﻿" + CSV.map(r => r.map(cell).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
     const a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
-    a.download = "step-team-data-" + DV + (DV === "scores" ? "-" + $("#d-sess").value : "-week" + $("#d-week").value) + ".csv";
+    a.download = "step-team-data-" + DV + (DV === "scores" ? "-" + $("#d-sess").value : DV === "outputs" ? (OM === "week" ? "-week" + OW : "-all-weeks") : "-week" + $("#d-week").value) + ".csv";
     document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   });
   renderData();
