@@ -6451,9 +6451,9 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
   margin: 0; padding: 0; border: 0; border-radius: 0; background: transparent; box-shadow: none; overflow: visible; font-size: inherit; color: inherit; will-change: transform; }
 .roster .avatar.rm .in { position: absolute; left: 0; top: 0; width: 42px; height: 42px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; line-height: 1;
   background: #dceaf8; color: var(--navy); box-shadow: 0 0 0 2px #0b3c6b; transform-origin: 50% 50%; }
-.roster .avatar.rm .nm { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; min-width: 0; text-align: right; pointer-events: none; opacity: 0; transform: translateY(6px); }
-.roster .avatar.rm .nm b { display: block; max-width: 100%; font-size: 12px; line-height: 1.2; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.roster .avatar.rm .nm small { display: block; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 9.6px; line-height: 1.2; font-weight: 600; color: #bcd0e4; }
+.roster .avatar.rm .nm { display: flex; flex-direction: row; align-items: baseline; justify-content: flex-end; gap: 6px; min-width: 0; text-align: right; pointer-events: none; opacity: 0; transform: translateY(6px); }
+.roster .avatar.rm .nm b { display: block; flex: 0 1 auto; min-width: 0; font-size: 12px; line-height: 1.2; font-weight: 800; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.roster .avatar.rm .nm .rc { flex: none; font-size: 9.6px; line-height: 1; font-weight: 800; letter-spacing: .05em; color: #cfe0f2; background: rgba(255, 255, 255, .14); border-radius: 4px; padding: 2px 5px; }
 .roster.rm.open .avatar.rm .in { opacity: 0; transform: scale(.25); }
 .roster.rm.open .avatar.rm .nm { opacity: 1; transform: none; }
 #tb-rostercap { margin-left: var(--shift, 0px); }

@@ -665,7 +665,10 @@ window.__renderMyTeam = function(targetTeamId) {
   }
   const tbRoster = document.getElementById("tb-roster");
   if (tbRoster) {
-    tbRoster.innerHTML = TW.members.map((m, i) => `<span class="avatar rm" style="--i:${i}"><span class="in">${esc(m.initials)}</span><span class="nm"><b>${esc(m.name)}</b>${m.role ? `<small>${esc(m.role)}</small>` : ""}</span></span>`).join("");
+    /* the role as a short code beside the name: Project Leader → PL, Entrepreneurial Lead → EL, Tech Transfer Officer → TTO, Member → M */
+    const ROLE_CODES = { "project leader": "PL", "entrepreneurial lead": "EL", "tech transfer officer": "TTO", "technology transfer officer": "TTO", "member": "M" };
+    const roleCode = r => { const k = String(r || "").trim().toLowerCase(); return ROLE_CODES[k] || (String(r).match(/[A-Za-z]+/g) || []).slice(0, 3).map(w => w[0].toUpperCase()).join("") || "M"; };
+    tbRoster.innerHTML = TW.members.map((m, i) => `<span class="avatar rm" style="--i:${i}"><span class="in">${esc(m.initials)}</span><span class="nm"><b>${esc(m.name)}</b>${m.role ? `<small class="rc">${esc(roleCode(m.role))}</small>` : ""}</span></span>`).join("");
     /* rest the pointer here for about a second and the initials open into a list of names;
        they fold back 1.75 seconds after the pointer has left. Every member is moved with a
        transform, so opening and closing are the same glide in opposite directions. */
@@ -680,10 +683,10 @@ window.__renderMyTeam = function(targetTeamId) {
       const colW = [0, 0], rowH = [];
       items.forEach((it, i) => { const c = i % 2, r = i >> 1; colW[c] = Math.max(colW[c], it.offsetWidth + 2);   /* layout px (the page is zoomed, so getBoundingClientRect would be off); +2 so a rounded-down width never wraps the name */ });
       items.forEach((it, i) => { it.style.width = colW[i % 2] + "px"; });
-      items.forEach((it, i) => { const r = i >> 1; rowH[r] = Math.max(rowH[r] || 24, it.querySelector(".nm").offsetHeight); });
-      const rowY = []; let y = 0; rowH.forEach((h, r) => { rowY[r] = y; y += h + 12; });
+      items.forEach((it, i) => { const r = i >> 1; rowH[r] = Math.max(rowH[r] || 14, it.querySelector(".nm").offsetHeight); });
+      const rowY = []; let y = 0; rowH.forEach((h, r) => { rowY[r] = y; y += h + 10; });
       const x1 = W - colW[1], x0 = n > 1 ? x1 - gap - colW[0] : W - colW[0];
-      lay = { W, colX: [x0, x1], rowY, total: Math.max(24, y - 12), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
+      lay = { W, colX: [x0, x1], rowY, total: Math.max(14, y - 10), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
       rmBox.style.setProperty("--shift", lay.shift + "px");
     };
     const place = () => {
