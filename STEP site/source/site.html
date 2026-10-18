@@ -10158,23 +10158,21 @@ window.__renderMyTeam = function(targetTeamId) {
     const rmBox = tbRoster.parentElement, n = TW.members.length, items = [...tbRoster.children];
     let isOpen = false, openT = null, closeT = null, lay = null;
     const measure = () => {
-      /* the names stay anchored to the right, where the initials were: each column is only as wide
-         as its longest name and the last letter of every name lines up at the right-hand edge */
-      const W = tbRoster.clientWidth, gap = 28, cap = Math.max(60, Math.floor((W - gap) / 2));
-      items.forEach(it => { it.style.width = "max-content"; it.style.maxWidth = cap + "px"; });
-      const colW = [0, 0], rowH = [];
-      items.forEach((it, i) => { const c = i % 2, r = i >> 1; colW[c] = Math.max(colW[c], it.offsetWidth + 2);   /* layout px (the page is zoomed, so getBoundingClientRect would be off); +2 so a rounded-down width never wraps the name */ });
-      items.forEach((it, i) => { it.style.width = colW[i % 2] + "px"; });
-      items.forEach((it, i) => { const r = i >> 1; rowH[r] = Math.max(rowH[r] || 14, it.querySelector(".nm").offsetHeight); });
-      const rowY = []; let y = 0; rowH.forEach((h, r) => { rowY[r] = y; y += h + 10; });
-      const x1 = W - colW[1], x0 = n > 1 ? x1 - gap - colW[0] : W - colW[0];
-      lay = { W, colX: [x0, x1], rowY, total: Math.max(14, y - 10), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
+      /* one name per line, top to bottom, anchored to the right where the initials were: the column
+         is only as wide as the longest name and the end of every line meets the right-hand edge */
+      const W = tbRoster.clientWidth;
+      items.forEach(it => { it.style.width = "max-content"; it.style.maxWidth = W + "px"; });
+      const colW = Math.min(W, Math.max(0, ...items.map(it => it.offsetWidth)) + 2);   /* layout px: the page is zoomed, so no getBoundingClientRect; +2 so a rounded-down width never wraps */
+      items.forEach(it => { it.style.width = colW + "px"; });
+      const rowY = []; let y = 0;
+      items.forEach((it, i) => { rowY[i] = y; y += Math.max(14, it.querySelector(".nm").offsetHeight) + 10; });
+      lay = { W, x: W - colW, rowY, total: Math.max(14, y - 10), shift: Math.max(0, W - (42 + 32 * (n - 1))) };
       rmBox.style.setProperty("--shift", lay.shift + "px");
     };
     const place = () => {
       if (!lay) measure();
       items.forEach((it, i) => {
-        const x = isOpen ? lay.colX[i % 2] : lay.shift + 32 * i, y = isOpen ? lay.rowY[i >> 1] : 0;
+        const x = isOpen ? lay.x : lay.shift + 32 * i, y = isOpen ? lay.rowY[i] : 0;
         it.style.transform = `translate(${x}px, ${y}px)`;
       });
       tbRoster.style.height = (isOpen ? lay.total : 42) + "px";
