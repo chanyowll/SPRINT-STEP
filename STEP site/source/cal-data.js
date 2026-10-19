@@ -35,6 +35,7 @@
     feedback:    { name: "Feedback session", chip: "Feedback",   zoom: true },
     orientation: { name: "Onboarding",       chip: "Onboarding", zoom: true },
     mentoring:   { name: "Mentoring",        chip: "Mentoring",  zoom: true },
+    event:       { name: "Event",            chip: "Event",      zoom: true },   /* anything the STEP Team adds that is not a team's mentoring */
     onsite:      { name: "On site",          chip: "On site",    zoom: true },   /* a link too: map, livestream or sign-up */
     deadline:    { name: "Output due",       chip: "Due 12 NN" },
     holiday:     { name: "No session",       chip: "No session" }
@@ -90,11 +91,11 @@
   }
 
   /* ---------- the stored part: links and mentoring ---------- */
-  const fail = e => new Error(/cal_links|cal_mentoring|does not exist|schema cache/i.test((e && e.message) || "")
+  const fail = e => new Error(/cal_links|cal_mentoring|cal_events|does not exist|schema cache/i.test((e && e.message) || "")
     ? "The calendar's Zoom links are not set up yet. Ask the tech team to run calendar.sql." : (e && e.message) || "Something went wrong.");
 
   /* sample store for ?demo=1 */
-  const demo = { links: null, ment: null };
+  const demo = { links: null, ment: null, evts: [] };
   function demoStore() {
     if (demo.links) return demo;
     demo.links = {}; demo.ment = [];
@@ -111,16 +112,17 @@
   }
 
   async function loadExtras() {
-    if (!user()) return { links: {}, ment: [] };
-    if (DEMO || !live()) { const s = demoStore(); return { links: Object.assign({}, s.links), ment: s.ment.slice() }; }
+    if (!user()) return { links: {}, ment: [], evts: [] };
+    if (DEMO || !live()) { const s = demoStore(); return { links: Object.assign({}, s.links), ment: s.ment.slice(), evts: s.evts.slice() }; }
     const sb = client();
-    const [l, m] = await Promise.all([
+    const [l, m, v] = await Promise.all([
       sb.from("cal_links").select("session_key, zoom_url"),
-      sb.from("cal_mentoring").select("*").order("on_date").order("start_time")
+      sb.from("cal_mentoring").select("*").order("on_date").order("start_time"),
+      sb.from("cal_events").select("*").order("on_date").order("start_time")
     ]);
     if (l.error) throw fail(l.error);
     const links = {}; (l.data || []).forEach(r => { links[r.session_key] = r.zoom_url; });
-    return { links, ment: m.error ? [] : (m.data || []) };
+    return { links, ment: m.error ? [] : (m.data || []), evts: v.error ? [] : (v.data || []) };
   }
 
   async function saveLinks(keys, url) {
@@ -160,6 +162,37 @@
     bust();
   }
 
+  /* ---- events that are not a team's mentoring (STEP Team adds them; everyone signed in sees them) ---- */
+  function checkEvt(r) {
+    if (!String(r.title || "").trim()) throw new Error("Give the event a title.");
+    if (String(r.title).length > 120) throw new Error("Keep the title under 120 characters.");
+    if (!r.on_date) throw new Error("Pick a date.");
+    if ((r.start_time && !r.end_time) || (!r.start_time && r.end_time)) throw new Error("Set both the start and the end time, or leave both empty for an all-day event.");
+    if (r.start_time && r.end_time <= r.start_time) throw new Error("The end time must be after the start time.");
+    if (r.link_url && !/^https?:\/\/\S+$/i.test(r.link_url)) throw new Error("The link should start with https://");
+    if (String(r.notes || "").length > 600) throw new Error("Keep the notes under 600 characters.");
+  }
+  async function addEvents(rows) {
+    rows.forEach(checkEvt);
+    if (DEMO || !live()) { const s = demoStore(); rows.forEach((r, i) => s.evts.push(Object.assign({ id: "de" + Date.now() + i }, r))); bust(); return; }
+    const r = await client().from("cal_events").insert(rows);
+    if (r.error) throw fail(r.error);
+    bust();
+  }
+  async function updateEvent(id, row) {
+    checkEvt(row);
+    if (DEMO || !live()) { const s = demoStore(); const x = s.evts.find(m => m.id === id); if (x) Object.assign(x, row); bust(); return; }
+    const r = await client().from("cal_events").update(row).eq("id", id);
+    if (r.error) throw fail(r.error);
+    bust();
+  }
+  async function deleteEvent(id) {
+    if (DEMO || !live()) { const s = demoStore(); s.evts = s.evts.filter(m => m.id !== id); bust(); return; }
+    const r = await client().from("cal_events").delete().eq("id", id);
+    if (r.error) throw fail(r.error);
+    bust();
+  }
+
   /* everything one person sees, merged and sorted; cached briefly */
   let cache = null, cacheAt = 0, cacheWho = null, pending = null;
   function bust() { cache = null; window.dispatchEvent(new CustomEvent("stephub_cal_changed")); }
@@ -168,7 +201,7 @@
     if (!force && cache && cacheWho === who && Date.now() - cacheAt < 60000) return cache;
     if (pending) return pending;
     pending = (async () => {
-      let ex = { links: {}, ment: [] }, err = "";
+      let ex = { links: {}, ment: [], evts: [] }, err = "";
       try { ex = await loadExtras(); } catch (e) { err = e.message; }
       const team = await isTeam().catch(() => false);
       const ev = programEvents().map(e => Object.assign(e, { zoom: ex.links[e.key] || "" }));
@@ -176,6 +209,10 @@
         mentor: m.mentor || "", start: String(m.start_time).slice(0, 5), end: String(m.end_time).slice(0, 5),
         time: t12(m.start_time) + " – " + t12(m.end_time), where: "Zoom", zoom: m.zoom_url || "",
         title: "Mentoring · " + teamName(m.team_id), w: (weekOf(m.on_date) || {}).code || "" }));
+      (ex.evts || []).forEach(m => { const st = m.start_time ? String(m.start_time).slice(0, 5) : "", en = m.end_time ? String(m.end_time).slice(0, 5) : "";
+        ev.push({ key: "e:" + m.id, id: m.id, d: m.on_date, k: "event", title: m.title, start: st, end: en, hasTimes: !!(st && en),
+          time: st && en ? t12(st) + " – " + t12(en) : "All day", where: m.place || "", zoom: m.link_url || "", full: m.notes || "",
+          w: (weekOf(m.on_date) || {}).code || "", weekTitle: (weekOf(m.on_date) || {}).short || "" }); });
       ev.sort((a, b) => (a.d < b.d ? -1 : a.d > b.d ? 1 : (a.start || a.time || "") < (b.start || b.time || "") ? -1 : 1));
       const mine = u ? [u.team_id].concat(Array.isArray(u.teams) ? u.teams : []).filter(Boolean) : [];
       cache = { events: ev, team, signedIn: !!u, myTeam: u ? u.team_id || "" : "", myTeams: mine, error: err };
@@ -203,12 +240,12 @@
     events.filter(e => e.k !== "holiday").forEach(e => {
       L.push("BEGIN:VEVENT", "UID:" + e.key.replace(/[^\w-]/g, "-") + "@stephub", "DTSTAMP:" + stamp);
       let a = null, b = null;
-      if (e.k === "mentoring") { a = e.start.split(":").map(Number); b = e.end.split(":").map(Number); }
+      if (e.k === "mentoring" || (e.k === "event" && e.hasTimes)) { a = e.start.split(":").map(Number); b = e.end.split(":").map(Number); }
       else if (e.time && e.k !== "deadline") { const p = e.time.split(/[–-]/); a = hm(p[0]); b = hm(p[1]); }
       if (a && b) L.push("DTSTART:" + utc(e.d, a[0], a[1]), "DTEND:" + utc(e.d, b[0], b[1]));
       else L.push("DTSTART;VALUE=DATE:" + e.d.replace(/-/g, ""), "DTEND;VALUE=DATE:" + add(e.d, 1).replace(/-/g, ""));
       L.push("SUMMARY:" + txt((e.k === "deadline" ? "STEP: Output due 12:00 NN · " + e.weekTitle : "STEP: " + e.title)));
-      const desc = [e.w ? e.w + (e.weekTitle ? " · " + e.weekTitle : "") : "", e.mentor ? "Mentor: " + e.mentor : "", e.zoom ? "Zoom: " + e.zoom : ""].filter(Boolean).join("\n");
+      const desc = [e.w ? e.w + (e.weekTitle ? " · " + e.weekTitle : "") : "", e.mentor ? "Mentor: " + e.mentor : "", e.k === "event" ? e.full : "", e.zoom ? (e.k === "event" ? "Link: " : "Zoom: ") + e.zoom : ""].filter(Boolean).join("\n");
       if (desc) L.push("DESCRIPTION:" + txt(desc));
       L.push("LOCATION:" + txt(e.zoom || e.where || ""));
       if (e.zoom) L.push("URL:" + e.zoom);
@@ -237,7 +274,7 @@
   const ZOOM = '<img class="cq-z" src="assets/zoom-logo.png" alt="">';
   const LINK = '<svg class="cq-z cq-lk" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.7 1.7"/><path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.7-1.7"/></svg>';
   /* on-site days carry a plain link (venue map, livestream, sign-up), not a Zoom room */
-  const isZoom = e => e.k !== "onsite";
+  const isZoom = e => e.k !== "onsite" && !(e.k === "event" && !/zoom\./i.test(e.zoom || ""));
   const fullHref = () => (document.getElementById("route-calendar") ? "#calendar" : "calendar.html");
   let pop = null, popMonth = null, popDay = null, popData = null, openBtn = null;
 
@@ -350,6 +387,6 @@
 
   window.STEP_CAL = {
     KIND, isZoom, teams, teamName, programEvents, weekOf, inBreak, today, add, daysTo, fmt, t12, esc,
-    load, isTeam, visibleFor, upcoming, saveLinks, addMentoring, updateMentoring, deleteMentoring, download, refresh: () => load(true)
+    load, isTeam, visibleFor, upcoming, saveLinks, addMentoring, updateMentoring, deleteMentoring, addEvents, updateEvent, deleteEvent, download, refresh: () => load(true)
   };
 })();
