@@ -6556,3 +6556,4 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .rx-who li.mine button:hover, .rx-who li.mine button:focus-visible { background: #fbe9ea; }
 .rx-nm small { display: block; font-size: 11.5px; font-weight: 500; color: var(--ink-soft); }
 .rx-who li.mine button:hover small { color: #a63d40; }
+.rx-who li.mine { position: sticky; top: 0; z-index: 1; background: #fff; box-shadow: 0 1px 0 var(--line); }
