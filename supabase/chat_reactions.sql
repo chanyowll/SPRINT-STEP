@@ -2,7 +2,7 @@
 -- STEP Hub: reactions in STEP GC
 -- Run once in the Supabase SQL Editor (after chat_rooms.sql). Safe to re-run.
 --
--- One reaction per person per message: like, haha, heart, fire or sad.
+-- One reaction per person per message: like, haha, heart, fire, sad or step (the STEP logo).
 -- Everyone who can read a message's room sees its reactions and who gave
 -- them; you can only add or take off your own. The name shown is stamped
 -- from the reactor's own profile, so nobody can react as someone else.
@@ -12,7 +12,7 @@
 CREATE TABLE IF NOT EXISTS public.chat_reactions (
   message_id text        NOT NULL,
   user_id    uuid        NOT NULL DEFAULT auth.uid() REFERENCES auth.users(id) ON DELETE CASCADE,
-  emoji      text        NOT NULL CHECK (emoji IN ('like','haha','heart','fire','sad')),
+  emoji      text        NOT NULL CHECK (emoji IN ('like','haha','heart','fire','sad','step')),
   name       text        NOT NULL DEFAULT '',
   created_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (message_id, user_id)
@@ -68,5 +68,10 @@ BEGIN
     ALTER PUBLICATION supabase_realtime ADD TABLE public.chat_reactions;
   END IF;
 END $$;
+
+-- already ran an earlier version of this file? this lets the STEP reaction through
+ALTER TABLE public.chat_reactions DROP CONSTRAINT IF EXISTS chat_reactions_emoji_check;
+ALTER TABLE public.chat_reactions ADD CONSTRAINT chat_reactions_emoji_check
+  CHECK (emoji IN ('like','haha','heart','fire','sad','step'));
 
 NOTIFY pgrst, 'reload schema';

@@ -6513,7 +6513,7 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 
 /* ---- STEP GC: reactions under each message ---- */
 .chatroom .rx-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; margin-top: 4px; }
-.chatroom .msg-row.me .rx-row { justify-content: flex-end; }
+.chatroom .msg-row .rx-row { justify-content: flex-end; }
 .chatroom .rx-pill { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 999px;
   background: #fff; border: 1px solid var(--line); font-size: 13px; line-height: 1; box-shadow: 0 1px 2px rgba(7,35,62,.06); }
 .chatroom .rx-pill b { font-size: 12px; font-weight: 700; color: var(--ink-soft); }
@@ -6545,4 +6545,8 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .rx-e { font-size: 16px; }
 .chatroom .msg-row:has(> .mcol > .rx-row) > .av { margin-bottom: 28px; }
 .chatroom .msg-row .rx-row { align-self: stretch; }
-.chatroom .msg-row:not(.me) .rx-add { margin-left: auto; }
+.rx-step { width: 34px; height: auto; display: block; }
+.chatroom .rx-pill .rx-step { width: 30px; }
+.rx-pop.pick button.st { width: 56px; border-radius: 19px; }
+.rx-tabs .rx-step { width: 26px; display: inline-block; vertical-align: -3px; }
+.rx-e .rx-step { width: 30px; }

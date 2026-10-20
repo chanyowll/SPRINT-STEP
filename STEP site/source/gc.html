@@ -231,9 +231,10 @@ const daysAway = iso => {
   let ROOM = "fam", META = null, meId = null;
   /* reactions: { messageId: [{ user_id, name, emoji }] }; rxOn turns off if the table isn't there yet */
   let RX = {}, rxOn = true;
-  const RXE = { like: "\u{1F44D}", haha: "\u{1F606}", heart: "\u{1F499}", fire: "\u{1F525}", sad: "\u{1F622}" };
-  const RXN = { like: "Like", haha: "Haha", heart: "Heart", fire: "Fire", sad: "Sad" };
-  const RXORDER = ["like", "haha", "heart", "fire", "sad"];
+  const RXE = { like: "\u{1F44D}", haha: "\u{1F606}", heart: "\u{1F499}", fire: "\u{1F525}", sad: "\u{1F622}",
+                step: '<img class="rx-step" src="assets/step-react.png" alt="STEP">' };
+  const RXN = { like: "Like", haha: "Haha", heart: "Heart", fire: "Fire", sad: "Sad", step: "STEP" };
+  const RXORDER = ["like", "haha", "heart", "fire", "sad", "step"];
   const FAM = { title: "STEP Fam · the whole cohort", note: "Everyone in the cohort sees what you post here.",
                 empty: "Say hello. Everyone in the cohort will see it.",
                 ph: "Message the STEP Fam, or paste a screenshot…" };
@@ -526,7 +527,7 @@ const daysAway = iso => {
     closeMenuSafe(); closePop(); popFor = "add:" + id;
     const cur = myRx(id);
     pop.className = "rx-pop pick";
-    pop.innerHTML = RXORDER.map(e => `<button type="button" data-pick="${e}" class="${cur === e ? "on" : ""}" title="${RXN[e]}" aria-label="${RXN[e]}${cur === e ? " (tap again to remove)" : ""}">${RXE[e]}</button>`).join("");
+    pop.innerHTML = RXORDER.map(e => `<button type="button" data-pick="${e}" class="${cur === e ? "on" : ""}${e === "step" ? " st" : ""}" title="${RXN[e]}" aria-label="${RXN[e]}${cur === e ? " (tap again to remove)" : ""}">${RXE[e]}</button>`).join("");
     pop.hidden = false; placePop(btn);
     const f = pop.querySelector("button"); if (f) f.focus({ preventScroll: true });
   }

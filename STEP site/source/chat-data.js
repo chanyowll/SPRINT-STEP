@@ -148,7 +148,7 @@
   /* ---- reactions (supabase/chat_reactions.sql): one per person per message ----
      like · haha · heart · fire · sad. The reactor's name is stamped by the
      database from their own profile. */
-  const REACTIONS = ['like', 'haha', 'heart', 'fire', 'sad'];
+  const REACTIONS = ['like', 'haha', 'heart', 'fire', 'sad', 'step'];
 
   /** { messageId: [{ user_id, name, emoji }] } for these messages, or null if reactions are not set up yet. */
   async function reactions(ids) {
