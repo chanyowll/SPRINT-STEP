@@ -9256,14 +9256,19 @@ const daysAway = iso => {
     const imgOf = m => m.imgUrl ? `<img class="chimg" src="${esc(m.imgUrl)}" alt="Picture shared by ${esc(m.who)}">`
       : m.image ? `<img class="chimg" data-p="${esc(m.image)}" alt="Picture shared by ${esc(m.who)}">` : "";
     /* reactions sit right under the message: the counts, then the add-reaction button */
+    /* the reactions to show: most used first, ties go to whichever came first; three at most */
+    const rxTop = list => {
+      const n = {}, first = {};
+      list.forEach((r, i) => { n[r.emoji] = (n[r.emoji] || 0) + 1; if (!(r.emoji in first)) first[r.emoji] = r.created_at ? Date.parse(r.created_at) : i; });
+      return Object.keys(n).sort((x, y) => n[y] - n[x] || first[x] - first[y]).slice(0, 3);
+    };
     const rxOf = m => {
       if (!rxOn || !m.id || (!live && !DEMO_RX)) return "";
       const list = RX[String(m.id)] || [];
-      const pills = RXORDER.map(e => {
-        const who = list.filter(r => r.emoji === e); if (!who.length) return "";
-        const mine = who.some(r => r.user_id === meId);
-        return `<button type="button" class="rx-pill${mine ? " mine" : ""}" data-rx-who="${esc(m.id)}" data-e="${e}" aria-label="${RXN[e]}: ${who.length}. See who reacted">${RXE[e]}<b>${who.length}</b></button>`;
-      }).join("");
+      /* one summary: the three most-used reactions, then everyone who reacted */
+      const top = rxTop(list);
+      const mine = list.some(r => r.user_id === meId);
+      const pills = list.length ? `<button type="button" class="rx-pill${mine ? " mine" : ""}" data-rx-who="${esc(m.id)}" aria-label="${list.length} reaction${list.length > 1 ? "s" : ""}. See who reacted"><span class="rx-ic">${top.map(e => RXE[e]).join("")}</span><b>${list.length}</b></button>` : "";
       return `<div class="rx-row">${pills}<button type="button" class="rx-add" data-rx-add="${esc(m.id)}" aria-label="Add a reaction" aria-haspopup="true">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="13" r="8"/><path d="M8 15.5c.8 1 1.8 1.5 3 1.5s2.2-.5 3-1.5"/><circle cx="8.5" cy="11" r=".9" class="f"/><circle cx="13.5" cy="11" r=".9" class="f"/><path d="M19 2.5v5M16.5 5h5"/></svg></button></div>`;
     };
@@ -9427,18 +9432,30 @@ const daysAway = iso => {
     const f = pop.querySelector("button"); if (f) f.focus({ preventScroll: true });
   }
   function openWho(btn) {
-    const id = btn.dataset.rxWho, e = btn.dataset.e;
-    if (popFor === "who:" + id + ":" + e) { closePop(); return; }
-    closeMenuSafe(); closePop(); popFor = "who:" + id + ":" + e;
-    const all = RX[String(id)] || [];
-    const tabs = RXORDER.filter(x => all.some(r => r.emoji === x));
+    const id = btn.dataset.rxWho;
+    if (popFor === "who:" + id) { closePop(); return; }
+    closeMenuSafe(); closePop(); popFor = "who:" + id;
     const draw = sel => {
-      const list = all.filter(r => r.emoji === sel);
-      pop.innerHTML = `<div class="rx-tabs">${tabs.map(x => `<button type="button" data-tab="${x}" class="${x === sel ? "on" : ""}">${RXE[x]} ${all.filter(r => r.emoji === x).length}</button>`).join("")}</div>
-        <ul class="rx-who">${list.map(r => `<li><span class="rx-av">${esc(initials(r.user_id === meId ? (window.__gcMyName || r.name) : r.name))}</span><span class="rx-nm">${esc(r.user_id === meId ? "You" : (r.name || "A member"))}</span><span class="rx-e">${RXE[r.emoji]}</span></li>`).join("")}</ul>`;
+      const all = RX[String(id)] || [];
+      if (!all.length) { closePop(); return; }
+      const tabs = RXORDER.filter(x => all.some(r => r.emoji === x));
+      if (sel !== "all" && !tabs.includes(sel)) sel = "all";
+      const list = (sel === "all" ? all : all.filter(r => r.emoji === sel)).slice()
+        .sort((x, y) => (y.user_id === meId) - (x.user_id === meId));          // yours on top
+      pop.innerHTML = `<div class="rx-tabs"><button type="button" data-tab="all" class="${sel === "all" ? "on" : ""}">All ${all.length}</button>${
+          tabs.map(x => `<button type="button" data-tab="${x}" class="${x === sel ? "on" : ""}">${RXE[x]} ${all.filter(r => r.emoji === x).length}</button>`).join("")}</div>
+        <ul class="rx-who">${list.map(r => {
+          const me = r.user_id === meId;
+          const inner = `<span class="rx-av">${esc(initials(me ? (window.__gcMyName || r.name) : r.name))}</span><span class="rx-nm">${me ? "You<small>Tap to remove</small>" : esc(r.name || "A member")}</span><span class="rx-e">${RXE[r.emoji]}</span>`;
+          return me ? `<li class="mine"><button type="button" data-unreact="${esc(id)}" aria-label="Remove your reaction">${inner}</button></li>` : `<li>${inner}</li>`;
+        }).join("")}</ul>`;
+      pop.dataset.sel = sel;
     };
-    pop.className = "rx-pop who"; draw(e); pop.hidden = false; placePop(btn);
-    pop.onclick = ev => { const t = ev.target.closest("[data-tab]"); if (t) { ev.stopPropagation(); draw(t.dataset.tab); } };
+    pop.className = "rx-pop who"; draw("all"); pop.hidden = false; placePop(btn);
+    pop.onclick = ev => {
+      const t = ev.target.closest("[data-tab]"); if (t) { ev.stopPropagation(); draw(t.dataset.tab); return; }
+      const u = ev.target.closest("[data-unreact]"); if (u) { ev.stopPropagation(); const e = myRx(u.dataset.unreact); if (e) pick(u.dataset.unreact, e); }
+    };
   }
   async function pick(id, e) {
     const cur = myRx(id), next = cur === e ? null : e;

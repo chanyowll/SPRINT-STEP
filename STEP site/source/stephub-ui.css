@@ -6550,3 +6550,9 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .rx-pop.pick button.st { width: 56px; border-radius: 19px; }
 .rx-tabs .rx-step { width: 26px; display: inline-block; vertical-align: -3px; }
 .rx-e .rx-step { width: 30px; }
+.chatroom .rx-pill .rx-ic { display: inline-flex; align-items: center; gap: 1px; }
+.rx-who li.mine { padding: 0; }
+.rx-who li.mine button { all: unset; cursor: pointer; box-sizing: border-box; width: 100%; display: flex; align-items: center; gap: 9px; padding: 6px; border-radius: 8px; }
+.rx-who li.mine button:hover, .rx-who li.mine button:focus-visible { background: #fbe9ea; }
+.rx-nm small { display: block; font-size: 11.5px; font-weight: 500; color: var(--ink-soft); }
+.rx-who li.mine button:hover small { color: #a63d40; }
