@@ -6544,3 +6544,5 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .rx-nm { flex: 1; min-width: 0; font-size: 14px; font-weight: 600; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .rx-e { font-size: 16px; }
 .chatroom .msg-row:has(> .mcol > .rx-row) > .av { margin-bottom: 28px; }
+.chatroom .msg-row .rx-row { align-self: stretch; }
+.chatroom .msg-row:not(.me) .rx-add { margin-left: auto; }
