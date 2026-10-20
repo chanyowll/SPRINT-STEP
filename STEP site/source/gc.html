@@ -114,6 +114,7 @@
         <button class="ch-pin" id="ch-pin" type="button" hidden></button>
         <div class="thread" id="thread"></div>
         <div class="msg-menu" id="msg-menu" role="menu" hidden></div>
+        <div class="rx-pop" id="rx-pop" hidden></div>
         <div class="ch-light" id="ch-light" hidden><img id="ch-light-img" alt="Picture shared in the chat"><button type="button" class="lb-x" aria-label="Close the picture">&times;</button>
           <button type="button" class="lb-prev" id="lb-prev" aria-label="Previous picture">&#8249;</button><button type="button" class="lb-next" id="lb-next" aria-label="Next picture">&#8250;</button><span class="lb-n" id="lb-n"></span></div>
         <form class="composer-wrap" id="composer" autocomplete="off">
@@ -228,6 +229,11 @@ const daysAway = iso => {
   let MSGS = W.helpdesk.slice(), live = false, canModerate = false, editingId = null;
   /* the room on screen: 'fam', 'team:g1', 'group:mentors' … (picked on the left) */
   let ROOM = "fam", META = null, meId = null;
+  /* reactions: { messageId: [{ user_id, name, emoji }] }; rxOn turns off if the table isn't there yet */
+  let RX = {}, rxOn = true;
+  const RXE = { like: "\u{1F44D}", haha: "\u{1F606}", heart: "\u{1F499}", fire: "\u{1F525}", sad: "\u{1F622}" };
+  const RXN = { like: "Like", haha: "Haha", heart: "Heart", fire: "Fire", sad: "Sad" };
+  const RXORDER = ["like", "haha", "heart", "fire", "sad"];
   const FAM = { title: "STEP Fam · the whole cohort", note: "Everyone in the cohort sees what you post here.",
                 empty: "Say hello. Everyone in the cohort will see it.",
                 ph: "Message the STEP Fam, or paste a screenshot…" };
@@ -353,6 +359,18 @@ const daysAway = iso => {
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg></button>` : "";
     const imgOf = m => m.imgUrl ? `<img class="chimg" src="${esc(m.imgUrl)}" alt="Picture shared by ${esc(m.who)}">`
       : m.image ? `<img class="chimg" data-p="${esc(m.image)}" alt="Picture shared by ${esc(m.who)}">` : "";
+    /* reactions sit right under the message: the counts, then the add-reaction button */
+    const rxOf = m => {
+      if (!rxOn || !m.id || (!live && !DEMO_RX)) return "";
+      const list = RX[String(m.id)] || [];
+      const pills = RXORDER.map(e => {
+        const who = list.filter(r => r.emoji === e); if (!who.length) return "";
+        const mine = who.some(r => r.user_id === meId);
+        return `<button type="button" class="rx-pill${mine ? " mine" : ""}" data-rx-who="${esc(m.id)}" data-e="${e}" aria-label="${RXN[e]}: ${who.length}. See who reacted">${RXE[e]}<b>${who.length}</b></button>`;
+      }).join("");
+      return `<div class="rx-row">${pills}<button type="button" class="rx-add" data-rx-add="${esc(m.id)}" aria-label="Add a reaction" aria-haspopup="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="13" r="8"/><path d="M8 15.5c.8 1 1.8 1.5 3 1.5s2.2-.5 3-1.5"/><circle cx="8.5" cy="11" r=".9" class="f"/><circle cx="13.5" cy="11" r=".9" class="f"/><path d="M19 2.5v5M16.5 5h5"/></svg></button></div>`;
+    };
     thread.innerHTML = items.length ? items.map((it, i) => {
       const first = it.msgs[0], m = it.msgs[it.msgs.length - 1];
       const prev = i ? items[i - 1].msgs[items[i - 1].msgs.length - 1] : null, next = items[i + 1] ? items[i + 1].msgs[0] : null;
@@ -390,6 +408,7 @@ const daysAway = iso => {
             ${stamp}
             ${kebab}
           </div>
+          ${rxOf(m)}
         </div>
       </div>`;
     }).join("") : `<div class="ch-empty"><b>No messages yet</b><span>${esc(roomMeta().empty)}</span></div>`;
@@ -480,23 +499,89 @@ const daysAway = iso => {
     note.textContent = roomMeta().note;
     const mine = ++roomSeq;
     thread.innerHTML = '<div class="ch-empty"><span>Loading the conversation…</span></div>';
-    try { const rows = await window.STEP_CHAT.list(200, ROOM); if (mine !== roomSeq) return; MSGS = rows.map(toMsg); render(true); }
+    RX = {};
+    try { const rows = await window.STEP_CHAT.list(200, ROOM); if (mine !== roomSeq) return; MSGS = rows.map(toMsg); render(true); if (window.__gcLoadRx) window.__gcLoadRx(); }
     catch (e) { if (mine === roomSeq) thread.innerHTML = `<div class="ch-empty"><b>Couldn't load this room</b><span>${esc(e.message || e)}</span></div>`; }
   };
   const famCount = () => members + " members · participants, trainers, mentors and the STEP team";
 
+  /* ---- reactions: the picker and the list of who reacted ---- */
+  const pop = document.getElementById("rx-pop");
+  let popFor = null;
+  const closeMenuSafe = () => { try { closeMenu(); } catch (e) {} };
+  function closePop() { pop.hidden = true; pop.className = "rx-pop"; popFor = null; }
+  function placePop(btn) {
+    const z = (document.body.getBoundingClientRect().width / document.body.offsetWidth) || 1;
+    const rb = btn.getBoundingClientRect(), rrb = thread.closest(".chatroom").getBoundingClientRect();
+    const bl = rb.left / z - rrb.left / z, bt = rb.top / z - rrb.top / z, bb = rb.bottom / z - rrb.top / z, w = rrb.width / z, h = rrb.height / z;
+    let left = Math.min(bl, w - pop.offsetWidth - 8);
+    let top = bb + 6;
+    if (top + pop.offsetHeight > h - 8) top = bt - pop.offsetHeight - 6;
+    pop.style.left = Math.max(8, left) + "px"; pop.style.top = Math.max(8, top) + "px";
+  }
+  function myRx(id) { const r = (RX[String(id)] || []).find(x => x.user_id === meId); return r ? r.emoji : null; }
+  function openPicker(btn) {
+    const id = btn.dataset.rxAdd;
+    if (popFor === "add:" + id) { closePop(); return; }
+    closeMenuSafe(); closePop(); popFor = "add:" + id;
+    const cur = myRx(id);
+    pop.className = "rx-pop pick";
+    pop.innerHTML = RXORDER.map(e => `<button type="button" data-pick="${e}" class="${cur === e ? "on" : ""}" title="${RXN[e]}" aria-label="${RXN[e]}${cur === e ? " (tap again to remove)" : ""}">${RXE[e]}</button>`).join("");
+    pop.hidden = false; placePop(btn);
+    const f = pop.querySelector("button"); if (f) f.focus({ preventScroll: true });
+  }
+  function openWho(btn) {
+    const id = btn.dataset.rxWho, e = btn.dataset.e;
+    if (popFor === "who:" + id + ":" + e) { closePop(); return; }
+    closeMenuSafe(); closePop(); popFor = "who:" + id + ":" + e;
+    const all = RX[String(id)] || [];
+    const tabs = RXORDER.filter(x => all.some(r => r.emoji === x));
+    const draw = sel => {
+      const list = all.filter(r => r.emoji === sel);
+      pop.innerHTML = `<div class="rx-tabs">${tabs.map(x => `<button type="button" data-tab="${x}" class="${x === sel ? "on" : ""}">${RXE[x]} ${all.filter(r => r.emoji === x).length}</button>`).join("")}</div>
+        <ul class="rx-who">${list.map(r => `<li><span class="rx-av">${esc(initials(r.user_id === meId ? (window.__gcMyName || r.name) : r.name))}</span><span class="rx-nm">${esc(r.user_id === meId ? "You" : (r.name || "A member"))}</span><span class="rx-e">${RXE[r.emoji]}</span></li>`).join("")}</ul>`;
+    };
+    pop.className = "rx-pop who"; draw(e); pop.hidden = false; placePop(btn);
+    pop.onclick = ev => { const t = ev.target.closest("[data-tab]"); if (t) { ev.stopPropagation(); draw(t.dataset.tab); } };
+  }
+  async function pick(id, e) {
+    const cur = myRx(id), next = cur === e ? null : e;
+    const before = (RX[String(id)] || []).slice();
+    const rest = before.filter(r => r.user_id !== meId);
+    RX[String(id)] = next ? rest.concat([{ user_id: meId, name: "You", emoji: next }]) : rest;
+    closePop(); render();
+    if (!live) return;                                 // the preview keeps it in this browser only
+    try { await CH.react(id, next); if (window.__gcLoadRx) window.__gcLoadRx(); }
+    catch (err) { RX[String(id)] = before; render(); note.textContent = "Couldn't react: " + (err.message || err); setTimeout(() => { note.textContent = roomMeta().note; }, 3500); }
+  }
+  thread.addEventListener("click", e => {
+    const a = e.target.closest("[data-rx-add]"); if (a) { e.stopPropagation(); openPicker(a); return; }
+    const w = e.target.closest("[data-rx-who]"); if (w) { e.stopPropagation(); openWho(w); }
+  });
+  pop.addEventListener("click", e => {
+    const b = e.target.closest("[data-pick]"); if (!b || !popFor || popFor.indexOf("add:") !== 0) return;
+    e.stopPropagation(); pick(popFor.slice(4), b.dataset.pick);
+  });
+  document.addEventListener("click", e => { if (!pop.hidden && !pop.contains(e.target)) closePop(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !pop.hidden) closePop(); });
+  thread.addEventListener("scroll", () => { if (!pop.hidden) closePop(); });
+
   /* ---- the sample room: only the ?demo=1 preview, or with no database ---- */
   const DEMO = /[?&]demo=1(&|$)/.test(location.search);
   const CH = window.STEP_CHAT;
+  var DEMO_RX = false;
   if (DEMO || !CH || !CH.available()) {
+    DEMO_RX = true; meId = "me";
+    MSGS.forEach((m, i) => { if (!m.id) m.id = "d" + i; });
     render(true);
     setCount(famCount());
     form.addEventListener("submit", e => {
       e.preventDefault();
       const text = box.value.trim(); if (!text && !staged.length) return;
       const pics = staged.slice(); unstage(true);
-      if (!pics.length) MSGS.push({ who: "You", role: "", me: true, at: new Date().toISOString(), body: text });
-      pics.forEach((p, i) => MSGS.push({ who: "You", role: "", me: true, at: new Date().toISOString(),
+      const did = () => "d" + Date.now() + Math.random().toString(36).slice(2, 6);
+      if (!pics.length) MSGS.push({ id: did(), who: "You", role: "", me: true, at: new Date().toISOString(), body: text });
+      pics.forEach((p, i) => MSGS.push({ id: did(), who: "You", role: "", me: true, at: new Date().toISOString(),
         body: i === pics.length - 1 && text ? text : PHOTO, imgUrl: p.url }));
       box.value = ""; render(true);
     });
@@ -521,8 +606,21 @@ const daysAway = iso => {
   }
   async function resync() {
     const r = ROOM;
-    try { const rows = await CH.list(200, r); if (r === ROOM) { MSGS = rows.map(toMsg); render(); } } catch (e) {}
+    try { const rows = await CH.list(200, r); if (r === ROOM) { MSGS = rows.map(toMsg); render(); loadRx(); } } catch (e) {}
   }
+  /* the reactions for the messages on screen */
+  let rxSeq = 0, rxTimer = null;
+  async function loadRx() {
+    if (!live || !CH.reactions) return;
+    const mine = ++rxSeq, r = ROOM;
+    try {
+      const got = await CH.reactions(MSGS.map(m => m.id));
+      if (mine !== rxSeq || r !== ROOM) return;
+      if (got === null) { if (rxOn) { rxOn = false; render(); } return; }
+      RX = got; rxOn = true; render();
+    } catch (e) {}
+  }
+  window.__gcLoadRx = () => { clearTimeout(rxTimer); rxTimer = setTimeout(loadRx, 250); };
   async function start() {
     if (stop) { stop(); stop = null; }
     const user = await CH.me();
@@ -537,10 +635,11 @@ const daysAway = iso => {
     thread.innerHTML = '<div class="ch-empty"><span>Loading the conversation…</span></div>';
     try { MSGS = (await CH.list(200, ROOM)).map(toMsg); }
     catch (e) { thread.innerHTML = `<div class="ch-empty"><b>Couldn't load the chat</b><span>${esc(e.message || e)}</span></div>`; return; }
-    render(true);
+    render(true); loadRx();
     if (window.__gcRoomSize) window.__gcRoomSize(ROOM);
     stop = CH.subscribe(ev => {
       if (ev.type === "resync") return resync();
+      if (ev.type === "react") { if (!ev.row || !ev.row.message_id || MSGS.some(m => String(m.id) === String(ev.row.message_id))) window.__gcLoadRx(); return; }
       /* a message in another room only lights that room up on the left */
       if (ev.row && ev.row.room && ev.row.room !== ROOM) {
         if (ev.type === "insert") window.dispatchEvent(new CustomEvent("stephub_chat_other", { detail: { row: ev.row, me: meId } }));
@@ -596,6 +695,7 @@ const daysAway = iso => {
     const m = MSGS.find(x => x.id === btn.dataset.menu); if (!m) return;
     if (menuFor === m.id) { closeMenu(); return; }
     closeMenu();
+    closePop();
     menuFor = m.id;
     menu.innerHTML = optionsFor(m).map(o => `<button type="button" role="menuitem" data-act="${o.k}"${o.danger ? ' class="danger"' : ""}>${o.label}</button>`).join("");
     menu.hidden = false;

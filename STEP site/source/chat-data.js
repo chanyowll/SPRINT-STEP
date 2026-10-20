@@ -144,6 +144,42 @@
     if (imagePath) client().storage.from(BUCKET).remove([imagePath]).catch(() => {});
   }
 
+
+  /* ---- reactions (supabase/chat_reactions.sql): one per person per message ----
+     like · haha · heart · fire · sad. The reactor's name is stamped by the
+     database from their own profile. */
+  const REACTIONS = ['like', 'haha', 'heart', 'fire', 'sad'];
+
+  /** { messageId: [{ user_id, name, emoji }] } for these messages, or null if reactions are not set up yet. */
+  async function reactions(ids) {
+    const list = [...new Set((ids || []).filter(Boolean).map(String))];
+    const out = {};
+    for (let i = 0; i < list.length; i += 80) {
+      const { data, error } = await client().from('chat_reactions')
+        .select('message_id,user_id,name,emoji,created_at').in('message_id', list.slice(i, i + 80))
+        .order('created_at', { ascending: true });
+      if (error) {
+        if (/chat_reactions|does not exist|schema cache/i.test(error.message)) return null;
+        throw new Error(error.message);
+      }
+      (data || []).forEach(r => { (out[r.message_id] = out[r.message_id] || []).push(r); });
+    }
+    return out;
+  }
+
+  /** Set your reaction on a message; emoji null takes it off. */
+  async function react(messageId, emoji) {
+    const user = await me(); if (!user) throw new Error('Sign in to react.');
+    if (emoji && !REACTIONS.includes(emoji)) throw new Error('Unknown reaction.');
+    const id = String(messageId);
+    const del = await client().from('chat_reactions').delete().eq('message_id', id).eq('user_id', user.id);
+    if (del.error) throw new Error(del.error.message);
+    if (emoji) {
+      const { error } = await client().from('chat_reactions').insert({ message_id: id, emoji });
+      if (error) throw new Error(/chat_reactions|does not exist/i.test(error.message) ? 'Reactions are not set up yet. Ask the tech team to run chat_reactions.sql.' : error.message);
+    }
+  }
+
   async function info() {
     try { const { data } = await client().rpc('chat_room_info'); return data || null; }
     catch (e) { return null; }
@@ -163,11 +199,19 @@
             p => onChange({ type: 'delete', row: p.old }))
         .subscribe();
     } catch (e) { ch = null; }
+    let rc = null;
+    try {
+      rc = sb.channel('step-chat-reactions')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' },
+            p => onChange({ type: 'react', row: (p.new && p.new.message_id) ? p.new : p.old }))
+        .subscribe();
+    } catch (e) { rc = null; }
     /* belt and braces: a quiet re-check in case the live link drops */
     timer = setInterval(() => { if (!stopped && document.visibilityState !== 'hidden') onChange({ type: 'resync' }); }, 20000);
     return () => {
       stopped = true; clearInterval(timer);
       if (ch) { try { sb.removeChannel(ch); } catch (e) {} }
+      if (rc) { try { sb.removeChannel(rc); } catch (e) {} }
     };
   }
 
@@ -179,5 +223,6 @@
     return Array.isArray(data) ? data : [];
   }
 
-  window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, members, subscribe };
+  window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, members, subscribe,
+                       REACTIONS, reactions, react };
 })();
