@@ -6557,3 +6557,7 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .rx-nm small { display: block; font-size: 11.5px; font-weight: 500; color: var(--ink-soft); }
 .rx-who li.mine button:hover small { color: #a63d40; }
 .rx-who li.mine { position: sticky; top: 0; z-index: 1; background: #fff; box-shadow: 0 1px 0 var(--line); }
+/* STEP GC: the time sits above the message, at its upper right */
+.chatroom .msg-row .mhead { align-self: stretch; display: flex; align-items: flex-end; gap: 10px; min-width: 0; }
+.chatroom .msg-row .mhead .who { min-width: 0; }
+.chatroom .msg-row .mhead .tm { margin-left: auto; flex: none; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; color: #9a8f77; line-height: 1.6; padding: 0 2px 2px; white-space: nowrap; }

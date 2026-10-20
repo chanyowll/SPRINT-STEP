@@ -362,6 +362,13 @@ const daysAway = iso => {
       : m.image ? `<img class="chimg" data-p="${esc(m.image)}" alt="Picture shared by ${esc(m.who)}">` : "";
     /* reactions sit right under the message: the counts, then the add-reaction button */
     /* the reactions to show: most used first, ties go to whichever came first; three at most */
+    /* the time above a message: just the time today, "OCT 19 AT 12:34 PM" before that */
+    const whenOf = iso => {
+      const d = new Date(iso), md = x => x.toLocaleDateString("en-PH", { timeZone: "Asia/Manila", year: "numeric", month: "numeric", day: "numeric" });
+      if (md(d) === md(new Date())) return fmtT(iso);
+      const yr = d.toLocaleDateString("en-PH", { timeZone: "Asia/Manila", year: "numeric" }) !== new Date().toLocaleDateString("en-PH", { timeZone: "Asia/Manila", year: "numeric" });
+      return (fmtD(iso, yr ? { year: "numeric" } : {}) + " at " + fmtT(iso)).toUpperCase();
+    };
     const rxTop = list => {
       const n = {}, first = {};
       list.forEach((r, i) => { n[r.emoji] = (n[r.emoji] || 0) + 1; if (!(r.emoji in first)) first[r.emoji] = r.created_at ? Date.parse(r.created_at) : i; });
@@ -402,16 +409,15 @@ const daysAway = iso => {
              <div class="ed-acts"><span>Enter to save · Esc to cancel</span><button type="button" class="ed-no">Cancel</button><button type="button" class="ed-ok">Save</button></div></div>`
         : (photoOnly ? "" : `<div class="bd">${esc(m.body)}</div>`);
       const pinned = it.msgs.some(x => x.pinned);
-      const stamp = !editing && (endrun || m.edited || pinned)
-        ? `<span class="tm">${set ? it.msgs.length + " photos · " : ""}${fmtT(m.at)}${m.edited ? " · edited" : ""}${pinned ? " · 📌" : ""}</span>` : "";
+      const stamp = !editing && (!cont || m.edited || pinned)      /* on top of the first message of a run, beside the name */
+        ? `<span class="tm">${set ? it.msgs.length + " photos · " : ""}${whenOf(m.at)}${m.edited ? " · edited" : ""}${pinned ? " · 📌" : ""}</span>` : "";
       const kebab = set ? "" : kebabOf(m, opts);
       return day + `<div class="msg-row${m.me ? " me" : ""}${pinned ? " pinned" : ""}${cont ? " cont" : ""}${endrun ? " endrun" : ""}" data-id="${esc(m.id || "")}">
         ${m.me ? "" : (endrun ? `<span class="av" aria-hidden="true">${esc(initials(m.who))}</span>` : `<span class="av ghost" aria-hidden="true"></span>`)}
         <div class="mcol">
-          ${!cont && !m.me ? `<div class="who"><span class="nm">${esc(m.who)}</span>${chip}</div>` : ""}
+          ${(!cont && !m.me) || stamp ? `<div class="mhead">${!cont && !m.me ? `<div class="who"><span class="nm">${esc(m.who)}</span>${chip}</div>` : ""}${stamp}</div>` : ""}
           <div class="bubble${!set && opts.length ? " has-menu" : ""}${pic ? " has-img" : ""}${set ? " has-set" : ""}">
             ${pic}${body}
-            ${stamp}
             ${kebab}
           </div>
           ${rxOf(m)}
