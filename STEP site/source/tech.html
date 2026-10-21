@@ -179,6 +179,13 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .att-status.ok { color: var(--ok); font-weight: 600; }
 .att-status.busy { color: var(--ink-2); }
 .att-status.warn { color: var(--warn); }
+.imp-note { position: relative; margin: 0 0 14px; padding: 12px 40px 12px 14px; border: 1px solid var(--rule); border-left: 4px solid var(--ok); border-radius: 8px; background: #fff; font-size: 13.5px; line-height: 1.5; color: var(--ink-2); }
+.imp-note.warn { border-left-color: var(--warn); }
+.imp-note.bad { border-left-color: #b4232a; }
+.imp-note .imp-x { all: unset; cursor: pointer; position: absolute; top: 6px; right: 10px; font-size: 20px; line-height: 1; color: var(--ink-3); padding: 2px 4px; }
+.imp-note .imp-miss { margin-top: 8px; }
+.imp-note ul { margin: 4px 0 0 18px; padding: 0; }
+.imp-note .imp-sub { margin-top: 6px; color: var(--ink-3); }
 .att-status.bad { color: var(--bad); font-weight: 600; }
 .att-status .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--rule); border-top-color: var(--blue); animation: attspin .8s linear infinite; }
 @keyframes attspin { to { transform: rotate(360deg); } }
@@ -433,7 +440,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <section class="sec" data-sec="attendance">
         <div class="sec-head">
           <div><h1>Attendance</h1><p>Record who joined each learning session and Saturday feedback session. Totals feed the team data report.</p></div>
-          <div class="acts"><button class="btn" data-toast="Preview: a CSV of this sheet would download.">Import Zoom report</button></div>
+          <div class="acts"><button class="btn" id="att-import" title="Import the attendance file made from the Zoom report">Import Zoom report</button><input type="file" id="att-file" accept=".csv,text/csv" hidden></div>
         </div>
         <div class="wk-strip" id="att-weeks"></div>
         <div class="toolbar">
@@ -443,6 +450,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           <label class="field"><span>Date</span><input class="in" id="att-date" type="date" style="width:170px"></label>
           <label class="field" style="flex:1;min-width:200px"><span>Find a participant</span><input class="in" id="att-q" placeholder="Name or team"></label>
         </div>
+        <div class="imp-note" id="att-imp" hidden></div>
         <div class="stats" id="att-stats"></div>
         <div class="card">
           <header><h2 id="att-title">Attendance</h2><span class="sub" id="att-mod"></span>
@@ -841,6 +849,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     weekStrip($("#att-weeks"), marks, async w => { if (!leaveOk()) return; attWeek = w; paintKinds(); await refreshAtt(); }, attWeek);
   }
   async function refreshAtt() {
+    const imp = document.getElementById("att-imp"); if (imp) imp.hidden = true;
     if (attLive()) {
       try { await loadSession(); }
       catch (e) { toast("Couldn't load attendance: " + (e.message || e)); }
@@ -987,6 +996,106 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
      change on screen now only marks the session as unsubmitted */
   function persist() { markDirty(); }
   $("#att-submit").addEventListener("click", submitAttendance);
+
+  /* ---- Import Zoom report ----
+     Takes the attendance file the attendance engine makes from Zoom's
+     participants report (one row per roster person):
+       session_date, team, member_name, status, minutes, first_join, last_leave, note
+     and fills the open session's marks and notes. Nothing is saved until
+     Submit attendance is pressed, so the STEP Team can check it first. */
+  function parseCSV(text) {
+    const rows = []; let row = [], cell = "", q = false;
+    text = text.replace(/^﻿/, "");
+    for (let i = 0; i < text.length; i++) {
+      const c = text[i];
+      if (q) { if (c === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += c; }
+      else if (c === '"') q = true;
+      else if (c === ",") { row.push(cell); cell = ""; }
+      else if (c === "\n" || c === "\r") { if (c === "\r" && text[i + 1] === "\n") i++; row.push(cell); rows.push(row); row = []; cell = ""; }
+      else cell += c;
+    }
+    if (cell !== "" || row.length) { row.push(cell); rows.push(row); }
+    return rows.filter(r => r.some(x => String(x).trim() !== ""));
+  }
+  const HON = /^(dr|engr|ms|mr|mrs|prof|atty|sir|maam|ma'am)$/;
+  const impName = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9ñ\s-]/g, " ").replace(/-/g, " ").split(/\s+/).filter(t => t && !HON.test(t)).join(" ");
+  const normTeam = s => String(s || "").toLowerCase().replace(/\s*\(.*\)$/, "").replace(/[^a-z0-9]/g, "");
+  function teamOf(v) {
+    const n = normTeam(v); if (!n) return null;
+    return G.find(g => g.id.toLowerCase() === n || normTeam(g.name) === n) || null;
+  }
+  function personFor(g, name) {
+    const people = ROSTER.filter(p => p.team.id === g.id), n = impName(name);
+    if (!n) return null;
+    let hit = people.filter(p => impName(p.name) === n);
+    if (hit.length === 1) return hit[0];
+    /* "Jose Claro Monje" for "Jose Claro N. Monje": every word of the shorter name is in the longer one */
+    const tok = n.split(" ");
+    hit = people.filter(p => { const t = impName(p.name).split(" "); const [a, b] = tok.length <= t.length ? [tok, t] : [t, tok]; return a.length > 1 && a.every(x => b.includes(x)); });
+    return hit.length === 1 ? hit[0] : null;
+  }
+  function importReport(text, fileName) {
+    const rows = parseCSV(text);
+    if (!rows.length) { toast("That file is empty."); return; }
+    const head = rows[0].map(h => h.trim().toLowerCase().replace(/[^a-z_]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, ""));
+    if (head.some(h => /join_time|leave_time/.test(h)) && !head.includes("member_name")) {
+      showImp(`<b>This is Zoom's own participants report.</b> Run it through the attendance engine first, then import the file it makes (step-attendance-….csv).`, "bad");
+      return;
+    }
+    const col = k => head.indexOf(k);
+    const ci = { date: col("session_date"), team: col("team"), name: col("member_name"), status: col("status"),
+                 min: col("minutes"), first: col("first_join"), last: col("last_leave"), note: col("note") };
+    if (ci.team < 0 || ci.name < 0 || ci.status < 0) {
+      showImp(`<b>This file isn't in the attendance format.</b> It needs the columns team, member_name and status.`, "bad");
+      return;
+    }
+    const dates = new Set(rows.slice(1).map(r => (r[ci.date] || "").trim()).filter(Boolean));
+    const open = $("#att-date").value || sessDate();
+    if (dates.size && ![...dates].includes(open)
+        && !confirm("This file is for " + [...dates].join(", ") + ", but the session open here is Week " + attWeek + " · " + ((attSess() || {}).short || attKind) + " (" + open + ").\n\nFill this session with it anyway?")) return;
+    const STATUS = { present: "present", late: "late", absent: "absent", p: "present", l: "late", a: "absent" };
+    let filled = 0; const miss = [], bad = [];
+    rows.slice(1).forEach(r => {
+      const g = teamOf(r[ci.team]), name = (r[ci.name] || "").trim();
+      const st = STATUS[String(r[ci.status] || "").trim().toLowerCase()];
+      if (!name) return;
+      if (!st) { bad.push(name + " (status “" + (r[ci.status] || "") + "”)"); return; }
+      const p = g && personFor(g, name);
+      if (!p) { miss.push(name + (g ? " · " + g.name : " · team “" + (r[ci.team] || "") + "”")); return; }
+      const k = attKey(p);
+      attState[k] = st;
+      const bits = [];
+      if (ci.min > -1 && r[ci.min]) bits.push(r[ci.min].trim() + " min");
+      if (ci.first > -1 && r[ci.first]) bits.push(r[ci.first].trim() + (ci.last > -1 && r[ci.last] ? "–" + r[ci.last].trim() : ""));
+      const extra = ci.note > -1 ? (r[ci.note] || "").trim() : "";
+      attNote[k] = [bits.join(", "), extra].filter(Boolean).join(" · ");
+      filled++;
+    });
+    const unmarked = ROSTER.filter(p => !attState[attKey(p)]).length;
+    markDirty(); renderAtt();
+    showImp(`<b>Filled ${filled} mark${filled === 1 ? "" : "s"} from ${esc(fileName)}.</b> Check them, then press <b>Submit attendance</b>. Nothing is saved yet.`
+      + (miss.length ? `<div class="imp-miss"><b>${miss.length} row${miss.length === 1 ? "" : "s"} didn't match anyone on the roster</b> (fix the name in the file or add the person to the roster):<ul>${miss.map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div>` : "")
+      + (bad.length ? `<div class="imp-miss"><b>${bad.length} row${bad.length === 1 ? "" : "s"} had a status other than Present, Late or Absent:</b><ul>${bad.map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div>` : "")
+      + (unmarked ? `<div class="imp-sub">${unmarked} roster ${unmarked === 1 ? "person is" : "people are"} still not marked.</div>` : ""),
+      miss.length || bad.length ? "warn" : "ok");
+  }
+  function showImp(html, tone) {
+    const el = $("#att-imp");
+    el.className = "imp-note " + (tone || "");
+    el.innerHTML = `<button type="button" class="imp-x" aria-label="Close">&times;</button>` + html;
+    el.hidden = false;
+  }
+  $("#att-imp").addEventListener("click", e => { if (e.target.closest(".imp-x")) $("#att-imp").hidden = true; });
+  $("#att-import").addEventListener("click", () => {
+    if (!attSess()) { toast("Pick a week that has a session first."); return; }
+    $("#att-file").value = ""; $("#att-file").click();
+  });
+  $("#att-file").addEventListener("change", async e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    try { importReport(await f.text(), f.name); }
+    catch (err) { showImp("<b>Couldn't read that file:</b> " + esc(err.message || String(err)), "bad"); }
+  });
   /* leaving the page with unsubmitted marks */
   window.addEventListener("beforeunload", e => { if (attLive() && attDirty) { e.preventDefault(); e.returnValue = ""; } });
   const personOf = k => ROSTER.find(p => attKey(p) === k);
