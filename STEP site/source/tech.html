@@ -1020,65 +1020,75 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   /* ---- Send to GC: a team's attendance for the open session, drawn as a table
      picture and posted in that team's room (team:<id>) of STEP GC ---- */
   const ATT_LBL = { present: "Present", late: "Late", absent: "Absent" };
-  function attTableImage(g, people) {
+  /* the picture sent to a team: quiet and editorial — white page, hairlines, one gold mark */
+  async function attTableImage(g, people) {
     const ax = attSess() || {};
-    const title = "Week " + attWeek + " · " + (ax.label || attKind);
-    const sub = ax.title || "";
-    const font = (getComputedStyle(document.body).fontFamily || "system-ui, sans-serif");
-    const W = 1400, PAD = 44, S = 1;
-    const cols = [{ k: "name", t: "Name", w: 360 }, { k: "role", t: "Role", w: 250 }, { k: "status", t: "Status", w: 150 }, { k: "note", t: "Notes", w: W - 2 * PAD - 760 }];
+    const FONT = "Archivo, " + (getComputedStyle(document.body).fontFamily || "system-ui, sans-serif");
+    try { await Promise.all(["400 16px Archivo", "500 16px Archivo", "600 16px Archivo", "700 16px Archivo"].map(f => document.fonts.load(f))); } catch (e) {}
+    const W = 1200, S = 4 / 3, M = 72;
+    const INK = "#0d1b2a", INK2 = "#3d4b5c", MUTE = "#8a94a3", RULE = "#e5e8ed", GOLD = "#c8962b";
+    const ST = { present: ["Present", "#2f7d5b"], late: ["Late", "#b07a1e"], absent: ["Absent", "#b2454a"], "": ["Not marked", MUTE] };
+    const cols = [{ t: "Name", w: 340 }, { t: "Role", w: 230 }, { t: "Status", w: 150 }, { t: "Notes", w: W - 2 * M - 720 }];
     const c = document.createElement("canvas"), x = c.getContext("2d");
-    const wrap = (text, width, f) => {
-      x.font = f; const words = String(text || "").split(/\s+/).filter(Boolean), lines = []; let line = "";
+    const f = (wt, px) => wt + " " + px + "px " + FONT;
+    const wrap = (text, width, font) => {
+      x.font = font; const words = String(text || "").split(/\s+/).filter(Boolean), lines = []; let line = "";
       words.forEach(w => { const t = line ? line + " " + w : w; if (x.measureText(t).width > width && line) { lines.push(line); line = w; } else line = t; });
       if (line) lines.push(line); return lines.length ? lines : ["—"];
     };
-    const FB = "500 21px " + font, FN = "600 22px " + font;
     const rows = people.map(p => {
-      const k = attKey(p), st = attState[k] || "";
-      const name = wrap(p.name, cols[0].w - 24, FN), role = wrap(p.role || "Member", cols[1].w - 24, FB), note = wrap(attNote[k] || "", cols[3].w - 24, FB);
-      return { name, role, note, st, h: Math.max(64, 26 + 30 * Math.max(name.length, role.length, note.length)) };
+      const k = attKey(p);
+      const name = wrap(p.name, cols[0].w - 28, f(600, 19)), role = wrap(p.role || "Member", cols[1].w - 28, f(400, 16)), note = wrap(attNote[k] || "", cols[3].w, f(400, 16));
+      return { name, role, note, st: attState[k] || "", h: Math.max(68, 40 + 26 * Math.max(name.length, role.length, note.length)) };
     });
-    const count = s => people.filter(p => attState[attKey(p)] === s).length;
-    const HEAD = 190, TH = 54, FOOT = 74;
-    const H = HEAD + TH + rows.reduce((a, r) => a + r.h, 0) + FOOT;
-    c.width = W * S; c.height = H * S; x.scale(S, S);
+    const n = s => people.filter(p => (attState[attKey(p)] || "") === s).length;
+    const TOP = 330, TH = 46, FOOT = 110;
+    const H = TOP + TH + rows.reduce((a, r) => a + r.h, 0) + FOOT;
+    c.width = Math.round(W * S); c.height = Math.round(H * S); x.scale(S, S);
     x.fillStyle = "#ffffff"; x.fillRect(0, 0, W, H);
-    // header band
-    x.fillStyle = "#0b3d6e"; x.fillRect(0, 0, W, 150);
-    x.fillStyle = "#e0a61a"; x.fillRect(0, 150, W, 6);
-    x.fillStyle = "#ffffff"; x.font = "700 40px " + font; x.textBaseline = "alphabetic";
-    x.fillText(g.name + (g.inst ? " · " + g.inst : ""), PAD, 66);
-    x.font = "600 25px " + font; x.fillStyle = "#dbe8f6"; x.fillText("Attendance · " + title, PAD, 106);
-    if (sub) { x.font = "500 20px " + font; x.fillStyle = "#a9c4e3"; x.fillText(sub, PAD, 135); }
-    // summary chips on the right
-    const chips = [["Present", count("present"), "#1e7a52"], ["Late", count("late"), "#a8660b"], ["Absent", count("absent"), "#a63d40"]];
-    let cx = W - PAD; x.font = "700 22px " + font;
-    chips.slice().reverse().forEach(([t, n, col]) => {
-      const label = n + " " + t, w = x.measureText(label).width + 32; cx -= w;
-      x.fillStyle = "#ffffff"; roundRect(x, cx, 50, w, 42, 21); x.fill();
-      x.fillStyle = col; x.fillText(label, cx + 16, 78); cx -= 12;
+    x.textBaseline = "alphabetic";
+    // heading
+    x.fillStyle = GOLD; x.fillRect(M, 64, 36, 3);
+    x.font = f(500, 15); x.fillStyle = MUTE; x.fillText("Attendance report", M, 100);
+    x.font = f(700, 44); x.fillStyle = INK; x.fillText(g.name, M, 152);
+    const nw = x.measureText(g.name).width;
+    if (g.inst) { x.font = f(400, 26); x.fillStyle = MUTE; x.fillText(g.inst, M + nw + 16, 152); }
+    x.font = f(500, 19); x.fillStyle = INK2;
+    x.fillText("Week " + attWeek + " · " + (ax.label || attKind), M, 192);
+    if (ax.title) { x.font = f(400, 16); x.fillStyle = MUTE; x.fillText(ax.title, M, 218); }
+    // summary: three figures, separated by hairlines
+    const sy = 252, cells = [["present", n("present")], ["late", n("late")], ["absent", n("absent")]];
+    const cw = 150;
+    cells.forEach(([k, v], i) => {
+      const cx = M + i * (cw + 28);
+      if (i) { x.fillStyle = RULE; x.fillRect(cx - 14, sy, 1, 52); }
+      x.font = f(600, 34); x.fillStyle = INK; x.fillText(String(v), cx, sy + 34);
+      x.beginPath(); x.arc(cx + 4, sy + 50, 4, 0, Math.PI * 2); x.fillStyle = ST[k][1]; x.fill();
+      x.font = f(500, 14); x.fillStyle = MUTE; x.fillText(ST[k][0], cx + 14, sy + 55);
     });
-    // table head
-    let y = HEAD; x.fillStyle = "#f1f5f9"; x.fillRect(PAD - 12, y, W - 2 * PAD + 24, TH);
-    x.font = "700 19px " + font; x.fillStyle = "#475569";
-    let colX = PAD; cols.forEach(cl => { x.fillText(cl.t.toUpperCase(), colX, y + 34); colX += cl.w; });
+    const unm = n(""); if (unm) { x.font = f(400, 14); x.fillStyle = MUTE; x.textAlign = "right"; x.fillText(unm + " not marked", W - M, sy + 55); x.textAlign = "left"; }
+    // table
+    let y = TOP;
+    x.fillStyle = INK; x.fillRect(M, y, W - 2 * M, 1.5);
+    x.font = f(600, 13); x.fillStyle = MUTE;
+    let cx = M; cols.forEach(cl => { x.fillText(cl.t, cx, y + 30); cx += cl.w; });
     y += TH;
-    const PILL = { present: ["#e3f3ea", "#1e7a52"], late: ["#fcf0dc", "#a8660b"], absent: ["#fbe9ea", "#a63d40"], "": ["#eef2f6", "#64748b"] };
-    rows.forEach((r, i) => {
-      if (i % 2) { x.fillStyle = "#fafbfd"; x.fillRect(PAD - 12, y, W - 2 * PAD + 24, r.h); }
-      x.fillStyle = "#e2e8f0"; x.fillRect(PAD - 12, y + r.h - 1, W - 2 * PAD + 24, 1);
-      let cx2 = PAD;
-      x.font = FN; x.fillStyle = "#0f2742"; r.name.forEach((l, j) => x.fillText(l, cx2, y + 40 + 30 * j)); cx2 += cols[0].w;
-      x.font = FB; x.fillStyle = "#475569"; r.role.forEach((l, j) => x.fillText(l, cx2, y + 40 + 30 * j)); cx2 += cols[1].w;
-      const [bg, fg] = PILL[r.st] || PILL[""], lab = ATT_LBL[r.st] || "Not marked";
-      x.font = "700 19px " + font; const pw = x.measureText(lab).width + 28;
-      x.fillStyle = bg; roundRect(x, cx2, y + 16, pw, 34, 17); x.fill(); x.fillStyle = fg; x.fillText(lab, cx2 + 14, y + 39); cx2 += cols[2].w;
-      x.font = FB; x.fillStyle = "#334155"; r.note.forEach((l, j) => x.fillText(l, cx2, y + 40 + 30 * j));
+    x.fillStyle = RULE; x.fillRect(M, y - 1, W - 2 * M, 1);
+    rows.forEach(r => {
+      let cx2 = M, base = y + 42;
+      x.font = f(600, 19); x.fillStyle = INK; r.name.forEach((l, j) => x.fillText(l, cx2, base + 26 * j)); cx2 += cols[0].w;
+      x.font = f(400, 16); x.fillStyle = INK2; r.role.forEach((l, j) => x.fillText(l, cx2, base - 1 + 26 * j)); cx2 += cols[1].w;
+      const [lab, col] = ST[r.st] || ST[""];
+      x.beginPath(); x.arc(cx2 + 4, base - 6, 4, 0, Math.PI * 2); x.fillStyle = col; x.fill();
+      x.font = f(600, 16); x.fillStyle = col; x.fillText(lab, cx2 + 15, base - 1); cx2 += cols[2].w;
+      x.font = f(400, 16); x.fillStyle = r.note.length === 1 && r.note[0] === "—" ? MUTE : INK2; r.note.forEach((l, j) => x.fillText(l, cx2, base - 1 + 26 * j));
       y += r.h;
+      x.fillStyle = RULE; x.fillRect(M, y - 1, W - 2 * M, 1);
     });
-    x.font = "500 18px " + font; x.fillStyle = "#94a3b8";
-    x.fillText("STEP Hub · sent by the STEP Team", PAD, H - 30);
+    // footer
+    x.font = f(500, 14); x.fillStyle = MUTE;
+    x.fillText("STEP Hub · SPRINT-STEP", M, H - 52);
+    x.textAlign = "right"; x.fillText("Shared by the STEP Team", W - M, H - 52); x.textAlign = "left";
     return new Promise(res => c.toBlob(b => res(b), "image/png"));
   }
   function roundRect(x, a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
