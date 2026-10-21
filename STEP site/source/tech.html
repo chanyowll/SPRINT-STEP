@@ -440,7 +440,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <section class="sec" data-sec="attendance">
         <div class="sec-head">
           <div><h1>Attendance</h1><p>Record who joined each learning session and Saturday feedback session. Totals feed the team data report.</p></div>
-          <div class="acts"><button class="btn" id="att-import" title="Import the attendance file made from the Zoom report">Import Zoom report</button><input type="file" id="att-file" accept=".csv,text/csv" hidden></div>
+          <div class="acts"><button class="btn" id="att-roster" title="The roster as the attendance skill needs it: team, member_name, role">Download roster</button><button class="btn" id="att-import" title="Import the attendance file made from the Zoom report">Import Zoom report</button><input type="file" id="att-file" accept=".csv,text/csv" hidden></div>
         </div>
         <div class="wk-strip" id="att-weeks"></div>
         <div class="toolbar">
@@ -1089,7 +1089,21 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   $("#att-imp").addEventListener("click", e => { if (e.target.closest(".imp-x")) $("#att-imp").hidden = true; });
   $("#att-import").addEventListener("click", () => {
     if (!attSess()) { toast("Pick a week that has a session first."); return; }
+    const ty = (attSess() || {}).type;
+    if (ty !== "learning" && !confirm("The attendance file follows the learning-session rules (late after 9:30 AM, at least 45 of the 150 minutes from 9:30 to 12:00).\n\nThe session open here is " + ((attSess() || {}).short || attKind) + ". Import into it anyway?")) return;
     $("#att-file").value = ""; $("#att-file").click();
+  });
+  /* the roster exactly as the console holds it, for the attendance skill */
+  $("#att-roster").addEventListener("click", () => {
+    if (!ROSTER.length) { toast("No one is on a roster yet."); return; }
+    const cell = v => { v = String(v == null ? "" : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    const lines = [["team", "member_name", "role"]].concat(ROSTER.map(p => [p.team.name, p.name, p.role || ""]));
+    const blob = new Blob(["\uFEFF" + lines.map(r => r.map(cell).join(",")).join("\r\n")], { type: "text/csv;charset=utf-8" });
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    const d = new Date(), pad = n => String(n).padStart(2, "0");
+    a.download = "step-roster-" + d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + ".csv";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast("Roster downloaded: " + ROSTER.length + " participants.");
   });
   $("#att-file").addEventListener("change", async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
