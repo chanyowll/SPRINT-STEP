@@ -1175,7 +1175,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       gcvMsg("Sending " + (i + 1) + " of " + gcvItems.length + "…", "");
       if (st) { st.className = "st"; st.textContent = "Sending…"; }
       try {
-        if (!it.picSent) { await CH.sendImage(it.file, it.caption, "team:" + it.g.id); it.picSent = true; }
+        if (!it.picSent) { await CH.sendImage(it.file, "", "team:" + it.g.id); it.picSent = true; }
         if (msg && !it.msgSent) { await CH.send(msg, "team:" + it.g.id); it.msgSent = true; }
         it.sent = true; ok++;
         if (st) { st.className = "st ok"; st.textContent = "✓ Sent" + (msg ? " with message" : ""); }
