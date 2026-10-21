@@ -377,6 +377,15 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .fv-body { flex: 1; min-height: 0; background: #0d1520; display: grid; place-items: center; }
 .fv-body video, .fv-body img { max-width: 100%; max-height: 100%; }
 .fv-body iframe { width: 100%; height: 100%; border: 0; background: #fff; }
+.gcv-body { flex: 1; min-height: 0; overflow-y: auto; background: #e9eef4; padding: 18px; display: flex; flex-direction: column; gap: 18px; align-items: center; }
+.gcv-body figure { margin: 0; width: min(900px, 100%); }
+.gcv-body figcaption { font-size: 12.5px; color: var(--ink-3); margin: 0 0 6px 2px; display: flex; gap: 8px; align-items: center; }
+.gcv-body figcaption .st { font-weight: 700; }
+.gcv-body figcaption .st.ok { color: var(--ok); } .gcv-body figcaption .st.bad { color: var(--bad); }
+.gcv-body img { width: 100%; display: block; border-radius: 8px; box-shadow: 0 4px 16px rgba(8,20,36,.14); background: #fff; }
+.gcv-warn { width: min(900px, 100%); font-size: 13px; color: var(--warn); background: var(--warn-2); border-radius: 8px; padding: 9px 12px; }
+.gcv-msg { font-size: 13px; color: var(--ink-3); }
+.gcv-msg.ok { color: var(--ok); font-weight: 600; } .gcv-msg.bad { color: var(--bad); }
 .fv-body .none { color: #cfe3f6; font-size: 14px; padding: 24px; text-align: center; line-height: 1.6; }
 .fb { all: unset; cursor: pointer; font-size: 11.5px; font-weight: 600; color: var(--blue, #1f6fb2); padding: 2px 7px; border: 1px solid var(--rule); border-radius: 5px; background: #fff; margin-right: 4px; }
 .fb:hover { background: var(--blue-2, #e6f0fa); }
@@ -454,7 +463,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         <div class="stats" id="att-stats"></div>
         <div class="card">
           <header><h2 id="att-title">Attendance</h2><span class="sub" id="att-mod"></span>
-            <div class="r"><button class="btn sm" id="att-all">Mark everyone present</button><button class="btn pri sm" id="att-submit">Submit attendance</button></div></header>
+            <div class="r"><button class="btn sm" id="att-viewall" title="Preview every team's attendance picture, then send each to its team's group chat">View all data</button><button class="btn sm" id="att-all">Mark everyone present</button><button class="btn pri sm" id="att-submit">Submit attendance</button></div></header>
           <div class="scroll"><table class="t"><thead><tr><th>Participant</th><th>Role</th><th>Status</th><th>Joined</th><th>Note</th></tr></thead><tbody id="att-body"></tbody></table></div>
           <div class="foot"><span class="note" id="att-foot"></span><span class="sp"></span><span class="att-status" id="att-status" role="status" aria-live="polite">Nothing to submit</span></div>
         </div>
@@ -659,6 +668,15 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <button class="btn pri sm" id="fv-dl" type="button">Download</button>
       <button class="btn sm" id="fv-x" type="button" aria-label="Close preview">Close</button></header>
     <div class="fv-body" id="fv-body"></div>
+  </div>
+</div>
+<div class="fv gcv" id="gcv" hidden role="dialog" aria-modal="true" aria-labelledby="gcv-name">
+  <div class="fv-box">
+    <header><b id="gcv-name">Team data</b><span class="sp"></span>
+      <span class="gcv-msg" id="gcv-msg" role="status" aria-live="polite"></span>
+      <button class="btn pri sm" id="gcv-send" type="button">Send to GC</button>
+      <button class="btn sm" id="gcv-x" type="button" aria-label="Close preview">Close</button></header>
+    <div class="gcv-body" id="gcv-body"></div>
   </div>
 </div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -881,7 +899,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       if (q && !shown.length && !g.name.toLowerCase().includes(q)) return;
       html += `<tr class="team-row"><td colspan="5">${esc(g.name)} · ${esc(g.inst)}${live
         ? ` <button class="btn sm" data-add="${esc(g.id)}" style="float:right;margin:-3px 0">+ Add member</button>` : ""}${people.length
-        ? ` <button class="btn sm" data-gc="${esc(g.id)}" style="float:right;margin:-3px 8px -3px 0" title="Send this team's attendance to its group chat">Send to GC</button>` : ""}</td></tr>`;
+        ? ` <button class="btn sm" data-gc="${esc(g.id)}" style="float:right;margin:-3px 8px -3px 0" title="Preview this team's attendance picture, then send it to the team's group chat">View team data</button>` : ""}</td></tr>`;
       if (live && addingFor === g.id) {
         html += `<tr class="add-row" data-team="${esc(g.id)}"><td><input class="in" id="am-name" placeholder="Full name, e.g. Dr. Maria Santos"></td>
           <td><input class="in" id="am-role" placeholder="Role, e.g. Project lead"></td>
@@ -1064,31 +1082,71 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     return new Promise(res => c.toBlob(b => res(b), "image/png"));
   }
   function roundRect(x, a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
-  async function sendToGC(teamId, btn) {
-    const g = G.find(t => t.id === teamId); if (!g) return;
-    const people = ROSTER.filter(p => p.team.id === teamId);
-    if (!people.length) { toast("No one on this team's roster yet."); return; }
-    const ax = attSess() || {};
-    const sessName = "Week " + attWeek + " · " + (ax.label || attKind);
-    const unmarked = people.filter(p => !attState[attKey(p)]).length;
-    const blob = await attTableImage(g, people);
-    const file = new File([blob], "attendance-" + g.name + "-W" + attWeek + "-" + attKind + ".png", { type: "image/png" });
-    const CH = window.STEP_CHAT;
-    if (!attLive() || !CH || !CH.available || !CH.available()) {
-      const url = URL.createObjectURL(blob);
-      showImp(`<b>Preview of what ${esc(g.name)}'s group chat would get</b> (sign in with a STEP Team account to send it):<div style="margin-top:8px"><img src="${url}" alt="" style="max-width:100%;border:1px solid var(--rule);border-radius:8px"></div>`, "ok");
-      return;
-    }
-    const warn = (attDirty ? "\n\nSome marks on this page are not submitted yet; the picture shows them as they are now." : "")
-      + (unmarked ? "\n\n" + unmarked + " " + (unmarked === 1 ? "person is" : "people are") + " not marked yet." : "");
-    if (!confirm("Send " + g.name + "'s attendance for " + sessName + " to the " + g.name + " group chat?" + warn)) return;
-    btn.disabled = true; const was = btn.textContent; btn.textContent = "Sending…";
-    try {
-      await CH.sendImage(file, "Attendance · " + sessName + (ax.title ? " (" + ax.title + ")" : "") + " · " + g.name, "team:" + teamId);
-      toast("Sent to the " + g.name + " group chat.");
-    } catch (err) { toast("Couldn't send: " + (err.message || err)); }
-    finally { btn.disabled = false; btn.textContent = was; }
+  /* the preview window: each team's picture exactly as it will be posted, and one Send to GC */
+  let gcvItems = [];                                   // [{ g, blob, url, file, caption }]
+  const sessNameNow = () => "Week " + attWeek + " · " + ((attSess() || {}).label || attKind);
+  function closeGCView() {
+    $("#gcv").hidden = true;
+    gcvItems.forEach(it => URL.revokeObjectURL(it.url)); gcvItems = [];
   }
+  async function openGCView(teamIds) {
+    const teams = teamIds.map(id => G.find(t => t.id === id)).filter(g => g && ROSTER.some(p => p.team.id === g.id));
+    if (!teams.length) { toast("No one on a roster yet."); return; }
+    closeGCView();
+    const ax = attSess() || {};
+    gcvItems = [];
+    for (const g of teams) {
+      const people = ROSTER.filter(p => p.team.id === g.id);
+      const blob = await attTableImage(g, people);
+      gcvItems.push({ g, blob, url: URL.createObjectURL(blob),
+        file: new File([blob], "attendance-" + g.name + "-W" + attWeek + "-" + attKind + ".png", { type: "image/png" }),
+        caption: "Attendance · " + sessNameNow() + (ax.title ? " (" + ax.title + ")" : "") + " · " + g.name,
+        unmarked: people.filter(p => !attState[attKey(p)]).length });
+    }
+    const one = gcvItems.length === 1;
+    $("#gcv-name").textContent = (one ? gcvItems[0].g.name + " · " : "All teams · ") + sessNameNow();
+    const unmarked = gcvItems.reduce((a, it) => a + it.unmarked, 0);
+    const notes = [];
+    if (attDirty) notes.push("Some marks on this page are not submitted yet; the pictures show them as they are now.");
+    if (unmarked) notes.push(unmarked + " " + (unmarked === 1 ? "person is" : "people are") + " not marked yet and will show as “Not marked”.");
+    $("#gcv-body").innerHTML = (notes.length ? `<div class="gcv-warn">${notes.map(esc).join(" ")}</div>` : "")
+      + gcvItems.map((it, i) => `<figure data-i="${i}"><figcaption><b>${esc(it.g.name)}</b> → ${esc(it.g.name)} group chat <span class="st" data-st="${i}"></span></figcaption><img src="${it.url}" alt="${esc(it.caption)}"></figure>`).join("");
+    const live = attLive() && window.STEP_CHAT && window.STEP_CHAT.available && window.STEP_CHAT.available();
+    const send = $("#gcv-send");
+    send.disabled = !live;
+    send.textContent = one ? "Send to GC" : "Send to GC (" + gcvItems.length + " teams)";
+    gcvMsg(live ? "" : "Preview only — sign in with a STEP Team account to send.", "");
+    $("#gcv").hidden = false;
+    $("#gcv-body").scrollTop = 0;
+  }
+  function gcvMsg(t, tone) { const m = $("#gcv-msg"); m.textContent = t; m.className = "gcv-msg" + (tone ? " " + tone : ""); }
+  async function sendGCView() {
+    const CH = window.STEP_CHAT, send = $("#gcv-send");
+    if (!gcvItems.length || !CH) return;
+    send.disabled = true;
+    let ok = 0, bad = 0;
+    for (let i = 0; i < gcvItems.length; i++) {
+      const it = gcvItems[i], st = document.querySelector(`[data-st="${i}"]`);
+      if (it.sent) { ok++; continue; }
+      gcvMsg("Sending " + (i + 1) + " of " + gcvItems.length + "…", "");
+      if (st) { st.className = "st"; st.textContent = "Sending…"; }
+      try {
+        await CH.sendImage(it.file, it.caption, "team:" + it.g.id);
+        it.sent = true; ok++;
+        if (st) { st.className = "st ok"; st.textContent = "✓ Sent"; }
+      } catch (err) {
+        bad++;
+        if (st) { st.className = "st bad"; st.textContent = "Couldn't send: " + (err.message || err); }
+      }
+    }
+    if (bad) { gcvMsg(ok + " sent, " + bad + " failed. Press Send to GC to retry the failed " + (bad === 1 ? "one" : "ones") + ".", "bad"); send.disabled = false; }
+    else { gcvMsg(gcvItems.length === 1 ? "✓ Sent to the " + gcvItems[0].g.name + " group chat" : "✓ Sent to all " + ok + " group chats", "ok"); }
+  }
+  $("#gcv-send").addEventListener("click", sendGCView);
+  $("#gcv-x").addEventListener("click", closeGCView);
+  $("#gcv").addEventListener("click", e => { if (e.target.id === "gcv") closeGCView(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape" && !$("#gcv").hidden) closeGCView(); });
+  $("#att-viewall").addEventListener("click", () => openGCView(G.map(g => g.id)));
 
   /* ---- Import Zoom report ----
      Takes the attendance file the attendance engine makes from Zoom's
@@ -1249,7 +1307,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       return;
     }
     const gcb = e.target.closest("[data-gc]");
-    if (gcb) { await sendToGC(gcb.dataset.gc, gcb); return; }
+    if (gcb) { await openGCView([gcb.dataset.gc]); return; }
     const add = e.target.closest("[data-add]");
     if (add) { addingFor = addingFor === add.dataset.add ? null : add.dataset.add; renderAtt(); return; }
     if (e.target.closest("[data-am-cancel]")) { addingFor = null; renderAtt(); return; }
