@@ -848,8 +848,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       : (w < NOW ? "has" : w === NOW ? "miss" : ""));
     weekStrip($("#att-weeks"), marks, async w => { if (!leaveOk()) return; attWeek = w; paintKinds(); await refreshAtt(); }, attWeek);
   }
-  async function refreshAtt() {
-    const imp = document.getElementById("att-imp"); if (imp) imp.hidden = true;
+  async function refreshAtt(keepNote) {
+    const imp = document.getElementById("att-imp"); if (imp && !keepNote) imp.hidden = true;
     if (attLive()) {
       try { await loadSession(); }
       catch (e) { toast("Couldn't load attendance: " + (e.message || e)); }
@@ -1035,7 +1035,19 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     hit = people.filter(p => { const t = impName(p.name).split(" "); const [a, b] = tok.length <= t.length ? [tok, t] : [t, tok]; return a.length > 1 && a.every(x => b.includes(x)); });
     return hit.length === 1 ? hit[0] : null;
   }
-  function importReport(text, fileName) {
+  /* open the session held on this date (from the schedule) so the file lands in the right place */
+  async function openSessionFor(date) {
+    if (($("#att-date").value || sessDate()) === date) return true;
+    for (const w of WEEKS) {
+      const s = attSessions(w).find(x => x.date === date || (x.end && x.date <= date && date <= x.end));
+      if (!s) continue;
+      if (!leaveOk()) return false;
+      attWeek = w; attKind = s.key; paintKinds(); paintWeeks(); await refreshAtt();
+      return true;
+    }
+    return null;
+  }
+  async function importReport(text, fileName) {
     const rows = parseCSV(text);
     if (!rows.length) { toast("That file is empty."); return; }
     const head = rows[0].map(h => h.trim().toLowerCase().replace(/[^a-z_]/g, "_").replace(/_+/g, "_").replace(/^_|_$/g, ""));
@@ -1050,10 +1062,15 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       showImp(`<b>This file isn't in the attendance format.</b> It needs the columns team, member_name and status.`, "bad");
       return;
     }
-    const dates = new Set(rows.slice(1).map(r => (r[ci.date] || "").trim()).filter(Boolean));
-    const open = $("#att-date").value || sessDate();
-    if (dates.size && ![...dates].includes(open)
-        && !confirm("This file is for " + [...dates].join(", ") + ", but the session open here is Week " + attWeek + " · " + ((attSess() || {}).short || attKind) + " (" + open + ").\n\nFill this session with it anyway?")) return;
+    const dates = [...new Set(rows.slice(1).map(r => (r[ci.date] || "").trim()).filter(Boolean))];
+    let moved = false;
+    if (dates.length === 1) {
+      const was = attWeek + attKind;
+      const got = await openSessionFor(dates[0]);
+      if (got === false) return;
+      moved = got === true && was !== attWeek + attKind;
+      if (got === null && !confirm("No session in the schedule is on " + dates[0] + ".\n\nFill the session open here (Week " + attWeek + " · " + ((attSess() || {}).short || attKind) + ") with this file anyway?")) return;
+    } else if (dates.length > 1 && !confirm("This file has more than one date (" + dates.join(", ") + ").\n\nFill the session open here (Week " + attWeek + " · " + ((attSess() || {}).short || attKind) + ") with it anyway?")) return;
     const STATUS = { present: "present", late: "late", absent: "absent", p: "present", l: "late", a: "absent" };
     let filled = 0; const miss = [], bad = [];
     rows.slice(1).forEach(r => {
@@ -1074,7 +1091,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     });
     const unmarked = ROSTER.filter(p => !attState[attKey(p)]).length;
     markDirty(); renderAtt();
-    showImp(`<b>Filled ${filled} mark${filled === 1 ? "" : "s"} from ${esc(fileName)}.</b> Check them, then press <b>Submit attendance</b>. Nothing is saved yet.`
+    showImp(`<b>Filled ${filled} mark${filled === 1 ? "" : "s"} from ${esc(fileName)}</b>${moved ? ` into Week ${attWeek} · ${esc((attSess() || {}).short || attKind)}, the session on ${esc(dates[0])}` : ""}. Check them, then press <b>Submit attendance</b>. Nothing is saved yet.`
       + (miss.length ? `<div class="imp-miss"><b>${miss.length} row${miss.length === 1 ? "" : "s"} didn't match anyone on the roster</b> (fix the name in the file or add the person to the roster):<ul>${miss.map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div>` : "")
       + (bad.length ? `<div class="imp-miss"><b>${bad.length} row${bad.length === 1 ? "" : "s"} had a status other than Present, Late or Absent:</b><ul>${bad.map(x => "<li>" + esc(x) + "</li>").join("")}</ul></div>` : "")
       + (unmarked ? `<div class="imp-sub">${unmarked} roster ${unmarked === 1 ? "person is" : "people are"} still not marked.</div>` : ""),
@@ -1105,7 +1122,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   });
   $("#att-file").addEventListener("change", async e => {
     const f = e.target.files && e.target.files[0]; if (!f) return;
-    try { importReport(await f.text(), f.name); }
+    try { await importReport(await f.text(), f.name); }
     catch (err) { showImp("<b>Couldn't read that file:</b> " + esc(err.message || String(err)), "bad"); }
   });
   /* leaving the page with unsubmitted marks */
