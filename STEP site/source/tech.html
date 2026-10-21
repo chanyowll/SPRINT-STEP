@@ -485,7 +485,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         <div class="stats" id="att-stats"></div>
         <div class="card">
           <header><h2 id="att-title">Attendance</h2><span class="sub" id="att-mod"></span>
-            <div class="r"><button class="btn sm" id="att-viewall" title="Preview every team's attendance picture, then send each to its team's group chat">View all data</button><button class="btn sm" id="att-all">Mark everyone present</button><button class="btn pri sm" id="att-submit">Submit attendance</button></div></header>
+            <div class="r"><button class="btn sm" id="att-viewall" title="Preview every team's attendance picture, then send each to its team's group chat">View all data</button><button class="btn pri sm" id="att-submit">Submit attendance</button></div></header>
           <div class="scroll"><table class="t"><thead><tr><th>Participant</th><th>Role</th><th>Status</th><th>Joined</th><th>Note</th></tr></thead><tbody id="att-body"></tbody></table></div>
           <div class="foot"><span class="note" id="att-foot"></span><span class="sp"></span><span class="att-status" id="att-status" role="status" aria-live="polite">Nothing to submit</span></div>
         </div>
@@ -1385,11 +1385,6 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     $$("#att-kind button").forEach(x => x.setAttribute("aria-pressed", x === b)); attKind = b.dataset.v; await refreshAtt();
   });
   $("#att-q").addEventListener("input", renderAtt);
-  $("#att-all").addEventListener("click", () => {
-    const other = ROSTER.filter(p => ["late", "absent"].includes(attState[attKey(p)])).length;
-    if (other && !confirm("Mark everyone present?\n\n" + other + (other === 1 ? " person is" : " people are") + " marked Late or Absent — they will be changed to Present.")) return;
-    ROSTER.forEach(p => attState[attKey(p)] = "present"); renderAtt(); persist(ROSTER);
-  });
   document.addEventListener("click", e => { if (e.target.closest("#att-retry")) submitAttendance(); });   // tries the whole submit again
 
   /* the real roster arrives once the account is known */
