@@ -1089,8 +1089,6 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   $("#att-imp").addEventListener("click", e => { if (e.target.closest(".imp-x")) $("#att-imp").hidden = true; });
   $("#att-import").addEventListener("click", () => {
     if (!attSess()) { toast("Pick a week that has a session first."); return; }
-    const ty = (attSess() || {}).type;
-    if (ty !== "learning" && !confirm("The attendance file follows the learning-session rules (late after 9:30 AM, at least 45 of the 150 minutes from 9:30 to 12:00).\n\nThe session open here is " + ((attSess() || {}).short || attKind) + ". Import into it anyway?")) return;
     $("#att-file").value = ""; $("#att-file").click();
   });
   /* the roster exactly as the console holds it, for the attendance skill */
