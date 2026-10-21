@@ -393,6 +393,20 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .gcv-then { width: 100%; display: flex; justify-content: flex-start; margin-top: 10px; }
 .gcv-then[hidden] { display: none; }
 .gcv-then p { margin: 0; max-width: 70%; background: #fff; border: 1px solid var(--rule); border-radius: 4px 14px 14px 14px; padding: 9px 13px; font-size: 14px; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+/* the preview window, sized down to match the rest of the console */
+.gcv .fv-box { width: min(900px, 100%); }
+.gcv .fv-box header { padding: 8px 12px; }
+.gcv .fv-box header b { font-size: 13px; }
+.gcv-msg { font-size: 12px; }
+.gcv-msgbox { padding: 9px 12px 10px; }
+.gcv-msgbox label { font-size: 12px; margin-bottom: 4px; }
+.gcv-msgbox textarea { font-size: 13px; min-height: 48px; padding: 7px 9px; }
+.gcv-body { padding: 14px; gap: 14px; }
+.gcv-body figure, .gcv-warn, .gcv-then { width: min(640px, 100%); }
+.gcv-body figcaption { font-size: 11.5px; margin-bottom: 4px; }
+.gcv-warn { font-size: 12px; padding: 7px 10px; }
+.gcv-then { margin-top: 8px; }
+.gcv-then p { font-size: 12.5px; padding: 7px 11px; }
 .gcv-msg.ok { color: var(--ok); font-weight: 600; } .gcv-msg.bad { color: var(--bad); }
 .fv-body .none { color: #cfe3f6; font-size: 14px; padding: 24px; text-align: center; line-height: 1.6; }
 .fb { all: unset; cursor: pointer; font-size: 11.5px; font-weight: 600; color: var(--blue, #1f6fb2); padding: 2px 7px; border: 1px solid var(--rule); border-radius: 5px; background: #fff; margin-right: 4px; }
@@ -686,7 +700,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <button class="btn sm" id="gcv-x" type="button" aria-label="Close preview">Close</button></header>
     <div class="gcv-msgbox">
       <label for="gcv-text"><b>Message GC</b> <span>Optional. Sent to each team's group chat right after its picture.</span></label>
-      <textarea id="gcv-text" rows="3" maxlength="2000" placeholder="e.g. Hi team, here is your attendance for today's session. Please rename yourselves TEAM_Name in Zoom next time so we can count you."></textarea>
+      <textarea id="gcv-text" rows="2" maxlength="2000" placeholder="e.g. Hi team, here is your attendance for today's session. Please rename yourselves TEAM_Name in Zoom next time so we can count you."></textarea>
     </div>
     <div class="gcv-body" id="gcv-body"></div>
   </div>
