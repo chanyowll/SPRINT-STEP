@@ -665,6 +665,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="supabase-client.js"></script>
+<script src="chat-data.js"></script>
 <script src="site-clock.js"></script>
 <script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
@@ -879,7 +880,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       });
       if (q && !shown.length && !g.name.toLowerCase().includes(q)) return;
       html += `<tr class="team-row"><td colspan="5">${esc(g.name)} · ${esc(g.inst)}${live
-        ? ` <button class="btn sm" data-add="${esc(g.id)}" style="float:right;margin:-3px 0">+ Add member</button>` : ""}</td></tr>`;
+        ? ` <button class="btn sm" data-add="${esc(g.id)}" style="float:right;margin:-3px 0">+ Add member</button>` : ""}${people.length
+        ? ` <button class="btn sm" data-gc="${esc(g.id)}" style="float:right;margin:-3px 8px -3px 0" title="Send this team's attendance to its group chat">Send to GC</button>` : ""}</td></tr>`;
       if (live && addingFor === g.id) {
         html += `<tr class="add-row" data-team="${esc(g.id)}"><td><input class="in" id="am-name" placeholder="Full name, e.g. Dr. Maria Santos"></td>
           <td><input class="in" id="am-role" placeholder="Role, e.g. Project lead"></td>
@@ -996,6 +998,97 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
      change on screen now only marks the session as unsubmitted */
   function persist() { markDirty(); }
   $("#att-submit").addEventListener("click", submitAttendance);
+
+  /* ---- Send to GC: a team's attendance for the open session, drawn as a table
+     picture and posted in that team's room (team:<id>) of STEP GC ---- */
+  const ATT_LBL = { present: "Present", late: "Late", absent: "Absent" };
+  function attTableImage(g, people) {
+    const ax = attSess() || {};
+    const title = "Week " + attWeek + " · " + (ax.label || attKind);
+    const sub = ax.title || "";
+    const font = (getComputedStyle(document.body).fontFamily || "system-ui, sans-serif");
+    const W = 1400, PAD = 44, S = 1;
+    const cols = [{ k: "name", t: "Name", w: 360 }, { k: "role", t: "Role", w: 250 }, { k: "status", t: "Status", w: 150 }, { k: "note", t: "Notes", w: W - 2 * PAD - 760 }];
+    const c = document.createElement("canvas"), x = c.getContext("2d");
+    const wrap = (text, width, f) => {
+      x.font = f; const words = String(text || "").split(/\s+/).filter(Boolean), lines = []; let line = "";
+      words.forEach(w => { const t = line ? line + " " + w : w; if (x.measureText(t).width > width && line) { lines.push(line); line = w; } else line = t; });
+      if (line) lines.push(line); return lines.length ? lines : ["—"];
+    };
+    const FB = "500 21px " + font, FN = "600 22px " + font;
+    const rows = people.map(p => {
+      const k = attKey(p), st = attState[k] || "";
+      const name = wrap(p.name, cols[0].w - 24, FN), role = wrap(p.role || "Member", cols[1].w - 24, FB), note = wrap(attNote[k] || "", cols[3].w - 24, FB);
+      return { name, role, note, st, h: Math.max(64, 26 + 30 * Math.max(name.length, role.length, note.length)) };
+    });
+    const count = s => people.filter(p => attState[attKey(p)] === s).length;
+    const HEAD = 190, TH = 54, FOOT = 74;
+    const H = HEAD + TH + rows.reduce((a, r) => a + r.h, 0) + FOOT;
+    c.width = W * S; c.height = H * S; x.scale(S, S);
+    x.fillStyle = "#ffffff"; x.fillRect(0, 0, W, H);
+    // header band
+    x.fillStyle = "#0b3d6e"; x.fillRect(0, 0, W, 150);
+    x.fillStyle = "#e0a61a"; x.fillRect(0, 150, W, 6);
+    x.fillStyle = "#ffffff"; x.font = "700 40px " + font; x.textBaseline = "alphabetic";
+    x.fillText(g.name + (g.inst ? " · " + g.inst : ""), PAD, 66);
+    x.font = "600 25px " + font; x.fillStyle = "#dbe8f6"; x.fillText("Attendance · " + title, PAD, 106);
+    if (sub) { x.font = "500 20px " + font; x.fillStyle = "#a9c4e3"; x.fillText(sub, PAD, 135); }
+    // summary chips on the right
+    const chips = [["Present", count("present"), "#1e7a52"], ["Late", count("late"), "#a8660b"], ["Absent", count("absent"), "#a63d40"]];
+    let cx = W - PAD; x.font = "700 22px " + font;
+    chips.slice().reverse().forEach(([t, n, col]) => {
+      const label = n + " " + t, w = x.measureText(label).width + 32; cx -= w;
+      x.fillStyle = "#ffffff"; roundRect(x, cx, 50, w, 42, 21); x.fill();
+      x.fillStyle = col; x.fillText(label, cx + 16, 78); cx -= 12;
+    });
+    // table head
+    let y = HEAD; x.fillStyle = "#f1f5f9"; x.fillRect(PAD - 12, y, W - 2 * PAD + 24, TH);
+    x.font = "700 19px " + font; x.fillStyle = "#475569";
+    let colX = PAD; cols.forEach(cl => { x.fillText(cl.t.toUpperCase(), colX, y + 34); colX += cl.w; });
+    y += TH;
+    const PILL = { present: ["#e3f3ea", "#1e7a52"], late: ["#fcf0dc", "#a8660b"], absent: ["#fbe9ea", "#a63d40"], "": ["#eef2f6", "#64748b"] };
+    rows.forEach((r, i) => {
+      if (i % 2) { x.fillStyle = "#fafbfd"; x.fillRect(PAD - 12, y, W - 2 * PAD + 24, r.h); }
+      x.fillStyle = "#e2e8f0"; x.fillRect(PAD - 12, y + r.h - 1, W - 2 * PAD + 24, 1);
+      let cx2 = PAD;
+      x.font = FN; x.fillStyle = "#0f2742"; r.name.forEach((l, j) => x.fillText(l, cx2, y + 40 + 30 * j)); cx2 += cols[0].w;
+      x.font = FB; x.fillStyle = "#475569"; r.role.forEach((l, j) => x.fillText(l, cx2, y + 40 + 30 * j)); cx2 += cols[1].w;
+      const [bg, fg] = PILL[r.st] || PILL[""], lab = ATT_LBL[r.st] || "Not marked";
+      x.font = "700 19px " + font; const pw = x.measureText(lab).width + 28;
+      x.fillStyle = bg; roundRect(x, cx2, y + 16, pw, 34, 17); x.fill(); x.fillStyle = fg; x.fillText(lab, cx2 + 14, y + 39); cx2 += cols[2].w;
+      x.font = FB; x.fillStyle = "#334155"; r.note.forEach((l, j) => x.fillText(l, cx2, y + 40 + 30 * j));
+      y += r.h;
+    });
+    x.font = "500 18px " + font; x.fillStyle = "#94a3b8";
+    x.fillText("STEP Hub · sent by the STEP Team", PAD, H - 30);
+    return new Promise(res => c.toBlob(b => res(b), "image/png"));
+  }
+  function roundRect(x, a, b, w, h, r) { x.beginPath(); x.moveTo(a + r, b); x.arcTo(a + w, b, a + w, b + h, r); x.arcTo(a + w, b + h, a, b + h, r); x.arcTo(a, b + h, a, b, r); x.arcTo(a, b, a + w, b, r); x.closePath(); }
+  async function sendToGC(teamId, btn) {
+    const g = G.find(t => t.id === teamId); if (!g) return;
+    const people = ROSTER.filter(p => p.team.id === teamId);
+    if (!people.length) { toast("No one on this team's roster yet."); return; }
+    const ax = attSess() || {};
+    const sessName = "Week " + attWeek + " · " + (ax.label || attKind);
+    const unmarked = people.filter(p => !attState[attKey(p)]).length;
+    const blob = await attTableImage(g, people);
+    const file = new File([blob], "attendance-" + g.name + "-W" + attWeek + "-" + attKind + ".png", { type: "image/png" });
+    const CH = window.STEP_CHAT;
+    if (!attLive() || !CH || !CH.available || !CH.available()) {
+      const url = URL.createObjectURL(blob);
+      showImp(`<b>Preview of what ${esc(g.name)}'s group chat would get</b> (sign in with a STEP Team account to send it):<div style="margin-top:8px"><img src="${url}" alt="" style="max-width:100%;border:1px solid var(--rule);border-radius:8px"></div>`, "ok");
+      return;
+    }
+    const warn = (attDirty ? "\n\nSome marks on this page are not submitted yet; the picture shows them as they are now." : "")
+      + (unmarked ? "\n\n" + unmarked + " " + (unmarked === 1 ? "person is" : "people are") + " not marked yet." : "");
+    if (!confirm("Send " + g.name + "'s attendance for " + sessName + " to the " + g.name + " group chat?" + warn)) return;
+    btn.disabled = true; const was = btn.textContent; btn.textContent = "Sending…";
+    try {
+      await CH.sendImage(file, "Attendance · " + sessName + (ax.title ? " (" + ax.title + ")" : "") + " · " + g.name, "team:" + teamId);
+      toast("Sent to the " + g.name + " group chat.");
+    } catch (err) { toast("Couldn't send: " + (err.message || err)); }
+    finally { btn.disabled = false; btn.textContent = was; }
+  }
 
   /* ---- Import Zoom report ----
      Takes the attendance file the attendance engine makes from Zoom's
@@ -1155,6 +1248,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       const p = personOf(k); if (p) persist([p]);
       return;
     }
+    const gcb = e.target.closest("[data-gc]");
+    if (gcb) { await sendToGC(gcb.dataset.gc, gcb); return; }
     const add = e.target.closest("[data-add]");
     if (add) { addingFor = addingFor === add.dataset.add ? null : add.dataset.add; renderAtt(); return; }
     if (e.target.closest("[data-am-cancel]")) { addingFor = null; renderAtt(); return; }
