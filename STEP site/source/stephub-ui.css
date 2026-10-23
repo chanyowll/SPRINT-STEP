@@ -5332,14 +5332,15 @@ h3 { letter-spacing: -.005em; }
    the home "This cycle" numbers, the top of Program and STEP Groups,
    and behind the cycle calendar. Working pages stay plain.
    ===================================================================== */
-:root { --grid-line: #e2e9f2; --grid-size: 24px; }
+:root { --grid-line: #e2e9f2; --grid-size: 24px;
+  /* hexagon grid + gears + circuit traces (same look as the event cards) */
+  --tech-bg: url(assets/bg-decor.svg?v=5), url(assets/bg-hex.svg?v=5);
+  --tech-bg-size: 1200px 800px, 65px 112.583px; }
 body { overflow-x: clip; }
 .graph-paper, .numbers {
   background-color: var(--bg);
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: var(--grid-size) var(--grid-size);
+  background-image: var(--tech-bg);
+  background-size: var(--tech-bg-size);
   background-position: -1px -1px;
 }
 /* full-width grid that fades out: the top of a page, or around one section */
@@ -5347,10 +5348,8 @@ body { overflow-x: clip; }
 .gp-top::before, .gp-band::before {
   content: ""; position: absolute; z-index: -1; pointer-events: none;
   left: calc(50% - 50 * var(--vw)); width: calc(100 * var(--vw));
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: var(--grid-size) var(--grid-size);
+  background-image: var(--tech-bg);
+  background-size: var(--tech-bg-size);
   background-position: center -1px;
 }
 .gp-top::before {
@@ -5391,10 +5390,8 @@ body { overflow-x: clip; }
    ===================================================================== */
 .journey:has(.jr) {
   background-color: var(--bg);
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: var(--grid-size) var(--grid-size);
+  background-image: var(--tech-bg);
+  background-size: var(--tech-bg-size);
   background-position: -1px -1px;
   color: var(--ink);
 }
@@ -5531,10 +5528,8 @@ body { overflow-x: clip; }
 .gp-after::before {
   content: ""; position: absolute; z-index: -1; pointer-events: none;
   top: 0; height: 50%; left: calc(50% - 50 * var(--vw)); width: calc(100 * var(--vw));
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-  background-size: var(--grid-size) var(--grid-size);
+  background-image: var(--tech-bg);
+  background-size: var(--tech-bg-size);
   background-position: center -1px;
   -webkit-mask-image: linear-gradient(#000 60%, transparent);
           mask-image: linear-gradient(#000 60%, transparent);
@@ -6561,3 +6556,31 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .chatroom .msg-row .mhead { align-self: stretch; display: flex; align-items: flex-end; gap: 10px; min-width: 0; }
 .chatroom .msg-row .mhead .who { min-width: 0; }
 .chatroom .msg-row .mhead .tm { margin-left: auto; flex: none; font-size: 10.5px; font-weight: 600; letter-spacing: .02em; color: #9a8f77; line-height: 1.6; padding: 0 2px 2px; white-space: nowrap; }
+
+/* Home: one continuous hexagon field behind the numbers strip and the 12-weeks band,
+   crisp at the top and fading out at the bottom (no seam between the two sections) */
+.gp-home { position: relative; isolation: isolate; }
+.gp-home::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  top: 0; bottom: 0; left: calc(50% - 50 * var(--vw)); width: calc(100 * var(--vw));
+  background-image: var(--tech-bg);
+  background-size: var(--tech-bg-size);
+  background-position: center -1px;
+  -webkit-mask-image: linear-gradient(#000 72%, transparent);
+          mask-image: linear-gradient(#000 72%, transparent);
+}
+.gp-home .numbers { background: none; border-bottom: 0; }
+.gp-home .journey:has(.jr) { background: none; }
+
+/* This Week: hexagon field from the banner down to the end of Announcements, fading out below it */
+.gp-until { position: relative; isolation: isolate; }
+.gp-until > * + * { margin-top: var(--s7); }
+.gp-until::before {
+  content: ""; position: absolute; z-index: -1; pointer-events: none;
+  top: calc(-1 * var(--s5)); bottom: -40px; left: calc(50% - 50 * var(--vw)); width: calc(100 * var(--vw));
+  background-image: var(--tech-bg);
+  background-size: var(--tech-bg-size);
+  background-position: center -1px;
+  -webkit-mask-image: linear-gradient(#000 calc(100% - 160px), transparent);
+          mask-image: linear-gradient(#000 calc(100% - 160px), transparent);
+}

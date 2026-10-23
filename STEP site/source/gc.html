@@ -628,10 +628,34 @@ const daysAway = iso => {
     setCount("Participants, trainers, mentors and the STEP team");
     document.getElementById("ch-faces").innerHTML = "";
   }
-  async function resync() {
-    const r = ROOM;
-    try { const rows = await CH.list(200, r); if (r === ROOM) { MSGS = rows.map(toMsg); render(); loadRx(); } } catch (e) {}
+  /* The safety-net check behind the live link. It only runs while STEP GC is on screen: elsewhere
+     the live link alone keeps the room badges current. Normally it asks only for messages newer than
+     the last one shown (usually none); a full reload happens when STEP GC is opened after being away,
+     after the live link was down, or after the tab sat hidden for a while. */
+  const gcOnScreen = () => document.body.classList.contains("on-gc");
+  let gcStale = false, gcBusy = false;
+  async function resync(ev) {
+    if (!live) return;
+    if (!gcOnScreen()) { gcStale = true; return; }
+    if (gcBusy) return;
+    gcBusy = true;
+    const r = ROOM, full = (ev && ev.full) || gcStale || !MSGS.length;
+    try {
+      if (full) {
+        const rows = await CH.list(200, r);
+        if (r === ROOM) { gcStale = false; MSGS = rows.map(toMsg); render(); loadRx(); }
+      } else {
+        const lastAt = MSGS[MSGS.length - 1].at;
+        const rows = CH.listSince ? await CH.listSince(r, lastAt) : [];
+        const have = new Set(MSGS.map(m => String(m.id)));
+        const add = rows.filter(x => !have.has(String(x.id)) && (x.room || "fam") === r);
+        if (r === ROOM && add.length) { MSGS = MSGS.concat(add.map(toMsg)); render(); loadRx(); }
+      }
+    } catch (e) {}
+    gcBusy = false;
   }
+  /* coming back to STEP GC after being on another page: catch up once */
+  window.addEventListener("hashchange", () => setTimeout(() => { if (gcStale && gcOnScreen()) resync({ full: true }); }, 0));
   /* the reactions for the messages on screen */
   let rxSeq = 0, rxTimer = null;
   async function loadRx() {
@@ -662,7 +686,7 @@ const daysAway = iso => {
     render(true); loadRx();
     if (window.__gcRoomSize) window.__gcRoomSize(ROOM);
     stop = CH.subscribe(ev => {
-      if (ev.type === "resync") return resync();
+      if (ev.type === "resync") return resync(ev);
       if (ev.type === "react") { if (!ev.row || !ev.row.message_id || MSGS.some(m => String(m.id) === String(ev.row.message_id))) window.__gcLoadRx(); return; }
       /* a message in another room only lights that room up on the left */
       if (ev.row && ev.row.room && ev.row.room !== ROOM) {

@@ -422,6 +422,63 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .dv-table.o-all th .note { overflow-wrap: normal; word-break: normal; min-height: 2.6em; }
 .o-file { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
 .o-file .no { color: var(--ink-3); font-size: 12.5px; }
+/* ---------- Objectives and Tasks ---------- */
+.wp-objcard { margin-bottom: 18px; }
+.wp-orow { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr) 120px 90px; gap: 16px; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--rule-2); }
+.wp-orow:last-child { border-bottom: 0; }
+.wp-orow b { display: block; font-size: 13.5px; font-weight: 700; }
+.wp-orow small { display: block; color: var(--ink-3); font-size: 12px; }
+.wp-orow .num { text-align: right; font-size: 13px; color: var(--ink-2); white-space: nowrap; }
+.wp-orow .num strong { color: var(--ink); font-size: 14px; }
+.wp-track { position: relative; height: 10px; border-radius: 99px; background: var(--rule-2); overflow: hidden; }
+.wp-track i { position: absolute; inset: 0 auto 0 0; background: var(--ok); border-radius: 99px; transition: width .25s; }
+.wp-track em { position: absolute; top: -3px; bottom: -3px; width: 2px; background: var(--ink); opacity: .45; }
+.wp-track.sm { height: 6px; }
+.wp-legend { display: flex; gap: 16px; padding: 9px 16px; border-top: 1px solid var(--rule-2); color: var(--ink-3); font-size: 12px; background: #fafbfc; border-radius: 0 0 8px 8px; }
+.wp-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.wp-legend i { width: 14px; height: 6px; border-radius: 99px; background: var(--ok); }
+.wp-legend em { width: 2px; height: 12px; background: var(--ink); opacity: .45; }
+.wp-bar { margin-top: 4px; }
+.wp-ocard { margin-bottom: 14px; }
+.wp-ocard > header { align-items: flex-start; }
+.wp-ocard > header .wp-otxt { color: var(--ink-2); font-size: 12.5px; margin-top: 3px; max-width: 110ch; }
+.wp-ocard > header .r { white-space: nowrap; }
+.wp-acc { padding: 14px 16px; border-bottom: 1px solid var(--rule-2); }
+.wp-acc:last-child { border-bottom: 0; }
+.wp-ahead { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; margin-bottom: 10px; }
+.wp-ahead h3 { margin: 0; font-size: 14px; font-weight: 700; }
+.wp-ahead p { margin: 3px 0 0; color: var(--ink-3); font-size: 12.5px; }
+.wp-ameta { display: grid; gap: 6px; justify-items: end; font-size: 12px; color: var(--ink-3); }
+.wp-ameta .wp-track { width: 100%; }
+.wp-chips { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.wp-chip { font-size: 11.5px; font-weight: 650; padding: 2px 8px; border-radius: 99px; background: var(--rule-2); color: var(--ink-2); white-space: nowrap; }
+.wp-chip.w { background: var(--blue-2); color: var(--blue); }
+.wp-chip.late { background: var(--bad-2); color: var(--bad); }
+.wp-chip.ok { background: var(--ok-2); color: var(--ok); }
+.wp-tasks { border: 1px solid var(--rule-2); border-radius: 6px; overflow: hidden; }
+.wp-task { display: grid; grid-template-columns: 34px minmax(0, 1fr) 150px 64px minmax(160px, 260px); gap: 12px; align-items: center; padding: 8px 12px; border-top: 1px solid var(--rule-2); background: #fff; }
+.wp-task:first-child { border-top: 0; }
+.wp-task.done { background: #f7fbf8; }
+.wp-task.done .wp-tl { color: var(--ink-3); text-decoration: line-through; text-decoration-color: #b9c5d2; }
+.wp-tl { font-size: 13.5px; }
+.wp-tl small { display: block; color: var(--ink-3); font-size: 11.5px; text-decoration: none; }
+.wp-box { width: 20px; height: 20px; accent-color: var(--ok); cursor: pointer; margin: 0; }
+.wp-tick { width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--rule-2); color: var(--ink-3); }
+.wp-tick.on { background: var(--ok); color: #fff; }
+.wp-tick svg { width: 13px; height: 13px; }
+.wp-cnt { display: inline-flex; align-items: center; border: 1px solid var(--rule); border-radius: var(--r); overflow: hidden; background: #fff; }
+.wp-cnt button { all: unset; cursor: pointer; width: 26px; text-align: center; font-weight: 700; color: var(--ink-2); padding: 3px 0; }
+.wp-cnt button:hover { background: var(--rule-2); }
+.wp-cnt input { width: 40px; border: 0; border-left: 1px solid var(--rule); border-right: 1px solid var(--rule); text-align: center; padding: 3px 0; font-size: 13px; font-weight: 650; -moz-appearance: textfield; }
+.wp-cnt input::-webkit-inner-spin-button, .wp-cnt input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.wp-cnt span { padding: 0 8px; font-size: 12.5px; color: var(--ink-3); white-space: nowrap; }
+.wp-wt { font-size: 12px; color: var(--ink-3); text-align: right; white-space: nowrap; }
+.wp-note { border: 1px solid transparent; background: transparent; border-radius: var(--r); padding: 5px 8px; font-size: 12.5px; line-height: 1.4; width: 100%; color: var(--ink-2); resize: none; overflow: hidden; min-height: 28px; display: block; }
+.wp-task:hover .wp-note, .wp-note:focus { border-color: var(--rule); background: #fff; outline: none; }
+.wp-when { display: block; font-size: 11px; color: var(--ok); font-weight: 600; }
+.wp-hid { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 13px; padding: 4px 2px 0; }
+.wp-empty { background: var(--panel); border: 1px dashed var(--rule); border-radius: 8px; padding: 28px; text-align: center; color: var(--ink-2); }
+.wp-empty b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -448,6 +505,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <button data-s="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8" fill="currentColor"/><circle cx="18" cy="13.5" r=".8" fill="currentColor"/></svg>Games<span class="ct" id="ct-game"></span></button>
       <button data-s="articles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M18 8h2v10a2 2 0 0 1-2 2"/><path d="M8 8h6M8 12h6M8 16h4"/></svg>Articles<span class="ct" id="ct-art"></span></button>
       <div class="grp">Reports</div>
+      <button data-s="objectives"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Objectives and Tasks</button>
       <button data-s="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/></svg>Accomplishment reports</button>
       <button data-s="data"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>Team data</button>
     </nav>
@@ -655,6 +713,31 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
             <div class="scroll"><table class="t"><thead><tr><th>Team</th><th>Mentor</th><th>Status</th><th>Last update</th><th>Signed copy</th></tr></thead><tbody id="rp-mbody"></tbody></table></div>
           </div>
         </div>
+      </section>
+
+      <!-- ===================== Objectives and Tasks (DOST Form 5 work plan) ===================== -->
+      <section class="sec" data-sec="objectives" hidden>
+        <div class="sec-head">
+          <div><h1>Objectives and Tasks</h1><p>What STEP 2.5 promised DOST in the Form 5 work plan. Tick a task when it's done; finished tasks hide themselves.</p></div>
+        </div>
+        <div class="imp-note warn" id="wp-local" hidden></div>
+        <div class="stats" id="wp-stats"></div>
+        <div class="card wp-objcard">
+          <header><h2>By objective</h2><span class="sub">Weight earned out of each objective's share</span></header>
+          <div id="wp-objs"></div>
+        </div>
+        <div class="toolbar wp-bar">
+          <label class="field"><span>Show</span>
+            <div class="seg" id="wp-show" role="group" aria-label="Which tasks to show"><button aria-pressed="true" data-v="open">To do</button><button aria-pressed="false" data-v="done">Done</button><button aria-pressed="false" data-v="all">All</button></div>
+          </label>
+          <label class="field"><span>Objective</span><select class="in" id="wp-obj" style="width:280px"></select></label>
+          <label class="field"><span>Quarter</span>
+            <div class="seg" id="wp-q" role="group" aria-label="Quarter"><button aria-pressed="true" data-v="">All</button><button aria-pressed="false" data-v="q1">Q1 · to Dec 15</button><button aria-pressed="false" data-v="q2">Q2 · to Feb 15</button></div>
+          </label>
+          <span class="att-status" id="wp-status" role="status" aria-live="polite" style="margin-left:auto;align-self:center"></span>
+        </div>
+        <div id="wp-list"></div>
+        <div class="wp-hid" id="wp-hid" hidden></div>
       </section>
 
       <!-- ===================== 7. Team data ===================== -->
@@ -2787,6 +2870,210 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     for (let i = 0; i < 15 && !dLive(); i++) await new Promise(r => setTimeout(r, 400));
     if (dLive()) await dLoad();
   })();
+
+  /* =====================================================================
+     Objectives and Tasks: the DOST Form 5 work plan (STEP 2.5, rev 2).
+     Each target accomplishment is split into the indicators it promises;
+     a task with a number ("at least 5 …") is counted, the rest are ticked.
+     An accomplishment earns its weight in proportion to its tasks' progress.
+     Saved in Supabase (workplan_progress); kept in this browser until the
+     table exists.
+     ===================================================================== */
+  TITLES.objectives = "Objectives and Tasks";
+  const WP_TEAMS = G.length || 10;
+  const WP_Q = { q1: { label: "Q1", end: "2026-12-15", endTxt: "Dec 15" }, q2: { label: "Q2", end: "2027-02-15", endTxt: "Feb 15" } };
+  const WP = [
+    { id: "o1", w: 35, short: "Entrepreneurial training",
+      text: "To provide scientists and engineers with the necessary training and resources to develop their entrepreneurial skills and apply previous learnings in creating sustainable business models in a relatively shorter time frame.",
+      acc: [
+        { id: "o1a1", w: 5, q1: 100, q2: 0, act: "Update learning outcomes, modules, and assessment criteria",
+          out: "Updated program curriculum; at least 1 evaluation tool",
+          tasks: [{ id: "o1a1-curr", t: "Updated program curriculum" }, { id: "o1a1-eval", t: "Evaluation tool", n: 1 }] },
+        { id: "o1a2", w: 10, q1: 100, q2: 0, act: "Participant selection and onboarding",
+          out: "Assessed and selected at least 10 research groups; at least 1 sector-appropriate commitment documented",
+          tasks: [{ id: "o1a2-groups", t: "Research groups assessed and selected", n: 10 }, { id: "o1a2-commit", t: "Sector-appropriate commitment documented", n: 1 }] },
+        { id: "o1a3", w: 10, q1: 25, q2: 75, act: "Entrepreneurial skills training",
+          out: "At least 3 face-to-face hands-on workshops and training sessions",
+          tasks: [{ id: "o1a3-ws", t: "Face-to-face hands-on workshops and training sessions", n: 3 }] },
+        { id: "o1a4", w: 10, q1: 0, q2: 100, act: "Mentoring and applied business model development",
+          out: "At least 10 mentors; regular one-on-one mentoring; teams apply previous learnings to their own technologies; business models refined through iterative feedback; at least 1 review note per mentor checkpoint",
+          tasks: [{ id: "o1a4-mentors", t: "Mentors engaged", n: 10 }, { id: "o1a4-1on1", t: "Regular one-on-one mentoring sessions held" },
+            { id: "o1a4-apply", t: "Teams guided in applying previous learnings to their own technologies" },
+            { id: "o1a4-refine", t: "Business models refined using iterative feedback" },
+            { id: "o1a4-notes", t: "Review notes provided by mentors at every mentor checkpoint" }] }
+      ] },
+    { id: "o2", w: 20, short: "FASTRAC proposals",
+      text: "To facilitate the preparation of FASTRAC grant proposals.",
+      acc: [
+        { id: "o2a1", w: 20, q1: 40, q2: 60, act: "Workshops and training sessions focused on FASTRAC grant proposal preparation",
+          out: "At least 5 FASTRAC grant proposals submitted",
+          tasks: [{ id: "o2a1-sub", t: "FASTRAC grant proposals submitted", n: 5 }] }
+      ] },
+    { id: "o3", w: 30, short: "Spin-off creation",
+      text: "To foster the creation of spin-off companies that will commercialize the innovations developed by scientists and engineers.",
+      acc: [
+        { id: "o3a1", w: 10, q1: 40, q2: 60, act: "Training on business fundamentals, startup strategies, funding options, market analysis and intellectual property",
+          out: "Preliminary market research results and a go-to-market plan from each group; at least 1 ecosystem and vertical market mapping",
+          tasks: [{ id: "o3a1-pmr", t: "Preliminary market research results (one per group)", n: WP_TEAMS },
+            { id: "o3a1-gtm", t: "Go-to-market plan (one per group)", n: WP_TEAMS },
+            { id: "o3a1-eco", t: "Ecosystem and vertical market mapping", n: 1 }] },
+        { id: "o3a2", w: 10, q1: 40, q2: 60, act: "Networking events, pitch sessions and collaboration with partners, customers and industry",
+          out: "At least 2 networking events conducted",
+          tasks: [{ id: "o3a2-net", t: "Networking events conducted", n: 2 }] },
+        { id: "o3a3", w: 10, q1: 50, q2: 50, act: "Help teams craft business plans: value proposition, target market, revenue model and growth strategy",
+          out: "A Lean Canvas and a sustainability plan (financial projections) from each group",
+          tasks: [{ id: "o3a3-lean", t: "Lean Canvas (one per group)", n: WP_TEAMS },
+            { id: "o3a3-sust", t: "Sustainability plan with financial projections (one per group)", n: WP_TEAMS }] }
+      ] },
+    { id: "o4", w: 15, short: "Innovation and knowledge sharing",
+      text: "To promote innovation and entrepreneurship in the Philippines and contribute to the country's economic development.",
+      acc: [
+        { id: "o4a1", w: 15, q1: 50, q2: 50, act: "Knowledge sharing and capacity diffusion",
+          out: "At least 1 consolidated documentation of best practices, lessons learned and success stories from the program",
+          tasks: [{ id: "o4a1-doc", t: "Consolidated documentation of best practices, lessons learned and success stories", n: 1 }] }
+      ] }
+  ];
+  const WP_TASKS = WP.flatMap(o => o.acc.flatMap(a => a.tasks.map(t => Object.assign(t, { acc: a, obj: o }))));
+  let wpSt = {}, wpMode = "local", wpShow = "open", wpQ = "", wpBusy = 0;
+  const WP_KEY = "stephub_workplan_v1";
+  const wpLocalLoad = () => { try { return JSON.parse(localStorage.getItem(WP_KEY) || "{}") || {}; } catch (e) { return {}; } };
+  const wpLocalSave = () => { try { localStorage.setItem(WP_KEY, JSON.stringify(wpSt)); } catch (e) {} };
+  const wpProg = t => { const s = wpSt[t.id] || {}; return t.n ? Math.min((+s.count || 0) / t.n, 1) : (s.done ? 1 : 0); };
+  const wpDone = t => wpProg(t) >= 1;
+  const wpAccProg = a => a.tasks.reduce((x, t) => x + wpProg(t), 0) / a.tasks.length;
+  const pct = v => (Math.round(v * 10) / 10).toString().replace(/\.0$/, "") + "%";
+  const today = () => new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10);   // Manila date
+  const wpQuarter = () => today() <= WP_Q.q1.end ? "q1" : "q2";
+  const wpDue = (a, q) => q === "q1" ? a.q1 : a.q1 + a.q2;   // % of the accomplishment due by the end of quarter q
+  const wpFmtDay = iso => iso ? new Date(iso).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric" }) : "";
+
+  function wpStatus(txt, cls) { const el = $("#wp-status"); el.className = "att-status" + (cls ? " " + cls : ""); el.innerHTML = txt; }
+  function renderWP() {
+    const q = wpQuarter(), qi = WP_Q[q];
+    const earned = WP.reduce((x, o) => x + o.acc.reduce((y, a) => y + a.w * wpAccProg(a), 0), 0);
+    const target = WP.reduce((x, o) => x + o.acc.reduce((y, a) => y + a.w * wpDue(a, q) / 100, 0), 0);
+    const tDone = WP_TASKS.filter(wpDone).length;
+    const accs = WP.flatMap(o => o.acc), aDone = accs.filter(a => wpAccProg(a) >= 1).length;
+    const behind = earned + 0.05 < target;
+    $("#wp-stats").innerHTML = [
+      [pct(earned), "complete by weight, of 100%"],
+      [tDone + " / " + WP_TASKS.length, "tasks done"],
+      [pct(target), qi.label + " target, due " + qi.endTxt + (behind ? " · " + pct(target - earned) + " to go" : " · on track")],
+      [aDone + " / " + accs.length, "target accomplishments met"]
+    ].map(([n, l]) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`).join("");
+    $("#wp-objs").innerHTML = WP.map((o, i) => {
+      const e = o.acc.reduce((y, a) => y + a.w * wpAccProg(a), 0);
+      const due = o.acc.reduce((y, a) => y + a.w * wpDue(a, q) / 100, 0);
+      const ts = o.acc.flatMap(a => a.tasks);
+      return `<div class="wp-orow"><div><b>Objective ${i + 1} · ${esc(o.short)}</b><small>${o.w}% of the work plan</small></div>
+        <div class="wp-track" title="${pct(e)} earned · ${pct(due)} due by ${qi.endTxt}"><i style="width:${(e / o.w * 100).toFixed(2)}%"></i>${due > 0 && due < o.w ? `<em style="left:${(due / o.w * 100).toFixed(2)}%"></em>` : ""}</div>
+        <div class="num"><strong>${pct(e)}</strong> of ${o.w}%</div>
+        <div class="num">${ts.filter(wpDone).length} / ${ts.length} tasks</div></div>`;
+    }).join("") + `<div class="wp-legend"><span><i></i>Weight earned</span><span><em></em>Due by ${qi.endTxt} (${qi.label})</span></div>`;
+
+    const objF = $("#wp-obj").value;
+    let hiddenDone = 0, shown = 0;
+    const html = WP.map((o, oi) => {
+      if (objF && objF !== o.id) return "";
+      const blocks = o.acc.map(a => {
+        if (wpQ && !a[wpQ]) return "";
+        const ts = a.tasks.filter(t => wpShow === "all" || (wpShow === "done" ? wpDone(t) : !wpDone(t)));
+        if (wpShow === "open") hiddenDone += a.tasks.length - ts.length;
+        if (!ts.length) return "";
+        shown += ts.length;
+        const p = wpAccProg(a);
+        const overdue = q === "q2" && a.q1 && p * 100 + 0.01 < a.q1;   // Q1 has ended and its share isn't in
+        const chip = p >= 1 ? `<span class="wp-chip ok">Met</span>`
+          : overdue ? `<span class="wp-chip late">Behind: ${a.q1}% was due Dec 15</span>`
+          : "";
+        return `<div class="wp-acc">
+          <div class="wp-ahead"><div><h3>${esc(a.act)}</h3><p>Target: ${esc(a.out)}</p></div>
+            <div class="wp-ameta"><div class="wp-chips"><span class="wp-chip ${p >= 1 ? "ok" : "w"}">${a.w}% weight</span>${a.q1 ? `<span class="wp-chip${p * 100 + 0.01 >= a.q1 ? " ok" : ""}" title="${a.q1}% of this target due by Dec 15">Q1 ${a.q1}%</span>` : ""}${a.q2 ? `<span class="wp-chip${p * 100 + 0.01 >= a.q1 + a.q2 ? " ok" : ""}" title="The rest (${a.q2}%) due by Feb 15">Q2 ${a.q2}%</span>` : ""}${chip}</div>
+              <div class="wp-track sm"><i style="width:${(p * 100).toFixed(1)}%"></i></div><span>${Math.round(p * 100)}% done · ${pct(a.w * p)} of ${a.w}% earned</span></div></div>
+          <div class="wp-tasks">${ts.map(t => wpRow(t)).join("")}</div></div>`;
+      }).join("");
+      if (!blocks) return "";
+      return `<div class="card wp-ocard"><header><div><h2>Objective ${oi + 1} · ${esc(o.short)}</h2><div class="wp-otxt">${esc(o.text)}</div></div><div class="r"><span class="wp-chip ${o.acc.every(a => wpAccProg(a) >= 1) ? "ok" : "w"}">${o.w}%</span></div></header>${blocks}</div>`;
+    }).join("");
+    $("#wp-list").innerHTML = html || `<div class="wp-empty"><b>${wpShow === "done" ? "Nothing ticked yet" : "Nothing left to do here"}</b>${wpShow === "done" ? "Finished tasks show up here." : "Every task in this view is done. Pick All to see them."}</div>`;
+    const hid = $("#wp-hid");
+    hid.hidden = !(wpShow === "open" && hiddenDone);
+    hid.innerHTML = `${hiddenDone} finished task${hiddenDone === 1 ? " is" : "s are"} hidden. <button class="btn sm" type="button" data-wp-showall>Show all</button>`;
+    $$("#wp-list [data-wp-note]").forEach(el => { if (el.value) { el.style.height = "auto"; el.style.height = el.scrollHeight + 2 + "px"; } });
+  }
+  function wpRow(t) {
+    const s = wpSt[t.id] || {}, d = wpDone(t), share = t.acc.w / t.acc.tasks.length;
+    const when = d && s.done_at ? `<span class="wp-when">Done ${esc(wpFmtDay(s.done_at))}</span>` : "";
+    const lead = t.n
+      ? `<span class="wp-tick${d ? " on" : ""}" title="${d ? "Target reached" : "Done when the count reaches " + t.n}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5 9-10"/></svg></span>`
+      : `<input type="checkbox" class="wp-box" data-wp-chk="${t.id}" ${d ? "checked" : ""} aria-label="Done: ${esc(t.t)}">`;
+    const mid = t.n
+      ? `<span class="wp-cnt"><button type="button" data-wp-step="${t.id}" data-d="-1" aria-label="One fewer">−</button><input type="number" min="0" inputmode="numeric" data-wp-cnt="${t.id}" value="${+s.count || 0}" aria-label="How many so far"><button type="button" data-wp-step="${t.id}" data-d="1" aria-label="One more">+</button><span>of ${t.n}</span></span>`
+      : "";
+    return `<div class="wp-task${d ? " done" : ""}">${lead}<div class="wp-tl">${esc(t.t)}${when}</div><div>${mid}</div>
+      <div class="wp-wt" title="This task's share of the work plan">${pct(share)}</div>
+      <textarea class="wp-note" rows="1" data-wp-note="${t.id}" placeholder="Proof or note" maxlength="1000">${esc(s.note || "")}</textarea></div>`;
+  }
+  async function wpSave(id) {
+    const s = wpSt[id];
+    if (wpMode !== "db") { wpLocalSave(); wpStatus("Saved in this browser", "ok"); return; }
+    wpBusy++; wpStatus('<span class="spin"></span>Saving…', "busy");
+    const u = currentUser(), { error } = await SBC().from("workplan_progress").upsert({
+      task_id: id, done: !!s.done, count: +s.count || 0, note: s.note || "", done_at: s.done_at || null,
+      updated_by: (u && u.email) || null, updated_at: new Date().toISOString()
+    }, { onConflict: "task_id" });
+    wpBusy--;
+    if (error) { wpStatus("Couldn't save: " + esc(error.message), "bad"); return; }
+    if (!wpBusy) wpStatus("Saved", "ok");
+  }
+  function wpSet(id, patch) {
+    const t = WP_TASKS.find(x => x.id === id); if (!t) return;
+    const was = wpDone(t);
+    wpSt[id] = Object.assign({}, wpSt[id], patch);
+    const now = wpDone(t);
+    if (now && !was) wpSt[id].done_at = new Date().toISOString();
+    if (!now) wpSt[id].done_at = null;
+    if (now && !was) toast("Done: " + t.t + (wpShow === "open" ? ". It's now hidden from To do." : ""));
+    wpSave(id); renderWP();
+  }
+  $("#wp-obj").innerHTML = `<option value="">All objectives</option>` + WP.map((o, i) => `<option value="${o.id}">Objective ${i + 1} · ${esc(o.short)} (${o.w}%)</option>`).join("");
+  $("#wp-obj").addEventListener("change", renderWP);
+  $("#wp-show").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (!b) return; wpShow = b.dataset.v; $$("#wp-show button").forEach(x => x.setAttribute("aria-pressed", x === b)); renderWP(); });
+  $("#wp-q").addEventListener("click", e => { const b = e.target.closest("button[data-v]"); if (!b) return; wpQ = b.dataset.v; $$("#wp-q button").forEach(x => x.setAttribute("aria-pressed", x === b)); renderWP(); });
+  $("#wp-hid").addEventListener("click", e => { if (!e.target.closest("[data-wp-showall]")) return; const b = $('#wp-show button[data-v="all"]'); b.click(); });
+  const wpSec = document.querySelector('[data-sec="objectives"]');
+  wpSec.addEventListener("change", e => {
+    const c = e.target.closest("[data-wp-chk]"); if (c) { wpSet(c.dataset.wpChk, { done: c.checked }); return; }
+    const n = e.target.closest("[data-wp-cnt]"); if (n) { wpSet(n.dataset.wpCnt, { count: Math.max(0, Math.round(+n.value || 0)) }); return; }
+    const t = e.target.closest("[data-wp-note]"); if (t) { wpSt[t.dataset.wpNote] = Object.assign({}, wpSt[t.dataset.wpNote], { note: t.value.trim() }); wpSave(t.dataset.wpNote); }
+  });
+  const wpFit = el => { el.style.height = "auto"; el.style.height = el.scrollHeight + 2 + "px"; };
+  wpSec.addEventListener("input", e => { const t = e.target.closest("[data-wp-note]"); if (t) wpFit(t); });
+  wpSec.addEventListener("click", e => {
+    const b = e.target.closest("[data-wp-step]"); if (!b) return;
+    const id = b.dataset.wpStep, cur = +((wpSt[id] || {}).count) || 0;
+    wpSet(id, { count: Math.max(0, cur + (+b.dataset.d)) });
+  });
+  function wpLocalNote(msg) { const el = $("#wp-local"); el.hidden = !msg; el.innerHTML = msg || ""; }
+  wpSt = wpLocalLoad(); renderWP();
+  if (demo) wpLocalNote("Demo view: ticks are kept in this browser only.");
+  (async function wpGoLive() {
+    if (demo) return;
+    for (let i = 0; i < 15 && !SBC(); i++) await new Promise(r => setTimeout(r, 400));
+    if (!SBC()) { wpLocalNote("Couldn't reach the database, so ticks are kept in this browser for now."); return; }
+    const { data, error } = await SBC().from("workplan_progress").select("task_id, done, count, note, done_at, updated_at, updated_by");
+    if (error) { wpLocalNote("To share these ticks with the whole tech team, run <b>supabase/workplan_progress.sql</b> in Supabase. Until then they're kept in this browser."); return; }
+    wpMode = "db"; wpLocalNote("");
+    const local = wpLocalLoad(), fromDb = {};
+    (data || []).forEach(r => { fromDb[r.task_id] = { done: r.done, count: r.count, note: r.note, done_at: r.done_at }; });
+    wpSt = fromDb;
+    // anything ticked in this browser before the table existed is carried over once
+    const carry = Object.keys(local).filter(id => !fromDb[id] && WP_TASKS.some(t => t.id === id));
+    carry.forEach(id => { wpSt[id] = local[id]; wpSave(id); });
+    if (carry.length) { try { localStorage.removeItem(WP_KEY); } catch (e) {} }
+    renderWP();
+  })();
+
 
   show(location.hash.slice(1) || "attendance");
 })();

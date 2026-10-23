@@ -43,6 +43,18 @@
     return (data || []).reverse();
   }
 
+  /** Only the messages posted since `sinceIso` (oldest first): the light check the open STEP GC runs. */
+  async function listSince(room, sinceIso) {
+    const ready = await hasRooms();
+    if (!ready && room && room !== 'fam') return [];
+    let q = client().from('chat_messages').select('*');
+    if (ready) q = q.eq('room', room || 'fam');
+    if (sinceIso) q = q.gte('created_at', sinceIso);
+    const { data, error } = await q.order('created_at', { ascending: true }).limit(100);
+    if (error) throw new Error(error.message);
+    return data || [];
+  }
+
   /** The newest message of each room you can read: { room: row } */
   async function latest(rooms) {
     if (!(await hasRooms())) return {};
@@ -185,10 +197,17 @@
     catch (e) { return null; }
   }
 
-  /** Live updates. onChange({ type: 'insert'|'delete', row }) ; returns a stop function. */
+  /** Live updates. onChange({ type: 'insert'|'update'|'delete'|'react'|'resync', row, full }) ; returns a stop function.
+      Messages arrive over the live link. The check every 30 seconds is only a safety net: the page
+      decides whether to run it (only while STEP GC is on screen), and `full` asks for a complete
+      reload after the live link was down or the tab sat hidden for a while. */
   function subscribe(onChange) {
     const sb = client();
-    let ch = null, timer = null, stopped = false;
+    let ch = null, timer = null, stopped = false, down = false, hiddenAt = 0;
+    const watch = status => {
+      if (status === 'SUBSCRIBED') { if (down) { down = false; onChange({ type: 'resync', full: true }); } }
+      else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') down = true;
+    };
     try {
       ch = sb.channel('step-family-chat')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'chat_messages' },
@@ -197,19 +216,24 @@
             p => onChange({ type: 'update', row: p.new }))
         .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'chat_messages' },
             p => onChange({ type: 'delete', row: p.old }))
-        .subscribe();
+        .subscribe(watch);
     } catch (e) { ch = null; }
     let rc = null;
     try {
       rc = sb.channel('step-chat-reactions')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'chat_reactions' },
             p => onChange({ type: 'react', row: (p.new && p.new.message_id) ? p.new : p.old }))
-        .subscribe();
+        .subscribe(watch);
     } catch (e) { rc = null; }
-    /* belt and braces: a quiet re-check in case the live link drops */
-    timer = setInterval(() => { if (!stopped && document.visibilityState !== 'hidden') onChange({ type: 'resync' }); }, 20000);
+    timer = setInterval(() => { if (!stopped && document.visibilityState !== 'hidden') onChange({ type: 'resync', full: down }); }, 30000);
+    const vis = () => {
+      if (document.visibilityState === 'hidden') { hiddenAt = Date.now(); return; }
+      if (!stopped && hiddenAt && Date.now() - hiddenAt > 60000) onChange({ type: 'resync', full: true });
+      hiddenAt = 0;
+    };
+    document.addEventListener('visibilitychange', vis);
     return () => {
-      stopped = true; clearInterval(timer);
+      stopped = true; clearInterval(timer); document.removeEventListener('visibilitychange', vis);
       if (ch) { try { sb.removeChannel(ch); } catch (e) {} }
       if (rc) { try { sb.removeChannel(rc); } catch (e) {} }
     };
@@ -223,6 +247,6 @@
     return Array.isArray(data) ? data : [];
   }
 
-  window.STEP_CHAT = { available, me, hasRooms, list, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, members, subscribe,
+  window.STEP_CHAT = { available, me, hasRooms, list, listSince, latest, send, sendImage, imageUrls, edit, setPinned, remove, info, members, subscribe,
                        REACTIONS, reactions, react };
 })();
