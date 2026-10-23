@@ -1067,7 +1067,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       return { name, role, note, st: attState[k] || "", h: Math.max(68, 40 + 26 * Math.max(name.length, role.length, note.length)) };
     });
     const n = s => people.filter(p => (attState[attKey(p)] || "") === s).length;
-    const TOP = 330, TH = 46, FOOT = 110;
+    const TOP = 262, TH = 46, FOOT = 110;
     const H = TOP + TH + rows.reduce((a, r) => a + r.h, 0) + FOOT;
     c.width = Math.round(W * S); c.height = Math.round(H * S); x.scale(S, S);
     x.fillStyle = "#ffffff"; x.fillRect(0, 0, W, H);
@@ -1081,17 +1081,17 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     x.font = f(500, 19); x.fillStyle = INK2;
     x.fillText("Week " + attWeek + " · " + (ax.label || attKind), M, 192);
     if (ax.title) { x.font = f(400, 16); x.fillStyle = MUTE; x.fillText(ax.title, M, 218); }
-    // summary: three figures, separated by hairlines
-    const sy = 252, cells = [["present", n("present")], ["late", n("late")], ["absent", n("absent")]];
-    const cw = 150;
+    // summary: three figures at the upper right, separated by hairlines
+    const sy = 118, cells = [["present", n("present")], ["late", n("late")], ["absent", n("absent")]];
+    const cw = 104, gap = 28, x0 = W - M - (3 * cw + 2 * gap);
     cells.forEach(([k, v], i) => {
-      const cx = M + i * (cw + 28);
+      const cx = x0 + i * (cw + gap);
       if (i) { x.fillStyle = RULE; x.fillRect(cx - 14, sy, 1, 52); }
       x.font = f(600, 34); x.fillStyle = INK; x.fillText(String(v), cx, sy + 34);
       x.beginPath(); x.arc(cx + 4, sy + 50, 4, 0, Math.PI * 2); x.fillStyle = ST[k][1]; x.fill();
       x.font = f(500, 14); x.fillStyle = MUTE; x.fillText(ST[k][0], cx + 14, sy + 55);
     });
-    const unm = n(""); if (unm) { x.font = f(400, 14); x.fillStyle = MUTE; x.textAlign = "right"; x.fillText(unm + " not marked", W - M, sy + 55); x.textAlign = "left"; }
+    const unm = n(""); if (unm) { x.font = f(400, 14); x.fillStyle = MUTE; x.textAlign = "right"; x.fillText(unm + " not marked", W - M, sy + 84); x.textAlign = "left"; }
     // table
     let y = TOP;
     x.fillStyle = INK; x.fillRect(M, y, W - 2 * M, 1.5);
