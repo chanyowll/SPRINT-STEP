@@ -423,7 +423,12 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .o-file { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
 .o-file .no { color: var(--ink-3); font-size: 12.5px; }
 /* ---------- Objectives and Tasks ---------- */
-.wp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; gap: 18px; align-items: start; }
+.wp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-areas: "bar ." "list side" "hid side"; column-gap: 18px; align-items: start; }
+.wp-main { display: contents; }
+.wp-main > .wp-bar { grid-area: bar; }
+.wp-main > #wp-list { grid-area: list; }
+.wp-main > .wp-hid { grid-area: hid; }
+.wp-side { grid-area: side; }
 .wp-side { position: sticky; top: 64px; }
 .wp-side .wp-objcard { margin-bottom: 0; }
 .wp-side .wp-objcard > header { flex-wrap: wrap; gap: 2px 10px; }
@@ -434,7 +439,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .wp-side .wp-orow > .num:nth-child(3) { grid-area: num; align-self: start; }
 .wp-side .wp-orow > .num:nth-child(4) { grid-area: tasks; text-align: left; font-size: 12px; color: var(--ink-3); }
 .wp-side .wp-legend { flex-wrap: wrap; gap: 6px 14px; }
-@media (max-width: 900px) { .wp-layout { grid-template-columns: minmax(0, 1fr); } .wp-side { position: static; order: -1; } }
+@media (max-width: 900px) { .wp-layout { grid-template-columns: minmax(0, 1fr); grid-template-areas: "side" "bar" "list" "hid"; } .wp-side { position: static; margin-bottom: 14px; } }
 .wp-objcard { margin-bottom: 18px; }
 .wp-orow { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 2fr) 120px 90px; gap: 16px; align-items: center; padding: 11px 16px; border-bottom: 1px solid var(--rule-2); }
 .wp-orow:last-child { border-bottom: 0; }
