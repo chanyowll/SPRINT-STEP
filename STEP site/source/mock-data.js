@@ -118,13 +118,14 @@ window.MOCK = (function () {
 
   const announcements = [];          // the real ones live in the announcements table
 
-  /* Panel score sheets, one per feedback session. W3 beachhead, W4
-     competitive advantage, W5 business model validation, W6 finance
-     (presented at the checkpoint), W7 go-to-market and W12 Demo Day carry
-     over the STEP 2 sheets for the same topic (criteria and weights
-     unchanged). W2 market mapping, W8 selling, W9 pitching, W10 technology
-     roadmapping and W11 the FASTRAC proposal are STEP 2.5 sheets written
-     from each week's stated outputs; weights add to 100. */
+  /* Panel score sheets, one per feedback session. W4 competitive
+     advantage, W5 business model validation, W6 finance (presented at the
+     checkpoint), W7 go-to-market and W12 Demo Day carry over the STEP 2
+     sheets for the same topic (criteria and weights unchanged). W1 market
+     mapping, W2 market research, W3 refined value proposition, W8 selling,
+     W9 pitching, W10 technology roadmapping and W11 the FASTRAC proposal are
+     STEP 2.5 sheets written from each week's stated outputs; weights add
+     to 100. */
   const SCORE_SHEETS = {
       /* the two simulation weeks (Week S1, Week S2) — practice sheets only */
       "W-2": [
@@ -139,17 +140,24 @@ window.MOCK = (function () {
           { label: "One-Minute Pitch", weight: 30, hint: "Assess how clear, confident and complete the one-minute pitch was: problem, solution, price and ask." },
           { label: "Handling Questions", weight: 20, hint: "Assess whether the team answered the panel's questions directly and without losing the thread." },
         ],
-      W2: [
+      W1: [
           { label: "Ecosystem Mapping", weight: 30, hint: "Assess whether the group mapped the players in its technology’s ecosystem (suppliers, users, buyers, regulators, funders and competitors) and how value and money move between them." },
           { label: "Vertical Markets", weight: 25, hint: "Assess whether the group identified the vertical markets where the technology could be applied." },
           { label: "Partners and Gaps", weight: 25, hint: "Assess whether the group identified the partners and gaps that matter most for reaching the market." },
           { label: "Video Walkthrough", weight: 20, hint: "Assess how clearly the five-minute video walked the panel through the map." },
         ],
+      W2: [
+          { label: "Research Questions and Method", weight: 20, hint: "Assess whether the group stated what it needed to find out about its market and how it went about it (interviews, surveys, desk research)." },
+          { label: "Customer Evidence", weight: 30, hint: "Assess whether the group gathered evidence from real potential customers and users, recorded in their own words." },
+          { label: "Demand and Alternatives", weight: 25, hint: "Assess whether the group showed how much demand there is and what customers use today instead." },
+          { label: "First Value Proposition", weight: 15, hint: "Assess whether the group drew a first value proposition for its target customers from the research." },
+          { label: "Video Walkthrough", weight: 10, hint: "Assess how clearly the five-minute video walked the panel through the research and what it found." },
+        ],
       W3: [
-          { label: "Market Opportunities", weight: 25, hint: "Assess whether the group identified 5 to 10 possible market opportunities." },
-          { label: "Beachhead Market", weight: 25, hint: "Assess whether the group clearly prioritized these opportunities and identified a beachhead market." },
-          { label: "Problem-Solution Fit Canvas", weight: 25, hint: "Assess whether the group developed a clear and coherent Problem-Solution Fit Canvas for their beachhead segment." },
-          { label: "Value Proposition Statement", weight: 25, hint: "Assess whether the group articulated a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas." },
+          { label: "Use Case Understanding", weight: 20, hint: "Assess whether the group described how the customer uses the product across its full life cycle." },
+          { label: "Value Metrics", weight: 25, hint: "Assess whether the group chose two or three metrics that matter to the customer." },
+          { label: "Quantified Benefit", weight: 30, hint: "Assess whether the group estimated the baseline and the improvement, and stated the benefit in pesos or percent." },
+          { label: "Refined Value Proposition Statement", weight: 25, hint: "Assess whether the refined value proposition statement is clear, specific and backed by the measured value." },
         ],
       W4: [
           { label: "Competitive Advantage", weight: 35, hint: "Assess whether the group identified their competitive advantage using the Competitive Profile Matrix." },
@@ -183,7 +191,7 @@ window.MOCK = (function () {
       W9: [
           { label: "Structure", weight: 25, hint: "Assess whether the pitch has the problem, solution, market, business model, evidence and ask, all in a logical order." },
           { label: "Delivery", weight: 25, hint: "Assess whether the pitch stayed within five minutes, was confident, and was understandable to a non-specialist." },
-          { label: "Evidence", weight: 20, hint: "Assess whether the claims are backed by the work of the earlier weeks (beachhead, competition, validation)." },
+          { label: "Evidence", weight: 20, hint: "Assess whether the claims are backed by the work of the earlier weeks (market research, value proposition, competition, validation)." },
           { label: "The Ask", weight: 15, hint: "Assess whether the ask is specific, justified, and tied to what it will achieve." },
           { label: "Handling Questions", weight: 15, hint: "Assess whether the team answered the panel directly, without losing the thread." },
         ],
@@ -196,7 +204,7 @@ window.MOCK = (function () {
         ],
       W11: [
           { label: "Project Profile and Case", weight: 20, hint: "Assess whether the project profile and the case are complete, consistent, and drawn from the team’s earlier outputs." },
-          { label: "Market and Commercial Viability", weight: 20, hint: "Assess the beachhead, competition, channels and a sales forecast that a reviewer can follow." },
+          { label: "Market and Commercial Viability", weight: 20, hint: "Assess the target market, competition, channels and a sales forecast that a reviewer can follow." },
           { label: "The Plan", weight: 20, hint: "Assess whether the methodology, technology roadmap, and expected outputs and outcomes are clearly laid out." },
           { label: "Resources and Budget", weight: 20, hint: "Assess whether people, equipment and money by year are justified." },
           { label: "Readiness", weight: 20, hint: "Assess how close the draft is to a proposal DOST could receive as it stands." },
@@ -226,9 +234,9 @@ window.MOCK = (function () {
        announced" until it is. */
     trainers: [
       { id: "tr1", name: "Mr. Antonio P. Feria Jr.", short: "Sir Tony", initials: "AF", org: "Ateneo de Manila University",
-        focus: "Beachhead market and customer segments", modules: ["W3"] },
+        focus: "Value proposition, and measuring the value", modules: ["W2", "W3"] },
       { id: "tr2", name: "Mr. George Omer Denis S. Quitoriano", short: "Sir GQ", initials: "GQ", org: "Ateneo de Manila University",
-        focus: "Competitive advantage, go-to-market, selling and pitching", modules: ["W4", "W7", "W8", "W9"] },
+        focus: "Competitive advantage, business model validation, go-to-market, selling and pitching", modules: ["W4", "W5", "W7", "W8", "W9"] },
       { id: "tr3", name: "Mr. Mike Tan", short: "Sir Mike", initials: "MT", org: "Ateneo de Manila University",
         focus: "Topics to be announced", modules: [] },
       { id: "tr4", name: "Engr. Benjamin N. Mirasol", short: "Sir Benjie", initials: "BM", org: "Ateneo de Manila University",
@@ -264,11 +272,13 @@ window.MOCK = (function () {
       title: "SPRINT-STEP MENTORS ACCOMPLISHMENTS REPORT",
       endorsedBy: "May Ann A. Udtojan-Albis", endorsedRole: "Project Leader",
     },
-    /* One plan per program week (W1–W12). Where a STEP 2 mentors' report
-       covered the same topic, its activities are carried over word for
-       word. Weeks with a topic that is new in STEP 2.5 (W1, W2, W8, W10)
-       are drafted from the schedule itself and marked source: "schedule";
-       W11's activities are drafted from that week's panel score sheet. */
+    /* One plan per program week (W1–W12), matched to the STEP 2.5 Master
+       Timeline topics. Where a STEP 2 mentors' report covered the same topic,
+       its activities are carried over word for word (W3 measured value, W4
+       competitive advantage, W5 business model validation, W7 go-to-market).
+       Weeks with a topic that is new in STEP 2.5 (W1, W2, W8, W9, W10) are
+       drafted from the schedule itself and marked source: "schedule"; W6 and
+       W11 are drafted from that week's panel score sheet. */
     mentorPlans: (SCHED.simulation ? [
       { code: "W-2", week: -2, topic: SCHED.byWeek(-2).title, source: "schedule", tasks: [
         { text: "Help the team line up three short customer conversations for the week (simulation)." },
@@ -279,39 +289,44 @@ window.MOCK = (function () {
         { text: "Listen to the team's one-minute pitch and give feedback before the panel." },
       ] },
     ] : []).concat([
-      { code: "W1", week: 1, topic: "Program Launch and Mentor Introduction", source: "schedule", tasks: [
+      { code: "W1", week: 1, topic: SCHED.byWeek(1).title, source: "schedule", tasks: [
         { text: "Meet the team at the program launch and agree on a regular weekly mentoring slot (Wednesday to Friday)." },
-        { text: "Support the team in choosing the commercialization pathway they will test first." },
-      ] },
-      { code: "W2", week: 2, topic: SCHED.byWeek(2).title, source: "schedule", tasks: [
+        { text: "Visit the team where they work during the site visits, November 4 to 6." },
         { text: "Guide the team in mapping the ecosystem around their technology — suppliers, users, buyers, regulators, funders and competitors." },
         { text: "Help the team list the vertical markets where their technology could be applied." },
         { text: "Help the team identify the partners and gaps that matter most for reaching the market." },
       ] },
-      { code: "W3", week: 3, topic: SCHED.byWeek(3).title, tasks: [
-        { text: "Guide the group in identifying 5 to 10 possible market opportunities." },
-        { text: "Support the group in prioritizing these opportunities and identifying a beachhead market." },
-        { text: "Help the group develop a clear and coherent Problem-Solution Fit Canvas for their beachhead segment." },
+      { code: "W2", week: 2, topic: SCHED.byWeek(2).title, source: "schedule", tasks: [
+        { text: "Guide the team in completing and presenting the market research begun at the launch." },
+        { text: "Help the group develop a clear and coherent Problem-Solution Fit Canvas for their target customer segment." },
         { text: "Assist the group in articulating a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas." },
       ] },
-      { code: "W4", week: 4, topic: SCHED.byWeek(4).title, tasks: [
-        { text: "Assist the team in\n(a) continuing to identify/ideate on feasible market opportunities for their technology\n(b) evaluating and assessing these candidates, and\n(c) finally settling on a viable, realistic, and strong beachhead opportunity." },
-        { text: "Help the team evaluate the realism of their TAM/SAM/SOM analysis **for their beachhead market**, including the logic/soundness of their market estimates. Encourage them to consider current and emerging market trends that could affect their opportunity sizing." },
-        { text: "Help the team evaluate the realism of their TAM/SAM/SOM analysis **for their other candidate market opportunities** (which they could attack after success in their beachhead market), including the logic/soundness of their market estimates. Encourage them to consider current and emerging market trends that could affect their opportunity sizing." },
-      ] },
-      { code: "W5", week: 5, topic: SCHED.byWeek(5).title,
+      { code: "W3", week: 3, topic: SCHED.byWeek(3).title,
         topicLines: ["1. Understanding your Product's Full Life Cycle Use Case", "2. Developing your High-Level Product Specification", "3. Quantifying Your Value Proposition"],
         tasks: [
         { text: "Help the team to detail their product’s full life cycle use case" },
         { text: "Guide the team in creating their customer pitch either using a concept board or a brochure." },
         { text: "For the teams' product/technology, help them:\n- Identify 2–3 relevant metrics for their customer\n- Estimate baseline vs. improvement\n- Calculate $ or % benefit\n- Draft a one-sentence Quantified Value Proposition" },
       ] },
-      { code: "W6", week: 6, topic: SCHED.byWeek(6).title,
+      { code: "W4", week: 4, topic: SCHED.byWeek(4).title,
         topicLines: ["VRIO Analysis", "Competitor Profile matrix", "Conceptualize Value proposition"],
         tasks: [
         { text: "Help the group identify their Competitive Advantage using the Competitive Profile Matrix." },
         { text: "Guide the group in making their Competitive Advantage sustainable (VRIO)." },
         { text: "Help the group in creating their Lean Canvas Model." },
+      ] },
+      { code: "W5", week: 5, topic: SCHED.byWeek(5).title, tasks: [
+        { text: "Help the team refine their Lean Canvas" },
+        { text: "Guide the group in transitioning their Business Model Canvas from startup to scale-up." },
+        { text: "Assist the group in reconfiguring their Go-to-Market Gantt Chart for the weeks up to Demo Day" },
+      ] },
+      { code: "W6", week: 6, topic: SCHED.byWeek(6).title, source: "scoresheet", tasks: [
+        { text: "Help the team outline an IP strategy for their technology." },
+        { text: "Guide the team in completing their Financial Analysis:", lead: true },
+        { text: "Ratio interpretation and application — liquidity, profitability, efficiency" },
+        { text: "Capital budgeting analysis — Payback Period and IRR" },
+        { text: "Cost-benefit and breakeven analysis" },
+        { text: "Analytical reasoning and financial insight drawn from the model" },
       ] },
       { code: "W7", week: 7, topic: SCHED.byWeek(7).title, tasks: [
         { text: "Help the team develop their Strategy Canvas" },
@@ -320,29 +335,28 @@ window.MOCK = (function () {
         { text: "Guide the group in developing their Go-to-Market Gantt Chart" },
       ] },
       { code: "W8", week: 8, topic: SCHED.byWeek(8).title, source: "schedule", tasks: [
-        { text: "Help the team position their venture in its ecosystem — partners, channels and competitors." },
-        { text: "Guide the team in stating a market strategy that ties their beachhead, value proposition and go-to-market plan together." },
-        { text: "Help the team prepare their technology review and refined pitch for the Mid-Program Checkpoint." },
+        { text: "Help the team prepare a sales conversation for one real target customer, from the customer's problem to a next step." },
+        { text: "Rehearse with the team the three objections the customer is most likely to raise, and how to answer them." },
+        { text: "Help the team decide the concrete next step to ask for: a trial, a visit or a letter of intent." },
       ] },
       { code: "CU", week: null, label: "Catch-up week", topic: "Catch Up Mentoring Session", tasks: [
         { text: "Meet with the team to catch up on the progress of their technology." },
       ] },
-      { code: "W9", week: 9, topic: SCHED.byWeek(9).title, tasks: [
-        { text: "Help the team refine their Lean Canvas" },
-        { text: "Guide the group in transitioning their Business Model Canvas from startup to scale-up." },
-        { text: "Assist the group in reconfiguring their Go-to-Market Gantt Chart for the weeks up to Demo Day" },
+      { code: "W9", week: 9, topic: SCHED.byWeek(9).title, source: "schedule", tasks: [
+        { text: "Help the team build the spine of their pitch, from the problem to the ask." },
+        { text: "Listen to a timed run of the pitch and give feedback before the panel." },
+        { text: "Help the team prepare answers to the hardest questions they expect." },
       ] },
       { code: "W10", week: 10, topic: SCHED.byWeek(10).title, source: "schedule", tasks: [
-        { text: "Help the team estimate the costs and revenues behind their business model." },
-        { text: "Guide the team in setting out their spin-off's roles, responsibilities and equity." },
-        { text: "Help the team outline an IP strategy for their technology." },
+        { text: "Help the team place their technology on the readiness scale, now and where the market needs it to be." },
+        { text: "Guide the team in setting milestones from prototype to market, with the timing and cost of each." },
+        { text: "Help the team name the risks on the way, with an owner for each." },
       ] },
       { code: "W11", week: 11, topic: SCHED.byWeek(11).title, source: "scoresheet", tasks: [
-        { text: "Guide the team in completing their Financial Analysis:", lead: true },
-        { text: "Ratio interpretation and application — liquidity, profitability, efficiency" },
-        { text: "Capital budgeting analysis — Payback Period and IRR" },
-        { text: "Cost-benefit and breakeven analysis" },
-        { text: "Analytical reasoning and financial insight drawn from the model" },
+        { text: "Guide the team in completing their FASTRAC proposal draft: project profile, the case, the plan, resources and budget." },
+        { text: "Help the team estimate the costs and revenues behind their business model." },
+        { text: "Guide the team in setting out their spin-off's roles, responsibilities and equity." },
+        { text: "Help the team check that the budget and milestone plan are ones a reviewer can follow." },
       ] },
       { code: "W12", week: 12, topic: "Preparation for Demo Day", tasks: [
         { text: "Provide guidance and support to the team as they prepare for their final pitch at the STEP Demo Day" },
@@ -818,7 +832,7 @@ window.MOCK = (function () {
       },
       { n: 6, group: "The case", title: "Executive summary and startup background", kind: "prose",
         guide: "Briefly discusses what the proposal is about, founders, value proposition, and IP status.",
-        week: 3, revisit: 9, source: "Beachhead Market & Customer Segments", status: "submitted", limit: 200,   /* revisited in Pitching Skills: the summary is the pitch in writing */
+        week: 2, revisit: 9, source: "Value Proposition", status: "submitted", limit: 200,   /* revisited in Pitching Skills: the summary is the pitch in writing */
         draft: `${t.name} is a university spin-off from ${t.implementing_agency} founded by ${lead.name} and research co-inventors. The team developed ${t.technology_title}. Field validation in ${t.city} demonstrates substantial cost reduction and operational advantage over imported solutions. IP protection includes a Philippine patent / utility model application. Grant funds will deploy industrial-scale pilot units across target partner sites.`
       },
       /* Item 7 has three parts on DOST Form 2 — 7.1 Rationale/Significance
@@ -836,7 +850,7 @@ window.MOCK = (function () {
       },
       { n: 9, group: "The case", title: "Marketing and commercial viability", kind: "prose",
         guide: "Competitor matrix, production requirements, target distribution, sales forecast.",
-        week: 4, revisit: [2, 7, 8], source: "Competitive Advantage", status: "draft",   /* built on the market map (W2), go-to-market (W7) and selling (W8) */
+        week: 4, revisit: [1, 7, 8], source: "Competitive Advantage", status: "draft",   /* built on the market map (W1), go-to-market (W7) and selling (W8) */
         draft: `Target beachhead market consists of industrial and municipal clients in ${t.region}. Competitive analysis indicates ${t.name} delivers 35% cost savings with domestic fabrication and immediate technical support.`
       },
       { n: 10, group: "Plan", title: "Methodology", kind: "prose",
@@ -863,7 +877,7 @@ window.MOCK = (function () {
       },
       { n: 15, group: "Plan", title: "Target beneficiaries", kind: "prose",
         guide: "Direct and indirect beneficiary groups.",
-        week: 3, source: "Beachhead Market & Customer Segments", status: "reviewed",
+        week: 2, source: "Value Proposition", status: "reviewed",
         draft: `Direct: Partner cooperatives, LGUs, and industrial facilities in ${t.region}. Indirect: Surrounding communities benefiting from improved safety, resource efficiency, and local technology self-reliance.`
       },
       { n: 16, group: "Plan", title: "Sustainability plan", kind: "prose",
@@ -928,10 +942,10 @@ window.MOCK = (function () {
 
     const deck = [
       { n: 1,  title: t.name, sub: "Title and team", week: 1, source: "Program Launch", kind: "title", status: "in" },
-      { n: 2,  title: "The problem", sub: `Unmet market pain addressed by ${t.short}`, week: 3, source: "Beachhead Market & Customer Segments", kind: "statement", status: "in", score: p.scores[0] },
-      { n: 3,  title: "Beachhead market", sub: `Primary customers in ${t.region}`, week: 3, source: "Beachhead Market & Customer Segments", kind: "bullets", status: "in", score: p.scores[0] },
-      { n: 4,  title: "Market size", sub: "TAM, SAM, SOM for the Philippines", week: 2, source: "Market Mapping Review", kind: "chart", status: "in", score: p.scores[1] },
-      { n: 5,  title: "Value proposition", sub: "Measurable customer ROI and performance", week: 3, source: "Beachhead Market & Customer Segments", kind: "statement", status: "in", score: p.scores[2] },
+      { n: 2,  title: "The problem", sub: `Unmet market pain addressed by ${t.short}`, week: 2, source: "Value Proposition", kind: "statement", status: "in", score: p.scores[0] },
+      { n: 3,  title: "Target market", sub: `Primary customers in ${t.region}`, week: 2, source: "Output Presentation on Market Research", kind: "bullets", status: "in", score: p.scores[0] },
+      { n: 4,  title: "Market size", sub: "TAM, SAM, SOM for the Philippines", week: 2, source: "Output Presentation on Market Research", kind: "chart", status: "in", score: p.scores[1] },
+      { n: 5,  title: "Value proposition", sub: "Measurable customer ROI and performance", week: 3, source: "Value Proposition Refinement", kind: "statement", status: "in", score: p.scores[2] },
       { n: 6,  title: "Competitive advantage", sub: "VRIO and Competitive Profile Matrix", week: 4, source: "Competitive Advantage", kind: "table", status: "in", score: p.scores[3] },
       { n: 7,  title: "Go-to-market", sub: "Distribution and customer acquisition plan", week: 7, source: "Go-to-Market & Lean Canvas", kind: "grid", status: "in", score: p.scores[4] },
       { n: 8,  title: "Validation evidence", sub: `Field trials and pilot testing in ${t.city}`, week: 5, source: "Business Model Validation", kind: "chart", status: "due" },

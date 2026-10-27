@@ -250,12 +250,14 @@
         <span class="badge purple">On site · launch and checkpoint</span>
         <h3 class="mt-3">On-site events</h3>
         <p class="muted">Everyone gathers in person twice before Demo Day. The Program Launch opens the cycle
-          with team formation, an overview of technology entrepreneurship, pathway ideation and the mentor
-          introduction. Halfway through, the Mid-Program Checkpoint brings a technology review, mentoring,
-          pitch refinement and a business model validation workshop.</p>
+          with team formation, technology entrepreneurship, time and resource management, marketing basics,
+          ecosystem and market mapping, a market research workshop and a mixer with startups. The week after,
+          the mentors visit each team where it works. Halfway through, the Mid-Program Checkpoint covers IP and
+          finance, with output presentations and a mixer with investors and industry partners.</p>
         <ul class="meta-list">
           <li><span class="k">Program Launch</span><span class="v">Week 1 · October 29–30, 2026</span></li>
-          <li><span class="k">Mid-Program Checkpoint</span><span class="v">Week 6 · December 3–4, 2026</span></li>
+          <li><span class="k">Site visits</span><span class="v">Week 1 · November 4–6, 2026</span></li>
+          <li><span class="k">Mid-Program Checkpoint</span><span class="v">Week 6 · December 10–11, 2026</span></li>
         </ul>
       </div>
     </div>
@@ -266,8 +268,8 @@
         <span class="badge gold">On site · closing</span>
         <h3 class="mt-3">Demo Day and graduation</h3>
         <p class="muted">The cycle closes on site. On Demo Day teams give their final presentations, with
-          their technology roadmap, and submit the FASTRAC capsule. The next day is the graduation ceremony
-          and ecosystem networking.</p>
+          their technology roadmap, and submit the FASTRAC capsule. The next day is the graduation ceremony,
+          ecosystem networking and a mixer with investors.</p>
         <ul class="meta-list">
           <li><span class="k">Demo Day</span><span class="v">Week 12 · Thursday, January 28, 2027</span></li>
           <li><span class="k">Graduation</span><span class="v">Week 12 · Friday, January 29, 2027</span></li>
@@ -299,7 +301,7 @@
         </span>
         <span><b>Every Saturday</b>A feedback session — five-minute video, then a panel takes questions</span>
       </div>
-      <p class="rh-note">Both run every teaching week, Week 2 to Week 11. The Christmas break, December 21 to January 3, is not counted as a week.</p>
+      <p class="rh-note">Both run every teaching week, Week 1 to Week 11, except the Week 6 checkpoint. The Christmas break, December 27 to January 4, is not counted as a week.</p>
     </div>
 
     <div class="tl2" id="tl"></div>
@@ -403,7 +405,7 @@ SCH.timeline().forEach(x => {
                  w: what, c: "W" + x.week, n: note });
   /* the break sits between Week 8 and Week 9 */
   if (x.week === 8 && x.kind === "feedback") {
-    TIMELINE.push({ m: "Christmas break", items: [{ d: "Dec 21 – Jan 3", t: "note", w: "Holiday break", n: "No sessions. Week 9 starts Tuesday, January 5." }] });
+    TIMELINE.push({ m: "Christmas break", items: [{ d: "Dec 27 – Jan 4", t: "note", w: "Holiday break", n: "No sessions. Week 9 starts Tuesday, January 5." }] });
   }
 });
 

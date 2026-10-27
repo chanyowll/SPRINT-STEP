@@ -61,7 +61,7 @@
           if (s.kind === "learning") title = "Learning: " + w.short;
           else if (s.kind === "feedback") title = "Feedback: " + w.short;
           else if (s.kind === "holiday") title = "No session: " + s.title.replace(/^No Session\s*[-—]\s*/i, "");
-          else if (s.kind === "onsite") title = (s.rail || s.title.split(/:| — /)[0]) + (days.length > 1 ? " · Day " + (i + 1) : "");
+          else if (s.kind === "onsite") title = (s.rail || s.title.split(/:| — /)[0]) + (days.length > 1 && !s.spread ? " · Day " + (i + 1) : "");
           else title = s.title;
           out.push({ key: d + ":" + s.kind, d, k: s.kind, w: w.code, weekTitle: w.short, title, full: s.title,
                      time: s.time || "", where: s.kind === "onsite" ? "On site" : s.kind === "holiday" ? "" : "Zoom" });

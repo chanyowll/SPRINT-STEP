@@ -1,21 +1,21 @@
 /* =====================================================================
    STEP Hub — the STEP 2.5 program schedule
 
-   Taken from the "STEP 2.5 Kick Off Tracker" (Trainer's Timeline sheet),
+   Taken from the "STEP 2.5 Master Timeline" (Trainer's Timeline sheet),
    Updated Schedule: October 20, 2026 – January 29, 2027.
 
    Each week has a short name the program uses everywhere (title), and
-   the topic exactly as the tracker words it (topic).
+   the topic exactly as the timeline words it (topic).
 
    The program runs by WEEK NUMBER, not by module:
      W0   Pre-program online orientation (Tue Oct 20)
-     W1   Program launch, on site (Thu–Fri Oct 29–30): team formation,
-          technology entrepreneurship and the market basics
-     W2   No lesson — the market map from the launch is reviewed (Sat Nov 7)
-     W3–W5, W7–W11  one topic a week: Tuesday learning session, Saturday
-          feedback session (W7 and W8 move to Wednesday)
-     W6   Mid-Program Checkpoint on site (Thu–Fri Dec 3–4): IP and finance
-     —    Christmas break, Dec 21 – Jan 3 (not counted as a week)
+     W1   Two calendar weeks (Oct 26 – Nov 8): program launch on site
+          (Thu–Fri Oct 29–30), site visits with mentors (Wed–Fri Nov 4–6)
+          and the market mapping review (Sat Nov 7)
+     W2–W5, W7–W11  one topic a week: Tuesday learning session, Saturday
+          feedback session (W8's learning session moves to Wednesday Dec 23)
+     W6   Mid-Program Checkpoint on site (Thu–Fri Dec 10–11): IP and finance
+     —    Christmas break, Dec 27 – Jan 4 (not counted as a week)
      W12  Demo Day (Jan 28) and Graduation (Jan 29), on site
 
    Every page reads the weeks, dates and topics from here, so a change
@@ -64,23 +64,29 @@
       },
     },
     {
-      week: 1, code: "W1", starts: "2026-10-26", ends: "2026-11-01",
-      title: "Program Launch: Team Formation & Technology Entrepreneurship", short: "Program Launch: Team Formation & Technology Entrepreneurship", axis: "Program\nlaunch",
-      topic: "Program Launch, Team Formation Workshop, Technology Entrepreneurship, Time and Resource Management, Marketing Basics, Ecosystem & Vertical Market Mapping, Beachhead Market and Customer Segments, Market Research Workshop",
+      week: 1, code: "W1", starts: "2026-10-26", ends: "2026-11-08",
+      title: "Program Launch & Market Mapping", short: "Program Launch & Market Mapping", axis: "Launch &\nmarket mapping",
+      topic: "Program Launch, Team Formation Workshop, Technology Entrepreneurship, Time and Resource Management, Marketing Basics (From Understanding Use to Measured Value), Ecosystem & Vertical Market Mapping, Market Research Workshop, Mixers with Startups; Site Visits with Mentors; Output Presentation on Market Mapping",
+      review: "Output Presentation on Market Mapping",
       sessions: [
         { date: "2026-10-29", end: "2026-10-30", kind: "onsite", att: "OS", mode: "On site",
-          title: "Program Launch: Team Formation Workshop, Technology Entrepreneurship, Time and Resource Management, Marketing Basics, Ecosystem & Vertical Market Mapping, Beachhead Market and Customer Segments, Market Research Workshop",
+          title: "Program Launch: Team Formation Workshop, Technology Entrepreneurship, Time and Resource Management, Marketing Basics (From Understanding Use to Measured Value), Ecosystem & Vertical Market Mapping, Market Research Workshop, Mixers with Startups",
           rail: "Program Launch & Team Formation" },
+        { date: "2026-11-04", end: "2026-11-06", kind: "onsite", mode: "On site",
+          title: "Site Visits with Mentors: Wednesday to Friday, by region — Cebu (Doc Jon and Sir Bien) · Davao (Doc John and Sir Mike) · CDO (Sir Benjie and Sir GQ) · Manila (Sir Tony, Ms. Bunny and Ms. Janine) · Baguio (Sir Madix)",
+          rail: "Site Visits with Mentors", spread: true },   /* one visit per team, on one of the three days */
+        { date: "2026-11-07", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+          title: "Output Presentation on Market Mapping" },
       ],
-      output: false,
-      tagline: "Two days on site to form the team, learn the market basics and map the ecosystem around your technology.",
-      brief: "The cycle opens in person. Teams settle who does what, get an overview of technology entrepreneurship and of managing their time and resources, then go straight into the market: marketing basics, a first map of the ecosystem and vertical markets around the technology, the idea of a beachhead market, and a market research workshop to take home.",
+      output: true,
+      tagline: "Two days on site to form the team and learn the market basics, a visit from your mentors, then your market map in front of the panel.",
+      brief: "The cycle opens in person on October 29–30. Teams settle who does what, get an overview of technology entrepreneurship and of managing their time and resources, then go straight into the market: marketing basics, a first map of the ecosystem and vertical markets around the technology, a market research workshop to take home, and a mixer with startups. From November 4 to 6 the mentors visit the teams where they work, in Cebu, Davao, CDO, Manila and Baguio. On Saturday, November 7, each team presents its finished ecosystem and vertical market map to the panel.",
       able: [
         "Agree on your team's roles for the cycle",
         "Map the ecosystem your technology would enter and the vertical markets it could serve",
-        "Explain what a beachhead market is and shortlist candidates for yours",
+        "Plan the market research you will present in Week 2",
       ],
-      produce: "Your team's roles, agreed before you leave the launch, and a first ecosystem and vertical market map to finish for the Week 2 review.",
+      produce: "Your ecosystem and vertical market map, with a five-minute video walking the panel through it.",
       game: {
         title: "From the lab to a first market",
         prompt: "The launch, in the order the work is done. Drag the cards into order.",
@@ -89,81 +95,83 @@
           { order: 2, label: "Say what the technology does better", why: "Start from the advantage, in plain words." },
           { order: 3, label: "List who could use it", why: "Users and buyers, before any business model." },
           { order: 4, label: "Map the ecosystem and vertical markets", why: "Suppliers, channels, regulators, competitors — and the markets they serve." },
-          { order: 5, label: "Shortlist beachhead candidates", why: "One of these becomes the market you try to win first." },
+          { order: 5, label: "Plan the market research", why: "What you need to find out before you write the value proposition." },
         ],
       },
     },
     {
-      week: 2, code: "W2", starts: "2026-11-02", ends: "2026-11-08",
-      title: "Market Mapping Review", short: "Market Mapping Review", axis: "Market mapping\nreview",
-      topic: "Output Presentation on Market Mapping",
-      review: "Output Presentation on Market Mapping",
-      sessions: [
-        { date: "2026-11-07", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
-          title: "Output Presentation on Market Mapping" },
-      ],
-      output: true,
-      tagline: "Show the panel every player around your technology.",
-      brief: "No new lesson this week: the ecosystem and vertical market map begun at the launch is finished with your mentor and presented to the panel on Saturday. Suppliers, users, buyers, regulators, funders and competitors — and the vertical markets where the technology could be applied — become the shortlist the following weeks work from.",
-      able: [
-        "Identify the players in your technology's ecosystem and how value and money move between them",
-        "List the vertical markets where your technology could be applied",
-        "Spot the partners and gaps that matter most for reaching the market",
-      ],
-      produce: "Your ecosystem and vertical market map, with a five-minute video walking the panel through it.",
-      game: {
-        title: "Trace the value chain",
-        prompt: "From raw inputs to the person who uses the product. Drag the cards into order.",
-        steps: [
-          { order: 1, label: "Suppliers of materials and parts", why: "What your technology needs before it can be made." },
-          { order: 2, label: "Your team, the technology developer", why: "Where the invention sits in the chain." },
-          { order: 3, label: "Manufacturer or integrator", why: "Who builds it at scale or puts it into a larger system." },
-          { order: 4, label: "Distributor or channel", why: "How it reaches the buyer." },
-          { order: 5, label: "End user", why: "The person or organization whose problem it solves." },
-        ],
-      },
-    },
-    {
-      week: 3, code: "W3", starts: "2026-11-09", ends: "2026-11-15",
-      title: "Beachhead Market & Customer Segments", short: "Beachhead Market & Customer Segments", axis: "Beachhead market\n& segments",
-      topic: "Marketing (Part 2): Beachhead Market, Customer Segments, Problem-Solution Fit, Value Proposition Statement",
-      review: "Beachhead Market and Customer Segments Review", trainer: "Sir Tony",
+      week: 2, code: "W2", starts: "2026-11-09", ends: "2026-11-15",
+      title: "Value Proposition", short: "Value Proposition", axis: "Value\nproposition",
+      topic: "Value Proposition",
+      review: "Output Presentation on Market Research", trainer: "Sir Tony",
       sessions: [
         { date: "2026-11-10", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
-          title: "Beachhead Market, Customer Segments, Problem-Solution Fit, Value Proposition Statement" },
+          title: "Value Proposition" },
         { date: "2026-11-14", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
-          title: "Beachhead Market and Customer Segments Review" },
+          title: "Output Presentation on Market Research" },
       ],
       output: true,
-      tagline: "Choose the first market you can actually win.",
-      brief: "From the markets on your map, list five to ten real opportunities, prioritize them, and choose a beachhead: the one customer segment you can win first. Then show the fit between the problem those customers feel and your solution, and say it in one value proposition statement.",
+      tagline: "Find out what customers need, and say what you offer them.",
+      brief: "Tuesday's learning session is on the value proposition: who the customer is, the problem they feel, and how your technology answers it in terms they would recognise. On Saturday the panel hears the results of the market research begun at the launch, the evidence the value proposition is built on.",
       able: [
-        "Identify 5 to 10 possible market opportunities",
-        "Prioritize them and choose a beachhead market",
-        "Build a Problem-Solution Fit Canvas and a Value Proposition Statement for that segment",
+        "Present what your market research found about customers, demand and the alternatives they use today",
+        "Describe the customer segment you are building for and the problem they feel",
+        "Draft a first value proposition statement for that segment",
       ],
-      produce: "A prioritized list of 5–10 market opportunities, your chosen beachhead, a Problem-Solution Fit Canvas and a Value Proposition Statement — plus the five-minute video.",
+      produce: "Your market research results and a first value proposition for your target customers — plus the five-minute video.",
       game: {
-        title: "Choose a beachhead",
-        prompt: "From many possible markets to one statement. Drag the cards into the order you would work.",
+        title: "Build a value proposition",
+        prompt: "From a customer to one clear promise. Drag the cards into the order you would work.",
         steps: [
-          { order: 1, label: "List 5 to 10 market opportunities", why: "Start wide, from your ecosystem map." },
-          { order: 2, label: "Prioritize them", why: "Need, access and size decide which come first." },
-          { order: 3, label: "Choose the beachhead", why: "One segment you can win before moving on." },
-          { order: 4, label: "Fill the Problem-Solution Fit Canvas", why: "Check the problem they feel matches what you solve." },
-          { order: 5, label: "Write the value proposition statement", why: "Say it in one line the customer would recognise." },
+          { order: 1, label: "Pick the customer segment", why: "One group of customers, described plainly." },
+          { order: 2, label: "List the jobs they are trying to do", why: "What they need to get done, in their words." },
+          { order: 3, label: "Name their pains and gains", why: "What gets in the way, and what would make it better." },
+          { order: 4, label: "Match your solution to them", why: "Which pains it relieves and which gains it creates." },
+          { order: 5, label: "Write the value proposition statement", why: "One line the customer would recognise." },
         ],
       },
     },
     {
-      week: 4, code: "W4", starts: "2026-11-16", ends: "2026-11-22",
+      week: 3, code: "W3", starts: "2026-11-16", ends: "2026-11-22",
+      title: "Value Proposition Refinement", short: "Value Proposition Refinement", axis: "Value proposition\nrefinement",
+      topic: "Understanding the Value and Measuring it; Value Proposition Refinement",
+      review: "Presentation of Refined Value Proposition", trainer: "Sir Tony",
+      sessions: [
+        { date: "2026-11-17", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+          title: "Understanding the Value and Measuring it; Value Proposition Refinement" },
+        { date: "2026-11-21", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+          title: "Presentation of Refined Value Proposition" },
+      ],
+      output: true,
+      tagline: "Put a number on the value, then sharpen the promise.",
+      brief: "From understanding how customers use the technology to measuring what it is worth to them: the metrics they care about, where things stand today, the improvement your technology brings, and the benefit in pesos or percent. The value proposition is refined with those numbers and presented to the panel on Saturday.",
+      able: [
+        "Pick two or three metrics your customer already tracks",
+        "Estimate the baseline and the improvement, and turn them into a peso or percent benefit",
+        "Rewrite your value proposition around the measured value",
+      ],
+      produce: "Your measured value and refined value proposition statement — plus the five-minute video.",
+      game: {
+        title: "Quantify the value",
+        prompt: "From how customers use it to a number they can check. Drag the cards into order.",
+        steps: [
+          { order: 1, label: "Map how the customer uses it", why: "The full use case, from purchase to disposal." },
+          { order: 2, label: "Choose the metrics that matter", why: "Two or three the customer already tracks." },
+          { order: 3, label: "Measure the baseline", why: "How things stand without your technology." },
+          { order: 4, label: "Estimate the improvement", why: "What changes with it, and by how much." },
+          { order: 5, label: "State the benefit in pesos or percent", why: "The number goes into the value proposition." },
+        ],
+      },
+    },
+    {
+      week: 4, code: "W4", starts: "2026-11-23", ends: "2026-11-29",
       title: "Competitive Advantage", short: "Competitive Advantage", axis: "Competitive\nadvantage",
       topic: "Competitive Advantage, VRIO Framework, Competitor Profile Matrix",
       review: "Competitive Positioning Review", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-11-17", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2026-11-24", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Competitive Advantage, VRIO Framework, Competitor Profile Matrix" },
-        { date: "2026-11-21", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2026-11-28", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Competitive Positioning Review" },
       ],
       output: true,
@@ -188,14 +196,14 @@
       },
     },
     {
-      week: 5, code: "W5", starts: "2026-11-23", ends: "2026-11-29",
+      week: 5, code: "W5", starts: "2026-11-30", ends: "2026-12-06",
       title: "Business Model Validation", short: "Business Model Validation", axis: "Business model\nvalidation",
       topic: "Business Model Validation, Market Validation, Industry Validation",
-      review: "Business Model Validation Review",
+      review: "Business Model Validation Review", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-11-24", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2026-12-01", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Business Model Validation, Market Validation, Industry Validation" },
-        { date: "2026-11-28", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2026-12-05", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Business Model Validation Review" },
       ],
       output: true,
@@ -220,18 +228,20 @@
       },
     },
     {
-      week: 6, code: "W6", starts: "2026-11-30", ends: "2026-12-06",
+      week: 6, code: "W6", starts: "2026-12-07", ends: "2026-12-13",
       title: "Mid-Program Checkpoint: IP & Finance", short: "Mid-Program Checkpoint: IP & Finance", axis: "Checkpoint:\nIP & finance",
-      topic: "Mid-Program Checkpoint: Overview of IP and Basics of Patent, Prior Art Search, IP Strategy and Freedom to Operate, IP Clinic, Basics of Finance, Cost Estimates, Cost-Benefit and Break-Even Analysis, Discounted Cash Flow and ROI, Sensitivity Analysis, Five-Year Projection, Presentation of Outputs",
+      topic: "Mid-Program Checkpoint: Overview of IP and Basics of Patent, Prior Art Search, IP Strategy and Freedom to Operate, IP Clinic, Basics of Finance, Cost Estimates, Cost-Benefit and Break-Even Analysis, Discounted Cash Flow and ROI, Sensitivity Analysis, Five-Year Projection, Presentation of Outputs, Mixers with Investors and Industry Partners",
       milestone: "Mid-Program Checkpoint", trainer: "Doc Jon (IP) · finance trainer to be announced",
       sessions: [
-        { date: "2026-12-03", end: "2026-12-04", kind: "onsite", att: "OS", mode: "On site",
-          title: "Mid-Program Checkpoint: IP and Finance — Overview of IP and Basics of Patent, Prior Art Search, IP Strategy and Freedom to Operate, IP Clinic, Basics of Finance, Cost-Benefit and Break-Even Analysis, Discounted Cash Flow and ROI, Sensitivity Analysis, Five-Year Projection, Presentation of Outputs",
+        { date: "2026-12-08", kind: "holiday", mode: "No session",
+          title: "No Session — Feast of the Immaculate Conception" },
+        { date: "2026-12-10", end: "2026-12-11", kind: "onsite", att: "OS", mode: "On site",
+          title: "Mid-Program Checkpoint: IP and Finance — Overview of IP and Basics of Patent, Prior Art Search, IP Strategy and Freedom to Operate, IP Clinic, Basics of Finance, Cost-Benefit and Break-Even Analysis, Discounted Cash Flow and ROI, Sensitivity Analysis, Five-Year Projection, Presentation of Outputs, Mixers with Investors and Industry Partners",
           rail: "Mid-Program Checkpoint: IP & Finance" },
       ],
       output: false,
       tagline: "Halfway: protect the technology, then put numbers behind it.",
-      brief: "Two days on site. The first half is intellectual property — what a patent protects, searching the prior art around your core technology, an IP strategy that keeps your freedom to operate, and an IP clinic with the AIPO team. The second half is finance — fixed, variable and investment costs, cost-benefit and break-even, discounted cash flow and ROI, sensitivity, and a five-year projection as the sustainability plan. Teams present their outputs before leaving.",
+      brief: "Two days on site. The first half is intellectual property — what a patent protects, searching the prior art around your core technology, an IP strategy that keeps your freedom to operate, and an IP clinic with the AIPO team. The second half is finance — fixed, variable and investment costs, cost-benefit and break-even, discounted cash flow and ROI, sensitivity, and a five-year projection as the sustainability plan. Teams present their outputs before leaving, and a mixer with investors and industry partners closes the checkpoint.",
       able: [
         "Explain what your patent would protect and what the prior art search found",
         "Outline an IP strategy that keeps your freedom to operate",
@@ -251,21 +261,19 @@
       },
     },
     {
-      week: 7, code: "W7", starts: "2026-12-07", ends: "2026-12-13",
+      week: 7, code: "W7", starts: "2026-12-14", ends: "2026-12-20",
       title: "Go-to-Market & Lean Canvas", short: "Go-to-Market & Lean Canvas", axis: "Go-to-market\n& Lean Canvas",
       topic: "Go-To-Market Plan & Lean Canvas",
       review: "Presentation of Outputs: Go-to-Market Plan and Lean Canvas", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-12-08", kind: "holiday", mode: "No session",
-          title: "No Session — Feast of the Immaculate Conception" },
-        { date: "2026-12-09", kind: "learning", att: "LS", mode: "Online", time: LS_TIME, adjusted: true,
+        { date: "2026-12-15", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Go-To-Market Plan & Lean Canvas" },
-        { date: "2026-12-12", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2026-12-19", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Go-to-Market Plan and Lean Canvas" },
       ],
       output: true,
       tagline: "Plan how you reach the first customers.",
-      brief: "The learning session moves to Wednesday because of the holiday. Turn the beachhead into a plan: the strategy canvas that sets you apart, the channels you will test with the bullseye framework, and a go-to-market Gantt chart for the months ahead — with a complete Lean Canvas behind it.",
+      brief: "Turn your market work into a plan: the strategy canvas that sets you apart, the channels you will test with the bullseye framework, and a go-to-market Gantt chart for the months ahead — with a complete Lean Canvas behind it.",
       able: [
         "Draw a strategy canvas against the alternatives",
         "Choose and justify your first channels using the bullseye framework",
@@ -285,25 +293,25 @@
       },
     },
     {
-      week: 8, code: "W8", starts: "2026-12-14", ends: "2026-12-20",
+      week: 8, code: "W8", starts: "2026-12-21", ends: "2026-12-27",
       title: "Selling Skills", short: "Selling Skills", axis: "Selling\nskills",
       topic: "Selling Skill",
       review: "Presentation of Outputs: Selling", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-12-15", kind: "learning", att: "LS", mode: "Online", time: LS_TIME, adjusted: true,
+        { date: "2026-12-23", kind: "learning", att: "LS", mode: "Online", time: LS_TIME, adjusted: true,
           title: "Selling Skill" },
-        { date: "2026-12-19", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2026-12-26", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Selling" },
       ],
       output: true,
       tagline: "Turn the value proposition into a conversation a customer says yes to.",
-      brief: "The last week before the break is about the sales conversation itself: how to open with the customer's problem, ask and listen before you present, show the value in the customer's own numbers, handle the objections you will certainly hear, and ask for a next step. Teams practise it on their beachhead customer.",
+      brief: "The last week before the break, with the learning session moved to Wednesday, December 23, is about the sales conversation itself: how to open with the customer's problem, ask and listen before you present, show the value in the customer's own numbers, handle the objections you will certainly hear, and ask for a next step. Teams practise it on a real target customer.",
       able: [
         "Structure a sales conversation from the customer's problem to a next step",
-        "Answer the three objections your beachhead customer is most likely to raise",
+        "Answer the three objections your target customer is most likely to raise",
         "Ask for a concrete next step — a trial, a visit, a letter of intent",
       ],
-      produce: "A five-minute recorded sales conversation with one beachhead customer, with your objection-handling notes.",
+      produce: "A five-minute recorded sales conversation with one target customer, with your objection-handling notes.",
       game: {
         title: "Run the sales conversation",
         prompt: "One customer conversation, start to finish. Drag the cards into order.",
@@ -342,7 +350,7 @@
         steps: [
           { order: 1, label: "The problem", why: "Whose pain, and how big." },
           { order: 2, label: "Your solution", why: "What the technology does about it." },
-          { order: 3, label: "The market", why: "Beachhead, size and who comes next." },
+          { order: 3, label: "The market", why: "Target market, size and who comes next." },
           { order: 4, label: "Business model and evidence", why: "How it makes money, and the validation so far." },
           { order: 5, label: "The ask", why: "What you need, and what it will achieve." },
         ],
@@ -393,7 +401,7 @@
       ],
       output: true,
       tagline: "Turn twelve weeks of work into a DOST FASTRAC proposal.",
-      brief: "A workshop on the DOST FASTRAC proposal: what each item of the form asks for, which of your earlier outputs answers it — the beachhead, the competitive analysis, the validated model, the IP strategy, the financials, the roadmap — and how to write the budget and the plan so a reviewer can follow them. Teams leave with a complete first draft on My Team's Capstone.",
+      brief: "A workshop on the DOST FASTRAC proposal: what each item of the form asks for, which of your earlier outputs answers it — the market research and value proposition, the competitive analysis, the validated model, the IP strategy, the financials, the roadmap — and how to write the budget and the plan so a reviewer can follow them. Teams leave with a complete first draft on My Team's Capstone.",
       able: [
         "Know what every item of the FASTRAC form asks for",
         "Fill the case and the plan from the outputs of the earlier weeks",
@@ -406,7 +414,7 @@
         steps: [
           { order: 1, label: "Project profile", why: "Title, agency, site, type of research — the facts first." },
           { order: 2, label: "The case", why: "Summary, rationale, objectives and the prior art." },
-          { order: 3, label: "Market and commercial viability", why: "Beachhead, competition, channels and the sales forecast." },
+          { order: 3, label: "Market and commercial viability", why: "Target market, competition, channels and the sales forecast." },
           { order: 4, label: "The plan", why: "Methodology, technology roadmap, outputs and outcomes." },
           { order: 5, label: "Resources and budget", why: "People, equipment and the money, by year." },
         ],
@@ -421,11 +429,11 @@
         { date: "2027-01-28", kind: "onsite", att: "DD", mode: "On site",
           title: "Demo Day — Final Presentations" },
         { date: "2027-01-29", kind: "onsite", att: "GR", mode: "On site",
-          title: "Graduation Ceremony and Ecosystem Networking" },
+          title: "Graduation Ceremony and Ecosystem Networking, Mixers with Investors" },
       ],
       output: false,
       tagline: "Present the venture, submit the FASTRAC capsule, and graduate.",
-      brief: "Teams give their final presentations on Demo Day in front of investors and industry, with their technology roadmap, and submit the FASTRAC capsule. Friday closes the cycle with the graduation ceremony and ecosystem networking.",
+      brief: "Teams give their final presentations on Demo Day in front of investors and industry, with their technology roadmap, and submit the FASTRAC capsule. Friday closes the cycle with the graduation ceremony, ecosystem networking and a mixer with investors.",
       able: [
         "Deliver a final pitch that holds together from problem to ask",
         "Show a technology roadmap you can defend",
@@ -459,11 +467,11 @@
   const simulation = SIM_ON ? { active: SIM_ACTIVE, week: SIM_WEEKS.find(w => w.sim === SIM_ACTIVE).week,
                                 weeks: SIM_WEEKS.map(w => w.week) } : null;
 
-  const BREAK = { starts: "2026-12-21", ends: "2027-01-03", resumes: "2027-01-05" };
+  const BREAK = { starts: "2026-12-28", ends: "2027-01-03", resumes: "2027-01-05" };
   const cohort = {
     code: "STEP2.5", name: "STEP 2.5", timezone: "Asia/Manila",
     starts_on: "2026-10-20", ends_on: "2027-01-29", weeks_total: 12,
-    source: "STEP 2.5 Kick Off Tracker — Trainer's Timeline, Updated Schedule: October 20, 2026 – January 29, 2027",
+    source: "STEP 2.5 Master Timeline — Trainer's Timeline, Updated Schedule: October 20, 2026 – January 29, 2027",
   };
 
   /* ---------- dates ---------- */
@@ -548,13 +556,19 @@
 
   /* ---------- the seven days of a week, Monday to Sunday, for This Week ---------- */
   const joinNote = (a, b) => !a ? b : (/[.!?]$/.test(a) ? a : a + ".") + " " + b;
-  function daysOf(n) {
+  const daysBetween = (a, b) => { const p = x => { const [y, m, d] = x.split("-").map(Number); return Date.UTC(y, m - 1, d); }; return Math.round((p(b) - p(a)) / 864e5); };
+  /* a week longer than seven days (Week 1) shows the calendar week we are in */
+  function daysOf(n, now) {
     const w = byWeek(n); if (!w) return [];
     const due = dueOf(n), dueDay = due ? due.slice(0, 10) : null;
     const teaching = w.output;
+    const firstDay = (w.sessions[0] || {}).date || w.starts;
+    let base = w.starts;
+    const span = daysBetween(w.starts, w.ends) + 1, t = manilaDay(now);
+    for (let off = 7; off < span && addDays(w.starts, off) <= t; off += 7) base = addDays(w.starts, off);
     const out = [];
     for (let i = 0; i < 7; i++) {
-      const d = addDays(w.starts, i), name = DAYNAMES[i];
+      const d = addDays(base, i), name = DAYNAMES[i];
       const here = w.sessions.filter(s => d >= s.date && d <= (s.end || s.date));
       const day = { d, label: name };
       if (here.length) {
@@ -571,12 +585,12 @@
         } else if (s.kind === "orientation") {
           day.title = s.title; day.where = "Online"; day.note = "How the twelve weeks run, and how to use STEP Hub.";
         } else if (s.kind === "onsite") {
-          const multi = s.end && s.end !== s.date;
+          const multi = s.end && s.end !== s.date && !s.spread;
           /* the day rail is a narrow card: a session can give it a short
              "rail" label to show here, while its full title (used in the
              topic brief, materials and the trainer pages) stays as written */
           const headline = s.rail || s.title.split(/:| — /)[0];
-          day.title = (multi ? "On site · Day " + (d === s.date ? 1 : 2) + " — " : "On site · ") + headline;
+          day.title = (multi ? "On site · Day " + (daysBetween(s.date, d) + 1) + " — " : "On site · ") + headline;
           day.note = s.title.indexOf(":") > -1 || s.title.indexOf(" — ") > -1 ? s.title.split(/: | — /).slice(1).join(" — ") : "";
           day.where = "On site";
         } else if (s.kind === "holiday") {
@@ -594,8 +608,8 @@
         Object.assign(day, { kind: "deadline", title: "Team output due · " + w.short, time: "12:00 NN",
           note: "Upload the slide deck and the five-minute video on My Team's Work.",
           action: "submit" });
-      } else if (teaching && (name === "Wednesday" || name === "Thursday" || name === "Friday")) {
-        const wedTaken = w.sessions.some(s => s.date === addDays(w.starts, 2));
+      } else if (teaching && d > firstDay && (name === "Wednesday" || name === "Thursday" || name === "Friday")) {
+        const wedTaken = w.sessions.some(s => s.date === addDays(base, 2));
         const first = wedTaken ? "Thursday" : "Wednesday";
         Object.assign(day, name === first
           ? { kind: "window", title: "Mentoring window opens", time: first + " to Friday", note: "An hour and a half with your mentor, arranged directly." }
