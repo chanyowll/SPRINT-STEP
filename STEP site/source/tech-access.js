@@ -7,7 +7,7 @@
    ===================================================================== */
 (function () {
   "use strict";
-  var TECH = ["cperote@ateneo.edu", "joshguico@gmail.com"];
+  var TECH = ["cperote@ateneo.edu", "joshguico@gmail.com", "perotechrystian@gmail.com"];
   function isTech(email) { return TECH.indexOf(String(email || "").trim().toLowerCase()) >= 0; }
   function myEmail() {
     try { var u = window.MOCK && window.MOCK.auth && window.MOCK.auth.getCurrentUser(); return (u && u.email) || ""; }

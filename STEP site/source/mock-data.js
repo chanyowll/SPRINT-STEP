@@ -245,6 +245,8 @@ window.MOCK = (function () {
         focus: "Intellectual property, at the Mid-Program Checkpoint", modules: ["W6"] },
       { id: "tr6", name: "Mr. Steve Chaves", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
+      { id: "tr7", name: "Mr. Bienvenido Garcia", short: "Sir Bien", initials: "BG", org: "Ateneo de Manila University",
+        focus: "Topics to be announced", modules: [] },
     ],
 
     mentors: [

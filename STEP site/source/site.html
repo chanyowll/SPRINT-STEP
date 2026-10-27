@@ -5870,6 +5870,8 @@ window.MOCK = (function () {
         focus: "Intellectual property, at the Mid-Program Checkpoint", modules: ["W6"] },
       { id: "tr6", name: "Mr. Steve Chaves", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
+      { id: "tr7", name: "Mr. Bienvenido Garcia", short: "Sir Bien", initials: "BG", org: "Ateneo de Manila University",
+        focus: "Topics to be announced", modules: [] },
     ],
 
     mentors: [
@@ -7368,7 +7370,7 @@ window.MOCK = (function () {
    ===================================================================== */
 (function () {
   "use strict";
-  var TECH = ["cperote@ateneo.edu", "joshguico@gmail.com"];
+  var TECH = ["cperote@ateneo.edu", "joshguico@gmail.com", "perotechrystian@gmail.com"];
   function isTech(email) { return TECH.indexOf(String(email || "").trim().toLowerCase()) >= 0; }
   function myEmail() {
     try { var u = window.MOCK && window.MOCK.auth && window.MOCK.auth.getCurrentUser(); return (u && u.email) || ""; }
