@@ -6683,7 +6683,8 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 /* assignment: the template as one slim bar; both columns end on the same line */
 .asg:not(.one) { align-items: stretch; }
 .asg-col { display: flex; flex-direction: column; gap: var(--s4); }
-.asg-col > .asg-brief, .asg-col > .asg-file { flex: 1 1 auto; }
+.asg-col > .asg-brief { flex: 0 0 auto; }
+.asg-col > .asg-file, .asg-col > .asg-tplcard { flex: 1 1 auto; }
 .asg-tplbar { display: flex; align-items: center; gap: var(--s3); background: var(--surface); border: 1px solid var(--line);
   border-radius: var(--r-lg); box-shadow: var(--shadow); padding: 12px 16px; }
 .asg-tplbar .ft { flex: none; width: 42px; height: 42px; border-radius: var(--r); display: grid; place-items: center; background: var(--blue-100); color: var(--blue); }

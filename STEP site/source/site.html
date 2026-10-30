@@ -11634,16 +11634,25 @@ window.__renderMyTeam();
           </li>` : `<li class="mats-empty">${empty}</li>`}
         </ul>
       </article>`;
-    /* the template: one slim bar, Download once it is posted */
+    /* the template: its own card (same heading style as the others), no preview;
+       Download once it is posted */
     const tplBar = `
-      <div class="asg-tplbar">
-        <span class="ft" aria-hidden="true"><b>${tpl ? esc(ext(tpl.name)) : "PPT"}</b></span>
-        <span class="mtext"><span class="mn">Template deck</span>
-          <span class="mm">${tpl ? `<span class="mf" title="${esc(tpl.name)}">${esc(tpl.name)}</span>${tpl.size ? " · " + esc(kb(tpl.size)) : ""}` : "Start your output from this file"}</span></span>
-        ${tpl && tpl.url ? `<a class="btn secondary dl" href="${tpl.url}" download="${esc(tpl.name)}" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
-          Download</a>` : `<span class="matcount">Not yet posted</span>`}
-      </div>`;
+      <article class="matcard asg-tplcard">
+        <div class="mathead">
+          <div class="mh-t"><h3>Template deck</h3><p>Start your output from this file</p></div>
+          <span class="matcount">${tpl ? "Ready" : "Not yet posted"}</span>
+        </div>
+        <ul class="mats">${tpl ? `
+          <li>
+            <span class="ft" aria-hidden="true"><b>${esc(ext(tpl.name))}</b></span>
+            <span class="mtext"><span class="mn">Week ${wk} template</span>
+              <span class="mm has-file"><span class="mf" title="${esc(tpl.name)}">${esc(tpl.name)}</span><span>${esc(kb(tpl.size))}</span></span></span>
+            ${tpl.url ? `<a class="btn secondary dl" href="${tpl.url}" download="${esc(tpl.name)}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+              Download</a>` : ""}
+          </li>` : `<li class="mats-empty">The STEP team posts this week's template here.</li>`}
+        </ul>
+      </article>`;
     const showFiles = output || guide || tpl;
     ["asg-guide", "asg-tpl"].forEach(id => { const el = document.getElementById(id); if (el && window.StepDeck) window.StepDeck.stop(el); });
     box.classList.toggle("one", !showFiles);
