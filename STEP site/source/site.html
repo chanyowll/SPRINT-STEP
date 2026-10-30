@@ -11584,16 +11584,16 @@ window.__renderMyTeam();
     }).join("");
   }
   function paint(a) {
-    const instr = a && a.instructions ? fmt(a.instructions)
-      : `<p class="asg-wait">The STEP team will post the full instructions here.</p>` +
-        ((T.able || []).length ? `<p class="asg-sub">By the end of the week your team should be able to:</p><ul>${T.able.map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "");
+    /* only what the tech team posts on the console appears here */
+    const posted = !!(a && a.instructions);
+    const instr = posted ? fmt(a.instructions)
+      : `<p class="asg-wait">The instructions for this week haven't been posted yet. Check back soon.</p>`;
     const tpl = a && a.template;
     const brief = output ? `
       <div class="asg-top">
         <div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div>
         ${due ? `<span class="asg-due">Due ${esc(dayTxt(due))}, 12:00 NN</span>` : ""}
       </div>
-      <div class="asg-block"><h4>What to hand in</h4><p>${esc(T.output || "")}</p></div>
       <div class="asg-block"><h4>Instructions</h4>${instr}</div>
       <div class="asg-foot">
         <p>Upload the slide deck and the five-minute video below before the deadline.${fb ? " The panel reviews it at the feedback session on " + esc(dayTxt(fb.date)) + "." : ""}</p>
