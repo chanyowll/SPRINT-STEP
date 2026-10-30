@@ -747,7 +747,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <!-- ===================== Assignments (This Week) ===================== -->
       <section class="sec" data-sec="assignments" hidden>
         <div class="sec-head">
-          <div><h1>Assignments</h1><p>Each week's team output: the instructions and the template deck. Teams see them on This Week, under Materials and session replay.</p></div>
+          <div><h1>Assignments</h1><p>Each week's team output: the instructions and the template deck. Teams see them first on My Team's Work, above the upload.</p></div>
         </div>
         <div class="imp-note warn" id="as-note" hidden></div>
         <div class="toolbar">
@@ -2965,7 +2965,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   asWeekSel.addEventListener("change", asPaint);
   $("#as-save").addEventListener("click", async () => {
     const wk = +asWeekSel.value; asSt('<span class="spin"></span>Saving…', "busy");
-    try { await AS.saveInstructions(wk, $("#as-text").value); asRows = await AS.all(); asPaint(); asSt("Saved. Teams see it on This Week.", "ok"); }
+    try { await AS.saveInstructions(wk, $("#as-text").value); asRows = await AS.all(); asPaint(); asSt("Saved. Teams see it on My Team's Work.", "ok"); }
     catch (e) { asSt("Couldn't save: " + esc(e.message), "bad"); }
   });
   $("#as-tpl").addEventListener("change", async e => {

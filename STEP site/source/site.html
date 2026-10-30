@@ -582,16 +582,6 @@
     </div>
   </section>
 
-  <!-- ===== This week's assignment: instructions and the template deck ===== -->
-  <section id="assignment">
-    <div class="section-head">
-      <div class="eyebrow">Team output</div>
-      <h2>This week's assignment</h2>
-      <p class="lede">What your team hands in this week, the STEP team's instructions, and the template deck to start from.</p>
-    </div>
-    <div class="asg reveal" id="asg"></div>
-  </section>
-
   <!-- ===== Announcements — what to anticipate, straight under the week bar ===== -->
   <section>
     <div class="ann-top">
@@ -1194,6 +1184,16 @@
 </section>
 
 <main class="wrap page stack gp-after" style="gap:var(--s7)">
+
+  <!-- ===== This week's assignment: instructions and template deck, posted by the tech team ===== -->
+  <section id="assignment">
+    <div class="section-head">
+      <div class="eyebrow">Team output</div>
+      <h2>This week's assignment</h2>
+      <p class="lede">What your team hands in this week, the instructions, and the template deck to start from. Upload your output in the next section.</p>
+    </div>
+    <div class="asg reveal" id="asg"></div>
+  </section>
 
   <!-- ===== Submit this week (moved to top for immediate visibility) ===== -->
   <section id="submit">
@@ -8941,75 +8941,6 @@ const daysAway = iso => {
   })();
 })();
 
-/* ---------- This week's assignment ---------- */
-(function () {
-  const box = document.getElementById("asg"); if (!box) return;
-  const SCH = window.STEP_SCHEDULE, T = W.topic || {}, wk = W.week_no;
-  const wInfo = SCH && SCH.byWeek ? SCH.byWeek(wk) : null;
-  const output = !!(wInfo && wInfo.output);
-  const due = output && SCH.dueOf ? SCH.dueOf(wk) : null;
-  const fb = SCH && SCH.feedbackOf ? SCH.feedbackOf(wk) : null;
-  const myTeam = document.getElementById("route-myteam") ? "#myteam" : "my-team.html";
-  const dayTxt = iso => new Date(iso).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", weekday: "long", month: "long", day: "numeric" });
-  const kb = n => !n ? "" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
-  const ext = n => (String(n || "file").split(".").pop() || "FILE").toUpperCase().slice(0, 4);
-  const NOOUT = { 0: "Orientation week: nothing to hand in yet. Make sure everyone on the team can sign in to STEP Hub.",
-                  6: "No weekly upload this week: your team presents its outputs on site at the Mid-Program Checkpoint.",
-                  12: "Demo Day week: your final presentation, technology roadmap and FASTRAC capsule are presented on site." };
-  /* posted instructions: blank lines make paragraphs, lines starting with - or • become a list */
-  function fmt(text) {
-    return String(text).trim().split(/\n\s*\n/).map(block => {
-      const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
-      if (lines.length && lines.every(l => /^([-•*]|\d+[.)])\s+/.test(l)))
-        return (/^\d/.test(lines[0]) ? "<ol>" : "<ul>") + lines.map(l => "<li>" + esc(l.replace(/^([-•*]|\d+[.)])\s+/, "")) + "</li>").join("") + (/^\d/.test(lines[0]) ? "</ol>" : "</ul>");
-      return "<p>" + lines.map(esc).join("<br>") + "</p>";
-    }).join("");
-  }
-  function paint(a) {
-    const instr = a && a.instructions ? fmt(a.instructions)
-      : `<p class="asg-wait">The STEP team will post the full instructions here.</p>` +
-        ((T.able || []).length ? `<p class="asg-sub">By the end of the week your team should be able to:</p><ul>${T.able.map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "");
-    const tpl = a && a.template;
-    const brief = output ? `
-      <div class="asg-top">
-        <div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div>
-        ${due ? `<span class="asg-due">Due ${esc(dayTxt(due))}, 12:00 NN</span>` : ""}
-      </div>
-      <div class="asg-block"><h4>What to hand in</h4><p>${esc(T.output || "")}</p></div>
-      <div class="asg-block"><h4>Instructions</h4>${instr}</div>
-      <div class="asg-foot">
-        <p>Upload the slide deck and the five-minute video on My Team's Work before the deadline.${fb ? " The panel reviews it at the feedback session on " + esc(dayTxt(fb.date)) + "." : ""}</p>
-        <a class="btn primary" href="${myTeam}">Go to My Team's Work</a>
-      </div>` : `
-      <div class="asg-top"><div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div></div>
-      <div class="asg-block"><p>${esc(NOOUT[wk] || "No team output this week.")}</p>${a && a.instructions ? fmt(a.instructions) : ""}</div>`;
-    const tplCard = (output || tpl) ? `
-      <article class="matcard asg-tpl">
-        <div class="mathead">
-          <div class="mh-t"><h3>Template deck</h3><p>Start your output from this file</p></div>
-          <span class="matcount">${tpl ? "Ready" : "Not yet posted"}</span>
-        </div>
-        <ul class="mats">${tpl ? `
-          <li>
-            <span class="ft" aria-hidden="true"><b>${esc(ext(tpl.name))}</b></span>
-            <span class="mtext"><span class="mn">Week ${wk} template</span>
-              <span class="mm has-file"><span class="mf" title="${esc(tpl.name)}">${esc(tpl.name)}</span><span>${esc(kb(tpl.size))}</span></span></span>
-            ${tpl.url ? `<a class="btn secondary dl" href="${tpl.url}" download="${esc(tpl.name)}" target="_blank" rel="noopener">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
-              Download</a>` : ""}
-          </li>` : `<li class="mats-empty">The STEP team posts this week's template here. Check back before you start.</li>`}
-        </ul>
-      </article>` : "";
-    box.classList.toggle("one", !tplCard);
-    box.innerHTML = `<article class="asg-brief">${brief}</article>${tplCard}`;
-  }
-  paint(null);
-  (async () => {
-    const A = window.STEP_ASSIGN; if (!A) return;
-    try { if (!(await A.isLive())) return; paint(await A.get(wk)); } catch (e) {}
-  })();
-})();
-
 /* ---------- Saturday panel schedule (for participants) ---------- */
 (function () {
   const panels = window.MOCK.faculty.panels;
@@ -11621,6 +11552,83 @@ window.addEventListener("stephub_auth_changed", () => {
 window.__renderMyTeam();
 
 
+
+/* ---------- This week's assignment (posted by the tech team) ---------- */
+(function () {
+  const esc = s => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+(function () {
+  const box = document.getElementById("asg"); if (!box) return;
+  const W = window.MOCK.thisWeek || {}, SCH = window.STEP_SCHEDULE;
+  /* the week whose output the team is working on: this week, or the next week with a hand-in */
+  const nextOut = SCH && SCH.byWeek && !(SCH.byWeek(W.week_no) || {}).output ? (SCH.teachingWeeks().find(w => w.week >= W.week_no) || null) : null;
+  const wk = nextOut ? nextOut.week : W.week_no;
+  const wSrc = SCH && SCH.byWeek ? SCH.byWeek(wk) : null;
+  const T = wSrc ? { short: wSrc.short, title: wSrc.title, output: wSrc.produce, able: wSrc.able } : (W.topic || {});
+  const wInfo = SCH && SCH.byWeek ? SCH.byWeek(wk) : null;
+  const output = !!(wInfo && wInfo.output);
+  const due = output && SCH.dueOf ? SCH.dueOf(wk) : null;
+  const fb = SCH && SCH.feedbackOf ? SCH.feedbackOf(wk) : null;
+  const dayTxt = iso => new Date(iso).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", weekday: "long", month: "long", day: "numeric" });
+  const kb = n => !n ? "" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
+  const ext = n => (String(n || "file").split(".").pop() || "FILE").toUpperCase().slice(0, 4);
+  const NOOUT = { 0: "Orientation week: nothing to hand in yet. Make sure everyone on the team can sign in to STEP Hub.",
+                  6: "No weekly upload this week: your team presents its outputs on site at the Mid-Program Checkpoint.",
+                  12: "Demo Day week: your final presentation, technology roadmap and FASTRAC capsule are presented on site." };
+  /* posted instructions: blank lines make paragraphs, lines starting with - or • become a list */
+  function fmt(text) {
+    return String(text).trim().split(/\n\s*\n/).map(block => {
+      const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
+      if (lines.length && lines.every(l => /^([-•*]|\d+[.)])\s+/.test(l)))
+        return (/^\d/.test(lines[0]) ? "<ol>" : "<ul>") + lines.map(l => "<li>" + esc(l.replace(/^([-•*]|\d+[.)])\s+/, "")) + "</li>").join("") + (/^\d/.test(lines[0]) ? "</ol>" : "</ul>");
+      return "<p>" + lines.map(esc).join("<br>") + "</p>";
+    }).join("");
+  }
+  function paint(a) {
+    const instr = a && a.instructions ? fmt(a.instructions)
+      : `<p class="asg-wait">The STEP team will post the full instructions here.</p>` +
+        ((T.able || []).length ? `<p class="asg-sub">By the end of the week your team should be able to:</p><ul>${T.able.map(x => "<li>" + esc(x) + "</li>").join("")}</ul>` : "");
+    const tpl = a && a.template;
+    const brief = output ? `
+      <div class="asg-top">
+        <div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div>
+        ${due ? `<span class="asg-due">Due ${esc(dayTxt(due))}, 12:00 NN</span>` : ""}
+      </div>
+      <div class="asg-block"><h4>What to hand in</h4><p>${esc(T.output || "")}</p></div>
+      <div class="asg-block"><h4>Instructions</h4>${instr}</div>
+      <div class="asg-foot">
+        <p>Upload the slide deck and the five-minute video below before the deadline.${fb ? " The panel reviews it at the feedback session on " + esc(dayTxt(fb.date)) + "." : ""}</p>
+        <button class="btn primary" type="button" data-asg-go>Go to the upload</button>
+      </div>` : `
+      <div class="asg-top"><div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div></div>
+      <div class="asg-block"><p>${esc(NOOUT[wk] || "No team output this week.")}</p>${a && a.instructions ? fmt(a.instructions) : ""}</div>`;
+    const tplCard = (output || tpl) ? `
+      <article class="matcard asg-tpl">
+        <div class="mathead">
+          <div class="mh-t"><h3>Template deck</h3><p>Start your output from this file</p></div>
+          <span class="matcount">${tpl ? "Ready" : "Not yet posted"}</span>
+        </div>
+        <ul class="mats">${tpl ? `
+          <li>
+            <span class="ft" aria-hidden="true"><b>${esc(ext(tpl.name))}</b></span>
+            <span class="mtext"><span class="mn">Week ${wk} template</span>
+              <span class="mm has-file"><span class="mf" title="${esc(tpl.name)}">${esc(tpl.name)}</span><span>${esc(kb(tpl.size))}</span></span></span>
+            ${tpl.url ? `<a class="btn secondary dl" href="${tpl.url}" download="${esc(tpl.name)}" target="_blank" rel="noopener">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+              Download</a>` : ""}
+          </li>` : `<li class="mats-empty">The STEP team posts this week's template here. Check back before you start.</li>`}
+        </ul>
+      </article>` : "";
+    box.classList.toggle("one", !tplCard);
+    box.innerHTML = `<article class="asg-brief">${brief}</article>${tplCard}`;
+  }
+  box.addEventListener("click", e => { if (e.target.closest("[data-asg-go]")) { const s = document.getElementById("submit"); if (s) s.scrollIntoView({ behavior: "smooth", block: "start" }); } });
+  paint(null);
+  (async () => {
+    const A = window.STEP_ASSIGN; if (!A) return;
+    try { if (!(await A.isLive())) return; paint(await A.get(wk)); } catch (e) {}
+  })();
+})();
+})();
 })();
 } catch(e) { console.error('[STEP] Error in my-team.html script:', e); }
 /* ---- capstone.html ---- */
