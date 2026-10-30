@@ -6621,3 +6621,13 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .site-footer .foot-partners::before { content: ""; position: absolute; top: 0; left: var(--s4); right: var(--s4); height: 1px; background: rgba(255, 255, 255, .14); }
 .site-footer .foot-partners img { display: block; height: 44px; width: auto; max-width: 100%; object-fit: contain; }
 @media (max-width: 700px) { .site-footer .foot-partners img { height: auto; width: 100%; } }
+
+/* each partner logo in the footer strip links to its website */
+.site-footer .fp-strip { position: relative; display: inline-block; max-width: 100%; }
+.site-footer .fp-hit { position: absolute; top: -6px; bottom: -6px; border-radius: 6px; text-decoration: none; }
+.site-footer .fp-hit::after { content: ""; position: absolute; left: 12%; right: 12%; bottom: -4px; height: 2px; border-radius: 2px;
+  background: var(--gold); transform: scaleX(0); transition: transform .18s ease; }
+.site-footer .fp-hit:hover::after, .site-footer .fp-hit:focus-visible::after { transform: scaleX(1); }
+.site-footer .fp-hit:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .site-footer .fp-hit::after { transition: none; } }
+@media (max-width: 700px) { .site-footer .fp-strip { width: 100%; } }
