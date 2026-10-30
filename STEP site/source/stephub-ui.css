@@ -6699,3 +6699,12 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .asg-col > .asg-brief, .asg-col > .asg-file, .asg-col > .asg-tplcard { flex: 0 0 auto; }
 .asg-file .mats li:last-child, .asg-tplcard .mats li:last-child { padding-bottom: 0; }
 .asg-file .mats-empty, .asg-tplcard .mats-empty { padding-bottom: 0; }
+
+/* assignment, final: both columns end on the same line. The quick instructions card
+   and the instructions preview take up any spare height; nothing else stretches. */
+.asg:not(.one) { align-items: stretch; }
+.asg-col > .asg-brief { flex: 1 1 auto; }
+.asg-col > .asg-tplcard { flex: 0 0 auto; }
+.asg-tplcard.empty .mathead { margin-bottom: 0; }
+.asg-col > .asg-file { flex: 1 1 auto; display: flex; flex-direction: column; }
+.asg-file .asg-prev { aspect-ratio: auto; flex: 1 1 auto; min-height: 260px; }

@@ -11637,12 +11637,12 @@ window.__renderMyTeam();
     /* the template: its own card (same heading style as the others), no preview;
        Download once it is posted */
     const tplBar = `
-      <article class="matcard asg-tplcard">
+      <article class="matcard asg-tplcard${tpl ? "" : " empty"}">
         <div class="mathead">
           <div class="mh-t"><h3>Template deck</h3><p>Start your output from this file</p></div>
           <span class="matcount">${tpl ? "Ready" : "Not yet posted"}</span>
         </div>
-        <ul class="mats">${tpl ? `
+        ${tpl ? `<ul class="mats">` : ""}${tpl ? `
           <li>
             <span class="ft" aria-hidden="true"><b>${esc(ext(tpl.name))}</b></span>
             <span class="mtext"><span class="mn">Week ${wk} template</span>
@@ -11650,8 +11650,7 @@ window.__renderMyTeam();
             ${tpl.url ? `<a class="btn secondary dl" href="${tpl.url}" download="${esc(tpl.name)}" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
               Download</a>` : ""}
-          </li>` : `<li class="mats-empty">The STEP team posts this week's template here.</li>`}
-        </ul>
+          </li></ul>` : ""}
       </article>`;
     const showFiles = output || guide || tpl;
     ["asg-guide", "asg-tpl"].forEach(id => { const el = document.getElementById(id); if (el && window.StepDeck) window.StepDeck.stop(el); });
