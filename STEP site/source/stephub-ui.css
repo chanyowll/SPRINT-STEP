@@ -6644,3 +6644,26 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 @media (max-width: 900px) { .site-footer .foot-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
   .site-footer .foot-cols > div:first-child { grid-column: 1 / -1; } }
 @media (max-width: 560px) { .site-footer .foot-cols { grid-template-columns: minmax(0, 1fr); } }
+
+/* This Week: the assignment (instructions + template deck) */
+.asg { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); gap: var(--s5); align-items: start; }
+.asg.one { grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 900px) { .asg { grid-template-columns: minmax(0, 1fr); } }
+.asg-brief { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); box-shadow: var(--shadow); padding: var(--s5); }
+.asg-top { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3); flex-wrap: wrap;
+  padding-bottom: var(--s4); margin-bottom: var(--s4); border-bottom: 1px solid var(--line-soft); }
+.asg-k { display: block; font-size: 12.5px; font-weight: 700; color: var(--ink-soft); }
+.asg-top h3 { margin: 2px 0 0; font-size: 20px; color: var(--navy); }
+.asg-due { flex: none; font-size: 13px; font-weight: 750; color: #6b4c00; background: #fbefc9; border-radius: 999px; padding: 5px 12px; }
+.asg-block + .asg-block { margin-top: var(--s4); }
+.asg-block h4 { margin: 0 0 6px; font-size: 14.5px; color: var(--navy); }
+.asg-block p, .asg-block li { font-size: 14.5px; line-height: 1.6; color: var(--ink); }
+.asg-block p { margin: 0 0 8px; max-width: 72ch; }
+.asg-block ul, .asg-block ol { margin: 4px 0 8px; padding-left: 20px; max-width: 72ch; }
+.asg-block li + li { margin-top: 3px; }
+.asg-wait { color: var(--ink-soft) !important; font-style: italic; }
+.asg-sub { margin-top: 6px !important; color: var(--ink-soft) !important; }
+.asg-foot { display: flex; align-items: center; justify-content: space-between; gap: var(--s3); flex-wrap: wrap;
+  margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line-soft); }
+.asg-foot p { margin: 0; font-size: 13.5px; color: var(--ink-soft); max-width: 60ch; }
+.asg-tpl .mh-t p { margin: 2px 0 0; font-size: 12.5px; color: var(--ink-soft); }

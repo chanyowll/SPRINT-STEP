@@ -363,6 +363,7 @@ page = f"""<!doctype html>
 <script src="submissions-data.js"></script>
 <script src="site-clock.js"></script>
 <script src="materials-data.js"></script>
+<script src="assignments-data.js"></script>
 <script src="announcements-data.js"></script>
 <script src="chat-data.js"></script>
 <script src="capstone-data.js"></script>

@@ -422,6 +422,17 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .dv-table.o-all th .note { overflow-wrap: normal; word-break: normal; min-height: 2.6em; }
 .o-file { display: flex; align-items: center; flex-wrap: wrap; gap: 0; }
 .o-file .no { color: var(--ink-3); font-size: 12.5px; }
+/* ---------- Assignments ---------- */
+.as-body { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 1100px) { .as-body { grid-template-columns: minmax(0, 1fr); } }
+.as-body textarea.in { min-height: 230px; line-height: 1.5; }
+.as-tpl { border: 1px dashed var(--rule); border-radius: 8px; padding: 14px; display: grid; gap: 10px; background: #fafbfc; }
+.as-tpl .f { display: flex; align-items: center; gap: 10px; }
+.as-tpl .f b { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 6px; background: var(--blue-2); color: var(--blue); font-size: 11px; }
+.as-tpl .f span { min-width: 0; }
+.as-tpl .f span i { display: block; font-style: normal; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.as-tpl .f span small { color: var(--ink-3); }
+.as-tpl .acts { display: flex; gap: 8px; flex-wrap: wrap; }
 /* ---------- Objectives and Tasks ---------- */
 .wp-layout { display: grid; grid-template-columns: minmax(0, 1fr) 400px; grid-template-areas: "bar ." "list side" "hid side"; column-gap: 18px; align-items: start; }
 .wp-main { display: contents; }
@@ -520,6 +531,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <div class="grp">This Week and Home</div>
       <button data-s="announcements"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6"/><path d="M19 6a8 8 0 0 1 0 12"/></svg>Announcements<span class="ct hot" id="ct-ann"></span></button>
       <button data-s="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8" fill="currentColor"/><circle cx="18" cy="13.5" r=".8" fill="currentColor"/></svg>Games<span class="ct" id="ct-game"></span></button>
+      <button data-s="assignments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M8 12h8M8 16h5"/></svg>Assignments</button>
       <button data-s="articles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M18 8h2v10a2 2 0 0 1-2 2"/><path d="M8 8h6M8 12h6M8 16h4"/></svg>Articles<span class="ct" id="ct-art"></span></button>
       <div class="grp">Reports</div>
       <button data-s="objectives"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Objectives and Tasks</button>
@@ -732,6 +744,32 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         </div>
       </section>
 
+      <!-- ===================== Assignments (This Week) ===================== -->
+      <section class="sec" data-sec="assignments" hidden>
+        <div class="sec-head">
+          <div><h1>Assignments</h1><p>Each week's team output: the instructions and the template deck. Teams see them on This Week, under Materials and session replay.</p></div>
+        </div>
+        <div class="imp-note warn" id="as-note" hidden></div>
+        <div class="toolbar">
+          <label class="field"><span>Week</span><select class="in" id="as-week" style="width:360px"></select></label>
+          <span class="att-status" id="as-status" role="status" aria-live="polite" style="margin-left:auto;align-self:center"></span>
+        </div>
+        <div class="card">
+          <header><h2 id="as-title">Week</h2><span class="sub" id="as-sub"></span></header>
+          <div class="body as-body">
+            <label class="field"><span>Instructions</span>
+              <textarea class="in" id="as-text" rows="11" placeholder="What the team should do and hand in this week.&#10;&#10;Start a line with - for a bullet point. Leave a blank line between paragraphs."></textarea>
+              <small>Leave it empty to show the week's learning goals until you post instructions.</small>
+            </label>
+            <div class="field"><span>Template deck</span>
+              <div class="as-tpl" id="as-tpl"></div>
+            </div>
+          </div>
+          <div class="foot"><span class="note" id="as-foot"></span><span class="sp"></span>
+            <button class="btn pri" id="as-save" type="button">Save instructions</button></div>
+        </div>
+      </section>
+
       <!-- ===================== Objectives and Tasks (DOST Form 5 work plan) ===================== -->
       <section class="sec" data-sec="objectives" hidden>
         <div class="sec-head">
@@ -821,6 +859,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 <script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
 <script src="materials-data.js"></script>
+<script src="assignments-data.js"></script>
 <script src="panelplan-data.js"></script>
 <script src="scoresheets-data.js"></script>
 <script src="announcements-data.js"></script>
@@ -2892,6 +2931,60 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   (async function dGoLive() {
     for (let i = 0; i < 15 && !dLive(); i++) await new Promise(r => setTimeout(r, 400));
     if (dLive()) await dLoad();
+  })();
+
+  /* =====================================================================
+     Assignments: each week's instructions and template deck (assignments-data.js)
+     ===================================================================== */
+  TITLES.assignments = "Assignments";
+  const AS = window.STEP_ASSIGN;
+  let asRows = {}, asLive = false;
+  const asWeekSel = $("#as-week");
+  asWeekSel.innerHTML = (SCH ? SCH.weeks : []).map(w => `<option value="${w.week}">Week ${w.week} · ${esc(w.short)}${w.output ? "" : " (no weekly upload)"}</option>`).join("");
+  asWeekSel.value = String(SCH && SCH.byWeek(NOW) && SCH.byWeek(NOW).output ? NOW : ((SCH ? SCH.teachingWeeks() : []).find(w => w.week >= NOW) || {}).week || NOW);
+  const asSt = (t, c) => { const el = $("#as-status"); el.className = "att-status" + (c ? " " + c : ""); el.innerHTML = t; };
+  const asKb = n => !n ? "" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
+  function asPaint() {
+    const wk = +asWeekSel.value, w = SCH ? SCH.byWeek(wk) : null, a = asRows[wk] || null;
+    $("#as-title").textContent = "Week " + wk + (w ? " · " + w.short : "");
+    const due = w && w.output && SCH.dueOf ? SCH.dueOf(wk) : null;
+    $("#as-sub").textContent = due ? "Due " + new Date(due).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric" }) + ", 12:00 NN" : (w && !w.output ? "No weekly upload this week" : "");
+    $("#as-text").value = a ? a.instructions : "";
+    const t = a && a.template;
+    $("#as-tpl").innerHTML = (t ? `<div class="f"><b>${esc((t.name.split(".").pop() || "").toUpperCase().slice(0, 4))}</b><span><i title="${esc(t.name)}">${esc(t.name)}</i><small>${asKb(t.size)}</small></span></div>` : `<div class="note">No template posted for this week yet.</div>`)
+      + `<div class="acts"><label class="btn sm"><input type="file" id="as-file" hidden accept=".ppt,.pptx,.key,.pdf,.doc,.docx,.xls,.xlsx,.zip">${t ? "Replace template" : "Upload template"}</label>${t ? `${t.url ? `<a class="btn sm" href="${t.url}" target="_blank" rel="noopener">Download</a>` : ""}<button class="btn sm ghost" type="button" id="as-rm">Remove</button>` : ""}</div>`;
+    $("#as-foot").textContent = a && a.updated_at ? "Last saved " + new Date(a.updated_at).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "Nothing saved for this week yet.";
+    ["#as-save", "#as-text"].forEach(s => $(s).disabled = !asLive);
+    const f = $("#as-file"); if (f) f.disabled = !asLive;
+  }
+  async function asLoad() {
+    try { asRows = await AS.all(); $("#as-note").hidden = true; asLive = true; }
+    catch (e) { $("#as-note").hidden = false; $("#as-note").textContent = e.message; asLive = false; }
+    asPaint();
+  }
+  asWeekSel.addEventListener("change", asPaint);
+  $("#as-save").addEventListener("click", async () => {
+    const wk = +asWeekSel.value; asSt('<span class="spin"></span>Saving…', "busy");
+    try { await AS.saveInstructions(wk, $("#as-text").value); asRows = await AS.all(); asPaint(); asSt("Saved. Teams see it on This Week.", "ok"); }
+    catch (e) { asSt("Couldn't save: " + esc(e.message), "bad"); }
+  });
+  $("#as-tpl").addEventListener("change", async e => {
+    const inp = e.target.closest("#as-file"); if (!inp || !inp.files[0]) return;
+    const wk = +asWeekSel.value; asSt('<span class="spin"></span>Uploading ' + esc(inp.files[0].name) + "…", "busy");
+    try { await AS.uploadTemplate(wk, inp.files[0]); asRows = await AS.all(); asPaint(); asSt("Template posted for Week " + wk + ".", "ok"); }
+    catch (err) { asSt(esc(err.message), "bad"); }
+  });
+  $("#as-tpl").addEventListener("click", async e => {
+    if (!e.target.closest("#as-rm")) return;
+    const wk = +asWeekSel.value; asSt('<span class="spin"></span>Removing…', "busy");
+    try { await AS.removeTemplate(wk); asRows = await AS.all(); asPaint(); asSt("Template removed.", "ok"); }
+    catch (err) { asSt(esc(err.message), "bad"); }
+  });
+  asPaint();
+  if (demo || !AS) { $("#as-note").hidden = false; $("#as-note").textContent = "Demo view: sign in with a tech account to post assignments."; }
+  else (async function asGoLive() {
+    for (let i = 0; i < 15 && !SBC(); i++) await new Promise(r => setTimeout(r, 400));
+    if (SBC() && await AS.isLive()) asLoad();
   })();
 
   /* =====================================================================
