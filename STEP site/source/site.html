@@ -11594,11 +11594,7 @@ window.__renderMyTeam();
         <div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div>
         ${due ? `<span class="asg-due">Due ${esc(dayTxt(due))}, 12:00 NN</span>` : ""}
       </div>
-      <div class="asg-block"><h4>Instructions</h4>${instr}</div>
-      <div class="asg-foot">
-        <p>Upload the slide deck and the five-minute video below before the deadline.${fb ? " The panel reviews it at the feedback session on " + esc(dayTxt(fb.date)) + "." : ""}</p>
-        <button class="btn primary" type="button" data-asg-go>Go to the upload</button>
-      </div>` : `
+      <div class="asg-block"><h4>Instructions</h4>${instr}</div>` : `
       <div class="asg-top"><div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div></div>
       <div class="asg-block"><p>${esc(NOOUT[wk] || "No team output this week.")}</p>${a && a.instructions ? fmt(a.instructions) : ""}</div>`;
     const tplCard = (output || tpl) ? `
@@ -11639,7 +11635,6 @@ window.__renderMyTeam();
       el.innerHTML = `<img class="od-slide" src="${tpl.url}" alt="Week ${wk} template">`; return; }
     el.innerHTML = `<div class="od-none"><b>${esc(ext(tpl.name))}</b><span>No preview for this file type. Download it to open.</span></div>`;
   }
-  box.addEventListener("click", e => { if (e.target.closest("[data-asg-go]")) { const s = document.getElementById("submit"); if (s) s.scrollIntoView({ behavior: "smooth", block: "start" }); } });
   paint(null);
   (async () => {
     const A = window.STEP_ASSIGN; if (!A) return;
