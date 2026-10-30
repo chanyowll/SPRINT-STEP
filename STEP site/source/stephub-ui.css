@@ -6631,3 +6631,16 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .site-footer .fp-hit:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { .site-footer .fp-hit::after { transition: none; } }
 @media (max-width: 700px) { .site-footer .fp-strip { width: 100%; } }
+
+/* Footer columns: one top line, one rhythm */
+.site-footer .foot-cols { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1fr); gap: var(--s5) var(--s6); align-items: start; }
+.site-footer .foot-cols h4 { margin: 0 0 12px; font-size: 15px; line-height: 1.2; letter-spacing: .01em; }
+.site-footer .foot-cols .brand { display: inline-block; }
+.site-footer .foot-cols .brand img { height: 52px; width: auto; margin: 0 0 12px; display: block; }
+.site-footer .foot-cols p.small { margin: 0; line-height: 1.6; max-width: 46ch; }
+.site-footer .foot-links { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, max-content); gap: 6px 28px; }
+.site-footer .foot-links a { text-decoration: none; color: #dbe7f3; font-size: 14px; line-height: 1.6; }
+.site-footer .foot-links a:hover, .site-footer .foot-links a:focus-visible { color: #fff; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 900px) { .site-footer .foot-cols { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .site-footer .foot-cols > div:first-child { grid-column: 1 / -1; } }
+@media (max-width: 560px) { .site-footer .foot-cols { grid-template-columns: minmax(0, 1fr); } }
