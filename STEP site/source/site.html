@@ -11661,14 +11661,59 @@ window.__renderMyTeam();
   }
   /* a file, shown in its card: a PDF slide by slide, an Office file through
      Microsoft's viewer, a picture as it is; anything else just downloads */
+  /* Click the small preview to see the file large */
+  function enlarge(f, label, from) {
+    const kind = ext(f.name).toLowerCase(), src = f.view || f.url;
+    if (!src) return;
+    const back = document.activeElement;
+    const lb = document.createElement("div");
+    lb.className = "asg-lb";
+    lb.setAttribute("role", "dialog"); lb.setAttribute("aria-modal", "true");
+    lb.setAttribute("aria-label", "Week " + wk + " " + label);
+    lb.innerHTML = `<div class="asg-lb-in"><button type="button" class="asg-lb-x" aria-label="Close">&times;</button>
+      <div class="od-prev asg-lb-box"></div></div>`;
+    document.body.appendChild(lb);
+    document.body.classList.add("modal-open");
+    const box = lb.querySelector(".asg-lb-box");
+    const close = () => {
+      if (window.StepDeck) window.StepDeck.stop(box);
+      document.removeEventListener("keydown", onKey);
+      lb.remove(); document.body.classList.remove("modal-open");
+      if (back && back.focus) back.focus();
+    };
+    const onKey = (e) => { if (e.key === "Escape") close(); };
+    document.addEventListener("keydown", onKey);
+    lb.addEventListener("click", (e) => { if (e.target === lb || e.target.closest(".asg-lb-x")) close(); });
+    lb.querySelector(".asg-lb-x").focus();
+    if (kind === "pdf" && window.StepDeck) {
+      const b = from && from.querySelector(".dk-badge");
+      const at = b ? (parseInt(b.textContent, 10) || 1) : 1;
+      Promise.resolve(window.StepDeck.mount(box, src, { title: "Week " + wk + " " + label })).then(() => {
+        const sc = box.querySelector(".dk-scroll");
+        if (sc && at > 1) { sc.style.scrollBehavior = "auto"; sc.scrollTop = (at - 1) * sc.clientHeight; sc.style.scrollBehavior = ""; }
+        if (sc) sc.focus();
+      });
+    } else if (["ppt", "pptx", "doc", "docx", "xls", "xlsx"].includes(kind)) {
+      box.innerHTML = `<iframe title="Week ${wk} ${label}" allowfullscreen
+        src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(src)}"></iframe>`;
+    } else if (["png", "jpg", "jpeg", "webp", "gif"].includes(kind)) {
+      box.innerHTML = `<img class="od-slide" src="${src}" alt="Week ${wk} ${label}">`;
+    } else close();
+  }
   function preview(el, f, label) {
     if (!el) return;
+    if (!el.__lbWired) {
+      el.__lbWired = true;
+      el.addEventListener("click", () => { if (el.__lbFile && !el.querySelector(".od-none")) enlarge(el.__lbFile, el.__lbLabel, el); });
+    }
+    el.__lbFile = f; el.__lbLabel = label;
+    el.classList.add("asg-zoom"); el.title = "Click to view larger";
     const kind = ext(f.name).toLowerCase(), src = f.view || f.url;
     if (!src) { el.innerHTML = `<div class="od-none"><b>${esc(ext(f.name))}</b><span>Preview unavailable right now</span></div>`; return; }
     if (kind === "pdf" && window.StepDeck) { window.StepDeck.mount(el, src, { title: "Week " + wk + " " + label }); return; }
     if (["ppt", "pptx", "doc", "docx", "xls", "xlsx"].includes(kind)) {
       el.innerHTML = `<iframe title="Week ${wk} ${label} preview" loading="lazy" allowfullscreen
-        src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(src)}"></iframe>`; return; }
+        src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(src)}"></iframe><span class="asg-hit" aria-hidden="true"></span>`; return; }
     if (["png", "jpg", "jpeg", "webp", "gif"].includes(kind)) {
       el.innerHTML = `<img class="od-slide" src="${src}" alt="Week ${wk} ${label}">`; return; }
     el.innerHTML = `<div class="od-none"><b>${esc(ext(f.name))}</b><span>No preview for this file type. Download it to open.</span></div>`;

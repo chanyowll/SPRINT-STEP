@@ -6708,3 +6708,13 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .asg-tplcard.asg-none .mathead { margin-bottom: 0; }
 .asg-col > .asg-file { flex: 1 1 auto; display: flex; flex-direction: column; }
 .asg-file .asg-prev { aspect-ratio: auto; flex: 1 1 auto; min-height: 260px; }
+
+/* Assignment: click the preview to view it large */
+.asg-prev.asg-zoom { cursor: zoom-in; }
+.asg-prev .asg-hit { position: absolute; inset: 0; z-index: 1; }
+.asg-lb { position: fixed; inset: 0; z-index: 2100; background: rgba(8, 24, 44, .86); display: grid; place-items: center; padding: 3vh 3vw; cursor: zoom-out; }
+.asg-lb-in { position: relative; width: min(1280px, 94vw, calc(88vh * 16 / 10)); cursor: default; }
+.asg-lb-box { aspect-ratio: 16 / 10; background: #eef2f7; box-shadow: 0 20px 60px rgba(0, 0, 0, .4); }
+.asg-lb-x { position: absolute; top: -44px; right: 0; width: 36px; height: 36px; border: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, .14); color: #fff; font-size: 24px; line-height: 1; cursor: pointer; }
+.asg-lb-x:hover, .asg-lb-x:focus-visible { background: rgba(255, 255, 255, .28); outline: 2px solid #fff; outline-offset: 2px; }
