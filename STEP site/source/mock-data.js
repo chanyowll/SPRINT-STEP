@@ -852,7 +852,7 @@ window.MOCK = (function () {
       },
       { n: 9, group: "The case", title: "Marketing and commercial viability", kind: "prose",
         guide: "Competitor matrix, production requirements, target distribution, sales forecast.",
-        week: 4, revisit: [1, 7, 8], source: "Competitive Advantage", status: "draft",   /* built on the market map (W1), go-to-market (W7) and selling (W8) */
+        week: 4, revisit: [7, 8], source: "Competitive Advantage", status: "draft",   /* comes back in go-to-market (W7) and selling (W8) */
         draft: `Target beachhead market consists of industrial and municipal clients in ${t.region}. Competitive analysis indicates ${t.name} delivers 35% cost savings with domestic fabrication and immediate technical support.`
       },
       { n: 10, group: "Plan", title: "Methodology", kind: "prose",

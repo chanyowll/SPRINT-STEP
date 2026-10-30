@@ -336,7 +336,7 @@ function refreshCounts() {
   /* this week's items: the ones the current week's topic feeds, plus any it revisits */
   const SCH = window.STEP_SCHEDULE, wk = Number(CAP.week_no) || 0;
   const wInfo = SCH && SCH.byWeek ? SCH.byWeek(wk) : null;
-  const mine = FORM.filter(f => Number(f.week) === wk || [].concat(f.revisit || []).map(Number).includes(wk));
+  const mine = FORM.filter(f => Number(f.week) === wk || (wk > Number(f.week) && [].concat(f.revisit || []).map(Number).includes(wk)));
   const due = SCH && SCH.dueOf ? SCH.dueOf(wk) : null;
   const dueTxt = due ? "Due " + new Date(due).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric" }) + ", 12:00 NN" : "";
   const ST = { submitted: ["Submitted", "ok"], started: ["In draft", "draft"], none: ["Not started", "todo"] };
