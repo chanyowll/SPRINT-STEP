@@ -6614,3 +6614,10 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
   right: clamp(10px, 1.5vw, 18px);
   width: min(392px, 31vw); height: auto; pointer-events: none; }
 @media (max-width: 700px) { .hero-photo > .hero-logos { width: calc((100% - 2 * var(--s4)) * .7); top: 8px; } }
+
+/* Footer: the partner logos on their own row under the three columns */
+.site-footer .foot-partners { position: relative; margin-top: var(--s5); padding-top: var(--s5); display: flex; justify-content: center; }
+/* the rule lines up with the text above, not the page gutter */
+.site-footer .foot-partners::before { content: ""; position: absolute; top: 0; left: var(--s4); right: var(--s4); height: 1px; background: rgba(255, 255, 255, .14); }
+.site-footer .foot-partners img { display: block; height: 44px; width: auto; max-width: 100%; object-fit: contain; }
+@media (max-width: 700px) { .site-footer .foot-partners img { height: auto; width: 100%; } }
