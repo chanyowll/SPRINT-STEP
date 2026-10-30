@@ -6444,7 +6444,7 @@ window.MOCK = (function () {
       },
       { n: 3, group: "Project profile", title: "Site(s) of implementation", kind: "sites",
         guide: "Location/s where the project will be conducted.",
-        week: 1, source: "Program Launch", status: "reviewed",
+        week: 2, source: "Program Launch", status: "reviewed",
         value: [
           { country: "Philippines", region: t.region, province: t.city, district: "1st", municipality: t.city, barangay: "Poblacion" },
           { country: "Philippines", region: t.region, province: t.city, district: "2nd", municipality: t.city, barangay: "Industrial Zone" }
@@ -6452,17 +6452,17 @@ window.MOCK = (function () {
       },
       { n: 4, group: "Project profile", title: "Type of research", kind: "choice",
         guide: "Pre-commercialization — activities that bridge R&D and commercialization.",
-        week: 1, source: "Program Launch", status: "reviewed",
+        week: 10, source: "Program Launch", status: "reviewed",
         value: { precommercialization: true }
       },
       { n: 5, group: "Project profile", title: "R&D priority area, program and SDG", kind: "agenda",
         guide: "Which HNRDA agenda the project falls under and which SDGs it addresses.",
-        week: 1, source: "Program Launch", status: "reviewed",
+        week: 2, source: "Program Launch", status: "reviewed",
         value: { area: "Industry & Emerging Tech", commodity: t.short, priorityTopic: t.technology_title, sectorIndustry: "Manufacturing & Infrastructure", sectorBasic: "Applied Science", sdg: "SDG 9 (Industry, Innovation & Infrastructure) & SDG 11 (Sustainable Cities)" }
       },
       { n: 6, group: "The case", title: "Executive summary and startup background", kind: "prose",
         guide: "Briefly discusses what the proposal is about, founders, value proposition, and IP status.",
-        week: 2, revisit: 9, source: "Value Proposition", status: "submitted", limit: 200,   /* revisited in Pitching Skills: the summary is the pitch in writing */
+        week: 3, revisit: 9, source: "Value Proposition", status: "submitted", limit: 200,   /* revisited in Pitching Skills: the summary is the pitch in writing */
         draft: `${t.name} is a university spin-off from ${t.implementing_agency} founded by ${lead.name} and research co-inventors. The team developed ${t.technology_title}. Field validation in ${t.city} demonstrates substantial cost reduction and operational advantage over imported solutions. IP protection includes a Philippine patent / utility model application. Grant funds will deploy industrial-scale pilot units across target partner sites.`
       },
       /* Item 7 has three parts on DOST Form 2 — 7.1 Rationale/Significance
@@ -6498,12 +6498,12 @@ window.MOCK = (function () {
       },
       { n: 13, group: "Plan", title: "Potential outcomes", kind: "prose",
         guide: "Long-term results delivered 3 years after grant conclusion.",
-        week: 5, source: "Business Model Validation", status: "submitted",
+        week: 7, source: "Business Model Validation", status: "submitted",
         draft: `Within three years: commercial deployment of ${t.short} across national facilities, generating sustained revenue, sustainable local manufacturing, and regional employment.`
       },
       { n: 14, group: "Plan", title: "Potential impacts (2Is)", kind: "prose",
         guide: "Social and economic impact dimensions.",
-        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
+        week: 3, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 15, group: "Plan", title: "Target beneficiaries", kind: "prose",
         guide: "Direct and indirect beneficiary groups.",
@@ -6517,15 +6517,15 @@ window.MOCK = (function () {
       },
       { n: 17, group: "Compliance", title: "Gender and Development (GAD) score", kind: "prose",
         guide: "GAD checklist score and gender equality integrations.",
-        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
+        week: 9, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 18, group: "Compliance", title: "Limitations of the project", kind: "prose",
         guide: "Constraints and boundary limits of the project.",
-        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
+        week: 8, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 19, group: "Compliance", title: "Risks, assumptions and risk management plan", kind: "prose",
         guide: "Key risks and mitigation measures.",
-        week: 11, source: "FASTRAC Proposal Workshop", status: "locked"
+        week: 5, source: "FASTRAC Proposal Workshop", status: "locked"
       },
       { n: 20, group: "Compliance", title: "Literature cited", kind: "prose",
         guide: "Full bibliography and technical citations.",
@@ -6554,7 +6554,7 @@ window.MOCK = (function () {
       },
       { n: 23, group: "Resources", title: "Other ongoing projects of the project leader", kind: "projects",
         guide: "Current active research grants handled by project leader.",
-        week: 11, source: "FASTRAC Proposal Workshop", status: "locked",
+        week: 9, source: "FASTRAC Proposal Workshop", status: "locked",
         value: { count: "", rows: [{ title: "", agency: "", role: "" }] }
       },
       { n: 24, group: "Attachments", title: "Other supporting documents", kind: "attachments",
