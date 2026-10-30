@@ -1729,7 +1729,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     /* the template: its own card (same heading style as the others), no preview;
        Download once it is posted */
     const tplBar = `
-      <article class="matcard asg-tplcard${tpl ? "" : " empty"}">
+      <article class="matcard asg-tplcard${tpl ? "" : " asg-none"}">
         <div class="mathead">
           <div class="mh-t"><h3>Template deck</h3><p>Start your output from this file</p></div>
           <span class="matcount">${tpl ? "Ready" : "Not yet posted"}</span>

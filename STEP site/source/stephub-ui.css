@@ -6705,6 +6705,6 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .asg:not(.one) { align-items: stretch; }
 .asg-col > .asg-brief { flex: 1 1 auto; }
 .asg-col > .asg-tplcard { flex: 0 0 auto; }
-.asg-tplcard.empty .mathead { margin-bottom: 0; }
+.asg-tplcard.asg-none .mathead { margin-bottom: 0; }
 .asg-col > .asg-file { flex: 1 1 auto; display: flex; flex-direction: column; }
 .asg-file .asg-prev { aspect-ratio: auto; flex: 1 1 auto; min-height: 260px; }
