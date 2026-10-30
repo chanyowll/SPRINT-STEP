@@ -6608,3 +6608,10 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .cap-week .cw-key span { display: inline-flex; align-items: center; gap: 6px; }
 @media (max-width: 1100px) { .cap-week .cw-list { grid-template-columns: minmax(0, 1fr); } }
 @media (max-width: 820px) { .cap-head-form { grid-template-columns: minmax(0, 1fr); } }
+
+/* Home cover: the program's partner logos, top right, over the photo / film */
+.hero-photo > .hero-logos { position: absolute; z-index: 2; top: clamp(18px, 3vw, 36px);
+  right: max(var(--s4), calc((100% - 1200px) / 2 + var(--s4)));
+  width: min(560px, 44vw); height: auto; pointer-events: none;
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, .35)); }
+@media (max-width: 700px) { .hero-photo > .hero-logos { width: calc(100% - 2 * var(--s4)); top: 14px; } }
