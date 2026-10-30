@@ -98,6 +98,7 @@
         <div class="cap-meter"><i id="ca-form-bar"></i></div>
         <div class="s" id="ca-form-sub">—</div>
       </div>
+      <div class="cap-art cap-week" id="ca-week" style="max-width:560px"></div>
     </div>
     <div class="chips mt-4" id="ca-chips"></div>
   </div>
@@ -330,12 +331,34 @@ function refreshCounts() {
     "Demo Day " + new Date(CAP.demo_day).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", month: "long", day: "numeric" }),
   ].map(c => `<span class="chip">${c}</span>`).join("");
 
+  /* this week's items: the ones the current week's topic feeds, plus any it revisits */
+  const SCH = window.STEP_SCHEDULE, wk = Number(CAP.week_no) || 0;
+  const wInfo = SCH && SCH.byWeek ? SCH.byWeek(wk) : null;
+  const mine = FORM.filter(f => Number(f.week) === wk || [].concat(f.revisit || []).map(Number).includes(wk));
+  const due = SCH && SCH.dueOf ? SCH.dueOf(wk) : null;
+  const dueTxt = due ? "Due " + new Date(due).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric" }) + ", 12:00 NN" : "";
+  const ST = { submitted: ["Submitted", "ok"], started: ["In draft", "draft"], none: ["Not started", "todo"] };
+  document.getElementById("ca-week").innerHTML = `
+    <div class="k">Week ${wk} · items to work on</div>
+    <div class="cw-topic">${wInfo ? esc(wInfo.short) : ""}${dueTxt ? ` <span>· ${dueTxt}</span>` : ""}</div>
+    ${mine.length ? `<ul class="cw-list">${mine.map(f => {
+        const [lab, cls] = ST[stateOf(f)];
+        const again = Number(f.week) !== wk ? " (revisit)" : "";
+        return `<li><button type="button" data-cw="${f.n}"><b>Item ${f.n}</b><span>${esc(f.title)}${again}</span><em class="${cls}">${lab}</em></button></li>`;
+      }).join("")}</ul>`
+      : `<div class="s">No new items this week. Use it to finish any item still open.</div>`}`;
+
   requestAnimationFrame(() => {
     document.getElementById("ca-form-bar").style.width = (sent / FORM.length * 100) + "%";
     document.getElementById("ca-deck-bar").style.width = (WDECK.length ? slidesIn / WDECK.length * 100 : 0) + "%";
   });
 }
 refreshCounts();
+document.getElementById("ca-week").addEventListener("click", e => {
+  const b = e.target.closest("[data-cw]"); if (!b) return;
+  openItem(+b.dataset.cw);
+  const ed = document.getElementById("editor"); if (ed) ed.scrollIntoView({ behavior: "smooth", block: "start" });
+});
 
 /* =====================================================================
    The two capstone workspaces are two views of this page, reached from

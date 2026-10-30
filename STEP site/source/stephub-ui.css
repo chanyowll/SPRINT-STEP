@@ -6584,3 +6584,17 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
   -webkit-mask-image: linear-gradient(#000 calc(100% - 160px), transparent);
           mask-image: linear-gradient(#000 calc(100% - 160px), transparent);
 }
+
+/* Capstone: this week's FASTRAC items, in the hero beside Progress */
+.cap-week .cw-topic { color: #fff; font-weight: 700; font-size: 16px; margin: 6px 0 10px; }
+.cap-week .cw-topic span { color: #c8d8e8; font-weight: 500; font-size: 13.5px; }
+.cap-week .cw-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.cap-week .cw-list button { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 10px; align-items: center;
+  padding: 7px 10px; border-radius: 8px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14); color: #fff; font-size: 13.5px; }
+.cap-week .cw-list button:hover, .cap-week .cw-list button:focus-visible { background: rgba(255,255,255,.14); outline: none; }
+.cap-week .cw-list b { color: var(--gold); font-weight: 800; white-space: nowrap; }
+.cap-week .cw-list span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cap-week .cw-list em { font-style: normal; font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 99px; white-space: nowrap; }
+.cap-week .cw-list em.ok { background: #d9f2e4; color: #1d6b45; }
+.cap-week .cw-list em.draft { background: #fbefc9; color: #6b4c00; }
+.cap-week .cw-list em.todo { background: rgba(255,255,255,.16); color: #dfe8f1; }
