@@ -1718,6 +1718,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
           <div class="mh-t"><h3>Template deck</h3><p>Start your output from this file</p></div>
           <span class="matcount">${tpl ? "Ready" : "Not yet posted"}</span>
         </div>
+        ${tpl ? `<div class="od-prev asg-prev" id="asg-prev" aria-label="Preview of the Week ${wk} template"></div>` : ""}
         <ul class="mats">${tpl ? `
           <li>
             <span class="ft" aria-hidden="true"><b>${esc(ext(tpl.name))}</b></span>
@@ -1730,7 +1731,24 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
         </ul>
       </article>` : "";
     box.classList.toggle("one", !tplCard);
+    box.classList.toggle("has-tpl", !!tpl);
+    const old = document.getElementById("asg-prev"); if (old && window.StepDeck) window.StepDeck.stop(old);
     box.innerHTML = `<article class="asg-brief">${brief}</article>${tplCard}`;
+    if (tpl) preview(document.getElementById("asg-prev"), tpl);
+  }
+  /* the template, shown in the card: a PDF slide by slide, an Office file through
+     Microsoft's viewer, a picture as it is; anything else just downloads */
+  function preview(el, tpl) {
+    if (!el) return;
+    const kind = ext(tpl.name).toLowerCase();
+    if (!tpl.url) { el.innerHTML = `<div class="od-none"><b>${esc(ext(tpl.name))}</b><span>Preview unavailable right now</span></div>`; return; }
+    if (kind === "pdf" && window.StepDeck) { window.StepDeck.mount(el, tpl.url, { title: "Week " + wk + " template" }); return; }
+    if (["ppt", "pptx", "doc", "docx", "xls", "xlsx"].includes(kind)) {
+      el.innerHTML = `<iframe title="Week ${wk} template preview" loading="lazy" allowfullscreen
+        src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(tpl.url)}"></iframe>`; return; }
+    if (["png", "jpg", "jpeg", "webp", "gif"].includes(kind)) {
+      el.innerHTML = `<img class="od-slide" src="${tpl.url}" alt="Week ${wk} template">`; return; }
+    el.innerHTML = `<div class="od-none"><b>${esc(ext(tpl.name))}</b><span>No preview for this file type. Download it to open.</span></div>`;
   }
   box.addEventListener("click", e => { if (e.target.closest("[data-asg-go]")) { const s = document.getElementById("submit"); if (s) s.scrollIntoView({ behavior: "smooth", block: "start" }); } });
   paint(null);
