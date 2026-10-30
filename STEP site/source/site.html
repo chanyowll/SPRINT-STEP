@@ -9419,6 +9419,9 @@ const daysAway = iso => {
       const t = m.team_id ? teamName(m.team_id) : (m.teams || []).map(teamName).join(" & ");
       return t ? r + " (" + t + ")" : r;
     };
+    /* left off the members list (they can still read and post in the room) */
+    const HIDDEN = ["josh guico", "mary joy piano", "step tech team"];
+    const shown = rows => rows.filter(m => !HIDDEN.includes(String(m.name || "").trim().toLowerCase()));
     function draw(rows) {
       const n = rows.length, joined = rows.filter(m => m.joined).length;
       head.textContent = n + (n === 1 ? " member" : " members") + (joined < n ? " · " + (n - joined) + " not yet signed up" : "");
@@ -9438,14 +9441,14 @@ const daysAway = iso => {
       const r = ROOM, c = cache[r];
       if (c && Date.now() - c.at < 60000) { draw(c.rows); return; }
       head.textContent = "Members"; body.innerHTML = `<p class="ch-mnone">Loading…</p>`;
-      try { const rows = await CH.members(r); if (r !== ROOM) return; cache[r] = { at: Date.now(), rows }; noteSize(r, rows.length); draw(rows); }
+      try { const rows = shown(await CH.members(r)); if (r !== ROOM) return; cache[r] = { at: Date.now(), rows }; noteSize(r, rows.length); draw(rows); }
       catch (e) { if (r === ROOM) body.innerHTML = `<p class="ch-mnone">Couldn't load the list: ${esc(e.message || e)}</p>`; }
     }
     function close() { panel.hidden = true; btn.setAttribute("aria-expanded", "false"); }
     /* the count is fetched for the room on screen as soon as it opens, so the badge is right before anyone clicks */
     async function size(r) {
       if (!live || roomSize[r]) return;
-      try { const rows = await CH.members(r); cache[r] = { at: Date.now(), rows }; noteSize(r, rows.length); } catch (e) {}
+      try { const rows = shown(await CH.members(r)); cache[r] = { at: Date.now(), rows }; noteSize(r, rows.length); } catch (e) {}
     }
     window.__gcRoomSize = size;
     btn.addEventListener("click", () => { panel.hidden ? open() : close(); });
