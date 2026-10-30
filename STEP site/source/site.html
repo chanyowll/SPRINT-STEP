@@ -11634,13 +11634,22 @@ window.__renderMyTeam();
           </li>` : `<li class="mats-empty">${empty}</li>`}
         </ul>
       </article>`;
+    /* the template: one slim bar, Download once it is posted */
+    const tplBar = `
+      <div class="asg-tplbar">
+        <span class="ft" aria-hidden="true"><b>${tpl ? esc(ext(tpl.name)) : "PPT"}</b></span>
+        <span class="mtext"><span class="mn">Template deck</span>
+          <span class="mm">${tpl ? `<span class="mf" title="${esc(tpl.name)}">${esc(tpl.name)}</span>${tpl.size ? " · " + esc(kb(tpl.size)) : ""}` : "Start your output from this file"}</span></span>
+        ${tpl && tpl.url ? `<a class="btn secondary dl" href="${tpl.url}" download="${esc(tpl.name)}" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
+          Download</a>` : `<span class="matcount">Not yet posted</span>`}
+      </div>`;
     const showFiles = output || guide || tpl;
     ["asg-guide", "asg-tpl"].forEach(id => { const el = document.getElementById(id); if (el && window.StepDeck) window.StepDeck.stop(el); });
     box.classList.toggle("one", !showFiles);
-    box.innerHTML = `<div class="asg-col"><article class="asg-brief">${brief}</article>${showFiles ? card("asg-tpl", tpl, "Template deck", "Start your output from this file", "template", "The STEP team posts this week's template here.") : ""}</div>`
+    box.innerHTML = `<div class="asg-col"><article class="asg-brief">${brief}</article>${showFiles ? tplBar : ""}</div>`
       + (showFiles ? `<div class="asg-col">${card("asg-guide", guide, "Detailed instructions", "Read the full assignment before you start", "instructions", "The STEP team posts the detailed instructions here.")}</div>` : "");
     if (guide) preview(document.getElementById("asg-guide"), guide, "instructions");
-    if (tpl) preview(document.getElementById("asg-tpl"), tpl, "template");
   }
   /* a file, shown in its card: a PDF slide by slide, an Office file through
      Microsoft's viewer, a picture as it is; anything else just downloads */
