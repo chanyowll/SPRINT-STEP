@@ -6611,7 +6611,6 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 
 /* Home cover: the program's partner logos, top right, over the photo / film */
 .hero-photo > .hero-logos { position: absolute; z-index: 2; top: clamp(10px, 1.5vw, 18px);
-  right: max(var(--s4), calc((100% - 1200px) / 2 + var(--s4)));
-  width: min(392px, 31vw); height: auto; pointer-events: none;
-  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, .35)); }
+  right: clamp(10px, 1.5vw, 18px);
+  width: min(392px, 31vw); height: auto; pointer-events: none; }
 @media (max-width: 700px) { .hero-photo > .hero-logos { width: calc((100% - 2 * var(--s4)) * .7); top: 8px; } }
