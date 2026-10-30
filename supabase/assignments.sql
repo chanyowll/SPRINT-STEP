@@ -1,5 +1,5 @@
 -- =====================================================================
--- STEP Hub — Weekly assignments (instructions + template deck)
+-- STEP Hub — Weekly assignments (quick instructions, detailed instructions file, template deck)
 -- Run once in the Supabase SQL Editor. Safe to run more than once.
 -- Everyone signed in can read; the tech team and admins post them.
 -- =====================================================================
@@ -12,6 +12,10 @@ CREATE TABLE IF NOT EXISTS public.assignments (
   updated_by     TEXT,
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+-- the detailed instructions file (added later; safe to re-run)
+ALTER TABLE public.assignments ADD COLUMN IF NOT EXISTS guide_path TEXT;
+ALTER TABLE public.assignments ADD COLUMN IF NOT EXISTS guide_name TEXT;
+ALTER TABLE public.assignments ADD COLUMN IF NOT EXISTS guide_size BIGINT;
 ALTER TABLE public.assignments ENABLE ROW LEVEL SECURITY;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.assignments TO authenticated;
 

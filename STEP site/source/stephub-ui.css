@@ -6673,3 +6673,9 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 @media (max-width: 900px) { .asg.has-tpl { grid-template-columns: minmax(0, 1fr); } }
 .asg-prev { aspect-ratio: 16 / 10; margin: var(--s2) 0 var(--s3); background: #eef2f7; }
 .asg-tpl .mats li { padding-top: var(--s2); }
+
+/* My Team's Work assignment: quick instructions + template on the left, detailed instructions on the right */
+.asg:not(.one) { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+@media (max-width: 900px) { .asg:not(.one) { grid-template-columns: minmax(0, 1fr); } }
+.asg-col { display: grid; gap: var(--s5); align-content: start; min-width: 0; }
+.asg-file .mats li { padding-top: var(--s2); }

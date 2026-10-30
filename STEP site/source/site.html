@@ -3420,14 +3420,25 @@
   }
   const slug = s => String(s || '').toLowerCase().replace(/[^a-z0-9.-]+/g, '-').replace(/^-+|-+$/g, '');
 
+  async function link(path, name) {
+    if (!path) return null;
+    try { const { data } = await client().storage.from(BUCKET).createSignedUrl(path, SIGNED, { download: name || true }); return data ? data.signedUrl : null; } catch (e) { return null; }
+  }
+  /* view links have no download header, so viewers (PDF, Office) can open them in place */
+  async function viewLink(path) {
+    if (!path) return null;
+    try { const { data } = await client().storage.from(BUCKET).createSignedUrl(path, SIGNED); return data ? data.signedUrl : null; } catch (e) { return null; }
+  }
+  async function file(path, name, size) {
+    if (!path) return null;
+    const [url, view] = await Promise.all([link(path, name), viewLink(path)]);
+    return { path, name: name || 'File', size: size || 0, url, view };
+  }
   async function shape(r) {
     if (!r) return null;
-    let url = null;
-    if (r.template_path) {
-      try { const { data } = await client().storage.from(BUCKET).createSignedUrl(r.template_path, SIGNED, { download: r.template_name || true }); url = data ? data.signedUrl : null; } catch (e) {}
-    }
     return { week: r.week_no, instructions: r.instructions || '', updated_at: r.updated_at,
-             template: r.template_path ? { path: r.template_path, name: r.template_name || 'Template', size: r.template_size || 0, url } : null };
+             guide: await file(r.guide_path, r.guide_name, r.guide_size),
+             template: await file(r.template_path, r.template_name, r.template_size) };
   }
 
   /** One week's assignment, or null when nothing is posted (or the table is missing). */
@@ -3458,31 +3469,39 @@
     if (error) throw new Error(error.message);
   }
 
-  /** Upload (or replace) a week's template deck. */
-  async function uploadTemplate(week, file) {
-    const sb = client();
-    if (file.size > 100e6) throw new Error('That file is over 100 MB. Compress it or share a Drive link in the instructions.');
-    const path = `w${week}/${Date.now()}-${slug(file.name).slice(-80)}`;
-    const up = await sb.storage.from(BUCKET).upload(path, file, { upsert: false, contentType: file.type || undefined });
-    if (up.error) throw new Error('Could not upload the template: ' + up.error.message);
-    const { data: old } = await sb.from('assignments').select('template_path').eq('week_no', week).maybeSingle();
-    const { error } = await sb.from('assignments').upsert({ week_no: week, template_path: path, template_name: file.name,
-      template_size: file.size, updated_by: await me(), updated_at: new Date().toISOString() }, { onConflict: 'week_no' });
+  /* kind: 'template' (the deck to start from) or 'guide' (the detailed instructions) */
+  const COL = k => (k === 'guide' ? 'guide' : 'template');
+
+  /** Upload (or replace) one of a week's two files. */
+  async function uploadFile(week, kind, f) {
+    const sb = client(), c = COL(kind);
+    if (f.size > 100e6) throw new Error('That file is over 100 MB. Compress it and try again.');
+    const path = `w${week}/${c}-${Date.now()}-${slug(f.name).slice(-80)}`;
+    const up = await sb.storage.from(BUCKET).upload(path, f, { upsert: false, contentType: f.type || undefined });
+    if (up.error) throw new Error('Could not upload the file: ' + up.error.message);
+    const { data: old } = await sb.from('assignments').select(c + '_path').eq('week_no', week).maybeSingle();
+    const row = { week_no: week, updated_by: await me(), updated_at: new Date().toISOString() };
+    row[c + '_path'] = path; row[c + '_name'] = f.name; row[c + '_size'] = f.size;
+    const { error } = await sb.from('assignments').upsert(row, { onConflict: 'week_no' });
     if (error) { sb.storage.from(BUCKET).remove([path]).catch(() => {}); throw new Error(error.message); }
-    if (old && old.template_path && old.template_path !== path) sb.storage.from(BUCKET).remove([old.template_path]).catch(() => {});
+    const was = old && old[c + '_path'];
+    if (was && was !== path) sb.storage.from(BUCKET).remove([was]).catch(() => {});
   }
 
-  /** Take a week's template down. */
-  async function removeTemplate(week) {
-    const sb = client();
-    const { data: old } = await sb.from('assignments').select('template_path').eq('week_no', week).maybeSingle();
-    const { error } = await sb.from('assignments').update({ template_path: null, template_name: null, template_size: null,
-      updated_by: await me(), updated_at: new Date().toISOString() }).eq('week_no', week);
+  /** Take one of a week's files down. */
+  async function removeFile(week, kind) {
+    const sb = client(), c = COL(kind);
+    const { data: old } = await sb.from('assignments').select(c + '_path').eq('week_no', week).maybeSingle();
+    const row = { updated_by: await me(), updated_at: new Date().toISOString() };
+    row[c + '_path'] = null; row[c + '_name'] = null; row[c + '_size'] = null;
+    const { error } = await sb.from('assignments').update(row).eq('week_no', week);
     if (error) throw new Error(error.message);
-    if (old && old.template_path) sb.storage.from(BUCKET).remove([old.template_path]).catch(() => {});
+    const was = old && old[c + '_path'];
+    if (was) sb.storage.from(BUCKET).remove([was]).catch(() => {});
   }
 
-  window.STEP_ASSIGN = { isLive, get, all, saveInstructions, uploadTemplate, removeTemplate };
+  window.STEP_ASSIGN = { isLive, get, all, saveInstructions, uploadFile, removeFile,
+    uploadTemplate: (w, f) => uploadFile(w, 'template', f), removeTemplate: w => removeFile(w, 'template') };
 })();
 
 </script>
@@ -11587,53 +11606,55 @@ window.__renderMyTeam();
     /* only what the tech team posts on the console appears here */
     const posted = !!(a && a.instructions);
     const instr = posted ? fmt(a.instructions)
-      : `<p class="asg-wait">The instructions for this week haven't been posted yet. Check back soon.</p>`;
-    const tpl = a && a.template;
+      : `<p class="asg-wait">The quick instructions for this week haven't been posted yet. Check back soon.</p>`;
+    const guide = a && a.guide, tpl = a && a.template;
     const brief = output ? `
       <div class="asg-top">
         <div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div>
         ${due ? `<span class="asg-due">Due ${esc(dayTxt(due))}, 12:00 NN</span>` : ""}
       </div>
-      <div class="asg-block"><h4>Instructions</h4>${instr}</div>` : `
+      <div class="asg-block"><h4>Quick instructions</h4>${instr}</div>` : `
       <div class="asg-top"><div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div></div>
-      <div class="asg-block"><p>${esc(NOOUT[wk] || "No team output this week.")}</p>${a && a.instructions ? fmt(a.instructions) : ""}</div>`;
-    const tplCard = (output || tpl) ? `
-      <article class="matcard asg-tpl">
+      <div class="asg-block"><p>${esc(NOOUT[wk] || "No team output this week.")}</p>${posted ? fmt(a.instructions) : ""}</div>`;
+    const card = (id, f, title, sub, label, empty) => `
+      <article class="matcard asg-file">
         <div class="mathead">
-          <div class="mh-t"><h3>Template deck</h3><p>Start your output from this file</p></div>
-          <span class="matcount">${tpl ? "Ready" : "Not yet posted"}</span>
+          <div class="mh-t"><h3>${title}</h3><p>${sub}</p></div>
+          <span class="matcount">${f ? "Ready" : "Not yet posted"}</span>
         </div>
-        ${tpl ? `<div class="od-prev asg-prev" id="asg-prev" aria-label="Preview of the Week ${wk} template"></div>` : ""}
-        <ul class="mats">${tpl ? `
+        ${f ? `<div class="od-prev asg-prev" id="${id}" aria-label="Preview of the Week ${wk} ${label}"></div>` : ""}
+        <ul class="mats">${f ? `
           <li>
-            <span class="ft" aria-hidden="true"><b>${esc(ext(tpl.name))}</b></span>
-            <span class="mtext"><span class="mn">Week ${wk} template</span>
-              <span class="mm has-file"><span class="mf" title="${esc(tpl.name)}">${esc(tpl.name)}</span><span>${esc(kb(tpl.size))}</span></span></span>
-            ${tpl.url ? `<a class="btn secondary dl" href="${tpl.url}" download="${esc(tpl.name)}" target="_blank" rel="noopener">
+            <span class="ft" aria-hidden="true"><b>${esc(ext(f.name))}</b></span>
+            <span class="mtext"><span class="mn">Week ${wk} ${label}</span>
+              <span class="mm has-file"><span class="mf" title="${esc(f.name)}">${esc(f.name)}</span><span>${esc(kb(f.size))}</span></span></span>
+            ${f.url ? `<a class="btn secondary dl" href="${f.url}" download="${esc(f.name)}" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
               Download</a>` : ""}
-          </li>` : `<li class="mats-empty">The STEP team posts this week's template here. Check back before you start.</li>`}
+          </li>` : `<li class="mats-empty">${empty}</li>`}
         </ul>
-      </article>` : "";
-    box.classList.toggle("one", !tplCard);
-    box.classList.toggle("has-tpl", !!tpl);
-    const old = document.getElementById("asg-prev"); if (old && window.StepDeck) window.StepDeck.stop(old);
-    box.innerHTML = `<article class="asg-brief">${brief}</article>${tplCard}`;
-    if (tpl) preview(document.getElementById("asg-prev"), tpl);
+      </article>`;
+    const showFiles = output || guide || tpl;
+    ["asg-guide", "asg-tpl"].forEach(id => { const el = document.getElementById(id); if (el && window.StepDeck) window.StepDeck.stop(el); });
+    box.classList.toggle("one", !showFiles);
+    box.innerHTML = `<div class="asg-col"><article class="asg-brief">${brief}</article>${showFiles ? card("asg-tpl", tpl, "Template deck", "Start your output from this file", "template", "The STEP team posts this week's template here.") : ""}</div>`
+      + (showFiles ? `<div class="asg-col">${card("asg-guide", guide, "Detailed instructions", "Read the full assignment before you start", "instructions", "The STEP team posts the detailed instructions here.")}</div>` : "");
+    if (guide) preview(document.getElementById("asg-guide"), guide, "instructions");
+    if (tpl) preview(document.getElementById("asg-tpl"), tpl, "template");
   }
-  /* the template, shown in the card: a PDF slide by slide, an Office file through
+  /* a file, shown in its card: a PDF slide by slide, an Office file through
      Microsoft's viewer, a picture as it is; anything else just downloads */
-  function preview(el, tpl) {
+  function preview(el, f, label) {
     if (!el) return;
-    const kind = ext(tpl.name).toLowerCase();
-    if (!tpl.url) { el.innerHTML = `<div class="od-none"><b>${esc(ext(tpl.name))}</b><span>Preview unavailable right now</span></div>`; return; }
-    if (kind === "pdf" && window.StepDeck) { window.StepDeck.mount(el, tpl.url, { title: "Week " + wk + " template" }); return; }
+    const kind = ext(f.name).toLowerCase(), src = f.view || f.url;
+    if (!src) { el.innerHTML = `<div class="od-none"><b>${esc(ext(f.name))}</b><span>Preview unavailable right now</span></div>`; return; }
+    if (kind === "pdf" && window.StepDeck) { window.StepDeck.mount(el, src, { title: "Week " + wk + " " + label }); return; }
     if (["ppt", "pptx", "doc", "docx", "xls", "xlsx"].includes(kind)) {
-      el.innerHTML = `<iframe title="Week ${wk} template preview" loading="lazy" allowfullscreen
-        src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(tpl.url)}"></iframe>`; return; }
+      el.innerHTML = `<iframe title="Week ${wk} ${label} preview" loading="lazy" allowfullscreen
+        src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(src)}"></iframe>`; return; }
     if (["png", "jpg", "jpeg", "webp", "gif"].includes(kind)) {
-      el.innerHTML = `<img class="od-slide" src="${tpl.url}" alt="Week ${wk} template">`; return; }
-    el.innerHTML = `<div class="od-none"><b>${esc(ext(tpl.name))}</b><span>No preview for this file type. Download it to open.</span></div>`;
+      el.innerHTML = `<img class="od-slide" src="${src}" alt="Week ${wk} ${label}">`; return; }
+    el.innerHTML = `<div class="od-none"><b>${esc(ext(f.name))}</b><span>No preview for this file type. Download it to open.</span></div>`;
   }
   paint(null);
   (async () => {
