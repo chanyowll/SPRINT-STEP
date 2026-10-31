@@ -149,5 +149,5 @@
     });
   }
 
-  window.StepDeck = { mount: mount, stop: release, warm: warm };
+  window.StepDeck = { mount: mount, stop: release, warm: warm, lib: lib };
 })();

@@ -91,12 +91,12 @@
 
 <main class="wrap page stack gp-after" style="gap:var(--s7)">
 
-  <!-- ===== This week's assignment: instructions and template deck, posted by the tech team ===== -->
+  <!-- ===== This week's assignment: instructions and output template, posted by the tech team ===== -->
   <section id="assignment">
     <div class="section-head">
       <div class="eyebrow">Team output</div>
       <h2>This week's assignment</h2>
-      <p class="lede">What your team hands in this week, the instructions, and the template deck to start from. Upload your output in the next section.</p>
+      <p class="lede">What your team hands in this week, the instructions, and the output template to start from. Upload your output in the next section.</p>
     </div>
     <div class="asg reveal" id="asg"></div>
   </section>
@@ -1731,13 +1731,13 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     const tplBar = `
       <article class="matcard asg-tplcard${tpl ? "" : " asg-none"}">
         <div class="mathead">
-          <div class="mh-t"><h3>Template deck</h3><p>Start your output from this file</p></div>
+          <div class="mh-t"><h3>Output Template</h3><p>Start your output from this file</p></div>
           <span class="matcount">${tpl ? "Ready" : "Not yet posted"}</span>
         </div>
         ${tpl ? `<ul class="mats">` : ""}${tpl ? `
-          <li>
-            <span class="ft" aria-hidden="true"><b>${esc(ext(tpl.name))}</b></span>
-            <span class="mtext"><span class="mn">Week ${wk} template</span>
+          <li class="can-view asg-tplrow" tabindex="0" role="button" title="Click to view" aria-label="View the Week ${wk} output template">
+            <span class="ft" id="asg-tpl-ft" aria-hidden="true"><b>${esc(ext(tpl.name))}</b></span>
+            <span class="mtext"><span class="mn">Week ${wk} output template</span>
               <span class="mm has-file"><span class="mf" title="${esc(tpl.name)}">${esc(tpl.name)}</span><span>${esc(kb(tpl.size))}</span></span></span>
             ${tpl.url ? `<a class="btn secondary dl" href="${tpl.url}" download="${esc(tpl.name)}" target="_blank" rel="noopener">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 19h14"/></svg>
@@ -1750,6 +1750,64 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     box.innerHTML = `<div class="asg-col"><article class="asg-brief">${brief}</article>${showFiles ? tplBar : ""}</div>`
       + (showFiles ? `<div class="asg-col">${card("asg-guide", guide, "Detailed instructions", "Read the full assignment before you start", "instructions", "The STEP team posts the detailed instructions here.")}</div>` : "");
     if (guide) preview(document.getElementById("asg-guide"), guide, "instructions");
+    if (tpl) {
+      const row = box.querySelector(".asg-tplrow");
+      const open = (e) => { if (e.target.closest("a.dl")) return; enlarge(tpl, "output template", null); };
+      row.addEventListener("click", open);
+      row.addEventListener("keydown", (e) => { if ((e.key === "Enter" || e.key === " ") && e.target === row) { e.preventDefault(); open(e); } });
+      thumb(document.getElementById("asg-tpl-ft"), tpl);
+    }
+  }
+  /* a small picture of the file's first page in place of the type square
+     (PDF, Word or a picture); anything else keeps the square */
+  function addScript(src) {
+    return new Promise((res, rej) => {
+      const sc = document.createElement("script"); sc.src = src;
+      sc.onload = res; sc.onerror = () => rej(new Error("load " + src)); document.head.appendChild(sc);
+    });
+  }
+  let docxLib = null;
+  function docxReady() {
+    if (window.docx && window.docx.renderAsync) return Promise.resolve(window.docx);
+    if (!docxLib) docxLib = (window.JSZip ? Promise.resolve() : addScript("https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"))
+      .then(() => addScript("https://cdn.jsdelivr.net/npm/docx-preview@0.3.2/dist/docx-preview.min.js"))
+      .then(() => window.docx).catch((e) => { docxLib = null; throw e; });
+    return docxLib;
+  }
+  function thumb(ft, f) {
+    if (!ft) return;
+    const kind = ext(f.name).toLowerCase(), src = f.view || f.url;
+    if (!src) return;
+    const show = (node) => { ft.classList.add("thumb", "has-img", "asg-thumb"); ft.classList.toggle("wide", !!(node.naturalWidth && node.naturalWidth > node.naturalHeight)); ft.innerHTML = ""; ft.appendChild(node); };
+    if (["png", "jpg", "jpeg", "webp", "gif"].includes(kind)) {
+      const im = new Image(); im.alt = ""; im.onload = () => show(im); im.src = src; return;
+    }
+    if (kind === "pdf" && window.StepDeck && window.StepDeck.lib) {
+      window.StepDeck.lib().then(L => L.getDocument({ url: src, disableAutoFetch: true }).promise).then(doc => doc.getPage(1).then(pg => {
+        const base = pg.getViewport({ scale: 1 }), vp = pg.getViewport({ scale: 240 / base.width });
+        const c = document.createElement("canvas"); c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
+        return pg.render({ canvasContext: c.getContext("2d"), viewport: vp }).promise.then(() => {
+          const im = new Image(); im.alt = ""; im.onload = () => show(im); im.src = c.toDataURL("image/png"); try { doc.destroy(); } catch (e) {}
+        });
+      })).catch(() => {});
+      return;
+    }
+    if (kind === "docx") {
+      Promise.all([docxReady(), fetch(src).then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })]).then(([D, blob]) => {
+        const page = document.createElement("div"); page.className = "asg-docpage";
+        return D.renderAsync(blob, page, page, { className: "asgdocx", inWrapper: false, breakPages: true,
+          ignoreLastRenderedPageBreak: true, renderHeaders: true, renderFooters: false, experimental: false }).then(() => {
+          const first = page.querySelector("section.asgdocx");
+          page.querySelectorAll("section.asgdocx").forEach((sec, i) => { if (i) sec.remove(); });
+          const w = (first && first.offsetWidth) || 816;
+          const holder = document.createElement("div"); holder.className = "asg-docthumb";
+          holder.appendChild(page); show(holder);
+          const fit = () => { const cw = ft.clientWidth; if (cw) page.style.transform = "scale(" + (cw / ((first && first.offsetWidth) || w)) + ")"; };
+          fit();
+          if (window.ResizeObserver) new ResizeObserver(fit).observe(ft); else requestAnimationFrame(fit);
+        });
+      }).catch(() => {});
+    }
   }
   /* a file, shown in its card: a PDF slide by slide, an Office file through
      Microsoft's viewer, a picture as it is; anything else just downloads */
@@ -1785,7 +1843,19 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
         if (sc && at > 1) { sc.style.scrollBehavior = "auto"; sc.scrollTop = (at - 1) * sc.clientHeight; sc.style.scrollBehavior = ""; }
         if (sc) sc.focus();
       });
-    } else if (["ppt", "pptx", "doc", "docx", "xls", "xlsx"].includes(kind)) {
+    } else if (kind === "docx") {
+      /* Word: drawn page by page here; Microsoft's viewer if that fails */
+      box.innerHTML = `<div class="od-none"><span>Loading the document…</span></div>`;
+      Promise.all([docxReady(), fetch(src).then(r => { if (!r.ok) throw new Error(r.status); return r.blob(); })]).then(([D, blob]) => {
+        const sc = document.createElement("div"); sc.className = "asg-docscroll"; sc.tabIndex = 0;
+        return D.renderAsync(blob, sc, sc, { className: "asgdocx", inWrapper: true, breakPages: true, ignoreLastRenderedPageBreak: true }).then(() => {
+          if (!lb.isConnected) return; box.innerHTML = ""; box.appendChild(sc); sc.focus();
+        });
+      }).catch(() => {
+        if (!lb.isConnected) return;
+        box.innerHTML = `<iframe title="Week ${wk} ${label}" allowfullscreen src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(src)}"></iframe>`;
+      });
+    } else if (["ppt", "pptx", "doc", "xls", "xlsx"].includes(kind)) {
       box.innerHTML = `<iframe title="Week ${wk} ${label}" allowfullscreen
         src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(src)}"></iframe>`;
     } else if (["png", "jpg", "jpeg", "webp", "gif"].includes(kind)) {
