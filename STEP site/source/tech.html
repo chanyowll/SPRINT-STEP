@@ -748,11 +748,11 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <!-- ===================== Assignments (This Week) ===================== -->
       <section class="sec" data-sec="assignments" hidden>
         <div class="sec-head">
-          <div><h1>Assignments</h1><p>Each week's team output: quick instructions, the detailed instructions file and the output template. Teams see them first on My Team's Work, above the upload.</p></div>
+          <div><h1>Assignments</h1><p>Each week's team output: quick instructions, the detailed instructions file and the output template. Teams see them first on This Week.</p></div>
         </div>
         <div class="imp-note warn" id="as-note" hidden></div>
+        <div class="wk-strip" id="as-weeks"></div>
         <div class="toolbar">
-          <label class="field"><span>Week</span><select class="in" id="as-week" style="width:360px"></select></label>
           <span class="att-status" id="as-status" role="status" aria-live="polite" style="margin-left:auto;align-self:center"></span>
         </div>
         <div class="card">
@@ -2943,13 +2943,18 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   TITLES.assignments = "Assignments";
   const AS = window.STEP_ASSIGN;
   let asRows = {}, asLive = false;
-  const asWeekSel = $("#as-week");
-  asWeekSel.innerHTML = (SCH ? SCH.weeks : []).map(w => `<option value="${w.week}">Week ${w.week} · ${esc(w.short)}${w.output ? "" : " (no weekly upload)"}</option>`).join("");
-  asWeekSel.value = String(SCH && SCH.byWeek(NOW) && SCH.byWeek(NOW).output ? NOW : ((SCH ? SCH.teachingWeeks() : []).find(w => w.week >= NOW) || {}).week || NOW);
+  /* week squares, like the other tabs; a green dot marks a week with something posted */
+  let asWeek = +(SCH && SCH.byWeek(NOW) && SCH.byWeek(NOW).output ? NOW : ((SCH ? SCH.teachingWeeks() : []).find(w => w.week >= NOW) || {}).week || NOW);
+  function asWeeks() {
+    const marks = {};
+    WEEKS.forEach(w => { const a = asRows[w]; marks[w] = a && (a.instructions || a.guide || a.template) ? "has" : ""; });
+    weekStrip($("#as-weeks"), marks, w => { asWeek = w; asPaint(); }, asWeek);
+  }
   const asSt = (t, c) => { const el = $("#as-status"); el.className = "att-status" + (c ? " " + c : ""); el.innerHTML = t; };
   const asKb = n => !n ? "" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB";
   function asPaint() {
-    const wk = +asWeekSel.value, w = SCH ? SCH.byWeek(wk) : null, a = asRows[wk] || null;
+    asWeeks();
+    const wk = asWeek, w = SCH ? SCH.byWeek(wk) : null, a = asRows[wk] || null;
     $("#as-title").textContent = "Week " + wk + (w ? " · " + w.short : "");
     const due = w && w.output && SCH.dueOf ? SCH.dueOf(wk) : null;
     $("#as-sub").textContent = due ? "Due " + new Date(due).toLocaleDateString("en-PH", { timeZone: "Asia/Manila", weekday: "short", month: "short", day: "numeric" }) + ", 12:00 NN" : (w && !w.output ? "No weekly upload this week" : "");
@@ -2967,23 +2972,22 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     catch (e) { $("#as-note").hidden = false; $("#as-note").textContent = e.message; asLive = false; }
     asPaint();
   }
-  asWeekSel.addEventListener("change", asPaint);
   $("#as-save").addEventListener("click", async () => {
-    const wk = +asWeekSel.value; asSt('<span class="spin"></span>Saving…', "busy");
-    try { await AS.saveInstructions(wk, $("#as-text").value); asRows = await AS.all(); asPaint(); asSt("Saved. Teams see it on My Team's Work.", "ok"); }
+    const wk = asWeek; asSt('<span class="spin"></span>Saving…', "busy");
+    try { await AS.saveInstructions(wk, $("#as-text").value); asRows = await AS.all(); asPaint(); asSt("Saved. Teams see it on This Week.", "ok"); }
     catch (e) { asSt("Couldn't save: " + esc(e.message), "bad"); }
   });
   const AS_NAME = { guide: "Detailed instructions", template: "Template" };
   $(".as-files").addEventListener("change", async e => {
     const inp = e.target.closest(".as-file"); if (!inp || !inp.files[0]) return;
-    const wk = +asWeekSel.value, kind = inp.dataset.kind;
+    const wk = asWeek, kind = inp.dataset.kind;
     asSt('<span class="spin"></span>Uploading ' + esc(inp.files[0].name) + "…", "busy");
     try { await AS.uploadFile(wk, kind, inp.files[0]); asRows = await AS.all(); asPaint(); asSt(AS_NAME[kind] + " posted for Week " + wk + ".", "ok"); }
     catch (err) { asSt(esc(err.message), "bad"); }
   });
   $(".as-files").addEventListener("click", async e => {
     const b = e.target.closest("[data-rm]"); if (!b) return;
-    const wk = +asWeekSel.value, kind = b.dataset.rm; asSt('<span class="spin"></span>Removing…', "busy");
+    const wk = asWeek, kind = b.dataset.rm; asSt('<span class="spin"></span>Removing…', "busy");
     try { await AS.removeFile(wk, kind); asRows = await AS.all(); asPaint(); asSt(AS_NAME[kind] + " removed.", "ok"); }
     catch (err) { asSt(esc(err.message), "bad"); }
   });
