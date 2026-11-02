@@ -6729,3 +6729,21 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .asg-lb-box .asg-docscroll { position: absolute; inset: 0; overflow: auto; background: #e9edf2; }
 .asg-lb-box .asg-docscroll .asgdocx-wrapper { background: transparent; padding: 24px; }
 .asg-tplcard .mats .ft.asg-thumb.wide { width: 80px; height: 50px; }
+
+/* This Week: the materials list scrolls inside its panel. The panel takes the height of the
+   replay beside it, so adding more slides never stretches the player or the row. */
+.matwrap > .matcard { display: flex; flex-direction: column; min-height: 0; }
+.matwrap > .matcard > .mathead { flex: none; }
+.matwrap > .matcard .mats { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  margin-right: -6px; padding-right: 6px; scrollbar-width: thin; scrollbar-color: #dccca8 transparent; }
+.matwrap > .matcard .mats::-webkit-scrollbar { width: 6px; }
+.matwrap > .matcard .mats::-webkit-scrollbar-track { background: transparent; }
+.matwrap > .matcard .mats::-webkit-scrollbar-thumb { background: #dccca8; border-radius: 99px; }
+.matwrap > .matcard .mats::-webkit-scrollbar-thumb:hover { background: #c9b27a; }
+@media (min-width: 901px) {
+  .matwrap > .matcard { contain: size; overflow: hidden; }
+}
+@media (max-width: 900px) {
+  .matwrap > .matcard { height: auto; }
+  .matwrap > .matcard .mats { max-height: 380px; }
+}
