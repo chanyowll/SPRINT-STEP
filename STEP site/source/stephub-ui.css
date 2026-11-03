@@ -6747,3 +6747,17 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
   .matwrap > .matcard { height: auto; }
   .matwrap > .matcard .mats { max-height: 380px; }
 }
+
+/* Assignment section: the same cream panels as Materials and session replay */
+.asg-brief, .asg-file, .asg-tplcard {
+  --surface: #fffaf0; --bg: #f7efdc; --line: #e5d8bb; --line-soft: #efe5cf;
+  background: var(--surface); border-color: #dccca8;
+  box-shadow: 0 1px 0 rgba(120, 96, 40, .06), 0 14px 34px rgba(64, 48, 16, .10);
+}
+.asg .mats .ft { background: #f3e7cc; color: #8a6412; }
+.asg .mats .ft.thumb.has-img { background: #fff; border-color: #dccca8; }
+.asg .matcount { background: #f3e7cc; color: #8a6412; }
+.asg .mats .btn.secondary { background: #fffdf8; border-color: #dccca8; }
+.asg-file .asg-prev { background: #f3e9d2; border-color: #dccca8; }
+.asg .mats li.can-view:hover { background: rgba(201, 154, 46, .08); }
+.asg-due { background: #f3e7cc; color: #6b4c00; }
