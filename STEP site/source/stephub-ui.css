@@ -6761,3 +6761,7 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .asg-file .asg-prev { background: #f3e9d2; border-color: #dccca8; }
 .asg .mats li.can-view:hover { background: rgba(201, 154, 46, .08); }
 .asg-due { background: #f3e7cc; color: #6b4c00; }
+
+/* Materials list: vertical scroll only. The rows' hover highlight sits inside the list's own
+   padding, so nothing pokes out sideways and no horizontal scrollbar appears. */
+.matwrap > .matcard .mats { overflow-x: hidden; margin: 0 -16px 0 -10px; padding: 0 16px 0 10px; }
