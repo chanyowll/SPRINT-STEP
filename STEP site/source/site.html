@@ -488,7 +488,7 @@
         <ul class="oc-list">
           <li>An IP strategy for the technology</li>
           <li>A spin-off team with clear roles</li>
-          <li>A pitch deck built one slide a week</li>
+          <li>A pitch deck built on the FASTRAC template</li>
         </ul>
         <span class="oc-foot">Weeks 6 to 12</span>
       </article>
@@ -1553,7 +1553,6 @@
 <!-- ===== Pitch deck header ===== -->
 <section class="team-bar" id="cap-head-deck" hidden>
   <div class="wrap" style="display:block">
-    <div id="capstone-switcher-slot-deck" class="mb-4"></div>
     <div class="eyebrow">Capstone</div>
     <h1 style="margin-bottom:4px">Pitch Deck</h1>
     <p class="tech">The FASTRAC pitch deck template your team presents on Demo Day. Browse every page below, then download the PowerPoint file and fill in the placeholders.</p>
@@ -11926,7 +11925,7 @@ const CAPVIEWS = ["form", "deck"];
 const CAPLABEL = { form: "FASTRAC proposal", deck: "Pitch deck" };
 const CAPNOTE  = {
   form: "DOST Form 2, filled in item by item across the cycle.",
-  deck: "One slide per topic, assembled week by week.",
+  deck: "The FASTRAC pitch deck template, shared by every team.",
 };
 function readCapHash() {
   const raw = (location.hash || "").replace(/^#/, "");
@@ -11935,9 +11934,16 @@ function readCapHash() {
 }
 /* mode: "init" on first paint (never touch the URL — in the merged site the
    hash belongs to the router), "push" when the reader chose a view. */
+window.__capNoTeamCard = `<div class="access-restricted-card"><h3>You're not on a team yet</h3>
+  <p>The FASTRAC proposal is shared by everyone on a team. Ask the STEP team to add your account to your team, then come back here. The pitch deck template is open to everyone: <a href="#capstone-deck">view it here</a>.</p></div>`;
 function showTab(which, mode) {
   const v = CAPVIEWS.includes(which) ? which : "form";
   const isForm = v === "form";
+  /* an account with no team can open the shared deck, never a team's proposal */
+  if (window.__capNoTeam) {
+    const g = document.getElementById("capstone-locked-gate"), c = document.getElementById("capstone-content-wrap");
+    if (g && c) { g.hidden = !isForm; c.hidden = isForm; if (isForm) g.innerHTML = window.__capNoTeamCard; }
+  }
   document.getElementById("ws-form").hidden = !isForm;
   document.getElementById("ws-deck").hidden = isForm;
   // Show/hide the corresponding header
@@ -12977,12 +12983,15 @@ window.__renderCapstone = function(targetTeamId) {
     /* the proposal and the deck belong to the team: a participant opens their
        own team's, and an account not yet placed on a team opens none */
     if (!user.team_id) {
+      /* the proposal belongs to a team; the pitch deck template is for everyone */
+      window.__capNoTeam = true;
+      if (readCapHash() === "deck") { showTab("deck", "init"); renderFilm(); showSlide(slideAt || 0); return; }
       gate.hidden = false;
       content.hidden = true;
-      gate.innerHTML = `<div class="access-restricted-card"><h3>You're not on a team yet</h3>
-        <p>The FASTRAC proposal and the pitch deck are shared by everyone on a team. Ask the STEP team to add your account to your team, then come back here.</p></div>`;
+      gate.innerHTML = window.__capNoTeamCard;
       return;
     }
+    window.__capNoTeam = false;
     activeId = user.team_id;
   } else {
     if (targetTeamId && (assigned.includes(targetTeamId) || user.role === "admin")) {
@@ -13006,8 +13015,8 @@ window.__renderCapstone = function(targetTeamId) {
   DECK = CAP.deck;
   seedSubmitted();
 
-  // Render team switcher — in both headers: the FASTRAC proposal's and the pitch deck's
-  const slots = ["capstone-switcher-slot", "capstone-switcher-slot-deck"]
+  // Render team switcher — in the FASTRAC proposal header (the pitch deck is shared by all teams)
+  const slots = ["capstone-switcher-slot"]
     .map(id => document.getElementById(id)).filter(Boolean);
   const allowedTeams = user.role === "participant" ? []
     : (user.role === "admin") ? teams : teams.filter(t => assigned.includes(t.id));

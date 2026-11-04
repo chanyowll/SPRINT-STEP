@@ -2564,7 +2564,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const sessOf = code => SESS.find(s => s.code === code) || { code, week: 0, title: code };
   const sessLabel = code => { const s = sessOf(code); return (s.tag || "Week " + s.week) + " · " + s.title; };
   const FORM_META = (M.getCapstone ? (M.getCapstone("g1").form || []) : []).map(f => ({ n: f.n, title: f.title, group: f.group }));
-  /* the pitch deck is one slide per week with a team output, posted on My Team's Work */
+  /* (the pitch deck is now one shared template on the Capstone page, not tracked per team) */
   const DECK_N = (window.STEP_SCHEDULE && window.STEP_SCHEDULE.teachingWeeks ? window.STEP_SCHEDULE.teachingWeeks().length : 0) || 9;
   const dLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
   const fx = n => (n == null || isNaN(n)) ? "—" : Number(n).toFixed(2);
@@ -2874,7 +2874,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     fastrac() {
       const rows = teamsShown(), N = FORM_META.length || 24;
       const data = rows.map(g => ({ g, cp: capOf(g.id) }));
-      $("#d-head").innerHTML = '<tr><th>Team</th><th>Submitted</th><th class="num">Draft</th><th class="num">Not started</th><th>Item by item</th><th>Pitch deck</th><th>Last edit</th></tr>';
+      $("#d-head").innerHTML = '<tr><th>Team</th><th>Submitted</th><th class="num">Draft</th><th class="num">Not started</th><th>Item by item</th><th>Last edit</th></tr>';
       $("#d-body").innerHTML = data.map(r => `<tr>${teamCell(r.g)}
         <td>${cellbar(r.cp.sub / N * 100, r.cp.sub === N ? "ok" : "", r.cp.sub + "/" + N)}</td>
         <td class="num">${r.cp.draft}</td><td class="num">${r.cp.none}</td>
@@ -2882,16 +2882,14 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           const it = r.cp.byN[f.n], st = it ? (it.submitted ? "sub" : it.filled ? "draft" : "none") : "none";
           return `<i class="sq ${st}" title="Item ${f.n} · ${esc(f.title)} — ${st === "sub" ? "submitted" : st === "draft" ? "in draft" : "not started"}"></i>`;
         }).join("")}</div></td>
-        <td>${cellbar(r.cp.slides / DECK_N * 100, r.cp.slides === DECK_N ? "ok" : "", r.cp.slides + "/" + DECK_N)}</td>
         <td class="note">${dWhen(r.cp.last)}</td></tr>`).join("");
       $("#d-stats").innerHTML = dStat((mean(data.map(r => r.cp.sub)) || 0).toFixed(1) + " / " + N, "items submitted, average")
         + dStat(data.filter(r => r.cp.sub > 0).length + " / " + data.length, "teams that have submitted something")
-        + dStat((mean(data.map(r => r.cp.slides)) || 0).toFixed(1) + " / " + DECK_N, "deck slides in, average")
         + dStat(data.filter(r => r.cp.sub === N).length, "proposals complete");
       $("#d-title").textContent = "FASTRAC proposal"; $("#d-sub").textContent = "DOST Form 2, item by item, from each team's Capstone page";
       $("#d-foot").innerHTML = '<span class="legend-sq"><i class="sq sub"></i>Submitted <i class="sq draft"></i>Draft <i class="sq none"></i>Not started</span> · Hover a square for the item.';
-      CSV = [["Team", "Submitted", "Draft", "Not started", "Deck slides", "Last edit"].concat(FORM_META.map(f => "Item " + f.n))]
-        .concat(data.map(r => [r.g.name, r.cp.sub, r.cp.draft, r.cp.none, r.cp.slides, r.cp.last || ""]
+      CSV = [["Team", "Submitted", "Draft", "Not started", "Last edit"].concat(FORM_META.map(f => "Item " + f.n))]
+        .concat(data.map(r => [r.g.name, r.cp.sub, r.cp.draft, r.cp.none, r.cp.last || ""]
           .concat(FORM_META.map(f => { const it = r.cp.byN[f.n]; return it ? (it.submitted ? "Submitted" : it.filled ? "Draft" : "") : ""; }))));
     },
   };
