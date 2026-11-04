@@ -18,7 +18,8 @@ DECLARE
   s_tony INT; s_bien INT; s_janine INT; s_jon INT; s_benjie INT; s_george INT;
 BEGIN
   -- the two seats still waiting for a name and email
-  SELECT seat INTO s_alice FROM public.panel_seats WHERE display_name = 'Ms. Alice' LIMIT 1;
+  SELECT seat INTO s_alice FROM public.panel_seats
+   WHERE lower(email) = 'amparlan@ateneo.edu' OR display_name IN ('Ms. Alice', 'Ms. Alice Parlan') ORDER BY (email IS NULL) LIMIT 1;
   IF s_alice IS NULL THEN
     SELECT COALESCE(MAX(seat), 0) + 1 INTO s_alice FROM public.panel_seats;
     INSERT INTO public.panel_seats (seat, panel_letter, display_name) VALUES (s_alice, 'A', 'Ms. Alice');
@@ -50,7 +51,7 @@ BEGIN
       'times', jsonb_build_array('09:00', '09:40', '10:30'),
       'panelists', jsonb_build_array(
         jsonb_build_object('seat', s_tony,    'name', 'Mr. Tony Feria'),
-        jsonb_build_object('seat', s_alice,   'name', 'Ms. Alice'),
+        jsonb_build_object('seat', s_alice,   'name', 'Ms. Alice Parlan'),
         jsonb_build_object('seat', s_lorenzo, 'name', 'Mr. Lorenzo Tiongson'))),
     jsonb_build_object('letter', 'B', 'at', '09:00',
       'teams', jsonb_build_array('g6', 'g5', 'g7'),
