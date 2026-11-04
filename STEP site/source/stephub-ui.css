@@ -6765,3 +6765,7 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 /* Materials list: vertical scroll only. The rows' hover highlight sits inside the list's own
    padding, so nothing pokes out sideways and no horizontal scrollbar appears. */
 .matwrap > .matcard .mats { overflow-x: hidden; margin: 0 -16px 0 -10px; padding: 0 16px 0 10px; }
+
+/* Capstone pitch deck: template download button */
+.deck-dl { display: inline-flex; align-items: center; gap: 8px; }
+.deck-dl svg { width: 16px; height: 16px; flex: none; }
