@@ -4039,7 +4039,8 @@
       letter: p.letter,
       seats: (p.panelists || []).map(x => x.seat),
       panelists: (p.panelists || []).map(x => nameOfSeat(x.seat, x.name)),
-      teams: (p.teams || []).map((id, i) => ({ team: shortOf(id), team_id: id, at: slotAt(p.at, i) })),
+      /* a saved time for the slot wins; otherwise the start time plus 35 minutes a team */
+      teams: (p.teams || []).map((id, i) => ({ team: shortOf(id), team_id: id, at: (p.times && p.times[i]) || slotAt(p.at, i) })),
     }));
   }
 

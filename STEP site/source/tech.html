@@ -1744,7 +1744,11 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const pbStart = PB_WEEKS.find(w => w >= NOW) || PB_WEEKS[PB_WEEKS.length - 1];
   $("#pb-week").innerHTML = PB_WEEKS.map(w => `<option value="${w}" ${w === pbStart ? "selected" : ""}>Week ${w} · ${esc((SCH && SCH.byWeek(w).short) || modOf(w).title)}</option>`).join("");
   pbWeek = pbStart;
-  function slot(start, i) { const [h, m] = start.split(":").map(Number), t = h * 60 + m + i * 35; return `${((Math.floor(t / 60) + 11) % 12) + 1}:${String(t % 60).padStart(2, "0")} ${t >= 720 ? "PM" : "AM"}`; }
+  /* a panel's i-th time slot: its saved time when there is one, else the start time plus 35 minutes a team */
+  function slot(start, i, times) {
+    const fixed = times && times[i] && /^\d{1,2}:\d{2}$/.test(times[i]) ? times[i] : null;
+    const [h, m] = (fixed || start).split(":").map(Number), t = h * 60 + m + (fixed ? 0 : i * 35);
+    return `${((Math.floor(t / 60) + 11) % 12) + 1}:${String(t % 60).padStart(2, "0")} ${t >= 720 ? "PM" : "AM"}`; }
 
   /* "Dr. Proceso 'Jon' Fernandez" and "Dr. Jon Fernandez" are one person:
      names are compared without titles, quotes or punctuation, and a
@@ -1823,7 +1827,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const badTeam = new Set(bad.map(c => c.pi + ":" + c.id)), badPl = new Set(bad.map(c => c.pi + ":" + c.who));
     $("#pboard").innerHTML = PB.map((p, pi) => `
       <div class="pcol${bad.some(c => c.pi === pi) ? " has-bad" : ""}" data-p="${pi}">
-        <header><b>Panel ${p.letter}</b><span class="note">${p.teams.length} team${p.teams.length === 1 ? "" : "s"} · starts ${slot(p.at, 0)}</span>
+        <header><b>Panel ${p.letter}</b><span class="note">${p.teams.length} team${p.teams.length === 1 ? "" : "s"} · starts ${slot(p.at, 0, p.times)}</span>
           ${PB0[pi] ? "" : `<button class="btn ghost sm" data-delp="${pi}" aria-label="Remove panel ${p.letter}">Remove</button>`}</header>
         <div class="plbl">Panelists</div>
         <div class="pzone" data-kind="pl" data-p="${pi}">
@@ -1842,7 +1846,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
             const isBad = badTeam.has(pi + ":" + id), who = isBad ? clashes(p, id)[0] : "";
             return `<div class="pitem tm${isBad ? " bad" : ""}" draggable="true" data-kind="tm" data-p="${pi}" data-i="${i}">
               <span class="grip" aria-hidden="true">⋮⋮</span><span class="tt">${esc(teamName(id))}<small>${
-                isBad ? `⚠ Its mentor, ${esc(who)}, is on this panel` : esc(teamInst(id))}</small></span><span class="time">${slot(p.at, i)}</span></div>`;
+                isBad ? `⚠ Its mentor, ${esc(who)}, is on this panel` : esc(teamInst(id))}</small></span><span class="time">${slot(p.at, i, p.times)}</span></div>`;
           }).join("") || '<div class="pempty">Drop teams here</div>'}
         </div>
       </div>`).join("");
@@ -1971,7 +1975,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     if (pbPlan) {
       const built = PP.build(pbPlan, SEATS);
       built.forEach(p => p.panelists.forEach((n, i) => { if (p.seats[i] != null) seatByName[seatKey(n)] = p.seats[i]; }));
-      PB0 = built.map((p, i) => ({ letter: p.letter, at: (pbPlan.panels[i] || {}).at || "09:00", panelists: p.panelists, teams: p.teams.map(t => t.team_id) }));
+      PB0 = built.map((p, i) => ({ letter: p.letter, at: (pbPlan.panels[i] || {}).at || "09:00",
+        ...((pbPlan.panels[i] || {}).times ? { times: pbPlan.panels[i].times.slice() } : {}),
+        panelists: p.panelists, teams: p.teams.map(t => t.team_id) }));
     } else {
       /* nothing saved yet: the programme's panels, with the seats' real names */
       PB0 = PB_BUILTIN.map(p => {
@@ -2005,7 +2011,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     if (twice.length) { toast("A panelist can sit on only one panel — " + [...new Set(twice)].join(", ") + " is on more than one."); return; }
     const onward = pbScope() === "onward";
     const payload = PB.map(p => ({
-      letter: p.letter, at: p.at || "09:00", teams: p.teams.slice(),
+      letter: p.letter, at: p.at || "09:00", teams: p.teams.slice(), ...(p.times ? { times: p.times.slice() } : {}),
       panelists: p.panelists.map(n => ({ seat: seatOfName(n), name: n })),
     }));
     pbBusy = true; $("#pb-save").disabled = true; $("#pb-save").textContent = "Saving…";
