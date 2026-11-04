@@ -10,7 +10,7 @@
 --   W5  Business Model Validation (Dec 1 / Dec 5)                                — Sir GQ
 --   W6  Mid-Program Checkpoint, on site (Dec 10–11)                              — Doc Jon
 --   W7  Go-to-Market & Lean Canvas (Dec 15 / Dec 19)                             — Sir GQ
---   W8  Selling Skill (Wed Dec 23 / Dec 26)                                      — Sir GQ
+--   W8  Selling Skill (Dec 22 / Dec 26)                                          — Sir GQ
 --   break Dec 27 – Jan 4; W9–W12 unchanged
 -- =====================================================================
 

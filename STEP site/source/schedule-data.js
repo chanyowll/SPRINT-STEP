@@ -13,7 +13,7 @@
           (Thu–Fri Oct 29–30), site visits with mentors (Wed–Fri Nov 4–6)
           and the market mapping review (Sat Nov 7)
      W2–W5, W7–W11  one topic a week: Tuesday learning session, Saturday
-          feedback session (W8's learning session moves to Wednesday Dec 23)
+          feedback session
      W6   Mid-Program Checkpoint on site (Thu–Fri Dec 10–11): IP and finance
      —    Christmas break, Dec 27 – Jan 4 (not counted as a week)
      W12  Demo Day (Jan 28) and Graduation (Jan 29), on site
@@ -298,14 +298,14 @@
       topic: "Selling Skill",
       review: "Presentation of Outputs: Selling", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-12-23", kind: "learning", att: "LS", mode: "Online", time: LS_TIME, adjusted: true,
+        { date: "2026-12-22", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Selling Skill" },
         { date: "2026-12-26", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Selling" },
       ],
       output: true,
       tagline: "Turn the value proposition into a conversation a customer says yes to.",
-      brief: "The last week before the break, with the learning session moved to Wednesday, December 23, is about the sales conversation itself: how to open with the customer's problem, ask and listen before you present, show the value in the customer's own numbers, handle the objections you will certainly hear, and ask for a next step. Teams practise it on a real target customer.",
+      brief: "The last week before the break is about the sales conversation itself: how to open with the customer's problem, ask and listen before you present, show the value in the customer's own numbers, handle the objections you will certainly hear, and ask for a next step. Teams practise it on a real target customer.",
       able: [
         "Structure a sales conversation from the customer's problem to a next step",
         "Answer the three objections your target customer is most likely to raise",
