@@ -816,7 +816,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         </div>
         <div class="toolbar">
           <label class="field" id="d-sess-f" hidden><span>Session</span><select class="in" id="d-sess" style="width:300px"></select></label>
-          <label class="field" id="d-week-f"><span>Up to week</span><select class="in" id="d-week" style="width:130px"></select></label>
+          <label class="field" id="d-week-f"><span>Week</span><select class="in" id="d-week" style="width:130px"></select></label>
           <div class="seg" id="o-mode" role="group" aria-label="How to show submitted outputs" hidden><button aria-pressed="true" data-m="week">By week</button><button aria-pressed="false" data-m="all">All teams</button></div>
           <span class="note" id="d-asof" style="margin-left:auto;align-self:center"></span>
         </div>
@@ -2671,8 +2671,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     }
     return out;
   }
-  function attOf(team, upTo) {
-    const rows = D.att.filter(a => a.team_id === team && wkOfCode(a.session_code) <= upTo);
+  /* one week only: the sessions held in that week */
+  function attOf(team, wk) {
+    const rows = D.att.filter(a => a.team_id === team && wkOfCode(a.session_code) === wk);
     const went = rows.filter(a => a.status ? a.status !== "absent" : a.present).length;
     return { marked: rows.length, went, pct: rows.length ? Math.round(went / rows.length * 100) : null };
   }
@@ -2684,6 +2685,19 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const last = it.map(r => r.updated_at).concat(mySlides.map(r => r.submitted_at)).filter(Boolean).sort().pop();
     return { sub, draft, none: FORM_META.length - sub - draft, slides, last, byN: Object.fromEntries(it.map(r => [r.item_n, r])) };
   }
+  /* the dates a programme week covers (Manila time) */
+  function weekSpan(w) {
+    const x = SCH && SCH.byWeek ? SCH.byWeek(w) : null;
+    if (x && x.starts && x.ends) return [new Date(x.starts + "T00:00:00+08:00").getTime(), new Date(x.ends + "T23:59:59+08:00").getTime()];
+    return null;
+  }
+  /* FASTRAC items a team submitted during week w, and its running total by the end of that week */
+  function capWeek(team, w) {
+    const sp = weekSpan(w), it = D.cap.items.filter(r => r.team_id === team && r.submitted);
+    const at = r => new Date(r.submitted_at || r.updated_at || 0).getTime();
+    if (!sp) return { n: 0, total: it.length };
+    return { n: it.filter(r => at(r) >= sp[0] && at(r) <= sp[1]).length, total: it.filter(r => at(r) <= sp[1]).length };
+  }
   const dWhen = iso => iso ? new Date(iso).toLocaleString("en-PH", { timeZone: "Asia/Manila", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) : "—";
   const teamCell = g => `<td><b style="font-weight:650">${esc(g.name)}</b><div class="note">${esc(g.inst)} · ${esc(g.region || "")}</div></td>`;
   const dStat = (n, l) => `<div class="stat"><b>${n}</b><span>${l}</span></div>`;
@@ -2693,14 +2707,14 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   /* ---------- the five views ---------- */
   const VIEWS = {
     overview() {
-      const upTo = +$("#d-week").value, rows = teamsShown();
-      const codes = SESS.filter(s => s.week <= upTo).map(s => s.code);
-      const head = ["Team", "Panel", "Avg panel score", "Last panel", "Attendance", "Outputs in", "FASTRAC proposal", "Flags"];
+      const wk = +$("#d-week").value, rows = teamsShown();
+      const codes = SESS.filter(s => s.week === wk).map(s => s.code);
+      const head = ["Team", "Panel", "Avg panel score", "Last panel", "Attendance", "Output", "FASTRAC proposal", "Flags"];
       const data = rows.map(g => {
         const sc = codes.map(c => ({ c, r: sessionScore(g.id, c) })).filter(x => x.r);
         const avg = mean(sc.map(x => x.r.avg)), last = sc.length ? sc[sc.length - 1] : null;
-        const a = attOf(g.id, upTo), outs = outputsOf(g.id, upTo).filter(o => !["open", "partopen"].includes(o.state));
-        const inN = outs.filter(o => o.state === "ok" || o.state === "late").length, cp = capOf(g.id);
+        const a = attOf(g.id, wk), outs = (outputWeek(wk) ? [outputFor(g.id, wk)] : []).filter(o => !["open", "partopen"].includes(o.state));
+        const inN = outs.filter(o => o.state === "ok" || o.state === "late").length, cp = capWeek(g.id, wk);
         const drafts = codes.flatMap(c => panelSheets(g.id, c)).filter(s => s.status !== "submitted" && s.total != null).length;
         const flags = [];
         if (a.pct != null && a.pct < 80) flags.push('<span class="pill bad">Attendance</span>');
@@ -2714,18 +2728,18 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         <td class="num">${r.avg != null ? `<b style="font-weight:650">${fx(r.avg)}</b> <span class="note">/ 4</span>` : '<span class="note">No scores yet</span>'}</td>
         <td class="num">${r.last ? `${fx(r.last.r.avg)} <span class="note">${esc(r.last.c)}</span>` : "—"}</td>
         <td>${r.a.pct != null ? cellbar(r.a.pct, tone(r.a.pct, 90, 80), r.a.pct + "%") : '<span class="note">Not taken yet</span>'}</td>
-        <td>${r.outs.length ? cellbar(r.inN / r.outs.length * 100, tone(r.inN / r.outs.length * 100, 100, 85), r.inN + "/" + r.outs.length) : '<span class="note">None due yet</span>'}</td>
-        <td>${cellbar(r.cp.sub / (FORM_META.length || 24) * 100, "", r.cp.sub + "/" + (FORM_META.length || 24))}</td>
+        <td>${r.outs.length ? (r.inN ? '<span class="pill ok">In</span>' : '<span class="pill bad">Missing</span>') : `<span class="note">${outputWeek(wk) ? "Not due yet" : "No output this week"}</span>`}</td>
+        <td>${cellbar(r.cp.n / (FORM_META.length || 24) * 100, "", r.cp.n + " this week")}<div class="note">${r.cp.total}/${FORM_META.length || 24} by end of week</div></td>
         <td>${r.flags.join(" ") || '<span class="note">—</span>'}</td></tr>`).join("");
       const scored = data.filter(r => r.avg != null), withAtt = data.filter(r => r.a.pct != null), withDue = data.filter(r => r.outs.length);
       $("#d-stats").innerHTML = dStat(scored.length ? fx(mean(scored.map(r => r.avg))) : "—", "average panel score")
         + dStat(withAtt.length ? Math.round(mean(withAtt.map(r => r.a.pct))) + "%" : "—", "average attendance")
-        + dStat(withDue.length ? withDue.filter(r => r.inN === r.outs.length).length + " / " + withDue.length : "—", "teams with every output in")
-        + dStat(data.length ? (mean(data.map(r => r.cp.sub)) || 0).toFixed(1) + " / " + (FORM_META.length || 24) : "—", "FASTRAC items submitted, average");
-      $("#d-title").textContent = "Overview"; $("#d-sub").textContent = "Up to Week " + upTo;
-      $("#d-foot").textContent = "Scores are the average of the panel sheets scored so far, drafts included, on STEP's 1.00–4.00 rubric. Weeks are counted from Week " + firstWeek() + ", the first week with any record.";
+        + dStat(withDue.length ? withDue.filter(r => r.inN === r.outs.length).length + " / " + withDue.length : "—", "teams with this week's output in")
+        + dStat(data.length ? (mean(data.map(r => r.cp.n)) || 0).toFixed(1) : "—", "FASTRAC items submitted this week, average");
+      $("#d-title").textContent = "Overview"; $("#d-sub").textContent = "Week " + wk + " only";
+      $("#d-foot").textContent = "Everything here is for the chosen week only: its panel sheets (drafts included, on STEP's 1.00–4.00 rubric), its sessions' attendance, its output, and the FASTRAC items submitted during that week.";
       CSV = [head.slice(0, 7)].concat(data.map(r => [r.g.name, D.letter(r.g.id), r.avg != null ? fx(r.avg) : "", r.last ? fx(r.last.r.avg) : "",
-        r.a.pct != null ? r.a.pct + "%" : "", r.outs.length ? r.inN + "/" + r.outs.length : "", r.cp.sub + "/" + (FORM_META.length || 24)]));
+        r.a.pct != null ? r.a.pct + "%" : "", r.outs.length ? (r.inN ? "In" : "Missing") : "", r.cp.n + " this week (" + r.cp.total + "/" + (FORM_META.length || 24) + " by end of week)"]));
     },
 
     scores() {
@@ -2842,8 +2856,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     },
 
     att() {
-      const upTo = +$("#d-week").value, rows = teamsShown();
-      const codes = [...new Set(D.att.map(a => a.session_code))].filter(c => wkOfCode(c) <= upTo)
+      const wk = +$("#d-week").value, rows = teamsShown();
+      const codes = [...new Set(D.att.map(a => a.session_code))].filter(c => wkOfCode(c) === wk)
         .sort((a, b) => (wkOfCode(a) * 10 + sesRank(a)) - (wkOfCode(b) * 10 + sesRank(b)));
       const data = rows.map(g => {
         const size = D.mem.filter(m => m.team_id === g.id).length;
@@ -2853,10 +2867,10 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           return { c, marked: rs.length, went: went.length, late: rs.filter(a => a.status === "late").map(a => a.member_name),
                    away: rs.filter(a => a.status ? a.status === "absent" : !a.present).map(a => a.member_name) };
         });
-        return { g, size, per, a: attOf(g.id, upTo) };
+        return { g, size, per, a: attOf(g.id, wk) };
       });
       $("#d-head").innerHTML = "<tr><th>Team</th>" + codes.map(c => `<th>W${wkOfCode(c)}<div class="note">${esc(sesName(c))}</div></th>`).join("") + '<th class="num">Attended</th></tr>';
-      $("#d-body").innerHTML = !codes.length ? `<tr><td class="note" colspan="2">No attendance recorded up to Week ${upTo} yet.</td></tr>` : data.map(r => `<tr>${teamCell(r.g)}${r.per.map(p => !p.marked
+      $("#d-body").innerHTML = !codes.length ? `<tr><td class="note" colspan="2">No attendance recorded for Week ${wk} yet.</td></tr>` : data.map(r => `<tr>${teamCell(r.g)}${r.per.map(p => !p.marked
           ? '<td class="note">—</td>'
           : `<td title="${esc([p.away.length ? "Absent: " + p.away.join(", ") : "Nobody absent", p.late.length ? "Late: " + p.late.join(", ") : ""].filter(Boolean).join(" · "))}">
               <span class="pill ${p.went >= 3 ? "ok" : "bad"}">${p.went} / ${Math.max(r.size, p.marked)}${p.went < 3 ? " · below 3" : ""}</span></td>`).join("")}
@@ -2866,7 +2880,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       $("#d-stats").innerHTML = dStat(withAtt.length ? Math.round(mean(withAtt.map(r => r.a.pct))) + "%" : "—", "average attendance")
         + dStat(codes.length, "sessions recorded") + dStat(all.filter(p => p.went < 3).length, "team-sessions below the 3-member minimum")
         + dStat(all.reduce((n, p) => n + p.late.length, 0), "late arrivals");
-      $("#d-title").textContent = "Attendance"; $("#d-sub").textContent = "Members present (on time or late) out of the roster, session by session";
+      $("#d-title").textContent = "Attendance"; $("#d-sub").textContent = "Week " + wk + " only · members present (on time or late) out of the roster, session by session";
       $("#d-foot").textContent = "Hover a cell to see who was absent or late. Recorded in the Attendance section of this console.";
       CSV = [["Team"].concat(codes)].concat(data.map(r => [r.g.name].concat(r.per.map(p => p.marked ? p.went + "/" + Math.max(r.size, p.marked) : ""))));
     },
