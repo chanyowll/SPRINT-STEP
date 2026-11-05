@@ -752,7 +752,7 @@ window.MOCK = (function () {
       insight: {
         method: "Reflexive thematic analysis — every panel and mentor comment coded, codes grouped into themes",
         claim: p.claim,
-        based_on: 23, weeks: "Weeks 2–8", reviewed_by: "Ms. May Ann Albis, STEP team", reviewed_on: "2027-01-06",
+        based_on: 23, weeks: "Weeks 2–8", reviewed_by: "Ms. May Ann Albis, STEP team", reviewed_on: "2027-01-13",
         corpus: { comments: 23, panelists: 6, sessions: 7, codes: 9, themes: 4 },
         saturation: "No new code appeared after Week 7 — the code book has settled.",
         phases: [
@@ -965,7 +965,7 @@ window.MOCK = (function () {
       technology_title: t.technology_title,
       week_no: 9,
       weeks_total: 12,
-      demo_day: "2027-01-28",
+      demo_day: "2027-02-11",
       form: synced(form),
       deck: synced(deck)
     };
@@ -984,7 +984,7 @@ window.MOCK = (function () {
   /* ---------------------------------------------------------------------
      This Week — the program week we are actually in, from the schedule.
      Before Oct 19 it is Week 0 (the orientation coming up); over the
-     Christmas break it is Week 9, the week sessions resume.
+     Christmas break it is Week 8, the week sessions resume.
      --------------------------------------------------------------------- */
   const WK = SCHED.byWeek(NOW_AT.week);
   const thisWeek = {

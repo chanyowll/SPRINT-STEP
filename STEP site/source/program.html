@@ -271,8 +271,8 @@
           their technology roadmap, and submit the FASTRAC capsule. The next day is the graduation ceremony,
           ecosystem networking and a mixer with investors.</p>
         <ul class="meta-list">
-          <li><span class="k">Demo Day</span><span class="v">Week 12 · Thursday, January 28, 2027</span></li>
-          <li><span class="k">Graduation</span><span class="v">Week 12 · Friday, January 29, 2027</span></li>
+          <li><span class="k">Demo Day</span><span class="v">Week 12 · Thursday, February 11, 2027</span></li>
+          <li><span class="k">Graduation</span><span class="v">Week 12 · Friday, February 12, 2027</span></li>
           <li><span class="k">Also</span><span class="v">Technology roadmap, FASTRAC capsule submission</span></li>
         </ul>
       </div>
@@ -284,7 +284,7 @@
     <div class="section-head">
       <div class="eyebrow">This cycle</div>
       <h2>The STEP 2.5 schedule</h2>
-      <p class="muted">October 20, 2026 to January 29, 2027, week by week. Learning sessions are on
+      <p class="muted">October 20, 2026 to February 12, 2027, week by week. Learning sessions are on
          Tuesdays and feedback sessions on Saturdays, online, unless the schedule says otherwise.</p>
     </div>
 
@@ -301,7 +301,7 @@
         </span>
         <span><b>Every Saturday</b>A feedback session — five-minute video, then a panel takes questions</span>
       </div>
-      <p class="rh-note">Both run every teaching week, Week 1 to Week 11, except the Week 6 checkpoint. The Christmas break, December 27 to January 4, is not counted as a week.</p>
+      <p class="rh-note">Both run every teaching week, Week 1 to Week 11, except the Week 6 checkpoint. The Christmas break, December 21 to January 3, is not counted as a week.</p>
     </div>
 
     <div class="tl2" id="tl"></div>
@@ -417,9 +417,9 @@ SCH.timeline().forEach(x => {
   const big = x.kind === "onsite" || x.kind === "orientation";
   g.items.push({ d: SCH.fmtRange(x.date, x.end), t: big ? (x.kind === "onsite" ? "onsite" : "milestone") : KIND[x.kind],
                  w: what, c: "W" + x.week, n: note });
-  /* the break sits between Week 8 and Week 9 */
-  if (x.week === 8 && x.kind === "feedback") {
-    TIMELINE.push({ m: "Christmas break", items: [{ d: "Dec 27 – Jan 4", t: "note", w: "Holiday break", n: "No sessions. Week 9 starts Tuesday, January 5." }] });
+  /* the break sits between Week 7 and Week 8 (dates from the schedule) */
+  if (x.week === 7 && x.kind === "feedback") {
+    TIMELINE.push({ m: "Christmas break", items: [{ d: "Dec 21 – Jan 3", t: "note", w: "Holiday break", n: "No sessions. Week 8 starts Tuesday, January 5." }] });
   }
 });
 

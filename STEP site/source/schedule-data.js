@@ -2,7 +2,7 @@
    STEP Hub — the STEP 2.5 program schedule
 
    Taken from the "STEP 2.5 Master Timeline" (Trainer's Timeline sheet),
-   Updated Schedule: October 20, 2026 – January 29, 2027.
+   Updated Schedule: October 20, 2026 – February 12, 2027.
 
    Each week has a short name the program uses everywhere (title), and
    the topic exactly as the timeline words it (topic).
@@ -15,8 +15,9 @@
      W2–W5, W7–W11  one topic a week: Tuesday learning session, Saturday
           feedback session
      W6   Mid-Program Checkpoint on site (Thu–Fri Dec 10–11): IP and finance
-     —    Christmas break, Dec 27 – Jan 4 (not counted as a week)
-     W12  Demo Day (Jan 28) and Graduation (Jan 29), on site
+     —    Christmas break after Week 7, Dec 21 – Jan 3 (not counted as a week);
+          Week 8 resumes Tuesday Jan 5
+     W12  Demo Day (Thu Feb 11) and Graduation (Fri Feb 12), on site
 
    Every page reads the weeks, dates and topics from here, so a change
    to the schedule is made once, in this file.
@@ -293,19 +294,19 @@
       },
     },
     {
-      week: 8, code: "W8", starts: "2026-12-21", ends: "2026-12-27",
+      week: 8, code: "W8", starts: "2027-01-04", ends: "2027-01-10",
       title: "Selling Skills", short: "Selling Skills", axis: "Selling\nskills",
       topic: "Selling Skill",
       review: "Presentation of Outputs: Selling", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-12-22", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-01-05", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Selling Skill" },
-        { date: "2026-12-26", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-01-09", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Selling" },
       ],
       output: true,
       tagline: "Turn the value proposition into a conversation a customer says yes to.",
-      brief: "The last week before the break is about the sales conversation itself: how to open with the customer's problem, ask and listen before you present, show the value in the customer's own numbers, handle the objections you will certainly hear, and ask for a next step. Teams practise it on a real target customer.",
+      brief: "The first week back from the break is about the sales conversation itself: how to open with the customer's problem, ask and listen before you present, show the value in the customer's own numbers, handle the objections you will certainly hear, and ask for a next step. Teams practise it on a real target customer.",
       able: [
         "Structure a sales conversation from the customer's problem to a next step",
         "Answer the three objections your target customer is most likely to raise",
@@ -325,19 +326,19 @@
       },
     },
     {
-      week: 9, code: "W9", starts: "2027-01-04", ends: "2027-01-10",
+      week: 9, code: "W9", starts: "2027-01-11", ends: "2027-01-17",
       title: "Pitching Skills", short: "Pitching Skills", axis: "Pitching\nskills",
       topic: "Pitching Skill",
-      review: "Presentation of Outputs: Pitch", trainer: "Sir GQ",
+      review: "Presentation of Outputs: Pitch", trainer: "Sir Dom",
       sessions: [
-        { date: "2027-01-05", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-01-12", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Pitching Skill" },
-        { date: "2027-01-09", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-01-16", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Pitch" },
       ],
       output: true,
       tagline: "Tell the whole story in five minutes, to a panel that has heard a hundred.",
-      brief: "Back from the break, teams learn to pitch: the spine of a pitch from problem to ask, what to leave out, how to use the time, and how to answer hard questions without losing the room. Saturday's panel hears the first full pitch of the cycle.",
+      brief: "Teams learn to pitch: the spine of a pitch from problem to ask, what to leave out, how to use the time, and how to answer hard questions without losing the room. Saturday's panel hears the first full pitch of the cycle.",
       able: [
         "Structure a five-minute pitch from the problem to the ask",
         "Deliver it on time, with the deck supporting the story rather than replacing it",
@@ -357,14 +358,14 @@
       },
     },
     {
-      week: 10, code: "W10", starts: "2027-01-11", ends: "2027-01-17",
+      week: 10, code: "W10", starts: "2027-01-18", ends: "2027-01-24",
       title: "Technology Roadmapping", short: "Technology Roadmapping", axis: "Technology\nroadmapping",
       topic: "Technology Roadmapping",
       review: "Presentation of Outputs: Technology Roadmap", trainer: "Sir Benjie",
       sessions: [
-        { date: "2027-01-12", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-01-19", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Technology Roadmapping" },
-        { date: "2027-01-16", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-01-23", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Technology Roadmap" },
       ],
       output: true,
@@ -389,14 +390,14 @@
       },
     },
     {
-      week: 11, code: "W11", starts: "2027-01-18", ends: "2027-01-24",
+      week: 11, code: "W11", starts: "2027-01-25", ends: "2027-01-31",
       title: "FASTRAC Proposal", short: "FASTRAC Proposal", axis: "FASTRAC\nproposal",
       topic: "FASTRAC Proposal Workshop",
       review: "Presentation of Outputs: FASTRAC Proposal", trainer: "Sir Steve",
       sessions: [
-        { date: "2027-01-19", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-01-26", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "FASTRAC Proposal Workshop" },
-        { date: "2027-01-23", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-01-30", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: FASTRAC Proposal" },
       ],
       output: true,
@@ -421,14 +422,14 @@
       },
     },
     {
-      week: 12, code: "W12", starts: "2027-01-25", ends: "2027-01-31",
+      week: 12, code: "W12", starts: "2027-02-08", ends: "2027-02-14",
       title: "Demo Day", short: "Demo Day", axis: "Demo\nDay",
       topic: "Demo Day and Graduation",
       milestone: "Demo Day / Graduation",
       sessions: [
-        { date: "2027-01-28", kind: "onsite", att: "DD", mode: "On site",
+        { date: "2027-02-11", kind: "onsite", att: "DD", mode: "On site",
           title: "Demo Day — Final Presentations" },
-        { date: "2027-01-29", kind: "onsite", att: "GR", mode: "On site",
+        { date: "2027-02-12", kind: "onsite", att: "GR", mode: "On site",
           title: "Graduation Ceremony and Ecosystem Networking, Mixers with Investors" },
       ],
       output: false,
@@ -467,11 +468,11 @@
   const simulation = SIM_ON ? { active: SIM_ACTIVE, week: SIM_WEEKS.find(w => w.sim === SIM_ACTIVE).week,
                                 weeks: SIM_WEEKS.map(w => w.week) } : null;
 
-  const BREAK = { starts: "2026-12-28", ends: "2027-01-03", resumes: "2027-01-05" };
+  const BREAK = { starts: "2026-12-21", ends: "2027-01-03", resumes: "2027-01-05" };
   const cohort = {
     code: "STEP2.5", name: "STEP 2.5", timezone: "Asia/Manila",
-    starts_on: "2026-10-20", ends_on: "2027-01-29", weeks_total: 12,
-    source: "STEP 2.5 Master Timeline — Trainer's Timeline, Updated Schedule: October 20, 2026 – January 29, 2027",
+    starts_on: "2026-10-20", ends_on: "2027-02-12", weeks_total: 12,
+    source: "STEP 2.5 Master Timeline — Trainer's Timeline, Updated Schedule: October 20, 2026 – February 12, 2027",
   };
 
   /* ---------- dates ---------- */
@@ -527,7 +528,8 @@
     const w = weeks.find(x => t >= x.starts && t <= x.ends);
     if (w) return { week: w.week, status: "live", note: "" };
     if (t >= BREAK.starts && t <= BREAK.ends) {
-      return { week: 9, status: "break", note: "Christmas break — sessions resume " + dayName(BREAK.resumes) + ", " + long(BREAK.resumes) + "." };
+      const back = weeks.find(x => x.starts > t) || last;
+      return { week: back.week, status: "break", note: "Christmas break — sessions resume " + dayName(BREAK.resumes) + ", " + long(BREAK.resumes) + "." };
     }
     const next = weeks.find(x => x.starts > t) || last;
     return { week: next.week, status: "live", note: "" };
