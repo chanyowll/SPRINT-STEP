@@ -6001,7 +6001,7 @@ window.MOCK = (function () {
       { id: "tr1", name: "Mr. Antonio P. Feria Jr.", short: "Sir Tony", initials: "AF", org: "Ateneo de Manila University",
         focus: "Value proposition, and measuring the value", modules: ["W2", "W3"] },
       { id: "tr2", name: "Mr. George Omer Denis S. Quitoriano", short: "Sir GQ", initials: "GQ", org: "Ateneo de Manila University",
-        focus: "Competitive advantage, business model validation, go-to-market, selling and pitching", modules: ["W4", "W5", "W7", "W8", "W9"] },
+        focus: "Competitive advantage, business model validation, go-to-market and selling", modules: ["W4", "W5", "W7", "W8"] },
       { id: "tr3", name: "Mr. Mike Tan", short: "Sir Mike", initials: "MT", org: "Ateneo de Manila University",
         focus: "Topics to be announced", modules: [] },
       { id: "tr4", name: "Engr. Benjamin N. Mirasol", short: "Sir Benjie", initials: "BM", org: "Ateneo de Manila University",
@@ -6012,6 +6012,8 @@ window.MOCK = (function () {
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
       { id: "tr7", name: "Mr. Bienvenido Garcia", short: "Sir Bien", initials: "BG", org: "Ateneo de Manila University",
         focus: "Topics to be announced", modules: [] },
+      { id: "tr8", name: "Mr. Dominic Fargas Jr.", short: "Sir Dom", initials: "DF", org: "University of the Philippines",
+        focus: "Pitching skills", modules: ["W9"] },
     ],
 
     mentors: [
@@ -15752,7 +15754,8 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
     const words = sz(String(u.name || u.full_name || "").toLowerCase()).split(/[^a-z]+/).filter(Boolean);
     const local = sz(String(u.email || "").toLowerCase().split("@")[0]);
     return F.trainers.find(t => {
-      const sur = sz(t.name.toLowerCase().replace(/[“”".,]/g, "")).split(/\s+/).pop();
+      /* the surname is the last word that is not a suffix ("Feria Jr." → feria, "Fargas Jr." → fargas) */
+      const sur = sz(t.name.toLowerCase().replace(/[“”".,]/g, "")).split(/\s+/).filter(w => !/^(jr|sr|ii|iii|iv)$/.test(w)).pop();
       return words.includes(sur) || (local && local.endsWith(sur));
     }) || null;
   }

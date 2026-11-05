@@ -236,7 +236,7 @@ window.MOCK = (function () {
       { id: "tr1", name: "Mr. Antonio P. Feria Jr.", short: "Sir Tony", initials: "AF", org: "Ateneo de Manila University",
         focus: "Value proposition, and measuring the value", modules: ["W2", "W3"] },
       { id: "tr2", name: "Mr. George Omer Denis S. Quitoriano", short: "Sir GQ", initials: "GQ", org: "Ateneo de Manila University",
-        focus: "Competitive advantage, business model validation, go-to-market, selling and pitching", modules: ["W4", "W5", "W7", "W8", "W9"] },
+        focus: "Competitive advantage, business model validation, go-to-market and selling", modules: ["W4", "W5", "W7", "W8"] },
       { id: "tr3", name: "Mr. Mike Tan", short: "Sir Mike", initials: "MT", org: "Ateneo de Manila University",
         focus: "Topics to be announced", modules: [] },
       { id: "tr4", name: "Engr. Benjamin N. Mirasol", short: "Sir Benjie", initials: "BM", org: "Ateneo de Manila University",
@@ -247,6 +247,8 @@ window.MOCK = (function () {
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
       { id: "tr7", name: "Mr. Bienvenido Garcia", short: "Sir Bien", initials: "BG", org: "Ateneo de Manila University",
         focus: "Topics to be announced", modules: [] },
+      { id: "tr8", name: "Mr. Dominic Fargas Jr.", short: "Sir Dom", initials: "DF", org: "University of the Philippines",
+        focus: "Pitching skills", modules: ["W9"] },
     ],
 
     mentors: [
