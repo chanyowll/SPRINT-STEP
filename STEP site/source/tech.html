@@ -2056,7 +2056,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   (function () {
     const SS = () => window.STEP_SCORESHEETS;
     const ssLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
-    const SESSIONS = () => ((M.faculty && M.faculty.sessions) || []).filter(s => s.week >= 2 || s.sim);
+    const SESSIONS = () => ((M.faculty && M.faculty.sessions) || []).filter(s => s.week >= 1 || s.sim);
     const sel = $("#ss-week"), rowsEl = $("#ss-rows"), sumEl = $("#ss-sum"), msgEl = $("#ss-msg"),
           lockEl = $("#ss-lock"), srcEl = $("#ss-src");
     if (!sel) return;

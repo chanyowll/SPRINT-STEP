@@ -3111,7 +3111,7 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
         msgEl = document.getElementById("cr-msg"), lockEl = document.getElementById("cr-lock"),
         whoEl = document.getElementById("cr-who"), btns = document.getElementById("cr-btns");
   const SS = () => window.STEP_SCORESHEETS;
-  const SESS = () => F.sessions.filter(s => s.week >= 2 && !s.sim).sort((a, b) => a.week - b.week);
+  const SESS = () => F.sessions.filter(s => s.week >= 1 && !s.sim).sort((a, b) => a.week - b.week);
   const me = () => window.MOCK.auth.getCurrentUser() || {};
   const rolesOf = u => (window.MOCK.auth.rolesOf ? window.MOCK.auth.rolesOf(u) : [u.role]);
   const isAdmin = () => rolesOf(me()).includes("admin");
