@@ -2,11 +2,11 @@
 -- Run once in the Supabase SQL Editor. Safe to run again (a re-run just saves the same grouping as the newest one).
 --
 --   Panel A: Mr. Tony Feria, Ms. Alice Parlan, Mr. Lorenzo Tiongson
---     9:00 BRICKS · 9:35 SINAG · 10:10 HATTS
+--     9:00 BRICKS · 9:40 SINAG · 10:20 HATTS
 --   Panel B: Mr. Bienvenido Garcia, Ms. Janine Chiong, Engr. Benjamin N. Mirasol
---     9:00 CAPPS · 9:35 ZEOSKIN · 10:10 POSTe
+--     9:00 CAPPS · 9:40 ZEOSKIN · 10:20 POSTe
 --   Panel C: Dr. Jon Fernandez, Mr. George Quitoriano, Ms. Ace
---     9:00 SPArC · 9:35 LASER · 10:10 meSHM · 10:45 SFRSCC
+--     9:00 SPArC · 9:40 LASER · 10:20 meSHM · 11:00 SFRSCC
 
 DO $$
 DECLARE
@@ -30,21 +30,21 @@ BEGIN
   INSERT INTO public.panel_plans (week_from, week_to, panels) VALUES (1, NULL, jsonb_build_array(
     jsonb_build_object('letter', 'A', 'at', '09:00',
       'teams', jsonb_build_array('g3', 'g2', 'g4'),
-      'times', jsonb_build_array('09:00', '09:35', '10:10'),
+      'times', jsonb_build_array('09:00', '09:40', '10:20'),
       'panelists', jsonb_build_array(
         jsonb_build_object('seat', s_tony,    'name', 'Mr. Tony Feria'),
         jsonb_build_object('seat', s_alice,   'name', 'Ms. Alice Parlan'),
         jsonb_build_object('seat', s_lorenzo, 'name', 'Mr. Lorenzo Tiongson'))),
     jsonb_build_object('letter', 'B', 'at', '09:00',
       'teams', jsonb_build_array('g6', 'g5', 'g1'),
-      'times', jsonb_build_array('09:00', '09:35', '10:10'),
+      'times', jsonb_build_array('09:00', '09:40', '10:20'),
       'panelists', jsonb_build_array(
         jsonb_build_object('seat', s_bien,   'name', 'Mr. Bienvenido Garcia'),
         jsonb_build_object('seat', s_janine, 'name', 'Ms. Janine Chiong'),
         jsonb_build_object('seat', s_benjie, 'name', 'Engr. Benjamin N. Mirasol'))),
     jsonb_build_object('letter', 'C', 'at', '09:00',
       'teams', jsonb_build_array('g7', 'g10', 'g8', 'g9'),
-      'times', jsonb_build_array('09:00', '09:35', '10:10', '10:45'),
+      'times', jsonb_build_array('09:00', '09:40', '10:20', '11:00'),
       'panelists', jsonb_build_array(
         jsonb_build_object('seat', s_jon,    'name', 'Dr. Jon Fernandez'),
         jsonb_build_object('seat', s_george, 'name', 'Mr. George Quitoriano'),

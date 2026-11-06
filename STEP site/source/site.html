@@ -629,7 +629,7 @@
     <div class="section-head">
       <div class="eyebrow" id="tw-pnl-eyebrow">Saturday feedback sessions</div>
       <h2>Your panel schedule</h2>
-      <p class="lede">Three panels run in parallel from 9:00 AM. Each team gets thirty-five minutes — a
+      <p class="lede">Three panels run in parallel from 9:00 AM. Each team gets forty minutes — a
          five-minute video, then questions.</p>
     </div>
     <div class="pgrid" id="tw-pnl-grid"></div>
@@ -2003,7 +2003,7 @@
         </div>
       </div>
 
-      <p class="small muted mt-4">Scale, weighting and the thirty-five-minute slots follow the STEP 2 panel
+      <p class="small muted mt-4">Scale, weighting and the forty-minute slots follow the STEP 2 panel
          score sheet. Each panelist scores on their own sheet; the team's mark for the week is the average
          across the panel.</p>
     </section>
@@ -2095,7 +2095,7 @@
       <div class="section-head">
         <div class="eyebrow">Saturday feedback sessions</div>
         <h2>The panels</h2>
-        <p class="lede" id="pnl-lede">Three panels run in parallel from 9:00 AM. Each team gets thirty-five minutes — a
+        <p class="lede" id="pnl-lede">Three panels run in parallel from 9:00 AM. Each team gets forty minutes — a
            five-minute video, then questions.</p>
         <label class="fld" style="max-width:320px;margin-top:14px"><span>Grouping for</span><select id="pnl-week"></select></label>
       </div>
@@ -4019,10 +4019,10 @@
     return data;
   }
 
-  /* "09:00" + i × 35 minutes, in the same 24-hour form the programme uses */
+  /* "09:00" + i × 40 minutes, in the same 24-hour form the programme uses */
   function slotAt(start, i) {
     const [h, m] = String(start || '09:00').split(':').map(Number);
-    const t = h * 60 + m + i * 35;
+    const t = h * 60 + m + i * 40;
     return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
   }
 
@@ -4039,7 +4039,7 @@
       letter: p.letter,
       seats: (p.panelists || []).map(x => x.seat),
       panelists: (p.panelists || []).map(x => nameOfSeat(x.seat, x.name)),
-      /* a saved time for the slot wins; otherwise the start time plus 35 minutes a team */
+      /* a saved time for the slot wins; otherwise the start time plus 40 minutes a team */
       teams: (p.teams || []).map((id, i) => ({ team: shortOf(id), team_id: id, at: (p.times && p.times[i]) || slotAt(p.at, i) })),
     }));
   }
@@ -6138,14 +6138,14 @@ window.MOCK = (function () {
        the panelist's email) and the grouping saved on the Panels page. */
     panels: [
       { letter: "A", seats: [7, 14, 13], panelists: ["Mr. Tony Feria", "Ms. Alice Parlan", "Mr. Lorenzo Tiongson"],
-        teams: [{ team: "BRICKS", team_id: "g3", at: "09:00" }, { team: "SINAG", team_id: "g2", at: "09:35" },
-                { team: "HATTS", team_id: "g4", at: "10:10" }] },
+        teams: [{ team: "BRICKS", team_id: "g3", at: "09:00" }, { team: "SINAG", team_id: "g2", at: "09:40" },
+                { team: "HATTS", team_id: "g4", at: "10:20" }] },
       { letter: "B", seats: [5, 2, 8], panelists: ["Mr. Bienvenido Garcia", "Ms. Janine Chiong", "Engr. Benjamin N. Mirasol"],
-        teams: [{ team: "CAPPS", team_id: "g6", at: "09:00" }, { team: "ZEOSKIN", team_id: "g5", at: "09:35" },
-                { team: "POSTe", team_id: "g1", at: "10:10" }] },
+        teams: [{ team: "CAPPS", team_id: "g6", at: "09:00" }, { team: "ZEOSKIN", team_id: "g5", at: "09:40" },
+                { team: "POSTe", team_id: "g1", at: "10:20" }] },
       { letter: "C", seats: [1, 4, 15], panelists: ["Dr. Jon Fernandez", "Mr. George Quitoriano", "Ms. Ace"],
-        teams: [{ team: "SPArC", team_id: "g7", at: "09:00" }, { team: "LASER", team_id: "g10", at: "09:35" },
-                { team: "meSHM", team_id: "g8", at: "10:10" }, { team: "SFRSCC", team_id: "g9", at: "10:45" }] },
+        teams: [{ team: "SPArC", team_id: "g7", at: "09:00" }, { team: "LASER", team_id: "g10", at: "09:40" },
+                { team: "meSHM", team_id: "g8", at: "10:20" }, { team: "SFRSCC", team_id: "g9", at: "11:00" }] },
     ],
 
     /* The curriculum and the panel score sheets, one per program week.
@@ -14407,7 +14407,7 @@ document.getElementById("fa-spec").innerHTML = `
     const el = document.getElementById("pnl-lede"); if (!el) return;
     const n = F.panels.length, starts = [...new Set(F.panels.map(p => clock((p.teams[0] || {}).at)))];
     el.textContent = (NUM[n] || n) + " panel" + (n === 1 ? " runs" : "s run in parallel") + (starts.length === 1 ? " from " + starts[0] : ", starting at " + starts.slice(0, -1).join(", ") + " and " + starts[starts.length - 1]) +
-      ". Each team gets thirty-five minutes — a five-minute video, then questions.";
+      ". Each team gets forty minutes — a five-minute video, then questions.";
   };
   const draw = () => { lede(); document.getElementById("pnl-grid").innerHTML = F.panels.map((p, i) => `
     <article class="pcard reveal" style="--d:${i * 70}ms">
@@ -14966,7 +14966,7 @@ function initials(n) {
     titleEl.title = S.title;
     document.getElementById("sc-meta").textContent =
       S.tag ? S.tag + " panel · " + P.teams.length + " teams"
-            : "Saturday panel · " + P.teams.length + " teams · 35 min each";
+            : "Saturday panel · " + P.teams.length + " teams · 40 min each";
     return openSheet();
   }
 

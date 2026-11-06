@@ -1744,10 +1744,10 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const pbStart = PB_WEEKS.find(w => w >= NOW) || PB_WEEKS[PB_WEEKS.length - 1];
   $("#pb-week").innerHTML = PB_WEEKS.map(w => `<option value="${w}" ${w === pbStart ? "selected" : ""}>Week ${w} · ${esc((SCH && SCH.byWeek(w).short) || modOf(w).title)}</option>`).join("");
   pbWeek = pbStart;
-  /* a panel's i-th time slot: its saved time when there is one, else the start time plus 35 minutes a team */
+  /* a panel's i-th time slot: its saved time when there is one, else the start time plus 40 minutes a team */
   function slot(start, i, times) {
     const fixed = times && times[i] && /^\d{1,2}:\d{2}$/.test(times[i]) ? times[i] : null;
-    const [h, m] = (fixed || start).split(":").map(Number), t = h * 60 + m + (fixed ? 0 : i * 35);
+    const [h, m] = (fixed || start).split(":").map(Number), t = h * 60 + m + (fixed ? 0 : i * 40);
     return `${((Math.floor(t / 60) + 11) % 12) + 1}:${String(t % 60).padStart(2, "0")} ${t >= 720 ? "PM" : "AM"}`; }
 
   /* "Dr. Proceso 'Jon' Fernandez" and "Dr. Jon Fernandez" are one person:

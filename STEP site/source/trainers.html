@@ -417,7 +417,7 @@
         </div>
       </div>
 
-      <p class="small muted mt-4">Scale, weighting and the thirty-five-minute slots follow the STEP 2 panel
+      <p class="small muted mt-4">Scale, weighting and the forty-minute slots follow the STEP 2 panel
          score sheet. Each panelist scores on their own sheet; the team's mark for the week is the average
          across the panel.</p>
     </section>
@@ -509,7 +509,7 @@
       <div class="section-head">
         <div class="eyebrow">Saturday feedback sessions</div>
         <h2>The panels</h2>
-        <p class="lede" id="pnl-lede">Three panels run in parallel from 9:00 AM. Each team gets thirty-five minutes — a
+        <p class="lede" id="pnl-lede">Three panels run in parallel from 9:00 AM. Each team gets forty minutes — a
            five-minute video, then questions.</p>
         <label class="fld" style="max-width:320px;margin-top:14px"><span>Grouping for</span><select id="pnl-week"></select></label>
       </div>
@@ -1777,7 +1777,7 @@ document.getElementById("fa-spec").innerHTML = `
     const el = document.getElementById("pnl-lede"); if (!el) return;
     const n = F.panels.length, starts = [...new Set(F.panels.map(p => clock((p.teams[0] || {}).at)))];
     el.textContent = (NUM[n] || n) + " panel" + (n === 1 ? " runs" : "s run in parallel") + (starts.length === 1 ? " from " + starts[0] : ", starting at " + starts.slice(0, -1).join(", ") + " and " + starts[starts.length - 1]) +
-      ". Each team gets thirty-five minutes — a five-minute video, then questions.";
+      ". Each team gets forty minutes — a five-minute video, then questions.";
   };
   const draw = () => { lede(); document.getElementById("pnl-grid").innerHTML = F.panels.map((p, i) => `
     <article class="pcard reveal" style="--d:${i * 70}ms">
@@ -2336,7 +2336,7 @@ function initials(n) {
     titleEl.title = S.title;
     document.getElementById("sc-meta").textContent =
       S.tag ? S.tag + " panel · " + P.teams.length + " teams"
-            : "Saturday panel · " + P.teams.length + " teams · 35 min each";
+            : "Saturday panel · " + P.teams.length + " teams · 40 min each";
     return openSheet();
   }
 

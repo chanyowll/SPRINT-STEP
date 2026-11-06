@@ -47,10 +47,10 @@
     return data;
   }
 
-  /* "09:00" + i × 35 minutes, in the same 24-hour form the programme uses */
+  /* "09:00" + i × 40 minutes, in the same 24-hour form the programme uses */
   function slotAt(start, i) {
     const [h, m] = String(start || '09:00').split(':').map(Number);
-    const t = h * 60 + m + i * 35;
+    const t = h * 60 + m + i * 40;
     return String(Math.floor(t / 60)).padStart(2, '0') + ':' + String(t % 60).padStart(2, '0');
   }
 
@@ -67,7 +67,7 @@
       letter: p.letter,
       seats: (p.panelists || []).map(x => x.seat),
       panelists: (p.panelists || []).map(x => nameOfSeat(x.seat, x.name)),
-      /* a saved time for the slot wins; otherwise the start time plus 35 minutes a team */
+      /* a saved time for the slot wins; otherwise the start time plus 40 minutes a team */
       teams: (p.teams || []).map((id, i) => ({ team: shortOf(id), team_id: id, at: (p.times && p.times[i]) || slotAt(p.at, i) })),
     }));
   }
