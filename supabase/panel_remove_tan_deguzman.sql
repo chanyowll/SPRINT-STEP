@@ -15,8 +15,13 @@ FROM public.role_invites i
 WHERE lower(p.email) = lower(i.email)
   AND i.email IN ('mctan@ateneo.edu','mcbdeguzman@ateneo.edu');
 
--- their panel seats
-DELETE FROM public.panel_seats WHERE lower(email) IN ('mctan@ateneo.edu','mcbdeguzman@ateneo.edu');
+-- their panel seats (a seat that already holds saved score sheets or reports is only unlinked, so no scores are lost)
+DELETE FROM public.panel_seats s
+ WHERE lower(s.email) IN ('mctan@ateneo.edu','mcbdeguzman@ateneo.edu')
+   AND NOT EXISTS (SELECT 1 FROM public.panel_sheets  x WHERE x.seat = s.seat)
+   AND NOT EXISTS (SELECT 1 FROM public.panel_reports r WHERE r.seat = s.seat);
+UPDATE public.panel_seats SET panel_letter = '', email = NULL, profile_id = NULL, updated_at = now()
+ WHERE lower(email) IN ('mctan@ateneo.edu','mcbdeguzman@ateneo.edu');
 
 -- check: no Panel page, no seat
 SELECT p.email, COALESCE(p.roles, ARRAY[p.role]) AS opens_pages_for,

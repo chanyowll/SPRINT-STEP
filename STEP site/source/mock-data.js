@@ -372,15 +372,15 @@ window.MOCK = (function () {
        project the names come from the panel_seats table (each seat tied to
        the panelist's email) and the grouping saved on the Panels page. */
     panels: [
-      { letter: "A", seats: [8, 5, 10], panelists: ["Engr. Benjamin N. Mirasol", "Mr. Bienvenido Garcia", "Dr. John Lagdameo"],
-        teams: [{ team: "LASER", team_id: "g10", at: "09:00" }, { team: "CAPPS", team_id: "g6", at: "09:35" },
-                { team: "ZEOSKIN", team_id: "g5", at: "10:10" }] },
-      { letter: "B", seats: [1, 4, 11], panelists: ["Dr. Jon Fernandez", "Mr. George Quitoriano", "Ms. Bunnie De Guzman"],
-        teams: [{ team: "SPArC", team_id: "g7", at: "09:00" }, { team: "meSHM", team_id: "g8", at: "09:35" },
-                { team: "HATTS", team_id: "g4", at: "10:10" }] },
-      { letter: "C", seats: [7, 2, 12], panelists: ["Mr. Tony Feria", "Ms. Janine Chiong", "Mr. Michael Tan"],
-        teams: [{ team: "BRICKS", team_id: "g3", at: "09:00" }, { team: "SINAG", team_id: "g2", at: "09:35" },
-                { team: "POSTe", team_id: "g1", at: "10:10" }, { team: "SFRSCC", team_id: "g9", at: "10:45" }] },
+      { letter: "A", seats: [7, 14, 13], panelists: ["Mr. Tony Feria", "Ms. Alice Parlan", "Mr. Lorenzo Tiongson"],
+        teams: [{ team: "BRICKS", team_id: "g3", at: "09:00" }, { team: "SINAG", team_id: "g2", at: "09:40" },
+                { team: "HATTS", team_id: "g4", at: "10:30" }] },
+      { letter: "B", seats: [5, 2, 1], panelists: ["Mr. Bienvenido Garcia", "Ms. Janine Chiong", "Dr. Jon Fernandez"],
+        teams: [{ team: "CAPPS", team_id: "g6", at: "09:00" }, { team: "ZEOSKIN", team_id: "g5", at: "09:40" },
+                { team: "SPArC", team_id: "g7", at: "10:30" }] },
+      { letter: "C", seats: [8, 4, 15], panelists: ["Engr. Benjamin N. Mirasol", "Mr. George Quitoriano", "Ms. Ace"],
+        teams: [{ team: "POSTe", team_id: "g1", at: "09:00" }, { team: "LASER", team_id: "g10", at: "09:40" },
+                { team: "meSHM", team_id: "g8", at: "10:30" }, { team: "SFRSCC", team_id: "g9", at: "11:00" }] },
     ],
 
     /* The curriculum and the panel score sheets, one per program week.
