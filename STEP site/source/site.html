@@ -5999,7 +5999,7 @@ window.MOCK = (function () {
        announced" until it is. */
     trainers: [
       { id: "tr1", name: "Mr. Antonio P. Feria Jr.", short: "Sir Tony", initials: "AF", org: "Ateneo de Manila University",
-        focus: "Value proposition, and measuring the value", modules: ["W2", "W3"] },
+        focus: "Value proposition, and measuring the value", modules: ["W2", "W3"], criteria: ["W1"] },
       { id: "tr2", name: "Mr. George Omer Denis S. Quitoriano", short: "Sir GQ", initials: "GQ", org: "Ateneo de Manila University",
         focus: "Competitive advantage, business model validation, go-to-market and selling", modules: ["W4", "W5", "W7", "W8"] },
       { id: "tr3", name: "Mr. Mike Tan", short: "Sir Mike", initials: "MT", org: "Ateneo de Manila University",
@@ -6011,7 +6011,7 @@ window.MOCK = (function () {
       { id: "tr6", name: "Mr. Steve Chaves", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
       { id: "tr7", name: "Mr. Bienvenido Garcia", short: "Sir Bien", initials: "BG", org: "Ateneo de Manila University",
-        focus: "Topics to be announced", modules: [] },
+        focus: "Topics to be announced", modules: [], criteria: ["W2"] },
       { id: "tr8", name: "Mr. Dominic Fargas Jr.", short: "Sir Dom", initials: "DF", org: "University of the Philippines",
         focus: "Pitching skills", modules: ["W9"] },
     ],
@@ -6188,7 +6188,7 @@ window.MOCK = (function () {
     // --- Mentors ---
     { id: "u_mentor_pfernandez", name: "Dr. Jon Fernandez", email: "pfernandez@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (POSTe)", assigned_teams: ["g1"], team_id: "g1", initials: "JF", institution: "AIPO" },
     { id: "u_mentor_jlagdameo", name: "Dr. John Lagdameo", email: "jlagdameo@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (SINAG)", assigned_teams: ["g2"], team_id: "g2", initials: "JL", institution: "AIPO" },
-    { id: "u_mentor_bgarcia", name: "Mr. Bienvenido Garcia", email: "bgarcia@ateneo.edu", role: "mentor", roles: ["mentor", "panel"], role_label: "Mentor & Panelist (BRICKS)", assigned_teams: ["g3"], team_id: "g3", initials: "BG", institution: "AIPO" },
+    { id: "u_mentor_bgarcia", name: "Mr. Bienvenido Garcia", email: "bgarcia@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (BRICKS)", assigned_teams: ["g3"], team_id: "g3", initials: "BG", institution: "AIPO" },
     { id: "u_mentor_mctan", name: "Mr. Michael Tan", email: "mctan@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (HATTS)", assigned_teams: ["g4"], team_id: "g4", initials: "MT", institution: "AIPO" },
     { id: "u_mentor_amiclat", name: "Mr. Armando Miclat", email: "amiclat@ateneo.edu", role: "mentor", role_label: "Mentor (ZEOSKIN)", assigned_teams: ["g5"], team_id: "g5", initials: "AM", institution: "AIPO" },
     { id: "u_mentor_gquitoriano", name: "Mr. George Quitoriano", email: "gquitoriano@ateneo.edu", role: "mentor", roles: ["mentor", "trainer", "panel"], role_label: "Mentor, Trainer & Panelist (CAPPS)", assigned_teams: ["g6"], team_id: "g6", initials: "GQ", institution: "AIPO" },
@@ -15763,7 +15763,11 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
     if (isAdmin()) return { ok: true, why: "" };
     const t = myTrainer();
     if (!rolesOf(me()).includes("trainer") || !t) return { ok: false, why: "Only the trainer teaching this week’s topic can change its criteria." };
-    if (!(t.modules || []).includes(s.code)) return { ok: false, why: "This is not your topic. Only " + (F.trainers.find(x => (x.modules || []).includes(s.code)) || {}).short + " can change its criteria." };
+    const mayEdit = x => (x.modules || []).concat(x.criteria || []).includes(s.code);
+    if (!mayEdit(t)) {
+      const who = F.trainers.filter(mayEdit).map(x => x.short);
+      return { ok: false, why: "This is not your topic. " + (who.length ? "Only " + who.join(" or ") + " can change its criteria." : "Only the STEP team can change its criteria.") };
+    }
     return { ok: true, why: "" };
   }
 

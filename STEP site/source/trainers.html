@@ -3137,7 +3137,11 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
     if (isAdmin()) return { ok: true, why: "" };
     const t = myTrainer();
     if (!rolesOf(me()).includes("trainer") || !t) return { ok: false, why: "Only the trainer teaching this week’s topic can change its criteria." };
-    if (!(t.modules || []).includes(s.code)) return { ok: false, why: "This is not your topic. Only " + (F.trainers.find(x => (x.modules || []).includes(s.code)) || {}).short + " can change its criteria." };
+    const mayEdit = x => (x.modules || []).concat(x.criteria || []).includes(s.code);
+    if (!mayEdit(t)) {
+      const who = F.trainers.filter(mayEdit).map(x => x.short);
+      return { ok: false, why: "This is not your topic. " + (who.length ? "Only " + who.join(" or ") + " can change its criteria." : "Only the STEP team can change its criteria.") };
+    }
     return { ok: true, why: "" };
   }
 
