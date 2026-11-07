@@ -7,11 +7,11 @@
 --    for her once she signs in (the panel and teams stay as saved)
 
 INSERT INTO public.role_invites (email, role, roles, role_label, full_name, initials, team_id, institution)
-VALUES ('ace@blogapalooza.ph', 'panel', ARRAY['panel'], 'Panelist', 'Ms. Ace', 'A', NULL, '')
+VALUES ('ace@blogapalooza.ph', 'panel', ARRAY['panel'], 'Panelist', 'Ms. Ace', 'A', NULL, 'Blogapalooza')
 ON CONFLICT (email) DO UPDATE
   SET roles = ARRAY(SELECT DISTINCT unnest(COALESCE(public.role_invites.roles, ARRAY[public.role_invites.role]) || ARRAY['panel'])),
       role_label = CASE WHEN public.role_invites.role = 'panel' THEN EXCLUDED.role_label ELSE public.role_invites.role_label END,
-      full_name = EXCLUDED.full_name, initials = EXCLUDED.initials;
+      full_name = EXCLUDED.full_name, initials = EXCLUDED.initials, institution = EXCLUDED.institution;
 
 UPDATE public.profiles
    SET roles = ARRAY(SELECT DISTINCT unnest(COALESCE(roles, ARRAY[role]) || ARRAY['panel'])),
