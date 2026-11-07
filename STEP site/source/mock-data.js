@@ -1535,6 +1535,17 @@ window.MOCK = (function () {
         Promise.resolve(window.STEP_SUPABASE.getSession()).then(r => { const u = r && r.data && r.data.session && r.data.session.user; open(u ? u.email : ""); }).catch(() => open("")); } else setTimeout(tryOpen, 300); };
       if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", tryOpen); else tryOpen();
     }
+    /* a reset link that was already used, replaced by a newer one, or too old comes back with an
+       error in the address instead of a sign-in. Say so, and offer a fresh link straight away. */
+    const errIn = (location.hash || "") + "&" + (location.search || "").replace(/^\?/, "");
+    if (/(^|[#&])error=/.test(errIn) && /otp_expired|access_denied|invalid|expired/i.test(errIn)) {
+      const showExpired = () => {
+        _recovery = null; renderAuthModal(); openAuthModal(); _showForgot(true);
+        _note("forgot-msg", "That reset link has expired or was already used. Each link works once, only the newest one works, and it expires after an hour. Send a new link below and open the newest email right away.", true);
+        try { history.replaceState(null, "", location.pathname + location.search.replace(/[?&](error|error_code|error_description)=[^&]*/g, "").replace(/^&/, "?")); } catch (x) {}
+      };
+      if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => setTimeout(showExpired, 300)); else setTimeout(showExpired, 300);
+    }
     const hook = () => { try { window.STEP_SUPABASE.onAuthChange((event, profile) => { if (event === "PASSWORD_RECOVERY") open(profile && profile.email); }); } catch (x) {} };
     if (window.STEP_SUPABASE && window.STEP_SUPABASE.isOnline()) hook(); else document.addEventListener("DOMContentLoaded", () => { if (window.STEP_SUPABASE && window.STEP_SUPABASE.isOnline()) hook(); });
   })();
