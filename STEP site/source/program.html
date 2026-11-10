@@ -416,7 +416,7 @@ SCH.timeline().forEach(x => {
              : x.kind === "holiday" ? x.title.replace(/^No Session\s*[-—]\s*/i, "") : "";
   const big = x.kind === "onsite" || x.kind === "orientation";
   g.items.push({ d: SCH.fmtRange(x.date, x.end), t: big ? (x.kind === "onsite" ? "onsite" : "milestone") : KIND[x.kind],
-                 w: what, c: "W" + x.week, n: note });
+                 w: what, c: "W" + x.week, n: note, s: x.date, e: x.end || x.date });
   /* the break sits between Week 7 and Week 8 (dates from the schedule) */
   if (x.week === 7 && x.kind === "feedback") {
     TIMELINE.push({ m: "Christmas break", items: [{ d: "Dec 21 – Jan 3", t: "note", w: "Holiday break", n: "No sessions. Week 8 starts Tuesday, January 5." }] });
@@ -432,11 +432,18 @@ const MODULES = [
   return { c: w.code, t: w.title, h: SCH.fmtRange(w.starts, w.ends), d: w.produce };
 }) }));
 
+/* the highlighted row follows the calendar: today's session, or the next one coming up */
+{
+  const today = SCH.manilaDay();
+  const now = TIMELINE.flatMap(g => g.items).find(i => i.e && i.e >= today);
+  if (now) now.now = true;
+}
+
 /* ---------- the timeline, on one spine ---------- */
 document.getElementById("tl").innerHTML = TIMELINE.map(g => `
   <div class="tl-mo"><span>${g.m}</span></div>
   ${g.items.map(i => `
-    <div class="tl-row t-${i.t} reveal">
+    <div class="tl-row t-${i.t}${i.now ? " is-now" : ""} reveal">
       <span class="tl-node" aria-hidden="true"></span>
       <span class="tl-when">${i.d}</span>
       <span class="tl-what">

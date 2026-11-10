@@ -3206,11 +3206,12 @@ table.fgrid td.money .fin { letter-spacing: .01em; }
 .tl-tag { font-size: 10.5px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase;
           color: #98a3ad; text-align: right; }
 
-/* the few rows that matter get weight; the rest stay quiet */
-.tl-row.t-milestone { background: #fffdf6; border-radius: var(--r); padding: 13px var(--s4);
-                      border-bottom-color: transparent; box-shadow: inset 0 0 0 1px #f0e3c0; margin: 4px 0; }
-.tl-row.t-milestone .tl-node { background: var(--gold); box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px rgba(201,154,46,.25); }
-.tl-row.t-milestone .tl-title { font-size: 17px; font-weight: 750; }
+/* the row for today (or the next session) gets the weight; the rest stay quiet */
+.tl-row.is-now { background: #fffdf6; border-radius: var(--r); padding: 13px var(--s4);
+                 border-bottom-color: transparent; box-shadow: inset 0 0 0 1px #f0e3c0; margin: 4px 0; }
+.tl-row.is-now .tl-node { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px rgba(201,154,46,.25); }
+.tl-row.is-now .tl-title { font-size: 17px; font-weight: 750; }
+.tl-row.t-milestone .tl-node { background: var(--gold); box-shadow: 0 0 0 3px var(--bg); }
 .tl-row.t-milestone .tl-tag { color: #8a6412; }
 .tl-row.t-onsite .tl-node { background: var(--purple, #7a6cc4); box-shadow: 0 0 0 3px var(--bg); }
 .tl-row.t-onsite .tl-tag { color: var(--purple, #7a6cc4); }
