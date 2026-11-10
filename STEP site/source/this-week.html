@@ -1029,15 +1029,18 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
       return "<p>" + lines.map(esc).join("<br>") + "</p>";
     }).join("");
   }
+  /* the assignment card's heading: Week 2's team output is the Market Research assignment, which continues Week 1 */
+  const AHEAD_OVERRIDE = { 2: { k: "Week 1 Continuation", t: "Market Research" } };
   function paint(a) {
     /* only what the tech team posts on the console appears here */
+    const AHEAD = AHEAD_OVERRIDE[wk] || { k: "Week " + wk, t: T.short || T.title || "" };
     const posted = !!(a && a.instructions);
     const instr = posted ? fmt(a.instructions)
       : `<p class="asg-wait">The quick instructions for this week haven't been posted yet. Check back soon.</p>`;
     const guide = a && a.guide, tpl = a && a.template;
     const brief = output ? `
       <div class="asg-top">
-        <div><span class="asg-k">Week ${wk}</span><h3>${esc(T.short || T.title || "")}</h3></div>
+        <div><span class="asg-k">${esc(AHEAD.k)}</span><h3>${esc(AHEAD.t)}</h3></div>
         ${due ? `<span class="asg-due">Due ${esc(dayTxt(due))}, 12:00 NN</span>` : ""}
       </div>
       <div class="asg-block"><h4>Quick instructions</h4>${instr}</div>` : `
