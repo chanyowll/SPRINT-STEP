@@ -1,6 +1,8 @@
 /* Deck viewer: a PDF deck drawn slide by slide inside the preview box.
    Every slide is shown whole (scaled to fit, never cropped or stretched);
    scrolling inside the box moves to the next slide, one slide at a time.
+   A portrait document is the exception: its pages fill the box's width and
+   scroll as one continuous sheet.
    Used by My Team's Work and the Panel preview.
 
    StepDeck.mount(box, url, { title })  draw the deck into `box`
@@ -108,6 +110,11 @@
         doc.getPage(i).then(function (page) {
           if (tok !== box.__deckTok) return;
           var base = page.getViewport({ scale: 1 });
+          /* a tall (portrait) document: pages fill the box edge to edge, stacked, and scroll as one */
+          if (i === 1 && base.height > base.width * 1.05) {
+            sc.classList.add("dk-doc");
+            pgs.forEach(function (q) { q.style.aspectRatio = base.width + " / " + base.height; });
+          }
           var vp = page.getViewport({ scale: Math.max(1, Math.min(2.5, (width * dpr) / base.width)) });
           var c = document.createElement("canvas");
           c.width = Math.ceil(vp.width); c.height = Math.ceil(vp.height);
@@ -139,6 +146,10 @@
         sc.addEventListener("scroll", function () {
           var h = sc.clientHeight || 1;
           var cur = Math.min(n, Math.max(1, Math.round(sc.scrollTop / h) + 1));
+          if (sc.classList.contains("dk-doc")) {
+            cur = 1;
+            for (var k = 0; k < pgs.length; k++) { if (pgs[k].offsetTop <= sc.scrollTop + h / 3) cur = k + 1; else break; }
+          }
           badge.textContent = cur + " / " + n;
         }, { passive: true });
       }

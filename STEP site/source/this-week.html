@@ -1175,7 +1175,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
       const at = b ? (parseInt(b.textContent, 10) || 1) : 1;
       Promise.resolve(window.StepDeck.mount(box, src, { title: "Week " + wk + " " + label })).then(() => {
         const sc = box.querySelector(".dk-scroll");
-        if (sc && at > 1) { sc.style.scrollBehavior = "auto"; sc.scrollTop = (at - 1) * sc.clientHeight; sc.style.scrollBehavior = ""; }
+        if (sc && at > 1) { sc.style.scrollBehavior = "auto"; const tp = sc.querySelectorAll(".dk-pg")[at - 1]; sc.scrollTop = sc.classList.contains("dk-doc") && tp ? tp.offsetTop : (at - 1) * sc.clientHeight; sc.style.scrollBehavior = ""; }
         if (sc) sc.focus();
       });
     } else if (kind === "docx") {
