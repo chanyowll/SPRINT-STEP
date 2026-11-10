@@ -1020,12 +1020,12 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
   const NOOUT = { 0: "Orientation week: nothing to hand in yet. Make sure everyone on the team can sign in to STEP Hub.",
                   6: "No weekly upload this week: your team presents its outputs on site at the Mid-Program Checkpoint.",
                   12: "Demo Day week: your final presentation, technology roadmap and FASTRAC capsule are presented on site." };
-  /* posted instructions: blank lines make paragraphs, lines starting with - or • become a list */
+  /* posted instructions: blank lines make paragraphs, lines starting with - or • become a list; numbered lines keep their typed number even when separated by blank lines */
   function fmt(text) {
     return String(text).trim().split(/\n\s*\n/).map(block => {
       const lines = block.split("\n").map(l => l.trim()).filter(Boolean);
       if (lines.length && lines.every(l => /^([-•*]|\d+[.)])\s+/.test(l)))
-        return (/^\d/.test(lines[0]) ? "<ol>" : "<ul>") + lines.map(l => "<li>" + esc(l.replace(/^([-•*]|\d+[.)])\s+/, "")) + "</li>").join("") + (/^\d/.test(lines[0]) ? "</ol>" : "</ul>");
+        return (/^\d/.test(lines[0]) ? "<ol" + (parseInt(lines[0], 10) > 1 ? ' start="' + parseInt(lines[0], 10) + '"' : "") + ">" : "<ul>") + lines.map(l => "<li>" + esc(l.replace(/^([-•*]|\d+[.)])\s+/, "")) + "</li>").join("") + (/^\d/.test(lines[0]) ? "</ol>" : "</ul>");
       return "<p>" + lines.map(esc).join("<br>") + "</p>";
     }).join("");
   }
