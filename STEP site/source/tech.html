@@ -2175,11 +2175,12 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         const u = await url(b, p), k = kindOf(n, mime);
         body.innerHTML = k === "video" ? `<video controls autoplay src="${esc(u)}"></video>`
           : k === "img" ? `<img alt="" src="${esc(u)}">`
-          : k === "pdf" ? `<iframe title="${esc(n)}" src="${esc(u)}"></iframe>`
+          : k === "pdf" ? (window.StepDeck ? '<div class="od-prev mv-deck"></div>' : `<iframe title="${esc(n)}" src="${esc(u)}"></iframe>`)
           : `<div class="none">${esc(n || "This file")} can’t be previewed here.<br>Use Download to open it on your computer.</div>`;
+        if (k === "pdf" && window.StepDeck) window.StepDeck.mount(body.firstChild, u, { title: n || "File", continuous: true });
       } catch (e) { body.innerHTML = `<div class="none">Could not open the file: ${esc(e.message || e)}</div>`; }
     }
-    const close = () => { box.hidden = true; body.innerHTML = ""; cur = null; };
+    const close = () => { if (window.StepDeck && body.firstChild && body.firstChild.classList && body.firstChild.classList.contains("mv-deck")) window.StepDeck.stop(body.firstChild); box.hidden = true; body.innerHTML = ""; cur = null; };
     $("#fv-x").addEventListener("click", close);
     box.addEventListener("click", e => { if (e.target === box) close(); });
     document.addEventListener("keydown", e => { if (e.key === "Escape" && !box.hidden) close(); });

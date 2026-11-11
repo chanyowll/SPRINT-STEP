@@ -6367,9 +6367,12 @@ body.on-cal .site-footer { display: none; }
 .dk-pg { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); }   /* a tall (portrait) page can no longer stretch its row past the box */
 .dk-pg canvas { width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: contain; display: block; }
 /* Portrait document: pages as wide as the panel, one continuous scroll (no snapping, no padding) */
-.od-prev .dk-scroll.dk-doc { scroll-snap-type: none; background: #e9edf2; }
+.od-prev .dk-scroll.dk-doc { scroll-snap-type: none; background: #2b2f36; }
+.od-prev.mv-deck { position: relative; width: 100%; height: 100%; border: 0; border-radius: 0; background: #2b2f36; }
+.fv-body .od-prev.mv-deck { align-self: stretch; justify-self: stretch; }
 .dk-doc .dk-pg { display: block; height: auto; padding: 0; scroll-snap-align: none; scroll-snap-stop: normal; background: #fff; }
-.dk-doc .dk-pg + .dk-pg { border-top: 2px solid #cfd6df; }
+.dk-doc .dk-pg + .dk-pg { border-top: 0; margin-top: 8px; }
+.dk-doc .dk-pg:last-child { margin-bottom: 8px; }
 .dk-doc .dk-pg canvas { width: 100%; height: auto; display: block; }
 .dk-badge { position: absolute; right: 12px; bottom: 10px; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700;
   background: rgba(16, 32, 48, .78); color: #fff; pointer-events: none; font-variant-numeric: tabular-nums; }

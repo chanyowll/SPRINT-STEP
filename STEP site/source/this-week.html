@@ -567,7 +567,9 @@ const daysAway = iso => {
     let back = null;
     function close() {
       if (box.hidden) return;
-      box.hidden = true; body.innerHTML = "";
+      box.hidden = true;
+      if (window.StepDeck && body.firstChild && body.firstChild.classList && body.firstChild.classList.contains("mv-deck")) window.StepDeck.stop(body.firstChild);
+      body.innerHTML = "";
       document.body.classList.remove("modal-open");
       if (back && back.focus) back.focus();
     }
@@ -577,11 +579,15 @@ const daysAway = iso => {
       back = from || null;
       box.querySelector("#mv-title").textContent = m.name;
       box.querySelector("#mv-meta").textContent = [m.file, m.size, m.type].filter(Boolean).join(" · ");
+      let pendingDeck = null;
       const kind = thumbKind(m);
       if (m.href) { dl.href = m.href; dl.setAttribute("download", m.file || m.name); dl.hidden = false; }
       else { dl.removeAttribute("href"); dl.hidden = true; }
       if (kind === "pdf") {
-        body.innerHTML = `<iframe title="${esc(m.name)}" src="${m.href}#view=FitH&toolbar=1"></iframe>`;
+        if (window.StepDeck) {
+          body.innerHTML = '<div class="od-prev mv-deck"></div>';
+          pendingDeck = () => window.StepDeck.mount(body.firstChild, m.href, { title: m.name, continuous: true });
+        } else body.innerHTML = `<iframe title="${esc(m.name)}" src="${m.href}#view=FitH&toolbar=1"></iframe>`;
       } else if (kind === "img") {
         body.innerHTML = `<div class="mv-img"><img src="${m.href}" alt="${esc(m.name)}"></div>`;
       } else {
@@ -592,6 +598,7 @@ const daysAway = iso => {
                          : "The preview appears here once the trainer posts the file."}</span></div>`;
       }
       box.hidden = false;
+      if (pendingDeck) { pendingDeck(); pendingDeck = null; }   /* drawn once the panel is visible, so it is sized to its real width */
       document.body.classList.add("modal-open");
       box.querySelector(".mv-x").focus();
     }
@@ -1176,7 +1183,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     if (kind === "pdf" && window.StepDeck) {
       const b = from && from.querySelector(".dk-badge");
       const at = b ? (parseInt(b.textContent, 10) || 1) : 1;
-      Promise.resolve(window.StepDeck.mount(box, src, { title: "Week " + wk + " " + label })).then(() => {
+      Promise.resolve(window.StepDeck.mount(box, src, { title: "Week " + wk + " " + label, continuous: true })).then(() => {
         const sc = box.querySelector(".dk-scroll");
         if (sc && at > 1) { sc.style.scrollBehavior = "auto"; const tp = sc.querySelectorAll(".dk-pg")[at - 1]; sc.scrollTop = sc.classList.contains("dk-doc") && tp ? tp.offsetTop : (at - 1) * sc.clientHeight; sc.style.scrollBehavior = ""; }
         if (sc) sc.focus();

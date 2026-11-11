@@ -6,6 +6,10 @@
    Used by My Team's Work and the Panel preview.
 
    StepDeck.mount(box, url, { title })  draw the deck into `box`
+   StepDeck.mount(box, url, { title, continuous: true })
+                                         full-size viewers: every page (slide or
+                                         document) is as wide as the panel and the
+                                         whole file scrolls as one sheet
    StepDeck.stop(box)                    forget a pending draw (call before
                                          writing something else into `box`) */
 (function () {
@@ -111,7 +115,7 @@
           if (tok !== box.__deckTok) return;
           var base = page.getViewport({ scale: 1 });
           /* a tall (portrait) document: pages fill the box edge to edge, stacked, and scroll as one */
-          if (i === 1 && base.height > base.width * 1.05) {
+          if (i === 1 && (opt.continuous || base.height > base.width * 1.05)) {
             sc.classList.add("dk-doc");
             pgs.forEach(function (q) { q.style.aspectRatio = base.width + " / " + base.height; });
           }
