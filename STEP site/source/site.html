@@ -16077,7 +16077,7 @@ try {
     const tm = K.teams().find(x => x.id === t) || {};
     const d = e ? e.d : (selDay || K.today()), st = e ? e.start : "16:00", en = e ? e.end : "17:30";
     return '<div class="cl-edit' + (e ? "" : " new") + '">' + (e ? '<div class="cl-lab">Edit this session · STEP Team only</div>' : "")
-      + '<label class="cl-fl">Team<select id="cm-team"' + (e ? " disabled" : "") + ">" + K.teams().map(x => '<option value="' + x.id + '"' + (x.id === t ? " selected" : "") + ">Team " + esc(x.short) + "</option>").join("") + "</select></label>"
+      + '<label class="cl-fl">Team<select id="cm-team" data-prev="' + t + '"' + (e ? " disabled" : "") + ">" + K.teams().map(x => '<option value="' + x.id + '"' + (x.id === t ? " selected" : "") + ">Team " + esc(x.short) + "</option>").join("") + "</select></label>"
       + '<div class="cl-f3"><label class="cl-fl">Date<input type="date" id="cm-date" value="' + d + '"></label><label class="cl-fl">Starts<input type="time" id="cm-st" value="' + st + '"></label><label class="cl-fl">Ends<input type="time" id="cm-en" value="' + en + '"></label></div>'
       + '<label class="cl-fl">Mentor<input type="text" id="cm-mentor" maxlength="120" value="' + esc(e ? e.mentor : tm.mentor || "") + '" list="cm-mentors"></label>'
       + '<datalist id="cm-mentors">' + [...new Set(K.teams().map(x => x.mentor).filter(Boolean))].map(m => '<option value="' + esc(m) + '">').join("") + "</datalist>"
@@ -16188,6 +16188,15 @@ try {
 
   $("cl-app").addEventListener("change", ev => {
     if (ev.target.id === "ce-rep") { const f = $("ce-until-f"); if (f) f.hidden = !ev.target.checked; }
+    /* a new mentoring session: choosing another team brings that team's mentor into the Mentor box
+       (a name the STEP Team typed by hand is left alone) */
+    if (ev.target.id === "cm-team") {
+      const m = $("cm-mentor"), teams = K.teams();
+      const was = ev.target.dataset.prev, now = ev.target.value;
+      const mentorOf = id => ((teams.find(x => x.id === id) || {}).mentor || "");
+      if (m && (!m.value.trim() || m.value.trim() === mentorOf(was))) m.value = mentorOf(now);
+      ev.target.dataset.prev = now;
+    }
   });
 
   /* ---------- the page fills the screen, like STEP GC ---------- */
