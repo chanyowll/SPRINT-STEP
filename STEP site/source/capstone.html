@@ -134,7 +134,7 @@
         </div>
         <div class="acts">
           <button class="btn solid" id="btn-preview">Preview the form</button>
-          <button class="btn" id="btn-export">Export current draft</button>
+          <button class="btn" id="btn-export">Save as DOCX</button>
         </div>
       </div>
       <div class="ws-body">
@@ -256,6 +256,7 @@
 <script src="supabase-client.js"></script>
 <script src="myteam-data.js"></script>
 <script src="capstone-data.js"></script>
+<script src="capstone-docx.js"></script>
 <script src="submissions-data.js"></script>
 <script src="schedule-data.js"></script>
 <script src="mock-data.js"></script>
@@ -1469,8 +1470,26 @@ function flash(btn, msg, back) {
   btn.textContent = msg;
   setTimeout(() => { btn.textContent = back; }, 2600);
 }
-document.getElementById("btn-export").addEventListener("click", function () {
-  flash(this, "Assembled " + FORM.filter(hasContent).length + " items into DOST Form 2 (mockup)", "Export current draft");
+/* ---------- Save as DOCX: the filled-in DOST Form 2 as a real Word file, pictures included ---------- */
+document.getElementById("btn-export").addEventListener("click", async function () {
+  const btn = this;
+  if (btn.disabled) return;
+  if (!window.STEP_CAPDOCX) { flash(btn, "The Word file maker did not load — reload the page and try again", "Save as DOCX"); return; }
+  btn.disabled = true; btn.textContent = "Preparing the Word file…";
+  try {
+    buildSheet();                                         // the form exactly as the preview shows it
+    const day = new Date().toLocaleDateString("en-CA", { timeZone: "Asia/Manila" });
+    const name = ("FASTRAC Proposal - " + (TEAM && TEAM.name ? TEAM.name : "Team") + " - " + day).replace(/[\\/:*?"<>|]+/g, "-") + ".docx";
+    await window.STEP_CAPDOCX.save(document.getElementById("sheet"), {
+      fileName: name, title: "DOST Form 2 — " + ((F(1).value && F(1).value.title) || "FASTRAC proposal"),
+      imageUrl: img => img.dataset.cappath && CAPDB() && CAPDB().imageUrl ? CAPDB().imageUrl(img.dataset.cappath) : null,
+    });
+    btn.disabled = false;
+    flash(btn, "Saved — check your Downloads", "Save as DOCX");
+  } catch (e) {
+    btn.disabled = false;
+    flash(btn, "Couldn't make the Word file — " + (e.message || e), "Save as DOCX");
+  }
 });
 
 

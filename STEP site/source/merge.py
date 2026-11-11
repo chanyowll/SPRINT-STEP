@@ -367,6 +367,7 @@ page = f"""<!doctype html>
 <script src="announcements-data.js"></script>
 <script src="chat-data.js"></script>
 <script src="capstone-data.js"></script>
+<script src="capstone-docx.js"></script>
 <script src="panelplan-data.js"></script>
 <script src="panelsheets-data.js"></script>
 <script src="scoresheets-data.js"></script>
