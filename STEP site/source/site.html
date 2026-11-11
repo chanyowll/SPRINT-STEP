@@ -4044,10 +4044,51 @@
   const hasCls = (el, c) => el.classList && el.classList.contains(c);
   const isBlockEl = el => el.nodeType === 1 && BLOCK.test(el.tagName);
 
-  function build(sheet, imageUrl) {
-    const media = [];                    // { name, data, type, rid }
+  /* every picture is fetched and measured before the file is written, so each
+     one has its real shape, and one that cannot be read is simply left out */
+  async function readImage(img, imageUrl) {
+    let src = img.getAttribute('src');
+    if (!src && imageUrl) src = await imageUrl(img);
+    if (!src) return null;
+    let blob = null;
+    try { const res = await fetch(src); if (res.ok) blob = await res.blob(); } catch (e) {}
+    if (!blob || !/^image\//.test(blob.type)) {
+      /* fall back to the copy the page already shows (same-site pictures such as the DOST logo) */
+      blob = await new Promise(done => {
+        const im = new Image();
+        im.onload = () => {
+          try {
+            const c = document.createElement('canvas'); c.width = im.naturalWidth; c.height = im.naturalHeight;
+            c.getContext('2d').drawImage(im, 0, 0); c.toBlob(b => done(b), 'image/png');
+          } catch (e) { done(null); }
+        };
+        im.onerror = () => done(null);
+        im.src = src;
+      });
+      if (!blob) return null;
+    }
+    let bmp;
+    try { bmp = await createImageBitmap(blob); } catch (e) { return null; }
+    const w = bmp.width, h = bmp.height;
+    if (/^image\/(png|jpeg|gif)$/.test(blob.type)) return { data: await blob.arrayBuffer(), ext: blob.type === 'image/jpeg' ? 'jpeg' : blob.type.slice(6), w, h };
+    /* anything Word cannot show (webp…) becomes a PNG */
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    c.getContext('2d').drawImage(bmp, 0, 0);
+    const png = await new Promise(done => c.toBlob(done, 'image/png'));
+    return png ? { data: await png.arrayBuffer(), ext: 'png', w, h } : null;
+  }
+  async function readImages(sheet, imageUrl) {
+    const map = new Map();
+    await Promise.all(Array.from(sheet.querySelectorAll('img')).map(async img => {
+      const r = await readImage(img, imageUrl).catch(() => null);
+      if (r) map.set(img, r);
+    }));
+    return map;
+  }
+
+  function build(sheet, pics) {
+    const media = [];                    // { name, rid, data, ext }
     let imgSeq = 0;
-    const pending = [];                  // image loads to finish before zipping
 
     /* ---------- runs ---------- */
     function rPr(st) {
@@ -4088,16 +4129,16 @@
 
     /* ---------- pictures ---------- */
     function imageRun(img, pct, width) {
+      const pic = pics.get(img);
+      if (!pic) return '';                                                  // could not be read: leave it out, never a broken box
       const id = ++imgSeq, rid = 'rImg' + id;
-      const nw = img.naturalWidth || 800, nh = img.naturalHeight || 600;
+      const nw = pic.w || 800, nh = pic.h || 600;
       const avail = (width || CONTENT) - 2 * CELL_PAD;
       let wTw = pct ? avail * pct / 100 : Math.min(avail, nw * 15);        // a picture with no size set: 96 dpi, never wider than the column
       if (hasCls(img.parentElement, 'dochead') || img.closest('.dochead')) wTw = 1300;
       const cx = Math.round(wTw * EMU_PER_TWIP), cy = Math.round(cx * nh / nw);
-      const slot = { name: 'image' + id, rid, data: null, ext: 'png' };
-      media.push(slot);
-      pending.push(loadImage(img).then(r => { slot.data = r.data; slot.ext = r.ext; }).catch(() => { slot.data = null; }));
-      return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/>` +
+      media.push({ name: 'image' + id, rid, data: pic.data, ext: pic.ext });
+      return `<w:r><w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0"><wp:extent cx="${cx}" cy="${cy}"/><wp:effectExtent l="0" t="0" r="0" b="0"/>` +
         `<wp:docPr id="${id}" name="Picture ${id}"/><wp:cNvGraphicFramePr><a:graphicFrameLocks noChangeAspect="1"/></wp:cNvGraphicFramePr>` +
         `<a:graphic><a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture"><pic:pic>` +
         `<pic:nvPicPr><pic:cNvPr id="${id}" name="Picture ${id}"/><pic:cNvPicPr/></pic:nvPicPr>` +
@@ -4105,20 +4146,6 @@
         `<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>` +
         `</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing></w:r>`;
     }
-    async function loadImage(img) {
-      let src = img.getAttribute('src');
-      if (!src && imageUrl) src = await imageUrl(img);
-      if (!src) throw new Error('no link');
-      const blob = await (await fetch(src)).blob();
-      if (/^image\/(png|jpeg|gif)$/.test(blob.type)) return { data: await blob.arrayBuffer(), ext: blob.type === 'image/jpeg' ? 'jpeg' : blob.type.slice(6) };
-      /* anything Word cannot show (webp…) becomes a PNG */
-      const bmp = await createImageBitmap(blob);
-      const c = document.createElement('canvas'); c.width = bmp.width; c.height = bmp.height;
-      c.getContext('2d').drawImage(bmp, 0, 0);
-      const png = await new Promise(r => c.toBlob(r, 'image/png'));
-      return { data: await png.arrayBuffer(), ext: 'png' };
-    }
-
     /* ---------- paragraphs and tables ---------- */
     function para(runs, opt) {
       opt = opt || {};
@@ -4228,11 +4255,12 @@
       const logo = img ? [para(imageRun(img, null, 1600))] : [];
       const title = ti ? Array.from(ti.children).map((d, i) =>
         para(textRuns(d.textContent.trim(), { b: true, size: i ? 26 : 20 }), { jc: 'center' })) : [];
-      return tblXml([`<w:tr>${cellXml(logo, 1600)}${cellXml(title, CONTENT - 3200)}${cellXml([], 1600)}</w:tr>`], [1600, CONTENT - 3200, 1600], { noBorders: true });
+      return tblXml([`<w:tr>${cellXml(logo, 1600, '<w:vAlign w:val="center"/>')}${cellXml(title, CONTENT - 3200, '<w:vAlign w:val="center"/>')}${cellXml([], 1600)}</w:tr>`], [1600, CONTENT - 3200, 1600], { noBorders: true }) +
+        '<w:p><w:pPr><w:spacing w:before="0" w:after="160"/></w:pPr></w:p>';                     // the gap the preview leaves under the title
     }
 
     const body = blocks(sheet, {}, CONTENT).join('');
-    return { body, media, pending };
+    return { body, media };
   }
 
   const NS = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" ' +
@@ -4244,13 +4272,9 @@
   async function make(sheet, opt) {
     opt = opt || {};
     const Zip = await jszip();
-    const { body, media, pending } = build(sheet, opt.imageUrl);
-    await Promise.all(pending);
-    let bodyXml = body;
-    const ok = media.filter(m => m.data);
-    media.filter(m => !m.data).forEach(m => {                  // a picture that could not be fetched leaves no broken box
-      bodyXml = bodyXml.replace(new RegExp('<w:r><w:drawing>(?:(?!</w:drawing>).)*r:embed="' + m.rid + '"(?:(?!</w:drawing>).)*</w:drawing></w:r>', 's'), '');
-    });
+    const pics = await readImages(sheet, opt.imageUrl);
+    const { body, media } = build(sheet, pics);
+    const bodyXml = body, ok = media;
     const doc = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${NS}><w:body>${bodyXml}` +
       `<w:sectPr><w:pgSz w:w="${PAGE_W}" w:h="${PAGE_H}"/><w:pgMar w:top="${MARGIN}" w:right="${MARGIN}" w:bottom="${MARGIN}" w:left="${MARGIN}" w:header="567" w:footer="567" w:gutter="0"/></w:sectPr></w:body></w:document>`;
     const styles = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">` +
