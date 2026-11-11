@@ -47,9 +47,10 @@
     const u = await user();
     const data = {};
     ['draft', 'value', 'attachments', 'parts'].forEach(k => { if (f[k] !== undefined) data[k] = f[k]; });
-    /* the item's pictures: only what is stored (path, caption, size), never a page-only preview link */
+    /* the item's pictures (items 8–20): what is stored, never a page-only preview link.
+       id ties a picture to its [[img:id]] line in the draft; pct is its width on the page. */
     if (Array.isArray(f.images)) data.images = f.images.filter(x => x && x.path)
-      .map(x => ({ path: x.path, caption: x.caption || '', w: x.w || 0, h: x.h || 0 }));
+      .map(x => ({ id: x.id || null, path: x.path, w: x.w || 0, h: x.h || 0, pct: x.pct || 100 }));
     const row = {
       team_id: teamId, item_n: f.n, data, filled: !!filled,
       submitted: !!f.submitted, submitted_at: f.submitted ? (f.submitted_iso || new Date().toISOString()) : null,

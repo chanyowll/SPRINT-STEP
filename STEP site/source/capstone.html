@@ -281,7 +281,7 @@ function seedSubmitted() {
     f.submitted = (f.status === "reviewed" || f.status === "submitted"); });
 }
 seedSubmitted();
-const words = s => (s || "").trim() ? s.trim().split(/\s+/).length : 0;
+const words = s => { const t = String(s || "").replace(/\[\[img:[a-z0-9]+\]\]/gi, " ").trim(); return t ? t.split(/\s+/).length : 0; };   // pictures are not words
 const plural = (n, one, many) => n + " " + (n === 1 ? one : (many || one + "s"));
 /* An item is in one of three states, and the participant owns all three:
    they have not started it, they have started it, or they have submitted it.
@@ -326,7 +326,7 @@ function hasContent(f) {
     case "projects":    return v.rows.some(r => String(r.title).trim());
     case "attachments": return f.attachments ? f.attachments.some(a => a.have === true) : false;
     case "intro":       return ["rationale", "framework", "general", "specific"].some(k => String(v[k] || "").trim());
-    default:            return !!(f.draft || "").trim() || (f.images || []).some(x => x.path || x.url);
+    default:            return !!String(f.draft || "").replace(/\[\[img:[a-z0-9]+\]\]/gi, " ").trim() || /\[\[img:[a-z0-9]+\]\]/i.test(f.draft || "");
   }
 }
 
@@ -657,6 +657,7 @@ function queueSave(f, wait) {
 function hydrateItem(r) {
   const f = F(r.item_n); if (!f) return;
   ["draft", "value", "attachments", "parts", "images"].forEach(k => { if (r.data && r.data[k] !== undefined) f[k] = r.data[k]; });
+  capRteMigrate(f);
   f.submitted = !!r.submitted;
   f.submitted_iso = r.submitted_at || null;
   f.submitted_at = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString("en-PH",
@@ -676,16 +677,22 @@ function hydrate(saved) {
     d.status = "in";
   });
 }
-/* ---------- pictures on a written item ----------
-   Teams paste a screenshot, drop pictures in, or choose files. Each picture
-   is shrunk in the browser (longest side 1600 px), stored in the team's
-   private folder and listed on the item with an optional caption. Signed in,
-   f.images holds { path, caption, w, h }; in the offline preview a picture
-   lives only in this browser ({ url }). Pictures never count as words. */
-const CAPIMG_MAX = 10, CAPIMG_SIDE = 1600;
-const capImgUrls = {};                                   // path → signed link, for this visit
+/* ---------- written items 8–20: a page that holds pictures, like a Word document ----------
+   Only items 8 to 20 (Review of Literature through Literature Cited) get this.
+   Teams paste a screenshot (Ctrl/⌘+V) or drop a picture and it lands where the
+   cursor is; clicking a picture shows a corner handle and size buttons.
+   Stored as plain text (f.draft) with a line [[img:<id>]] where each picture
+   sits, plus f.images = [{ id, path, w, h, pct }] (pct = width on the page).
+   Signed in, the files go to the team's private folder; in the offline
+   preview a picture lives only in this browser ({ url }). Pictures never
+   count as words. */
+const RTE_FROM = 8, RTE_TO = 20, CAPIMG_MAX = 10, CAPIMG_SIDE = 1600;
+const isRich = f => !!f && f.kind === "prose" && f.n >= RTE_FROM && f.n <= RTE_TO;
+const RTE_MARK = /^\[\[img:([a-z0-9]+)\]\]$/i;
+const capPlain = s => String(s || "").replace(/\[\[img:[a-z0-9]+\]\]/gi, " ");
+const capImgUrls = {};                                   // path → link, for this visit
 let capImgFillQueued = false;
-function capImgSrc(x) { return x.url || (x.path && capImgUrls[x.path]) || ""; }
+function capImgSrc(x) { return (x && (x.url || (x.path && capImgUrls[x.path]))) || ""; }
 function capImgFill() {
   if (capImgFillQueued) return;
   capImgFillQueued = true;
@@ -706,16 +713,19 @@ function capImgFill() {
 }
 function capImgTag(x, alt) {
   const src = capImgSrc(x);
-  return `<img alt="${esc(alt || "")}" ${src ? `src="${esc(src)}"` : ""} ${x.path ? `data-cappath="${esc(x.path)}"` : ""}>`;
-}
-/* the pictures, as the DOST form shows them: under the text, captioned */
-function capImgSheet(f) {
-  const list = (f.images || []).filter(x => x.path || x.url);
-  if (!list.length) return "";
-  return `<div class="capfigs">${list.map((x, i) => `<figure>${capImgTag(x, x.caption || "Picture " + (i + 1) + " for item " + f.n)}${
-    String(x.caption || "").trim() ? `<figcaption>${esc(x.caption.trim())}</figcaption>` : ""}</figure>`).join("")}</div>`;
+  return `<img alt="${esc(alt || "")}" draggable="false" ${src ? `src="${esc(src)}"` : ""} ${x && x.path ? `data-cappath="${esc(x.path)}"` : ""}>`;
 }
 const capImgFiles = list => Array.from(list || []).filter(x => /^image\/(png|jpe?g|webp|gif)$/i.test(x.type || ""));
+const rteId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+/* pictures added with the earlier "Pictures" box (no place in the text) go to the end of the text */
+function capRteMigrate(f) {
+  if (!isRich(f) || !Array.isArray(f.images)) return;
+  const loose = f.images.filter(x => x && !x.id);
+  if (!loose.length) return;
+  loose.forEach(x => { x.id = rteId(); x.pct = x.pct || 100; delete x.caption; });
+  const tail = loose.map(x => "[[img:" + x.id + "]]").join("\n");
+  f.draft = (f.draft || "").replace(/\s+$/, "") + ((f.draft || "").trim() ? "\n" : "") + tail;
+}
 /* shrink a picture so its longest side is at most 1600 px; small PNG screenshots keep their sharp edges */
 function capImgPrep(file) {
   return new Promise((res, rej) => {
@@ -729,111 +739,264 @@ function capImgPrep(file) {
       const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, w, h); g.drawImage(im, 0, 0, w, h);
       URL.revokeObjectURL(url);
       const png = /png/.test(file.type) && file.size <= 3e6;
-      c.toBlob(b => b ? res({ blob: b, w, h }) : rej(new Error("Could not read the picture")), png ? "image/png" : "image/jpeg", 0.86);
+      c.toBlob(b => b ? res({ blob: b, w, h }) : rej(new Error("could not read the picture")), png ? "image/png" : "image/jpeg", 0.86);
     };
-    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error("That file is not a picture this browser can read")); };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error("that file is not a picture this browser can read")); };
     im.src = url;
   });
 }
-function capImgEditor(f) {
-  const list = f.images || [];
-  return `<div class="capimg" id="capimg">
-    <div class="capimg-head"><b>Pictures</b><span>${list.length ? list.length + " of " + CAPIMG_MAX : "Optional"}</span></div>
-    <div class="capimg-list">${list.map((x, i) => `<figure class="capimg-it${x.uploading ? " busy" : ""}" data-i="${i}">
-      <div class="capimg-pic">${capImgTag(x, x.caption || "Picture " + (i + 1))}${x.uploading ? `<span class="capimg-up">Uploading…</span>` : ""}</div>
-      <div class="capimg-side">
-        <input type="text" class="capimg-cap" data-capi="${i}" maxlength="200" placeholder="Caption (optional), e.g. Figure ${i + 1}. Competitive advantage table" value="${esc(x.caption || "")}">
-        <div class="capimg-acts">
-          <button type="button" data-capmove="-1" data-capi="${i}" ${i === 0 ? "disabled" : ""} aria-label="Move picture ${i + 1} up">Move up</button>
-          <button type="button" data-capmove="1" data-capi="${i}" ${i === list.length - 1 ? "disabled" : ""} aria-label="Move picture ${i + 1} down">Move down</button>
-          <button type="button" class="danger" data-capdel="${i}" aria-label="Remove picture ${i + 1}">Remove</button>
-        </div>
-      </div></figure>`).join("")}</div>
-    <div class="capimg-drop" id="capimg-drop" ${list.length >= CAPIMG_MAX ? "hidden" : ""}>
-      <span>Paste a screenshot (Ctrl+V or ⌘V), drop pictures here, or</span>
-      <button type="button" class="btn" id="capimg-pick">Choose pictures</button>
-      <input type="file" id="capimg-file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
-    </div>
-    <p class="capimg-err" id="capimg-err" role="alert" hidden></p>
-  </div>`;
+/* draft → the editable page: one <div> per line, a picture block per [[img]] line */
+function rteFig(x, id) {
+  const pct = Math.max(10, Math.min(100, (x && x.pct) || 100));
+  return `<div class="rte-fig" contenteditable="false" data-id="${esc(id)}"><span class="rte-frame" style="width:${pct}%">${
+    x ? capImgTag(x, "Picture in this item") : `<span class="rte-miss">Picture still uploading</span>`}${
+    x && x.uploading ? `<span class="rte-up">Uploading…</span>` : ""}<span class="rte-grip" title="Drag to resize"></span></span></div>`;
 }
-function wireCapImg(f, n, afterEdit) {
-  const box = document.getElementById("capimg"); if (!box) return;
-  const ed = document.getElementById("editor");
-  box.classList.toggle("empty", !(f.images || []).length);
-  capImgFill();
-  const can = () => current === n && !(CAP_LIVE && !CAP_EDIT) && !ed.dataset.lock;
-  const err = msg => { const e = document.getElementById("capimg-err"); if (!e) return; e.textContent = msg || ""; e.hidden = !msg; };
-  const redraw = () => {
-    const cur = document.getElementById("capimg"); if (!cur || current !== n) return;
-    cur.outerHTML = capImgEditor(f);
-    wireCapImg(f, n, afterEdit);
+function rteHTML(f) {
+  const pool = {}; (f.images || []).forEach(x => { if (x && x.id) pool[x.id] = x; });
+  const lines = String(f.draft || "").split("\n");
+  return lines.map(l => { const m = l.match(RTE_MARK); return m ? rteFig(pool[m[1]], m[1]) : `<div>${esc(l) || "<br>"}</div>`; }).join("");
+}
+/* the page → draft text, and the pictures in the order they appear */
+function rteRead(rte) {
+  const lines = [], ids = [];
+  let cur = null;
+  const flush = () => { if (cur !== null) { lines.push(cur); cur = null; } };
+  const inner = (el) => {
+    let s = "";
+    const kids = Array.from(el.childNodes);
+    kids.forEach((k, i) => {
+      if (k.nodeType === 3) s += k.nodeValue;
+      else if (k.nodeType !== 1) return;
+      else if (k.classList.contains("rte-fig")) { ids.push(k.dataset.id); s += "\n[[img:" + k.dataset.id + "]]\n"; }
+      else if (k.tagName === "BR") { if (i !== kids.length - 1) s += "\n"; }
+      else if (/^(DIV|P|LI|H\d)$/.test(k.tagName)) s += (s && !s.endsWith("\n") ? "\n" : "") + inner(k);
+      else s += inner(k);
+    });
+    return s;
   };
-  const changed = () => { afterEdit(); syncSheet(n, false); refreshCounts(); };
+  Array.from(rte.childNodes).forEach(n => {
+    if (n.nodeType === 1 && n.classList.contains("rte-fig")) { flush(); ids.push(n.dataset.id); lines.push("[[img:" + n.dataset.id + "]]"); }
+    else if (n.nodeType === 1 && /^(DIV|P|LI|H\d)$/.test(n.tagName)) { flush(); inner(n).split("\n").forEach(l => lines.push(l)); }
+    else if (n.nodeType === 1 && n.tagName === "BR") { lines.push(cur || ""); cur = null; }
+    else if (n.nodeType === 3 || n.nodeType === 1) { cur = (cur || "") + (n.nodeType === 3 ? n.nodeValue : inner(n)); }
+  });
+  flush();
+  let text = lines.join("\n").replace(/ /g, " ");
+  if (!text.trim() && !ids.length) text = "";
+  return { text, ids };
+}
+/* the DOST form preview: text where it is, each picture at its place and size */
+function capRichSheet(f) {
+  const pool = {}; (f.images || []).forEach(x => { if (x && x.id) pool[x.id] = x; });
+  let out = "", buf = [];
+  const flushText = () => { const t = buf.join("\n"); if (t.trim()) out += `<div class="ans">${esc(t.replace(/^\n+|\n+$/g, ""))}</div>`; buf = []; };
+  String(f.draft || "").split("\n").forEach(l => {
+    const m = l.match(RTE_MARK);
+    if (!m) { buf.push(l); return; }
+    flushText();
+    const x = pool[m[1]];
+    if (x && capImgSrc(x) || x && x.path) out += `<figure class="capfig"><span style="width:${Math.max(10, Math.min(100, x.pct || 100))}%">${capImgTag(x, "Picture in item " + f.n)}</span></figure>`;
+  });
+  flushText();
+  if (out.includes("<img")) capImgFill();
+  return out;
+}
 
-  async function add(list) {
+/* ---- the editor's behaviour ---- */
+let rteSession = null;                                   // { n, pool: { id: picture } } for the item being edited
+function rteCleanup() {
+  /* pictures taken out of an item are deleted once the team has moved on (until then Ctrl+Z can bring them back) */
+  const s = rteSession; rteSession = null;
+  if (!s || !CAP_LIVE || !CAPDB() || !CAPDB().removeImage) return;
+  const f = F(s.n); if (!f) return;
+  const kept = new Set((f.images || []).map(x => x.id));
+  Object.values(s.pool).forEach(x => { if (x.path && !kept.has(x.id) && !x.uploading) setTimeout(() => CAPDB().removeImage(x.path), 4000); });
+}
+function wireRte(f, n, afterEdit) {
+  const rte = document.getElementById("rte"); if (!rte) return;
+  const ed = document.getElementById("editor");
+  try { document.execCommand("defaultParagraphSeparator", false, "div"); } catch (e) {}
+  rteSession = { n, pool: {} };
+  (f.images || []).forEach(x => { if (x && x.id) rteSession.pool[x.id] = x; });
+  capImgFill();
+  const can = () => current === n && !(CAP_LIVE && !CAP_EDIT) && !ed.dataset.lock && rte.isContentEditable;
+  const wcEl = document.getElementById("wc"), saved = document.getElementById("saved");
+  const err = msg => { const e = document.getElementById("rte-err"); if (!e) return; e.textContent = msg || ""; e.hidden = !msg; };
+  let t;
+  function changed() {
+    const r = rteRead(rte);
+    f.draft = r.text;
+    f.images = r.ids.map(id => rteSession.pool[id]).filter(Boolean);
+    const w = words(f.draft);
+    if (wcEl) { wcEl.textContent = w + " words" + (f.limit ? " of " + f.limit + " allowed" : ""); wcEl.classList.toggle("over", !!f.limit && w > f.limit); }
+    rte.classList.toggle("is-empty", !r.text);
+    syncSheet(n, false);
+    clearTimeout(t); if (saved) saved.classList.remove("on");
+    afterEdit();
+    t = setTimeout(() => { if (!CAP_LIVE && saved) saved.classList.add("on"); refreshCounts(); }, 700);
+  }
+  rte.classList.toggle("is-empty", !String(f.draft || ""));
+  rte.addEventListener("input", () => { if (can()) changed(); });
+
+  /* ---- choosing a picture: corner handle and size buttons ---- */
+  const unselect = () => rte.querySelectorAll(".rte-fig.sel").forEach(x => { x.classList.remove("sel"); const b = x.querySelector(".rte-bar"); if (b) b.remove(); });
+  function select(fig) {
+    unselect(); if (!can()) return;
+    if (document.activeElement !== rte) rte.focus({ preventScroll: true });   // so Backspace / Delete reach the picture
+    fig.classList.add("sel");
+    const fr = fig.querySelector(".rte-frame");
+    fr.insertAdjacentHTML("beforeend", `<span class="rte-bar">${[["Small", 25], ["Medium", 50], ["Large", 75], ["Full width", 100]]
+      .map(([l, p]) => `<button type="button" data-pct="${p}">${l}</button>`).join("")}<button type="button" class="danger" data-rm>Remove</button></span>`);
+  }
+  function setPct(fig, pct) {
+    pct = Math.round(Math.max(10, Math.min(100, pct)));
+    fig.querySelector(".rte-frame").style.width = pct + "%";
+    const x = rteSession.pool[fig.dataset.id]; if (x) x.pct = pct;
+  }
+  function removeFig(fig) {
+    const next = fig.nextSibling;
+    fig.remove();
+    if (!rte.firstChild) rte.innerHTML = "<div><br></div>";
+    caretAt(next && next.parentNode === rte ? next : rte.lastChild, true);
+    changed();
+  }
+  rte.addEventListener("mousedown", e => {
+    const fig = e.target.closest(".rte-fig");
+    if (!fig) { unselect(); return; }
+    if (e.target.closest(".rte-bar, .rte-grip")) return;
+    e.preventDefault(); select(fig);
+  });
+  rte.addEventListener("click", e => {
+    const b = e.target.closest(".rte-bar button"); if (!b || !can()) return;
+    const fig = b.closest(".rte-fig");
+    if (b.hasAttribute("data-rm")) { removeFig(fig); return; }
+    setPct(fig, +b.dataset.pct); changed(); select(fig);
+  });
+  rte.addEventListener("pointerdown", e => {
+    const g = e.target.closest(".rte-grip"); if (!g || !can()) return;
+    e.preventDefault();
+    const fig = g.closest(".rte-fig"), fr = fig.querySelector(".rte-frame");
+    if (!fig.classList.contains("sel")) select(fig);
+    const x0 = e.clientX, w0 = fr.getBoundingClientRect().width, full = rte.clientWidth - 32;
+    g.setPointerCapture(e.pointerId);
+    const move = ev => setPct(fig, (w0 + ev.clientX - x0) / full * 100);
+    const up = () => { g.removeEventListener("pointermove", move); g.removeEventListener("pointerup", up); changed(); };
+    g.addEventListener("pointermove", move); g.addEventListener("pointerup", up);
+  });
+  rte.addEventListener("keydown", e => {
+    const fig = rte.querySelector(".rte-fig.sel");
+    if (fig && (e.key === "Backspace" || e.key === "Delete")) { e.preventDefault(); if (can()) removeFig(fig); return; }
+    if (fig && e.key !== "Shift") unselect();
+  });
+  rte.addEventListener("focusout", e => { if (!rte.contains(e.relatedTarget)) unselect(); });
+
+  /* ---- where the cursor is ---- */
+  function caretAt(node, start) {
+    if (!node) return;
+    if (node.classList && node.classList.contains("rte-fig")) {           // never put the cursor inside a picture
+      let next = node.nextSibling;
+      if (!next || (next.classList && next.classList.contains("rte-fig"))) { next = document.createElement("div"); next.innerHTML = "<br>"; rte.insertBefore(next, node.nextSibling); }
+      node = next; start = true;
+    }
+    const r = document.createRange();
+    r.selectNodeContents(node); r.collapse(!!start);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+  }
+  /* put a picture block at the cursor, splitting the line there, like Word */
+  function insertFigAt(range, fig) {
+    if (!range || !rte.contains(range.startContainer)) { rte.appendChild(fig); caretAt(fig); return; }
+    let node = range.startContainer;
+    if (node === rte) {
+      const ref = rte.childNodes[range.startOffset] || null;
+      rte.insertBefore(fig, ref); caretAt(fig); return;
+    }
+    while (node.parentNode !== rte) node = node.parentNode;
+    if (node.nodeType === 1 && node.classList.contains("rte-fig")) { rte.insertBefore(fig, node.nextSibling); caretAt(fig); return; }
+    if (node.nodeType !== 1 || !/^(DIV|P)$/.test(node.tagName)) {              // a loose line: wrap it first
+      const d = document.createElement("div"); rte.insertBefore(d, node); d.appendChild(node); node = d;
+    }
+    const tail = document.createRange();
+    tail.setStart(range.startContainer, range.startOffset); tail.setEnd(node, node.childNodes.length);
+    const after = document.createElement("div"); after.appendChild(tail.extractContents());
+    const blank = el => !el.textContent.replace(/ /g, " ").trim() && !el.querySelector(".rte-fig");
+    if (blank(after)) after.innerHTML = "<br>";
+    if (blank(node)) { rte.insertBefore(fig, node); node.remove(); }
+    else rte.insertBefore(fig, node.nextSibling);
+    rte.insertBefore(after, fig.nextSibling);
+    caretAt(after, true);
+  }
+  async function addPictures(list, range) {
     let files = capImgFiles(list);
     if (!files.length || !can()) return;
-    f.images = f.images || [];
-    const room = CAPIMG_MAX - f.images.length;
+    const have = rte.querySelectorAll(".rte-fig").length, room = CAPIMG_MAX - have;
     if (room <= 0) { err("This item already has " + CAPIMG_MAX + " pictures. Remove one to add another."); return; }
     let note = "";
-    if (files.length > room) { note = "Only " + room + " more picture" + (room === 1 ? "" : "s") + " fit on this item, so the rest were left out."; files = files.slice(0, room); }
-    const entries = files.map(file => ({ caption: "", uploading: true, url: URL.createObjectURL(file), file }));
-    f.images.push(...entries);
-    redraw(); err(note);
-    for (const x of entries) {
+    if (files.length > room) { note = "Only " + room + " more picture" + (room === 1 ? "" : "s") + " fit in this item, so the rest were left out."; files = files.slice(0, room); }
+    err(note);
+    for (const file of files) {
+      const id = rteId(), x = { id, uploading: true, url: URL.createObjectURL(file), pct: 100 };
+      rteSession.pool[id] = x;
+      const holder = document.createElement("div"); holder.innerHTML = rteFig(x, id);
+      const fig = holder.firstChild;
+      insertFigAt(range, fig); range = getSelection().rangeCount ? getSelection().getRangeAt(0) : null;
+      changed();
       try {
-        const p = await capImgPrep(x.file);
+        const p = await capImgPrep(file);
         x.w = p.w; x.h = p.h;
+        const full = Math.max(200, rte.clientWidth - 32);
+        x.pct = Math.max(15, Math.min(100, Math.round(p.w / (window.devicePixelRatio || 1) / full * 100)));
         if (CAP_LIVE && CAPDB() && CAPDB().putImage) {
-          x.path = await CAPDB().putImage(CAP_TEAM, n, p.blob, x.file.name);
-          capImgUrls[x.path] = x.url;               // the copy already in this browser, until the page is reloaded
+          x.path = await CAPDB().putImage(CAP_TEAM, n, p.blob, file.name);
+          capImgUrls[x.path] = x.url;
         }
+        delete x.uploading;
+        const live = rte.querySelector('.rte-fig[data-id="' + id + '"]');
+        if (live) { setPct(live, x.pct); const u = live.querySelector(".rte-up"); if (u) u.remove(); }
       } catch (e) {
-        f.images.splice(f.images.indexOf(x), 1);
-        note = "A picture could not be added: " + (e.message || e);
+        delete rteSession.pool[id];
+        const live = rte.querySelector('.rte-fig[data-id="' + id + '"]'); if (live) live.remove();
+        note = "A picture could not be added: " + (e.message || e); err(note);
       }
-      delete x.uploading; delete x.file;
+      if (current === n) changed();
     }
-    changed(); redraw(); err(note);
   }
-
-  const drop = document.getElementById("capimg-drop"), pick = document.getElementById("capimg-pick"), input = document.getElementById("capimg-file");
+  rte.addEventListener("paste", e => {
+    if (!can()) return;
+    const cd = e.clipboardData; if (!cd) return;
+    const fs = capImgFiles(cd.files);
+    e.preventDefault();
+    if (fs.length) { addPictures(fs, getSelection().rangeCount ? getSelection().getRangeAt(0) : null); return; }
+    const text = cd.getData("text/plain");                         // text always comes in plain, as it does today
+    if (text) document.execCommand("insertText", false, text.replace(/\r\n?/g, "\n"));
+  });
+  rte.addEventListener("dragover", e => {
+    if (!can() || !e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return;
+    e.preventDefault(); rte.classList.add("drop");
+  });
+  rte.addEventListener("dragleave", () => rte.classList.remove("drop"));
+  rte.addEventListener("drop", e => {
+    rte.classList.remove("drop");
+    const fs = capImgFiles(e.dataTransfer && e.dataTransfer.files);
+    e.preventDefault();
+    if (!fs.length || !can()) return;
+    let r = null;
+    if (document.caretRangeFromPoint) r = document.caretRangeFromPoint(e.clientX, e.clientY);
+    else if (document.caretPositionFromPoint) { const p = document.caretPositionFromPoint(e.clientX, e.clientY); if (p) { r = document.createRange(); r.setStart(p.offsetNode, p.offset); } }
+    addPictures(fs, r);
+  });
+  const pick = document.getElementById("rte-pick"), input = document.getElementById("rte-file");
+  let lastRange = null;
+  document.addEventListener("selectionchange", () => {
+    const s = getSelection(); if (s.rangeCount && rte.contains(s.getRangeAt(0).startContainer)) lastRange = s.getRangeAt(0).cloneRange();
+  });
   if (pick && input) {
     pick.addEventListener("click", () => { if (can()) input.click(); });
-    input.addEventListener("change", () => { add(input.files); input.value = ""; });
+    input.addEventListener("change", () => { addPictures(input.files, lastRange); input.value = ""; });
   }
-  box.addEventListener("dragover", e => { if (!can() || !e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return; e.preventDefault(); if (drop) drop.classList.add("over"); });
-  box.addEventListener("dragleave", e => { if (drop && !box.contains(e.relatedTarget)) drop.classList.remove("over"); });
-  box.addEventListener("drop", e => { if (!can()) return; e.preventDefault(); if (drop) drop.classList.remove("over"); add(e.dataTransfer && e.dataTransfer.files); });
-  const onPaste = e => { const fs = capImgFiles(e.clipboardData && e.clipboardData.files); if (fs.length && can()) { e.preventDefault(); add(fs); } };
-  box.addEventListener("paste", onPaste);
-  const ta = document.getElementById("ta");
-  if (ta && !ta.dataset.capPaste) { ta.dataset.capPaste = "1"; ta.addEventListener("paste", onPaste); }
-
-  box.addEventListener("input", e => {
-    const el = e.target; if (!el.classList.contains("capimg-cap") || !can()) return;
-    const x = (f.images || [])[+el.dataset.capi]; if (!x) return;
-    x.caption = el.value; changed();
-  });
-  box.addEventListener("click", e => {
-    if (!can()) return;
-    const mv = e.target.closest("[data-capmove]"), del = e.target.closest("[data-capdel]");
-    if (mv) {
-      const i = +mv.dataset.capi, j = i + (+mv.dataset.capmove), L = f.images || [];
-      if (j < 0 || j >= L.length || L[i].uploading || L[j].uploading) return;
-      [L[i], L[j]] = [L[j], L[i]]; changed(); redraw();
-    } else if (del) {
-      const i = +del.dataset.capdel, x = (f.images || [])[i];
-      if (!x || x.uploading) return;
-      f.images.splice(i, 1); changed(); redraw(); err("");
-      /* the file goes once the item has saved without it */
-      if (x.path && CAP_LIVE && CAPDB() && CAPDB().removeImage) setTimeout(() => CAPDB().removeImage(x.path), 4000);
-    }
-  });
 }
 function openItem(n) {
+  rteCleanup();                       // pictures removed from the item we were in can go now
   if (capClaim && capClaim.n !== n) { capClaim = null; capTrack(); }   // moving on frees the item we were in
   current = n;
   const f = FORM.find(x => x.n === n);
@@ -847,13 +1010,19 @@ function openItem(n) {
   if (isProse) {
     const wc = words(f.draft);
     body = `
-      <textarea id="ta" aria-label="Your answer for item ${f.n}"
-        placeholder="Nothing written yet. Start from what you produced in ${f.source}.">${f.draft || ""}</textarea>
+      ${isRich(f) ? `<div id="rte" class="rte" contenteditable="true" role="textbox" aria-multiline="true" spellcheck="true"
+        aria-label="Your answer for item ${f.n}. You can paste screenshots here."
+        data-ph="Nothing written yet. Start from what you produced in ${esc(f.source)}. Paste a screenshot (Ctrl+V or ⌘V) to put it where the cursor is.">${rteHTML(f)}</div>
+      <div class="rte-tools"><span>Paste a screenshot or drag a picture in. Click a picture to resize or remove it.</span>
+        <button type="button" class="btn sm" id="rte-pick">Insert picture</button>
+        <input type="file" id="rte-file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden></div>
+      <p class="rte-err" id="rte-err" role="alert" hidden></p>`
+      : `<textarea id="ta" aria-label="Your answer for item ${f.n}"
+        placeholder="Nothing written yet. Start from what you produced in ${f.source}.">${f.draft || ""}</textarea>`}
       <div class="ebar">
         <span class="wc ${f.limit && wc > f.limit ? "over" : ""}" id="wc">${wc} words${f.limit ? " of " + f.limit + " allowed" : ""}</span>
         <span class="saved" id="saved">Saved</span>
-      </div>
-      ${capImgEditor(f)}`;
+      </div>`;
   } else {
     body = `
       <div id="fieldset">${FIELDS[f.kind](f)}</div>
@@ -923,7 +1092,7 @@ function openItem(n) {
     queueSave(f, 0);
   });
 
-  if (isProse) {
+  if (isProse && !isRich(f)) {
     const ta = document.getElementById("ta"), wcEl = document.getElementById("wc"), saved = document.getElementById("saved");
     let t;
     ta.addEventListener("input", () => {
@@ -938,7 +1107,7 @@ function openItem(n) {
     });
   }
 
-  if (isProse) wireCapImg(f, n, afterEdit);
+  if (isRich(f)) wireRte(f, n, afterEdit);
 
   /* structured fields write straight into f.value */
   const fs = document.getElementById("fieldset");
@@ -1005,7 +1174,7 @@ function openItem(n) {
   });
 
   if (CAP_LIVE && !CAP_EDIT) {
-    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add], .capimg button").forEach(x => { x.disabled = true; }); { const ci = document.getElementById("capimg"); if (ci) ci.classList.add("ro"); }
+    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add], .rte-tools button").forEach(x => { x.disabled = true; }); { const ro = document.getElementById("rte"); if (ro) { ro.setAttribute("contenteditable", "false"); ro.classList.add("ro"); } }
     const sv = document.getElementById("saved");
     if (sv) { sv.textContent = "View only — only the team can edit"; sv.classList.add("on"); }
   }
@@ -1013,7 +1182,7 @@ function openItem(n) {
   const holder = CAP_EDIT ? capHolder(n) : null;
   ed.dataset.lock = holder ? holder.tab : "";
   if (holder) {
-    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add], .capimg button").forEach(x => { x.disabled = true; }); { const ci = document.getElementById("capimg"); if (ci) ci.classList.add("ro"); }
+    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add], .rte-tools button").forEach(x => { x.disabled = true; }); { const ro = document.getElementById("rte"); if (ro) { ro.setAttribute("contenteditable", "false"); ro.classList.add("ro"); } }
     const head = ed.querySelector(".ehead");
     if (head) head.insertAdjacentHTML("afterend", `<div class="cap-lock" role="status"><b>${esc(holder.name)} is editing this item.</b>
       You can read it as they write; it opens for you as soon as they move on.${Date.now() - (capLostNote || 0) < 15000 ? " Your last few changes here weren't saved because they started first." : ""}</div>`);
@@ -1312,9 +1481,9 @@ document.getElementById("btn-export").addEventListener("click", function () {
 
 /* the blue answer, or a grey note saying which week fills it */
 function ans(n) {
-  const f = F(n), t = (f.draft || "").trim(), pics = capImgSheet(f);
-  if (pics) capImgFill();
-  if (t || pics) return (t ? `<div class="ans">${esc(t)}</div>` : "") + pics;
+  const f = F(n);
+  if (isRich(f)) { const h = capRichSheet(f); if (h) return h; }
+  else { const t = (f.draft || "").trim(); if (t) return `<div class="ans">${esc(t)}</div>`; }
   return `<div class="todo">not yet written — ${esc(f.source)}, Week ${f.week}</div>`;
 }
 const inline = v => String(v || "").trim()
