@@ -4070,12 +4070,16 @@
     let bmp;
     try { bmp = await createImageBitmap(blob); } catch (e) { return null; }
     const w = bmp.width, h = bmp.height;
-    if (/^image\/(png|jpeg|gif)$/.test(blob.type)) return { data: await blob.arrayBuffer(), ext: blob.type === 'image/jpeg' ? 'jpeg' : blob.type.slice(6), w, h };
-    /* anything Word cannot show (webp…) becomes a PNG */
+    /* Every picture is redrawn as a clean PNG or JPEG. Files straight from other tools can
+       carry extra blocks (the DOST logo has a "content credentials" block) that Google Docs
+       refuses to show; a redrawn copy has only the picture. */
+    const jpeg = blob.type === 'image/jpeg';
     const c = document.createElement('canvas'); c.width = w; c.height = h;
-    c.getContext('2d').drawImage(bmp, 0, 0);
-    const png = await new Promise(done => c.toBlob(done, 'image/png'));
-    return png ? { data: await png.arrayBuffer(), ext: 'png', w, h } : null;
+    const g = c.getContext('2d');
+    if (jpeg) { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); }
+    g.drawImage(bmp, 0, 0);
+    const out = await new Promise(done => c.toBlob(done, jpeg ? 'image/jpeg' : 'image/png', 0.92));
+    return out ? { data: await out.arrayBuffer(), ext: jpeg ? 'jpeg' : 'png', w, h } : null;
   }
   async function readImages(sheet, imageUrl) {
     const map = new Map();
