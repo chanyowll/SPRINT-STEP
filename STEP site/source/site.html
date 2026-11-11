@@ -13361,6 +13361,22 @@ document.getElementById("btn-preview").addEventListener("click", () => sheetOpen
 window.__closeSheet = () => { if (sheetOpen) closeSheet(); };
 document.getElementById("sheet-close").addEventListener("click", closeSheet);
 document.getElementById("sheet-print").addEventListener("click", () => window.print());
+/* Printing keeps only the form (the print rule hides everything that is not a
+   direct child of <body>). On the merged site the form sits inside the
+   Capstone page, so it steps out to <body> while printing and goes back after. */
+let sheetHome = null;
+window.addEventListener("beforeprint", () => {
+  const w = document.getElementById("sheetwrap");
+  if (!sheetOpen || !w || w.parentNode === document.body) return;
+  sheetHome = { parent: w.parentNode, next: w.nextSibling };
+  document.body.appendChild(w);
+});
+window.addEventListener("afterprint", () => {
+  const w = document.getElementById("sheetwrap");
+  if (!sheetHome || !w) return;
+  sheetHome.parent.insertBefore(w, sheetHome.next && sheetHome.next.parentNode === sheetHome.parent ? sheetHome.next : null);
+  sheetHome = null;
+});
 document.addEventListener("keydown", e => {
   if (e.key === "Escape" && sheetOpen) closeSheet();
 });
