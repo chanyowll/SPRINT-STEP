@@ -47,6 +47,9 @@
     const u = await user();
     const data = {};
     ['draft', 'value', 'attachments', 'parts'].forEach(k => { if (f[k] !== undefined) data[k] = f[k]; });
+    /* the item's pictures: only what is stored (path, caption, size), never a page-only preview link */
+    if (Array.isArray(f.images)) data.images = f.images.filter(x => x && x.path)
+      .map(x => ({ path: x.path, caption: x.caption || '', w: x.w || 0, h: x.h || 0 }));
     const row = {
       team_id: teamId, item_n: f.n, data, filled: !!filled,
       submitted: !!f.submitted, submitted_at: f.submitted ? (f.submitted_iso || new Date().toISOString()) : null,
@@ -84,6 +87,34 @@
     if (paths.length) { try { await sb.storage.from(BUCKET).remove(paths); } catch (e) {} }
   }
 
+  /* ---------- pictures on a proposal item ----------
+     Stored in the same private bucket under <team>/item-<n>/…, so the same
+     people who read the item can see them. Links are signed for four hours
+     and kept for the visit, so the editor and the preview share them. */
+  const imgLinks = {};
+  async function imageUrl(path) {
+    if (!path) return null;
+    const hit = imgLinks[path];
+    if (hit && hit.until > Date.now()) return hit.url;
+    const url = await sign(path);
+    if (url) imgLinks[path] = { url, until: Date.now() + (SIGNED - 300) * 1000 };
+    return url;
+  }
+  async function putImage(teamId, n, blob, name) {
+    const sb = client();
+    const ext = /png/.test(blob.type) ? 'png' : /gif/.test(blob.type) ? 'gif' : /webp/.test(blob.type) ? 'webp' : 'jpg';
+    const base = slug(String(name || 'picture').replace(/\.[a-z0-9]+$/i, '')).slice(-40) || 'picture';
+    const path = `${teamId}/item-${n}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${base}.${ext}`;
+    const up = await sb.storage.from(BUCKET).upload(path, blob, { upsert: false, contentType: blob.type || 'image/jpeg' });
+    if (up.error) throw new Error(up.error.message);
+    return path;
+  }
+  async function removeImage(path) {
+    if (!path) return;
+    delete imgLinks[path];
+    try { await client().storage.from(BUCKET).remove([path]); } catch (e) {}
+  }
+
   /** For the console: every team's item states and slide count. */
   async function summary() {
     const sb = client();
@@ -94,5 +125,5 @@
     return { items: it.data || [], slides: sl.data || [] };
   }
 
-  window.STEP_CAPSTONE = { isLive, load, saveItem, putSlide, removeSlide, summary, BUCKET };
+  window.STEP_CAPSTONE = { isLive, load, saveItem, putSlide, removeSlide, summary, imageUrl, putImage, removeImage, BUCKET };
 })();

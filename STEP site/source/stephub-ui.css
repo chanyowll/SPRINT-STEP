@@ -6779,3 +6779,38 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 /* Capstone pitch deck: template download button */
 .deck-dl { display: inline-flex; align-items: center; gap: 8px; }
 .deck-dl svg { width: 16px; height: 16px; flex: none; }
+
+/* Capstone: pictures on a written FASTRAC item (editor) */
+.capimg { margin-top: var(--s4); padding: 14px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface, #fff); }
+.capimg-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.capimg-head b { font-size: 14px; color: var(--navy, #0b3c6b); }
+.capimg-head span { font-size: 12px; color: var(--ink-soft); }
+.capimg-list { display: grid; gap: 10px; }
+.capimg-list:empty { display: none; }
+.capimg-it { display: grid; grid-template-columns: 148px minmax(0, 1fr); gap: 12px; margin: 0; padding: 8px; border: 1px solid var(--line-soft, #e6e9ee); border-radius: 10px; background: #fff; }
+.capimg-pic { position: relative; width: 148px; height: 104px; border-radius: 6px; overflow: hidden; background: #eef2f7; display: grid; place-items: center; }
+.capimg-pic img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.capimg-up { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255, 255, 255, .72); font-size: 12px; font-weight: 600; color: var(--ink-soft); }
+.capimg-side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.capimg-cap { width: 100%; font: inherit; font-size: 13.5px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.capimg-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.capimg-acts button { font: inherit; font-size: 12.5px; padding: 5px 10px; border-radius: 7px; border: 1px solid var(--line); background: #fff; color: var(--ink); cursor: pointer; }
+.capimg-acts button:hover:not(:disabled) { background: #f4f6f9; }
+.capimg-acts button:disabled { opacity: .45; cursor: default; }
+.capimg-acts button.danger { color: #a63d40; }
+.capimg-acts button:focus-visible, .capimg-cap:focus-visible { outline: 2px solid var(--blue, #0b6bcb); outline-offset: 1px; }
+.capimg-drop { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 14px; border: 1.5px dashed #c7cfd9; border-radius: 10px; color: var(--ink-soft); font-size: 13.5px; }
+.capimg-list:empty + .capimg-drop { margin-top: 0; }
+.capimg-drop.over { border-color: var(--blue, #0b6bcb); background: rgba(11, 107, 203, .05); }
+.capimg-drop[hidden] { display: none; }
+.capimg-err { margin: 8px 0 0; font-size: 13px; color: #a63d40; }
+.capimg.ro .capimg-drop, .capimg.ro .capimg-acts { display: none; }
+.capimg.ro .capimg-cap:disabled { background: transparent; border-color: transparent; padding-left: 0; color: var(--ink); }
+.capimg.ro.empty { display: none; }
+@media (max-width: 560px) { .capimg-it { grid-template-columns: 1fr; } .capimg-pic { width: 100%; height: 160px; } }
+
+/* Capstone: the same pictures on the DOST Form 2 preview, under the item's text */
+.sheet .capfigs { display: grid; gap: 10px; margin: 6px 0 4px; }
+.sheet .capfigs figure { margin: 0; text-align: center; break-inside: avoid; page-break-inside: avoid; }
+.sheet .capfigs img { max-width: 100%; max-height: 520px; height: auto; display: inline-block; border: 1px solid #d8dde4; background: #fff; }
+.sheet .capfigs figcaption { margin-top: 3px; font-size: 11px; font-style: italic; color: #0b3c6b; }

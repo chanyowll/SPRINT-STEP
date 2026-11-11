@@ -3918,6 +3918,9 @@
     const u = await user();
     const data = {};
     ['draft', 'value', 'attachments', 'parts'].forEach(k => { if (f[k] !== undefined) data[k] = f[k]; });
+    /* the item's pictures: only what is stored (path, caption, size), never a page-only preview link */
+    if (Array.isArray(f.images)) data.images = f.images.filter(x => x && x.path)
+      .map(x => ({ path: x.path, caption: x.caption || '', w: x.w || 0, h: x.h || 0 }));
     const row = {
       team_id: teamId, item_n: f.n, data, filled: !!filled,
       submitted: !!f.submitted, submitted_at: f.submitted ? (f.submitted_iso || new Date().toISOString()) : null,
@@ -3955,6 +3958,34 @@
     if (paths.length) { try { await sb.storage.from(BUCKET).remove(paths); } catch (e) {} }
   }
 
+  /* ---------- pictures on a proposal item ----------
+     Stored in the same private bucket under <team>/item-<n>/…, so the same
+     people who read the item can see them. Links are signed for four hours
+     and kept for the visit, so the editor and the preview share them. */
+  const imgLinks = {};
+  async function imageUrl(path) {
+    if (!path) return null;
+    const hit = imgLinks[path];
+    if (hit && hit.until > Date.now()) return hit.url;
+    const url = await sign(path);
+    if (url) imgLinks[path] = { url, until: Date.now() + (SIGNED - 300) * 1000 };
+    return url;
+  }
+  async function putImage(teamId, n, blob, name) {
+    const sb = client();
+    const ext = /png/.test(blob.type) ? 'png' : /gif/.test(blob.type) ? 'gif' : /webp/.test(blob.type) ? 'webp' : 'jpg';
+    const base = slug(String(name || 'picture').replace(/\.[a-z0-9]+$/i, '')).slice(-40) || 'picture';
+    const path = `${teamId}/item-${n}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${base}.${ext}`;
+    const up = await sb.storage.from(BUCKET).upload(path, blob, { upsert: false, contentType: blob.type || 'image/jpeg' });
+    if (up.error) throw new Error(up.error.message);
+    return path;
+  }
+  async function removeImage(path) {
+    if (!path) return;
+    delete imgLinks[path];
+    try { await client().storage.from(BUCKET).remove([path]); } catch (e) {}
+  }
+
   /** For the console: every team's item states and slide count. */
   async function summary() {
     const sb = client();
@@ -3965,7 +3996,7 @@
     return { items: it.data || [], slides: sl.data || [] };
   }
 
-  window.STEP_CAPSTONE = { isLive, load, saveItem, putSlide, removeSlide, summary, BUCKET };
+  window.STEP_CAPSTONE = { isLive, load, saveItem, putSlide, removeSlide, summary, imageUrl, putImage, removeImage, BUCKET };
 })();
 
 </script>
@@ -11914,7 +11945,7 @@ function hasContent(f) {
     case "projects":    return v.rows.some(r => String(r.title).trim());
     case "attachments": return f.attachments ? f.attachments.some(a => a.have === true) : false;
     case "intro":       return ["rationale", "framework", "general", "specific"].some(k => String(v[k] || "").trim());
-    default:            return !!(f.draft || "").trim();
+    default:            return !!(f.draft || "").trim() || (f.images || []).some(x => x.path || x.url);
   }
 }
 
@@ -12244,7 +12275,7 @@ function queueSave(f, wait) {
 /* put what the team saved onto the blank proposal */
 function hydrateItem(r) {
   const f = F(r.item_n); if (!f) return;
-  ["draft", "value", "attachments", "parts"].forEach(k => { if (r.data && r.data[k] !== undefined) f[k] = r.data[k]; });
+  ["draft", "value", "attachments", "parts", "images"].forEach(k => { if (r.data && r.data[k] !== undefined) f[k] = r.data[k]; });
   f.submitted = !!r.submitted;
   f.submitted_iso = r.submitted_at || null;
   f.submitted_at = r.submitted_at ? new Date(r.submitted_at).toLocaleDateString("en-PH",
@@ -12262,6 +12293,163 @@ function hydrate(saved) {
     const isImg = /^image\//.test(r.mime_type || "") || /\.(png|jpe?g)$/i.test(r.file_name || "");
     d.file = { name: r.file_name, size: r.file_size ? sizeOf(r.file_size) : "", url: isImg ? r.url : null, href: r.url, saved: true };
     d.status = "in";
+  });
+}
+/* ---------- pictures on a written item ----------
+   Teams paste a screenshot, drop pictures in, or choose files. Each picture
+   is shrunk in the browser (longest side 1600 px), stored in the team's
+   private folder and listed on the item with an optional caption. Signed in,
+   f.images holds { path, caption, w, h }; in the offline preview a picture
+   lives only in this browser ({ url }). Pictures never count as words. */
+const CAPIMG_MAX = 10, CAPIMG_SIDE = 1600;
+const capImgUrls = {};                                   // path → signed link, for this visit
+let capImgFillQueued = false;
+function capImgSrc(x) { return x.url || (x.path && capImgUrls[x.path]) || ""; }
+function capImgFill() {
+  if (capImgFillQueued) return;
+  capImgFillQueued = true;
+  requestAnimationFrame(() => {
+    capImgFillQueued = false;
+    document.querySelectorAll("img[data-cappath]").forEach(im => {
+      if (im.getAttribute("src")) return;
+      const p = im.dataset.cappath;
+      if (capImgUrls[p]) { im.src = capImgUrls[p]; return; }
+      if (!CAPDB() || !CAPDB().imageUrl) return;
+      CAPDB().imageUrl(p).then(u => {
+        if (!u) return;
+        capImgUrls[p] = u;
+        document.querySelectorAll('img[data-cappath="' + CSS.escape(p) + '"]').forEach(x => { if (!x.getAttribute("src")) x.src = u; });
+      });
+    });
+  });
+}
+function capImgTag(x, alt) {
+  const src = capImgSrc(x);
+  return `<img alt="${esc(alt || "")}" ${src ? `src="${esc(src)}"` : ""} ${x.path ? `data-cappath="${esc(x.path)}"` : ""}>`;
+}
+/* the pictures, as the DOST form shows them: under the text, captioned */
+function capImgSheet(f) {
+  const list = (f.images || []).filter(x => x.path || x.url);
+  if (!list.length) return "";
+  return `<div class="capfigs">${list.map((x, i) => `<figure>${capImgTag(x, x.caption || "Picture " + (i + 1) + " for item " + f.n)}${
+    String(x.caption || "").trim() ? `<figcaption>${esc(x.caption.trim())}</figcaption>` : ""}</figure>`).join("")}</div>`;
+}
+const capImgFiles = list => Array.from(list || []).filter(x => /^image\/(png|jpe?g|webp|gif)$/i.test(x.type || ""));
+/* shrink a picture so its longest side is at most 1600 px; small PNG screenshots keep their sharp edges */
+function capImgPrep(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file), im = new Image();
+    im.onload = () => {
+      const w0 = im.naturalWidth, h0 = im.naturalHeight, k = Math.min(1, CAPIMG_SIDE / Math.max(w0, h0));
+      const w = Math.round(w0 * k), h = Math.round(h0 * k);
+      const keep = (k === 1 && file.size <= 1.5e6 && /png|gif|webp/.test(file.type)) || (/gif/.test(file.type) && file.size <= 4e6);
+      if (keep) { URL.revokeObjectURL(url); return res({ blob: file, w: w0, h: h0 }); }
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      const g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0, 0, w, h); g.drawImage(im, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      const png = /png/.test(file.type) && file.size <= 3e6;
+      c.toBlob(b => b ? res({ blob: b, w, h }) : rej(new Error("Could not read the picture")), png ? "image/png" : "image/jpeg", 0.86);
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); rej(new Error("That file is not a picture this browser can read")); };
+    im.src = url;
+  });
+}
+function capImgEditor(f) {
+  const list = f.images || [];
+  return `<div class="capimg" id="capimg">
+    <div class="capimg-head"><b>Pictures</b><span>${list.length ? list.length + " of " + CAPIMG_MAX : "Optional"}</span></div>
+    <div class="capimg-list">${list.map((x, i) => `<figure class="capimg-it${x.uploading ? " busy" : ""}" data-i="${i}">
+      <div class="capimg-pic">${capImgTag(x, x.caption || "Picture " + (i + 1))}${x.uploading ? `<span class="capimg-up">Uploading…</span>` : ""}</div>
+      <div class="capimg-side">
+        <input type="text" class="capimg-cap" data-capi="${i}" maxlength="200" placeholder="Caption (optional), e.g. Figure ${i + 1}. Competitive advantage table" value="${esc(x.caption || "")}">
+        <div class="capimg-acts">
+          <button type="button" data-capmove="-1" data-capi="${i}" ${i === 0 ? "disabled" : ""} aria-label="Move picture ${i + 1} up">Move up</button>
+          <button type="button" data-capmove="1" data-capi="${i}" ${i === list.length - 1 ? "disabled" : ""} aria-label="Move picture ${i + 1} down">Move down</button>
+          <button type="button" class="danger" data-capdel="${i}" aria-label="Remove picture ${i + 1}">Remove</button>
+        </div>
+      </div></figure>`).join("")}</div>
+    <div class="capimg-drop" id="capimg-drop" ${list.length >= CAPIMG_MAX ? "hidden" : ""}>
+      <span>Paste a screenshot (Ctrl+V or ⌘V), drop pictures here, or</span>
+      <button type="button" class="btn" id="capimg-pick">Choose pictures</button>
+      <input type="file" id="capimg-file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden>
+    </div>
+    <p class="capimg-err" id="capimg-err" role="alert" hidden></p>
+  </div>`;
+}
+function wireCapImg(f, n, afterEdit) {
+  const box = document.getElementById("capimg"); if (!box) return;
+  const ed = document.getElementById("editor");
+  box.classList.toggle("empty", !(f.images || []).length);
+  capImgFill();
+  const can = () => current === n && !(CAP_LIVE && !CAP_EDIT) && !ed.dataset.lock;
+  const err = msg => { const e = document.getElementById("capimg-err"); if (!e) return; e.textContent = msg || ""; e.hidden = !msg; };
+  const redraw = () => {
+    const cur = document.getElementById("capimg"); if (!cur || current !== n) return;
+    cur.outerHTML = capImgEditor(f);
+    wireCapImg(f, n, afterEdit);
+  };
+  const changed = () => { afterEdit(); syncSheet(n, false); refreshCounts(); };
+
+  async function add(list) {
+    let files = capImgFiles(list);
+    if (!files.length || !can()) return;
+    f.images = f.images || [];
+    const room = CAPIMG_MAX - f.images.length;
+    if (room <= 0) { err("This item already has " + CAPIMG_MAX + " pictures. Remove one to add another."); return; }
+    let note = "";
+    if (files.length > room) { note = "Only " + room + " more picture" + (room === 1 ? "" : "s") + " fit on this item, so the rest were left out."; files = files.slice(0, room); }
+    const entries = files.map(file => ({ caption: "", uploading: true, url: URL.createObjectURL(file), file }));
+    f.images.push(...entries);
+    redraw(); err(note);
+    for (const x of entries) {
+      try {
+        const p = await capImgPrep(x.file);
+        x.w = p.w; x.h = p.h;
+        if (CAP_LIVE && CAPDB() && CAPDB().putImage) {
+          x.path = await CAPDB().putImage(CAP_TEAM, n, p.blob, x.file.name);
+          capImgUrls[x.path] = x.url;               // the copy already in this browser, until the page is reloaded
+        }
+      } catch (e) {
+        f.images.splice(f.images.indexOf(x), 1);
+        note = "A picture could not be added: " + (e.message || e);
+      }
+      delete x.uploading; delete x.file;
+    }
+    changed(); redraw(); err(note);
+  }
+
+  const drop = document.getElementById("capimg-drop"), pick = document.getElementById("capimg-pick"), input = document.getElementById("capimg-file");
+  if (pick && input) {
+    pick.addEventListener("click", () => { if (can()) input.click(); });
+    input.addEventListener("change", () => { add(input.files); input.value = ""; });
+  }
+  box.addEventListener("dragover", e => { if (!can() || !e.dataTransfer || !Array.from(e.dataTransfer.types || []).includes("Files")) return; e.preventDefault(); if (drop) drop.classList.add("over"); });
+  box.addEventListener("dragleave", e => { if (drop && !box.contains(e.relatedTarget)) drop.classList.remove("over"); });
+  box.addEventListener("drop", e => { if (!can()) return; e.preventDefault(); if (drop) drop.classList.remove("over"); add(e.dataTransfer && e.dataTransfer.files); });
+  const onPaste = e => { const fs = capImgFiles(e.clipboardData && e.clipboardData.files); if (fs.length && can()) { e.preventDefault(); add(fs); } };
+  box.addEventListener("paste", onPaste);
+  const ta = document.getElementById("ta");
+  if (ta && !ta.dataset.capPaste) { ta.dataset.capPaste = "1"; ta.addEventListener("paste", onPaste); }
+
+  box.addEventListener("input", e => {
+    const el = e.target; if (!el.classList.contains("capimg-cap") || !can()) return;
+    const x = (f.images || [])[+el.dataset.capi]; if (!x) return;
+    x.caption = el.value; changed();
+  });
+  box.addEventListener("click", e => {
+    if (!can()) return;
+    const mv = e.target.closest("[data-capmove]"), del = e.target.closest("[data-capdel]");
+    if (mv) {
+      const i = +mv.dataset.capi, j = i + (+mv.dataset.capmove), L = f.images || [];
+      if (j < 0 || j >= L.length || L[i].uploading || L[j].uploading) return;
+      [L[i], L[j]] = [L[j], L[i]]; changed(); redraw();
+    } else if (del) {
+      const i = +del.dataset.capdel, x = (f.images || [])[i];
+      if (!x || x.uploading) return;
+      f.images.splice(i, 1); changed(); redraw(); err("");
+      /* the file goes once the item has saved without it */
+      if (x.path && CAP_LIVE && CAPDB() && CAPDB().removeImage) setTimeout(() => CAPDB().removeImage(x.path), 4000);
+    }
   });
 }
 function openItem(n) {
@@ -12283,7 +12471,8 @@ function openItem(n) {
       <div class="ebar">
         <span class="wc ${f.limit && wc > f.limit ? "over" : ""}" id="wc">${wc} words${f.limit ? " of " + f.limit + " allowed" : ""}</span>
         <span class="saved" id="saved">Saved</span>
-      </div>`;
+      </div>
+      ${capImgEditor(f)}`;
   } else {
     body = `
       <div id="fieldset">${FIELDS[f.kind](f)}</div>
@@ -12368,6 +12557,8 @@ function openItem(n) {
     });
   }
 
+  if (isProse) wireCapImg(f, n, afterEdit);
+
   /* structured fields write straight into f.value */
   const fs = document.getElementById("fieldset");
   if (fs) {
@@ -12433,7 +12624,7 @@ function openItem(n) {
   });
 
   if (CAP_LIVE && !CAP_EDIT) {
-    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add]").forEach(x => { x.disabled = true; });
+    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add], .capimg button").forEach(x => { x.disabled = true; }); { const ci = document.getElementById("capimg"); if (ci) ci.classList.add("ro"); }
     const sv = document.getElementById("saved");
     if (sv) { sv.textContent = "View only — only the team can edit"; sv.classList.add("on"); }
   }
@@ -12441,7 +12632,7 @@ function openItem(n) {
   const holder = CAP_EDIT ? capHolder(n) : null;
   ed.dataset.lock = holder ? holder.tab : "";
   if (holder) {
-    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add]").forEach(x => { x.disabled = true; });
+    ed.querySelectorAll("textarea, input, select, #fa-submit, [data-add], .capimg button").forEach(x => { x.disabled = true; }); { const ci = document.getElementById("capimg"); if (ci) ci.classList.add("ro"); }
     const head = ed.querySelector(".ehead");
     if (head) head.insertAdjacentHTML("afterend", `<div class="cap-lock" role="status"><b>${esc(holder.name)} is editing this item.</b>
       You can read it as they write; it opens for you as soon as they move on.${Date.now() - (capLostNote || 0) < 15000 ? " Your last few changes here weren't saved because they started first." : ""}</div>`);
@@ -12740,8 +12931,9 @@ document.getElementById("btn-export").addEventListener("click", function () {
 
 /* the blue answer, or a grey note saying which week fills it */
 function ans(n) {
-  const f = F(n), t = (f.draft || "").trim();
-  if (t) return `<div class="ans">${esc(t)}</div>`;
+  const f = F(n), t = (f.draft || "").trim(), pics = capImgSheet(f);
+  if (pics) capImgFill();
+  if (t || pics) return (t ? `<div class="ans">${esc(t)}</div>` : "") + pics;
   return `<div class="todo">not yet written — ${esc(f.source)}, Week ${f.week}</div>`;
 }
 const inline = v => String(v || "").trim()
