@@ -2330,10 +2330,12 @@ function initials(n) {
     if (window.__panelWeek) window.__panelWeek(S.week);
     P = F.panels.find(p => p.letter === selP.value) || F.panels[0];
     fillPanelists(keepSeat);
-    document.getElementById("sc-code").textContent = (S.tag ? S.tag + " · " : "") + "Week " + S.week;
+    /* Week 2's Saturday panel hears the Market Research output, which continues Week 1 */
+    const HEAD = !S.tag && S.week === 2 ? { code: "Week 1 Continuation", title: "Market Research" } : null;
+    document.getElementById("sc-code").textContent = HEAD ? HEAD.code : (S.tag ? S.tag + " · " : "") + "Week " + S.week;
     const titleEl = document.getElementById("sc-title");
-    titleEl.textContent = S.title;
-    titleEl.title = S.title;
+    titleEl.textContent = HEAD ? HEAD.title : S.title;
+    titleEl.title = HEAD ? HEAD.title : S.title;
     document.getElementById("sc-meta").textContent =
       S.tag ? S.tag + " panel · " + P.teams.length + " teams"
             : "Saturday panel · " + P.teams.length + " teams · 40 min each";
