@@ -1484,7 +1484,9 @@ document.getElementById("fa-spec").innerHTML = `
     $("mr-meta").textContent = n + " planned " + (n === 1 ? "activity" : "activities") +
       (p.topicLines && p.topicLines.length ? " · " + p.topicLines.map(t => t.replace(/^\d+\.\s*/, "")).join(" · ") : "");
     $("mr-src").hidden = !p.source;
-    $("mr-src").textContent = p.source === "schedule"
+    $("mr-src").textContent = p.source === "assignment"
+      ? "These activities follow this week’s Market Research assignment, so you can guide the team through it."
+      : p.source === "schedule"
       ? "This topic is new in STEP 2.5, so these activities are drafted from the week’s topic in the STEP 2.5 schedule. Check them with the STEP team."
       : "No STEP 2 mentors’ report exists for this week, so these activities are drafted from the week’s panel score sheet.";
   }

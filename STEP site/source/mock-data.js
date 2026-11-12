@@ -300,10 +300,14 @@ window.MOCK = (function () {
         { text: "Help the team list the vertical markets where their technology could be applied." },
         { text: "Help the team identify the partners and gaps that matter most for reaching the market." },
       ] },
-      { code: "W2", week: 2, topic: SCHED.byWeek(2).title, source: "schedule", tasks: [
-        { text: "Guide the team in completing and presenting the market research begun at the launch." },
-        { text: "Help the group develop a clear and coherent Problem-Solution Fit Canvas for their target customer segment." },
-        { text: "Assist the group in articulating a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas." },
+      /* Week 2's team work is the Market Research assignment (a continuation of Week 1),
+         so the mentors' plan follows its five parts */
+      { code: "W2", week: 2, topic: "Market Research (Week 1 continuation)", source: "assignment", tasks: [
+        { text: "Help the team pinpoint its beachhead market from the panel's and your feedback, and name its users, buyers, influencers, decision-makers, payers and beneficiaries." },
+        { text: "Review the team's 5 to 8 open-ended interview questions (actual experiences, current practices, problems and purchasing decisions, with no pitching) and help them line up at least 3 in-depth interviews with new respondents." },
+        { text: "Go through the interview findings with the team: recurring problems, customer needs, unexpected insights and the assumptions that were challenged." },
+        { text: "Check the team's comparison of at least 3 competitors, alternatives or workarounds, and its TAM, SAM and SOM estimates with their assumptions and sources." },
+        { text: "Help the team draw its commercialization implications and its 3 to 5 next steps, and get the Market Research output ready to submit." },
       ] },
       { code: "W3", week: 3, topic: SCHED.byWeek(3).title,
         topicLines: ["1. Understanding your Product's Full Life Cycle Use Case", "2. Developing your High-Level Product Specification", "3. Quantifying Your Value Proposition"],
