@@ -550,13 +550,27 @@ const daysAway = iso => {
     const x = document.createElement("button");
     x.type = "button"; x.className = "gc-lx"; x.setAttribute("aria-label", "Close the room list"); x.innerHTML = "&times;";
     if (lh) lh.appendChild(x);
+    const narrow = () => window.matchMedia("(max-width: 800px)").matches;
+    const onGCPage = () => document.body.classList.contains("on-gc");
+    const isOpen = () => app.classList.contains("rooms-open");
     const open = () => { app.classList.add("rooms-open"); btn.setAttribute("aria-expanded", "true"); };
     const close = () => { app.classList.remove("rooms-open"); btn.setAttribute("aria-expanded", "false"); };
-    btn.addEventListener("click", open);
+    /* "Rooms" goes back to the list; if a room was opened from the list, it steps back in history
+       so the phone's own back gesture and this button do the same thing */
+    btn.addEventListener("click", () => { if (history.state && history.state.gcChat) history.back(); else open(); });
     x.addEventListener("click", close);
-    document.addEventListener("keydown", e => { if (e.key === "Escape" && app.classList.contains("rooms-open")) close(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && isOpen()) close(); });
     const openRoom = window.__gcOpenRoom;
-    window.__gcOpenRoom = function () { close(); return openRoom.apply(this, arguments); };
+    window.__gcOpenRoom = function () {
+      if (narrow() && isOpen()) { try { history.pushState({ gcChat: 1 }, "", location.href); } catch (e) {} }
+      close(); return openRoom.apply(this, arguments);
+    };
+    /* back from a room returns to the list instead of leaving STEP GC */
+    window.addEventListener("popstate", () => { if (narrow() && onGCPage() && !isOpen()) open(); });
+    /* coming to STEP GC on a phone starts at the list of groups, not inside a room */
+    const startAtList = () => { if (narrow() && onGCPage() && !(history.state && history.state.gcChat)) open(); };
+    window.addEventListener("hashchange", () => setTimeout(startAtList, 0));
+    setTimeout(startAtList, 0);
     /* a dot on the button when another room has new messages */
     window.addEventListener("stephub_gc_unread", e => {
       const d = btn.querySelector(".ch-rooms-dot"); if (d) d.hidden = !(e.detail && e.detail.rooms);
