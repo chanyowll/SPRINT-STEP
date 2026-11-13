@@ -6938,3 +6938,35 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
   /* the GC button sits at the bottom corner, away from the content */
   .gc-fab { top: auto !important; translate: none !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; right: 14px !important; }
 }
+
+/* Phone view, second pass: the whole page drawn at 80%, the same way laptops already are
+   (see "desktop scale" above), so every text and control is a fifth smaller. vh/vw are
+   enlarged to compensate, as on desktop. */
+@media (max-width: 640px) {
+  body { zoom: .8; }
+  :root { --vh: 1.25vh; --vw: 1.25vw; }
+  /* This Week: the hexagon field starts under the blue banner, not on top of it */
+  .gp-until::before { top: -20px; }
+  /* STEP GC header: the Rooms button takes the place of the room icon */
+  .ch-top .ch-rooms ~ .ch-ico { display: none; }
+}
+
+/* STEP GC on narrow screens: a Rooms button opens the room list over the chat */
+.ch-rooms, .gc-lx { display: none; }
+@media (max-width: 800px) {
+  .ch-rooms { all: unset; box-sizing: border-box; cursor: pointer; flex: none; position: relative; display: flex; align-items: center; gap: 2px;
+    padding: 6px 11px 6px 5px; margin-right: 2px; border-radius: 999px; background: rgba(255,255,255,.12); color: #fff;
+    font-size: 13px; font-weight: 700; line-height: 1; }
+  .ch-rooms:hover, .ch-rooms:focus-visible { background: rgba(255,255,255,.22); }
+  .ch-rooms:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .ch-rooms svg { width: 18px; height: 18px; }
+  .ch-rooms-dot { position: absolute; top: 2px; left: 16px; width: 8px; height: 8px; border-radius: 50%; background: #f2b134;
+    box-shadow: 0 0 0 2px #0b3c6b; }
+  .ch-rooms-dot[hidden] { display: none; }
+  .gc-app.rooms-open .gc-left { display: flex; position: fixed; inset: 0; z-index: 320; border-radius: 0; border: 0;
+    padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .gc-app.rooms-open .gc-lh { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .gc-app.rooms-open .gc-lx { all: unset; box-sizing: border-box; cursor: pointer; display: grid; place-items: center; width: 36px; height: 36px;
+    border-radius: 50%; background: #f3e9d0; color: var(--navy); font-size: 24px; line-height: 1; }
+  .gc-app.rooms-open .gc-lx:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+}

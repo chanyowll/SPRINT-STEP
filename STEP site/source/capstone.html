@@ -881,7 +881,8 @@ function wireRte(f, n, afterEdit) {
     e.preventDefault();
     const fig = g.closest(".rte-fig"), fr = fig.querySelector(".rte-frame");
     if (!fig.classList.contains("sel")) select(fig);
-    const x0 = e.clientX, w0 = fr.getBoundingClientRect().width, full = rte.clientWidth - 32;
+    const x0 = e.clientX, w0 = fr.getBoundingClientRect().width,
+          full = rte.getBoundingClientRect().width * (rte.clientWidth - 32) / rte.clientWidth;   // on-screen size, so page zoom does not skew the drag
     g.setPointerCapture(e.pointerId);
     const move = ev => setPct(fig, (w0 + ev.clientX - x0) / full * 100);
     const up = () => { g.removeEventListener("pointermove", move); g.removeEventListener("pointerup", up); changed(); };

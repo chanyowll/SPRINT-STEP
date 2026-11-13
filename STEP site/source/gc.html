@@ -534,6 +534,36 @@ const daysAway = iso => {
   };
   const famCount = () => members + " members · participants, trainers, mentors and the STEP team";
 
+  /* ---- narrow screens (800px and under): the room list is hidden beside the chat, so a
+     "Rooms" button in the chat header opens it over the chat; picking a room closes it ---- */
+  (function () {
+    const app = document.getElementById("gc-app"), left = app && app.querySelector(".gc-left"),
+          top = app && app.querySelector(".ch-top");
+    if (!left || !top || document.getElementById("ch-rooms")) return;
+    const btn = document.createElement("button");
+    btn.type = "button"; btn.id = "ch-rooms"; btn.className = "ch-rooms";
+    btn.setAttribute("aria-label", "All rooms"); btn.setAttribute("aria-expanded", "false");
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>'
+      + '<span>Rooms</span><i class="ch-rooms-dot" hidden></i>';
+    top.insertBefore(btn, top.firstChild);
+    const lh = left.querySelector(".gc-lh");
+    const x = document.createElement("button");
+    x.type = "button"; x.className = "gc-lx"; x.setAttribute("aria-label", "Close the room list"); x.innerHTML = "&times;";
+    if (lh) lh.appendChild(x);
+    const open = () => { app.classList.add("rooms-open"); btn.setAttribute("aria-expanded", "true"); };
+    const close = () => { app.classList.remove("rooms-open"); btn.setAttribute("aria-expanded", "false"); };
+    btn.addEventListener("click", open);
+    x.addEventListener("click", close);
+    document.addEventListener("keydown", e => { if (e.key === "Escape" && app.classList.contains("rooms-open")) close(); });
+    const openRoom = window.__gcOpenRoom;
+    window.__gcOpenRoom = function () { close(); return openRoom.apply(this, arguments); };
+    /* a dot on the button when another room has new messages */
+    window.addEventListener("stephub_gc_unread", e => {
+      const d = btn.querySelector(".ch-rooms-dot"); if (d) d.hidden = !(e.detail && e.detail.rooms);
+    });
+  })();
+
+
   /* ---- reactions: the picker and the list of who reacted ---- */
   const pop = document.getElementById("rx-pop");
   let popFor = null;
