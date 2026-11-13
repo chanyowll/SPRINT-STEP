@@ -530,7 +530,8 @@ const FIELDS = {
         <thead><tr><th class="n">No.</th>${cols.map(c => `<th>${c[1]}</th>`).join("")}</tr></thead>
         <tbody>${f.value.map((r, i) => `<tr><td class="n">${i + 1}</td>${cols.map(c =>
           `<td><input class="fin" data-row="${i}" data-k="${c[0]}" type="text" value="${esc(r[c[0]])}"></td>`).join("")}</tr>`).join("")}
-        </tbody></table></div>`;
+        </tbody></table></div>
+      ${f.value.length < 5 ? `<button class="btn secondary" data-add="sites" type="button">Add a site</button>` : ""}`;
   },
 
   choice(f) {
@@ -1156,6 +1157,8 @@ function openItem(n) {
     });
     fs.addEventListener("click", e => {
       const add = e.target.closest("[data-add]"); if (!add) return;
+      if (f.kind === "sites" && f.value.length < 5)               // the form has room for five
+        f.value.push({ country: "", region: "", province: "", district: "", municipality: "", barangay: "" });
       if (f.kind === "personnel") f.value.push({ position: "", pct: "", resp: "" });
       if (f.kind === "budget")    f.value.rows.push({ label: "Year " + (f.value.rows.length + 1), ps: 0, mooe: 0, eo: 0 });
       if (f.kind === "projects")  f.value.rows.push({ title: "", agency: "", role: "" });
