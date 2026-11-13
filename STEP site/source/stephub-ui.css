@@ -6814,3 +6814,11 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .sheet .capfig > span { display: inline-block; max-width: 100%; }
 .sheet .capfig img { width: 100%; height: auto; display: block; }
 .rte.ro + .rte-tools { display: none; }
+
+/* Capstone item 3: remove a site row */
+.fgrid th.rm, .fgrid td.rm { width: 38px; text-align: center; padding-left: 0; padding-right: 0; }
+.fgrid-rm { width: 26px; height: 26px; border: 1px solid var(--line); border-radius: 6px; background: #fff; color: #a63d40;
+  font-size: 16px; line-height: 1; cursor: pointer; }
+.fgrid-rm:hover:not(:disabled) { background: #fbeeee; border-color: #e3b9ba; }
+.fgrid-rm:focus-visible { outline: 2px solid var(--blue, #0b6bcb); outline-offset: 1px; }
+.fgrid-rm:disabled { opacity: .4; cursor: default; }

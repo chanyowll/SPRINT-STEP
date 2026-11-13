@@ -12477,9 +12477,10 @@ const FIELDS = {
                   ["district", "District"], ["municipality", "Municipality"], ["barangay", "Barangay"]];
     return `<p class="fhint">Up to five sites, exactly as the form asks for them.</p>
       <div class="fgrid-wrap"><table class="fgrid">
-        <thead><tr><th class="n">No.</th>${cols.map(c => `<th>${c[1]}</th>`).join("")}</tr></thead>
+        <thead><tr><th class="n">No.</th>${cols.map(c => `<th>${c[1]}</th>`).join("")}${f.value.length > 1 ? `<th class="rm"><span class="sr-only">Remove</span></th>` : ""}</tr></thead>
         <tbody>${f.value.map((r, i) => `<tr><td class="n">${i + 1}</td>${cols.map(c =>
-          `<td><input class="fin" data-row="${i}" data-k="${c[0]}" type="text" value="${esc(r[c[0]])}"></td>`).join("")}</tr>`).join("")}
+          `<td><input class="fin" data-row="${i}" data-k="${c[0]}" type="text" value="${esc(r[c[0]])}"></td>`).join("")}${f.value.length > 1
+          ? `<td class="rm"><button type="button" class="fgrid-rm" data-add="site-remove" data-i="${i}" aria-label="Remove site ${i + 1}" title="Remove this site">&times;</button></td>` : ""}</tr>`).join("")}
         </tbody></table></div>
       ${f.value.length < 5 ? `<button class="btn secondary" data-add="sites" type="button">Add a site</button>` : ""}`;
   },
@@ -13107,6 +13108,15 @@ function openItem(n) {
     });
     fs.addEventListener("click", e => {
       const add = e.target.closest("[data-add]"); if (!add) return;
+      if (add.dataset.add === "site-remove") {                  // a site added by mistake; one row always stays
+        const i = +add.dataset.i;
+        if (f.value.length > 1 && f.value[i]) {
+          const filled = Object.values(f.value[i]).some(x => String(x || "").trim());
+          if (filled && !confirm("Remove site " + (i + 1) + "? What is typed in that row will be deleted.")) return;
+          f.value.splice(i, 1); syncSheet(f.n, false); refreshCounts(); afterEdit();
+        }
+        openItem(n); return;
+      }
       if (f.kind === "sites" && f.value.length < 5)               // the form has room for five
         f.value.push({ country: "", region: "", province: "", district: "", municipality: "", barangay: "" });
       if (f.kind === "personnel") f.value.push({ position: "", pct: "", resp: "" });
