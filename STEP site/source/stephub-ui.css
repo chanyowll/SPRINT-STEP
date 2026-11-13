@@ -6822,3 +6822,119 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
 .fgrid-rm:hover:not(:disabled) { background: #fbeeee; border-color: #e3b9ba; }
 .fgrid-rm:focus-visible { outline: 2px solid var(--blue, #0b6bcb); outline-offset: 1px; }
 .fgrid-rm:disabled { opacity: .4; cursor: default; }
+
+/* =====================================================================
+   Phone view (640px and narrower) — laptops and desktops are untouched.
+   A quieter, smaller scale for a screen held close: one 16px gutter on
+   every page, tighter type, lighter cards, and even spacing between
+   sections so nothing feels crowded.
+   ===================================================================== */
+@media (max-width: 640px) {
+  html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+  html, body { overflow-x: clip; }                    /* nothing pushes the page sideways */
+  .roster.rm { overflow-x: clip; }                    /* the team's name tags stay inside the hero */
+  body { font-size: 14.5px; line-height: 1.55; }
+
+  /* one gutter for every page: the main column no longer touches the screen edge */
+  .wrap.page { padding-left: 16px; padding-right: 16px; }
+  .page { padding-top: 20px; padding-bottom: 40px; }
+  .wrap { padding-left: 16px; padding-right: 16px; }
+
+  /* type scale */
+  h1 { font-size: 24px; }
+  h2 { font-size: 19px; }
+  h3 { font-size: 16px; }
+  h4 { font-size: 14.5px; }
+  small, .small { font-size: 12.5px; }
+  .eyebrow { font-size: 10.5px; letter-spacing: .1em; margin-bottom: 6px; }
+  .section-head { margin-bottom: 16px; }
+  .section-head h2 { font-size: 20px; line-height: 1.22; margin-bottom: 6px; }
+  .lede { font-size: 14.5px; line-height: 1.55; margin-top: 6px; }
+  p { margin-bottom: 10px; }
+
+  /* sections breathe evenly instead of stacking tight or far apart */
+  main.page > section, main.page > div > section { margin-top: 0; }
+
+
+  /* the top bar: one slim line with the account, the tagline left for wider screens */
+  .utility-bar .wrap { padding-top: 6px; padding-bottom: 6px; gap: 8px; font-size: 11px; flex-wrap: nowrap; }
+  .utility-bar .wrap > span:first-child { display: none; }
+  .utility-bar .util-right { margin-left: auto; min-width: 0; }
+  .site-header.light { height: 58px; }
+  .site-header .brand img, .brand img { height: 34px; }
+
+  /* hero bands */
+  .page-hero { padding: 28px 0 32px; }
+  .page-hero.plain { padding: 28px 0 32px; }
+  .page-hero h1 { font-size: 26px; line-height: 1.15; }
+  .page-hero p, .page-hero .lede { font-size: 14.5px; }
+
+  /* cards: the same corner and a lighter inner margin */
+  .card, .matcard, .asg-brief, .asg-file, .asg-tplcard { padding: 16px; border-radius: 14px; }
+  .note { padding: 14px 16px; }
+
+  /* controls stay easy to tap but look lighter */
+  .btn { font-size: 13.5px; padding: 9px 14px; min-height: 40px; }
+  .btn.sm { min-height: 34px; padding: 6px 12px; font-size: 13px; }
+  .badge { font-size: 11.5px; }
+
+  /* wide tables scroll inside their card instead of pushing the page sideways */
+  table { max-width: 100%; }
+  .table-wrap, .tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* ---- page by page ---- */
+  /* sections nested in page bands get the same even gap */
+  .page section + section, .gp-until > section + section, .gp-band > section + section { margin-top: 36px !important; }
+
+  /* Home */
+  .hero-statement { font-size: 34px; line-height: 1.06; }
+  .cstats .cs b.n, .cstats .cs > b { font-size: 36px; }
+  .jr-card h3 { font-size: 18px; }
+  .jr-card { padding: 18px; }
+  article.oc { padding: 18px 18px 14px; }
+  article.oc h3 { font-size: 17px; }
+  .cta-band { padding: 24px 18px; }
+  .pub-empty { padding: 20px; }
+
+  /* Program */
+  .hero-split h1 { font-size: 24px; }
+  .brief { padding: 20px; }
+  .brief .lead, p.lead { font-size: 16px; line-height: 1.5; }
+  dl dd b { font-size: 20px; }
+  .zig h3, .zig h3.mt-3 { font-size: 18px; }
+  .objectives .obj .k { font-size: 24px; }
+  .rhythm { padding: 16px; }
+  .weeknote { padding: 12px 16px; }
+
+  /* This Week */
+  .wk-topic h2 { font-size: 30px; line-height: 1.1; }
+  .wk-left h1 { font-size: 20px; }
+  .asg-top h3 { font-size: 18px; }
+  .note .nb h4 { font-size: 16.5px; }
+  .tb { padding: 16px; }
+  .outbox { padding: 14px 16px; }
+  article.pcard { padding: 16px; }
+  .game h2, h2.gh { font-size: 21px; }
+  .matcard .mats .btn.dl { padding: 7px 10px; min-height: 34px; }
+
+  /* My Team's Work */
+  .team-bar h1 { font-size: 28px; }
+  .tw-card, .tw-card.tw-main, .tw-card.mt-4 { padding: 16px; }
+  .tw-card.tw-flip { padding: 14px 16px 10px; }
+  .tw-kpi .k-val { font-size: 28px; }
+
+  /* Capstone */
+  .cap-art, .cap-art.cap-week { padding: 14px 16px; }
+  .ws-band { padding: 14px 16px; }
+  .ws-body, .editor { padding: 16px; }
+
+  /* STEP Groups */
+  .st-name .ch { font-size: 28px; }
+  .st-about p, .st-about { font-size: 16.5px; }
+  #gs-spec.cstats .cs b, .cstats .cs.reveal b { font-size: 34px; }
+  .inst { padding: 16px; }
+  .stp-nm b { font-size: 16.5px; }
+
+  /* the GC button sits at the bottom corner, away from the content */
+  .gc-fab { top: auto !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; right: 14px !important; }
+}
