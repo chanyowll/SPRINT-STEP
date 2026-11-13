@@ -6936,5 +6936,5 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
   .stp-nm b { font-size: 16.5px; }
 
   /* the GC button sits at the bottom corner, away from the content */
-  .gc-fab { top: auto !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; right: 14px !important; }
+  .gc-fab { top: auto !important; translate: none !important; bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important; right: 14px !important; }
 }
