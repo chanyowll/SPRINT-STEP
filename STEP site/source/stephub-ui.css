@@ -6970,3 +6970,17 @@ select:not([multiple]):not([size]):not(.picker select):not(.team-switcher-bar se
     border-radius: 50%; background: #f3e9d0; color: var(--navy); font-size: 24px; line-height: 1; }
   .gc-app.rooms-open .gc-lx:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 }
+
+/* Phone view: the hexagon grid stays behind the content and below the blue banners in every
+   browser. It is placed from the page's own edges (not from the screen width, which phone
+   browsers report differently while the page is drawn at 80%), starts inside its section rather
+   than above it, and is a fifth lighter. */
+@media (max-width: 640px) {
+  .gp-top::before, .gp-band::before, .gp-until::before, .gp-after::before {
+    left: -16px !important; right: -16px !important; width: auto !important; opacity: .8;
+  }
+  .gp-until::before { top: 0 !important; }
+  .gp-band::before { top: 0 !important; bottom: 0 !important; }
+  /* when the grid belongs to the page column itself, its edges are already the screen's */
+  .wrap.page.gp-top::before, .wrap.page.gp-band::before, .wrap.page.gp-after::before, .wrap.page.gp-until::before { left: 0 !important; right: 0 !important; }
+}
