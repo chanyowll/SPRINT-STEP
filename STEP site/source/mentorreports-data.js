@@ -74,7 +74,8 @@
    * Save the draft. k = { week, week_no, team, team_name };
    * r = { tasks, mentor_name, period }. Resolves the saved report.
    */
-  async function save(k, r) {
+  async function save(k, r, opt) {
+    opt = opt || {};
     const now = new Date().toISOString();
     if (await isLive()) {
       const sb = client();
@@ -85,9 +86,10 @@
         mentor_name: r.mentor_name || '', period: r.period || '', tasks: r.tasks || {},
         updated_by: user ? user.id : null, updated_at: now,
       };
-      /* the first mentor to write a team's week becomes its owner; an admin
-         editing keeps whoever owned it */
-      if (!r.mentor_id && user) row.mentor_id = user.id;
+      /* The team's own mentor owns its report (opt.claim): their save takes it over,
+         even if an admin or someone else wrote it first. An admin filling in for the
+         mentor never takes it, so the mentor can always carry on. */
+      if (user && opt.claim && r.mentor_id !== user.id) row.mentor_id = user.id;
       const { data, error } = await sb.from(TABLE)
         .upsert(row, { onConflict: 'week_code,team_id' }).select('*').single();
       if (error) {

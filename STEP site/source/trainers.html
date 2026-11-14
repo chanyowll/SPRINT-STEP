@@ -1441,6 +1441,22 @@ document.getElementById("fa-spec").innerHTML = `
     }
     return G.slice();
   }
+  /* is the signed-in person this team's own mentor? (an admin filling in a report for a
+     mentor is not, so the report stays the mentor's and keeps the mentor's name) */
+  function ownsTeam(id) {
+    const u = me(), rs = rolesOf(u);
+    if (!rs.includes("mentor") || !id) return false;
+    if (Array.isArray(u.assigned_teams) && u.assigned_teams.includes(id)) return true;
+    if (u.team_id) return u.team_id === id;
+    const nm = String(u.name || u.full_name || "").toLowerCase();
+    const m = nm && F.mentors.find(x => x.name.toLowerCase() === nm);
+    return !!(m && m.team_id === id);
+  }
+  /* the team's mentor, by name, for a report an admin opens before the mentor has */
+  function mentorNameOf(id) {
+    const g = teamOf(id), m = F.mentors.find(x => x.team_id === id);
+    return (g && g.mentor_name) || (m && m.name) || "";
+  }
   function defaultTeam(list) {
     const u = me(), nm = String(u.name || u.full_name || "").toLowerCase();
     const m = nm && F.mentors.find(x => x.name.toLowerCase() === nm && list.some(g => g.id === x.team_id));
@@ -1575,11 +1591,15 @@ document.getElementById("fa-spec").innerHTML = `
     if (my !== seq) return;
     const r = res.report;
     { const u = me(), mine = u && u.role !== "guest" ? (u.name || u.full_name || "") : "";
-      /* an unsubmitted draft carries the name of whoever opened it last (or of another
-         account on this browser) — the signed-in mentor's own name goes in instead */
-      const theirs = r.mentor_id && u && u.id && r.mentor_id !== u.id;
-      if (mine && r.status !== "submitted" && (!r.mentor_name || !r.mentor_id || theirs)) r.mentor_name = mine;
-      else if (!r.mentor_name) r.mentor_name = mine; }
+      if (ownsTeam(selT.value)) {
+        /* the team's own mentor: an unsubmitted draft carries their name */
+        const theirs = r.mentor_id && u && u.id && r.mentor_id !== u.id;
+        if (mine && r.status !== "submitted" && (!r.mentor_name || !r.mentor_id || theirs)) r.mentor_name = mine;
+        else if (!r.mentor_name) r.mentor_name = mine;
+      } else if (!r.mentor_name) {
+        /* an admin helping out: the report is still the mentor's, under the mentor's name */
+        r.mentor_name = mentorNameOf(selT.value) || mine;
+      } }
     if (!r.period) r.period = periodOf(plan().week);
     state = { key: key(), report: r,
               stale: r.status === "submitted" && !!r.updated_at && !!r.submitted_at &&
@@ -1599,7 +1619,7 @@ document.getElementById("fa-spec").innerHTML = `
   async function doSave() {
     const s = state; if (!s) return;
     try {
-      const saved = await MR().save(s.key, s.report);
+      const saved = await MR().save(s.key, s.report, { claim: ownsTeam(s.key.team) });
       if (s !== state) return;
       s.report.mentor_id = saved.mentor_id;
       setSave("Saved", "ok");
