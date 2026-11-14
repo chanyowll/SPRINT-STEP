@@ -1452,6 +1452,9 @@ document.getElementById("fa-spec").innerHTML = `
     const m = nm && F.mentors.find(x => x.name.toLowerCase() === nm);
     return !!(m && m.team_id === id);
   }
+  /* a mentor's save always makes the report theirs (they only see their own team);
+     an admin's save never does, so the mentor can carry on */
+  const claimFor = id => ownsTeam(id) || (!isAdmin() && rolesOf(me()).includes("mentor"));
   /* the team's mentor, by name, for a report an admin opens before the mentor has */
   function mentorNameOf(id) {
     const g = teamOf(id), m = F.mentors.find(x => x.team_id === id);
@@ -1607,6 +1610,8 @@ document.getElementById("fa-spec").innerHTML = `
     inName.value = r.mentor_name; inPer.value = r.period;
     setSave(res.live ? "" : "Saved in this browser only — sign in to keep it on the STEP Hub.");
     drawRows();
+    /* remarks that had not reached the database last time are back on screen: save them now */
+    if (res.live && res.restored) { setSave("Restoring your unsaved remarks…"); doSave(); }
   }
 
   function queueSave() {
@@ -1619,7 +1624,7 @@ document.getElementById("fa-spec").innerHTML = `
   async function doSave() {
     const s = state; if (!s) return;
     try {
-      const saved = await MR().save(s.key, s.report, { claim: ownsTeam(s.key.team) });
+      const saved = await MR().save(s.key, s.report, { claim: claimFor(s.key.team) });
       if (s !== state) return;
       s.report.mentor_id = saved.mentor_id;
       setSave("Saved", "ok");
@@ -1691,7 +1696,7 @@ document.getElementById("fa-spec").innerHTML = `
     btn.disabled = true; bar.hidden = false; bar.firstElementChild.style.width = "0%";
     setSave("Uploading " + f.name + "…");
     try {
-      const saved = await MR().submit({ key: s.key, report: s.report, file: f,
+      const saved = await MR().submit({ key: s.key, report: s.report, file: f, claim: claimFor(s.key.team),
         onProgress: x => { bar.firstElementChild.style.width = Math.round(x * 100) + "%"; } });
       if (s !== state) return;
       Object.assign(s.report, { status: saved.status, submitted_at: saved.submitted_at,

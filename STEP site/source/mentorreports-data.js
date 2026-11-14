@@ -39,6 +39,29 @@
     try { localStorage.setItem(lsKey(week, team), JSON.stringify(obj)); } catch (e) {}
   }
 
+  /* unsaved edits, per report, kept in this browser until the database confirms them */
+  const PEND = 'stephub_mentorreport_pending::';
+  function pendWrite(week, team, obj) { try { localStorage.setItem(PEND + week + '::' + team, JSON.stringify(obj)); } catch (e) {} }
+  function pendRead(week, team) { try { return JSON.parse(localStorage.getItem(PEND + week + '::' + team) || 'null'); } catch (e) { return null; } }
+  function pendClear(week, team) { try { localStorage.removeItem(PEND + week + '::' + team); } catch (e) {} }
+  /* put unsaved ticks and remarks back on the loaded report; nothing the database has is dropped */
+  function mergePending(rep, p) {
+    if (!p || !p.tasks) return false;
+    let changed = false;
+    const T = Object.assign({}, rep.tasks || {});
+    Object.keys(p.tasks).forEach(i => {
+      const a = T[i] || {}, b = p.tasks[i] || {};
+      const remark = String(b.remark || '').trim().length >= String(a.remark || '').trim().length ? (b.remark || '') : (a.remark || '');
+      const done = !!(a.done || b.done);
+      if (remark !== (a.remark || '') || done !== !!a.done) changed = true;
+      T[i] = Object.assign({}, a, b, { remark, done });
+    });
+    rep.tasks = T;
+    if (!rep.mentor_name && p.mentor_name) rep.mentor_name = p.mentor_name;
+    if (!rep.period && p.period) rep.period = p.period;
+    return changed;
+  }
+
   const blank = () => ({ tasks: {}, mentor_name: '', period: '', status: 'draft', mentor_id: null,
                          signed: null, submitted_at: null, updated_at: null });
   function fromRow(r) {
@@ -59,13 +82,14 @@
         .eq('week_code', week).eq('team_id', team).maybeSingle();
       if (error) throw new Error(error.message);
       const rep = data ? fromRow(data) : blank();
+      const restored = mergePending(rep, pendRead(week, team));
       if (rep.signed) {
         try {
           const { data: s } = await sb.storage.from(BUCKET).createSignedUrl(rep.signed.path, SIGNED_SECONDS);
           rep.signed.url = s ? s.signedUrl : null;
         } catch (e) {}
       }
-      return { live: true, report: rep };
+      return { live: true, report: rep, restored };
     }
     return { live: false, report: Object.assign(blank(), lsRead(week, team) || {}) };
   }
@@ -78,6 +102,8 @@
     opt = opt || {};
     const now = new Date().toISOString();
     if (await isLive()) {
+      /* a copy in this browser first, so nothing typed is lost if the save is refused */
+      pendWrite(k.week, k.team, { tasks: r.tasks || {}, mentor_name: r.mentor_name || '', period: r.period || '', at: now });
       const sb = client();
       const { data: { user } } = await sb.auth.getUser();
       const row = {
@@ -86,18 +112,20 @@
         mentor_name: r.mentor_name || '', period: r.period || '', tasks: r.tasks || {},
         updated_by: user ? user.id : null, updated_at: now,
       };
-      /* The team's own mentor owns its report (opt.claim): their save takes it over,
-         even if an admin or someone else wrote it first. An admin filling in for the
-         mentor never takes it, so the mentor can always carry on. */
-      if (user && opt.claim && r.mentor_id !== user.id) row.mentor_id = user.id;
+      /* mentor_id goes in every save. An upsert is checked against the "insert" rule even when
+         the row already exists, and that rule needs a mentor's own id in mentor_id — leaving it
+         out (as after the first save) made every later save fail and the remarks were lost.
+         The team's own mentor (opt.claim) takes the report; an admin keeps whoever owns it. */
+      row.mentor_id = user && opt.claim ? user.id : (r.mentor_id || null);
       const { data, error } = await sb.from(TABLE)
         .upsert(row, { onConflict: 'week_code,team_id' }).select('*').single();
       if (error) {
         if (/row-level security/i.test(error.message)) {
-          throw new Error('Another mentor started this team’s report for the week, so only they (or an admin) can change it.');
+          throw new Error('Not saved to the STEP Hub yet — your remarks are kept in this browser. Reload and try again, or message the STEP Tech Team.');
         }
-        throw new Error(error.message);
+        throw new Error(error.message + ' — your remarks are kept in this browser.');
       }
+      pendClear(k.week, k.team);
       return fromRow(data);
     }
     const cur = Object.assign(blank(), lsRead(k.week, k.team) || {});
@@ -119,7 +147,7 @@
     if (await isLive()) {
       const sb = client();
       /* the draft first, so the row exists and belongs to someone */
-      const saved = await save(k, opts.report);
+      const saved = await save(k, opts.report, { claim: !!opts.claim });
       const { data: sess } = await sb.auth.getSession();
       const token = sess && sess.session && sess.session.access_token;
       if (!token) throw new Error('You are signed out. Sign in again and retry.');
