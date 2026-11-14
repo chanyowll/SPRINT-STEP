@@ -102,7 +102,7 @@
     },
     {
       week: 2, code: "W2", starts: "2026-11-09", ends: "2026-11-15",
-      title: "Value Proposition", short: "Value Proposition", axis: "Value\nproposition",
+      title: "Value Proposition", short: "Value Proposition", axis: "Market\nresearch",   /* the chart label: Week 2's scored output is the Market Research assignment */
       topic: "Value Proposition",
       review: "Output Presentation on Market Research", trainer: "Sir Tony",
       sessions: [
