@@ -385,7 +385,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
           S.weeks.filter(w => w.output && w.week > w0.week).forEach(w => rows.push(Object.assign({}, r, { on_date: K.add(w.starts, off) })));
         }
       }
-      return act(x, async () => { await K.addMentoring(rows); form = null; selKey = null; pick = r.team_id; },
+      return act(x, async () => { await K.addMentoring(rows); form = null; selKey = null; },
         rows.length > 1 ? "Mentoring added for " + rows.length + " weeks" : "Mentoring added");
     }
     if ((x = b("[data-addevt]"))) {
