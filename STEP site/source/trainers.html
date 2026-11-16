@@ -884,7 +884,7 @@ document.getElementById("fa-spec").innerHTML = `
      suggestion the trainer can override, not a hidden default. */
   sel.innerHTML = F.sessions.slice().sort((a, b) => a.week - b.week)
     .map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}${
-      s.week === CUR ? " (this week)" : ""}</option>`).join("");
+      s.week === CUR ? " (This Week)" : ""}</option>`).join("");
   const SUGGESTED = (F.sessions.find(s => s.week === CUR) || F.sessions[0]).code;
   sel.value = SUGGESTED;
 
@@ -1467,7 +1467,7 @@ document.getElementById("fa-spec").innerHTML = `
   }
 
   /* ---- the week list: every plan, the current week chosen ---- */
-  const wLabel = p => p.week == null ? (p.label || p.topic) : "Week " + p.week + " · " + p.topic;
+  const wLabel = p => p.week == null ? (p.label || p.topic) : "Week " + p.week + " · " + p.topic + (p.week === CUR ? " (This Week)" : "");
   selW.innerHTML = PLANS.map(p => `<option value="${esc(p.code)}">${esc(wLabel(p))}</option>`).join("");
   (function pickCurrent() {
     let best = PLANS[0];
@@ -1833,7 +1833,7 @@ document.getElementById("fa-spec").innerHTML = `
   const selPW = document.getElementById("pnl-week");
   if (selPW) {
     const wk = [...new Set(F.sessions.filter(x => x.assess.length && (x.week >= 1 || x.sim)).map(x => x.week))].sort((a, b) => a - b);
-    selPW.innerHTML = wk.map(w => `<option value="${w}">Week ${w}${w === CUR ? " (this week)" : ""}</option>`).join("");
+    selPW.innerHTML = wk.map(w => `<option value="${w}">Week ${w}${w === CUR ? " (This Week)" : ""}</option>`).join("");
     selPW.value = String(wk.includes(CUR) ? CUR : (wk.filter(w => w <= CUR).pop() || wk[0]));
     selPW.addEventListener("change", () => window.__panelWeek(selPW.value));
     window.__panelWeek = w => {
@@ -1885,7 +1885,7 @@ function initials(n) {
   const timers = {};             // team -> pending save timer
   const pending = new Set();     // teams with unsaved changes
 
-  selS.innerHTML = scored.map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}</option>`).join("");
+  selS.innerHTML = scored.map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.title)}${!s.tag && s.week === CUR ? " (This Week)" : ""}</option>`).join("");
   const topic = window.MOCK.thisWeek.topic.code;      // keep it in step with This Week
   /* this week's sheet; in a week with nothing to score (orientation,
      launch, or a sheet still to come) the next week that has one */
@@ -2504,7 +2504,7 @@ function initials(n) {
   });
   weeks.sort((a, b) => a.week - b.week);
   selW.innerHTML = weeks.map(w => `<option value="${w.week}">Week ${w.week} · ${esc(w.title)}${
-    w.week === CUR ? " (this week)" : ""}</option>`).join("");
+    w.week === CUR ? " (This Week)" : ""}</option>`).join("");
   selW.value = String((weeks.find(w => w.week === CUR) || weeks.filter(w => w.week <= CUR).pop() || weeks[0]).week);
 
   /* ---- the team picker: every team under its panel, coloured by hand-in ---- */
@@ -3176,7 +3176,7 @@ window.addEventListener("stephub_auth_changed", () => window.__renderTrainers())
 
   function fill() {
     const keep = sel.value;
-    sel.innerHTML = SESS().map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.short || s.title)}${s.week === CUR ? " (this week)" : ""}</option>`).join("");
+    sel.innerHTML = SESS().map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.short || s.title)}${s.week === CUR ? " (This Week)" : ""}</option>`).join("");
     const ss = SESS();
     sel.value = ss.some(s => s.code === keep) ? keep : (ss.find(s => s.week === CUR) || ss.filter(s => s.week <= CUR).pop() || ss[0] || {}).code;
   }

@@ -816,7 +816,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         </div>
         <div class="toolbar">
           <label class="field" id="d-sess-f" hidden><span>Session</span><select class="in" id="d-sess" style="width:300px"></select></label>
-          <label class="field" id="d-week-f"><span>Week</span><select class="in" id="d-week" style="width:130px"></select></label>
+          <label class="field" id="d-week-f"><span>Week</span><select class="in" id="d-week" style="width:190px"></select></label>
           <div class="seg" id="o-mode" role="group" aria-label="How to show submitted outputs" hidden><button aria-pressed="true" data-m="week">By week</button><button aria-pressed="false" data-m="all">All teams</button></div>
           <span class="note" id="d-asof" style="margin-left:auto;align-self:center"></span>
         </div>
@@ -1742,7 +1742,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   /* only weeks with a Saturday feedback session (or Demo Day) have panels */
   const PB_WEEKS = WEEKS.filter(w => !SCH || (SCH.byWeek(w) && (SCH.byWeek(w).output || w === 12)));
   const pbStart = PB_WEEKS.find(w => w >= NOW) || PB_WEEKS[PB_WEEKS.length - 1];
-  $("#pb-week").innerHTML = PB_WEEKS.map(w => `<option value="${w}" ${w === pbStart ? "selected" : ""}>Week ${w} · ${esc((SCH && SCH.byWeek(w).short) || modOf(w).title)}</option>`).join("");
+  $("#pb-week").innerHTML = PB_WEEKS.map(w => `<option value="${w}" ${w === pbStart ? "selected" : ""}>Week ${w} · ${esc((SCH && SCH.byWeek(w).short) || modOf(w).title)}${w === NOW ? " (This Week)" : ""}</option>`).join("");
   pbWeek = pbStart;
   /* a panel's i-th time slot: its saved time when there is one, else the start time plus 40 minutes a team */
   function slot(start, i, times) {
@@ -2067,7 +2067,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     const dirty = () => JSON.stringify(rows) !== JSON.stringify(saved);
 
     function fillWeeks() {
-      sel.innerHTML = SESSIONS().map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.short || s.title)}</option>`).join("");
+      sel.innerHTML = SESSIONS().map(s => `<option value="${esc(s.code)}">Week ${s.week} · ${esc(s.short || s.title)}${s.week === NOW ? " (This Week)" : ""}</option>`).join("");
       const ss = SESSIONS(), cur = ss.find(s => s.week === NOW) || ss.filter(s => s.week <= NOW).pop() || ss[0];
       if (cur) sel.value = cur.code;
     }
@@ -2590,8 +2590,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const sesRank = c => (SES_KIND[sesKey(c)] || [0, 9])[1];
   let DV = "overview", OM = "week", OW = null, D = null, dOpen = new Set(), CSV = [];
 
-  $("#d-week").innerHTML = WEEKS.filter(w => w <= NOW).map(w => `<option value="${w}" ${w === NOW ? "selected" : ""}>Week ${w}</option>`).join("");
-  $("#d-sess").innerHTML = SESS.map(s => `<option value="${esc(s.code)}">${esc(sessLabel(s.code))}</option>`).join("");
+  $("#d-week").innerHTML = WEEKS.filter(w => w <= NOW).map(w => `<option value="${w}" ${w === NOW ? "selected" : ""}>Week ${w}${w === NOW ? " (This Week)" : ""}</option>`).join("");
+  $("#d-sess").innerHTML = SESS.map(s => `<option value="${esc(s.code)}">${esc(sessLabel(s.code))}${sessOf(s.code).week === NOW && !sessOf(s.code).tag ? " (This Week)" : ""}</option>`).join("");
   $("#d-sess").value = (SESS.find(s => s.code === modOf(NOW).code) || SESS.filter(s => s.week <= NOW).pop() || SESS[0] || {}).code || "";
 
   /* when week w's team output is due — from the schedule (12:00 NN the
