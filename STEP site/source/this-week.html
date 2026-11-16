@@ -1050,7 +1050,7 @@ document.querySelectorAll(".reveal").forEach(el => io.observe(el));
     }).join("");
   }
   /* the assignment card's heading: Week 2's team output is the Market Research assignment, which continues Week 1 */
-  const AHEAD_OVERRIDE = { 2: { k: "Week 1 Continuation", t: "Market Research" } };
+  const AHEAD_OVERRIDE = {};
   function paint(a) {
     /* only what the tech team posts on the console appears here */
     const AHEAD = AHEAD_OVERRIDE[wk] || { k: "Week " + wk, t: T.short || T.title || "" };

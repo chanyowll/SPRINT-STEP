@@ -146,12 +146,17 @@ window.MOCK = (function () {
           { label: "Partners and Gaps", weight: 25, hint: "Assess whether the group identified the partners and gaps that matter most for reaching the market." },
           { label: "Video Walkthrough", weight: 20, hint: "Assess how clearly the five-minute video walked the panel through the map." },
         ],
-      W2: [
+      "W1.1": [
           { label: "Research Questions and Method", weight: 20, hint: "Assess whether the group stated what it needed to find out about its market and how it went about it (interviews, surveys, desk research)." },
           { label: "Customer Evidence", weight: 30, hint: "Assess whether the group gathered evidence from real potential customers and users, recorded in their own words." },
           { label: "Demand and Alternatives", weight: 25, hint: "Assess whether the group showed how much demand there is and what customers use today instead." },
           { label: "First Value Proposition", weight: 15, hint: "Assess whether the group drew a first value proposition for its target customers from the research." },
           { label: "Video Walkthrough", weight: 10, hint: "Assess how clearly the five-minute video walked the panel through the research and what it found." },
+        ],
+      W2: [
+          { label: "Problem-Solution Fit Canvas", weight: 50, hint: "Assess whether the canvas for the beachhead customer is complete and coherent: segment, problems, triggers, behaviour, alternatives and solution fit together." },
+          { label: "Value Proposition Statement", weight: 40, hint: "Assess whether the statement follows from the canvas: for whom, dissatisfied with what, due to which unmet needs, the offer, its key benefits and the reasons to believe." },
+          { label: "Video Walkthrough", weight: 10, hint: "Assess how clearly the five-minute video walked the panel through the canvas and the statement." },
         ],
       W3: [
           { label: "Use Case Understanding", weight: 20, hint: "Assess whether the group described how the customer uses the product across its full life cycle." },
@@ -246,7 +251,7 @@ window.MOCK = (function () {
       { id: "tr6", name: "Mr. Steve Chaves", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
       { id: "tr7", name: "Mr. Bienvenido Garcia", short: "Sir Bien", initials: "BG", org: "Ateneo de Manila University",
-        focus: "Topics to be announced", modules: [], criteria: ["W2"] },
+        focus: "Topics to be announced", modules: [], criteria: ["W1.1"] },
       { id: "tr8", name: "Mr. Dominic Fargas Jr.", short: "Sir Dom", initials: "DF", org: "University of the Philippines",
         focus: "Pitching skills", modules: ["W9"] },
     ],
@@ -302,11 +307,15 @@ window.MOCK = (function () {
       ] },
       /* Week 2's team work is the Market Research assignment (a continuation of Week 1),
          so the mentors' plan follows its first four parts */
-      { code: "W2", week: 2, topic: "Market Research (Week 1 continuation)", source: "assignment", tasks: [
+      { code: "W1.1", week: 1.1, topic: "Market Research", source: "assignment", tasks: [
         { text: "Help the team pinpoint its beachhead market from the panel's and your feedback, and name its users, buyers, influencers, decision-makers, payers and beneficiaries." },
         { text: "Review the team's 5 to 8 open-ended interview questions (actual experiences, current practices, problems and purchasing decisions, with no pitching) and help them line up at least 3 in-depth interviews with new respondents." },
         { text: "Go through the interview findings with the team: recurring problems, customer needs, unexpected insights and the assumptions that were challenged." },
         { text: "Check the team's comparison of at least 3 competitors, alternatives or workarounds, and its TAM, SAM and SOM estimates with their assumptions and sources." },
+      ] },
+      { code: "W2", week: 2, topic: SCHED.byWeek(2).title, source: "assignment", tasks: [
+        { text: "Help the group fill up a clear and coherent Problem-Solution Fit Canvas for their beachhead customer." },
+        { text: "Assist the group in writing a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas." },
       ] },
       { code: "W3", week: 3, topic: SCHED.byWeek(3).title,
         topicLines: ["1. Understanding your Product's Full Life Cycle Use Case", "2. Developing your High-Level Product Specification", "3. Quantifying Your Value Proposition"],

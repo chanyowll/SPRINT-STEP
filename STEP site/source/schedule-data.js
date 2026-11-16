@@ -14,7 +14,9 @@
           and the market mapping review (Sat Nov 7)
      W2–W5, W7–W11  one topic a week: Tuesday learning session, Saturday
           feedback session
-     —    No sessions Nov 16–22: from Week 3 on, the schedule moved one week later
+     W1.1 Market Research (Nov 9–15): learning session on the value proposition (Nov 10),
+          market research presented to the panel (Nov 14)
+     W2   Value Proposition (Nov 16–22): no learning session; feedback session Sat Nov 21
      —    No sessions Feb 1–7: Week 11 runs Feb 8–14, right before Demo Day week
      W6   Mid-Program Checkpoint on site (Thu–Fri Dec 17–18): IP and finance
      —    Christmas break after Week 6, Dec 21 – Jan 3 (not counted as a week);
@@ -103,9 +105,10 @@
       },
     },
     {
-      week: 2, code: "W2", starts: "2026-11-09", ends: "2026-11-15",
-      title: "Value Proposition", short: "Value Proposition", axis: "Market\nresearch",   /* the chart label: Week 2's scored output is the Market Research assignment */
-      topic: "Value Proposition",
+      /* Week 1.1: the Market Research week that continues Week 1 (its stored data uses code "W1.1") */
+      week: 1.1, code: "W1.1", starts: "2026-11-09", ends: "2026-11-15",
+      title: "Market Research", short: "Market Research", axis: "Market\nresearch",
+      topic: "Market Research",
       review: "Output Presentation on Market Research", trainer: "Sir Tony",
       sessions: [
         { date: "2026-11-10", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
@@ -135,21 +138,46 @@
       },
     },
     {
+      week: 2, code: "W2", starts: "2026-11-16", ends: "2026-11-22",
+      title: "Value Proposition", short: "Value Proposition", axis: "Value\nproposition",
+      topic: "Value Proposition: Problem-Solution Fit Canvas and Value Proposition Statement",
+      review: "Output Presentation on Value Proposition", trainer: "Sir Tony",
+      sessions: [
+        { date: "2026-11-17", kind: "holiday", mode: "No session",
+          title: "No Session — the value proposition was taught on Tuesday, November 10" },
+        { date: "2026-11-21", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+          title: "Output Presentation on Value Proposition" },
+      ],
+      output: true,
+      tagline: "Your best hypothesis of the customer, the problem and the promise.",
+      brief: "No learning session this week: the value proposition was taught on Tuesday, November 10. Teams fill up a Problem-Solution Fit Canvas for their beachhead customer and write a value proposition statement from it, then present both to the panel on Saturday. Both are your best hypothesis for now, to validate with research and strengthen later.",
+      able: [
+        "Fill up a Problem-Solution Fit Canvas for your beachhead customer",
+        "Write a value proposition statement based on your canvas",
+      ],
+      produce: "Your Problem-Solution Fit Canvas and value proposition statement — plus the five-minute video.",
+      game: {
+        title: "Build a value proposition",
+        prompt: "From a customer to one clear promise. Drag the cards into the order you would work.",
+        steps: [
+          { order: 1, label: "Pick the customer segment", why: "One group of customers, described plainly." },
+          { order: 2, label: "List the jobs they are trying to do", why: "What they need to get done, in their words." },
+          { order: 3, label: "Name their pains and gains", why: "What gets in the way, and what would make it better." },
+          { order: 4, label: "Match your solution to them", why: "Which pains it relieves and which gains it creates." },
+          { order: 5, label: "Write the value proposition statement", why: "One line the customer would recognise." },
+        ],
+      },
+    },
+    {
       week: 3, code: "W3", starts: "2026-11-23", ends: "2026-11-29",
       title: "Value Proposition Refinement", short: "Value Proposition Refinement", axis: "Value proposition\nrefinement",
       topic: "Understanding the Value and Measuring it; Value Proposition Refinement",
       review: "Presentation of Refined Value Proposition", trainer: "Sir Tony",
       sessions: [
-        { date: "2026-11-17", kind: "holiday", mode: "No session",
-          title: "No Session — no learning session this week" },
         { date: "2026-11-24", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Understanding the Value and Measuring it; Value Proposition Refinement" },
         { date: "2026-11-28", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Refined Value Proposition" },
-        /* an added feedback session in the week before Week 3, on the Value Proposition
-           assignment from Week 2's learning session; its output is due the Friday before */
-        { date: "2026-11-21", kind: "feedback", att: "VP", mode: "Online", time: FB_TIME, extra: true,
-          dueLabel: "Value Proposition", title: "Output Presentation on Value Proposition" },
       ],
       output: true,
       tagline: "Put a number on the value, then sharpen the promise.",
@@ -510,7 +538,7 @@
 
   const byWeek = n => weeks.find(w => w.week === Number(n)) || null;
   const byCode = c => weeks.find(w => w.code === String(c).toUpperCase()) || null;
-  const weekOfCode = c => { const m = String(c || "").match(/^W(-?\d+)/i); return m ? +m[1] : null; };
+  const weekOfCode = c => { const m = String(c || "").match(/^W(-?\d+(?:\.\d+)?)/i); return m ? +m[1] : null; };   // "W1.1" → 1.1
   const label = n => "Week " + n;
 
   const sessionOf = (n, kind) => { const w = byWeek(n); return w ? w.sessions.find(s => s.kind === kind) || null : null; };

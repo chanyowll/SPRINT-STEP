@@ -2358,7 +2358,7 @@ function initials(n) {
     P = F.panels.find(p => p.letter === selP.value) || F.panels[0];
     fillPanelists(keepSeat);
     /* Week 2's Saturday panel hears the Market Research output, which continues Week 1 */
-    const HEAD = !S.tag && S.week === 2 ? { code: "Week 1 Continuation", title: "Market Research" } : null;
+    const HEAD = null;
     document.getElementById("sc-code").textContent = HEAD ? HEAD.code : (S.tag ? S.tag + " · " : "") + "Week " + S.week;
     const titleEl = document.getElementById("sc-title");
     titleEl.textContent = HEAD ? HEAD.title : S.title;

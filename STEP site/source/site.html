@@ -2639,7 +2639,7 @@
        learning session, on-site days, the feedback session, Demo Day */
     const RANK = { OR: 0, LS: 1, OS: 2, FB: 3, DD: 4, GR: 5 };
     const sesOrder = x => {
-      const wk = +((String(x.code).match(/W(-?\d+)/i) || [])[1] || 0);
+      const wk = +((String(x.code).match(/W(-?\d+(?:\.\d+)?)/i) || [])[1] || 0);
       const k = (String(x.code).split('-')[1] || '').toUpperCase();
       return wk * 10 + (k in RANK ? RANK[k] : (/fb|feedback/i.test(x.code + ' ' + x.label) ? 3 : 1));
     };
@@ -5481,7 +5481,9 @@
           and the market mapping review (Sat Nov 7)
      W2–W5, W7–W11  one topic a week: Tuesday learning session, Saturday
           feedback session
-     —    No sessions Nov 16–22: from Week 3 on, the schedule moved one week later
+     W1.1 Market Research (Nov 9–15): learning session on the value proposition (Nov 10),
+          market research presented to the panel (Nov 14)
+     W2   Value Proposition (Nov 16–22): no learning session; feedback session Sat Nov 21
      —    No sessions Feb 1–7: Week 11 runs Feb 8–14, right before Demo Day week
      W6   Mid-Program Checkpoint on site (Thu–Fri Dec 17–18): IP and finance
      —    Christmas break after Week 6, Dec 21 – Jan 3 (not counted as a week);
@@ -5570,9 +5572,10 @@
       },
     },
     {
-      week: 2, code: "W2", starts: "2026-11-09", ends: "2026-11-15",
-      title: "Value Proposition", short: "Value Proposition", axis: "Market\nresearch",   /* the chart label: Week 2's scored output is the Market Research assignment */
-      topic: "Value Proposition",
+      /* Week 1.1: the Market Research week that continues Week 1 (its stored data uses code "W1.1") */
+      week: 1.1, code: "W1.1", starts: "2026-11-09", ends: "2026-11-15",
+      title: "Market Research", short: "Market Research", axis: "Market\nresearch",
+      topic: "Market Research",
       review: "Output Presentation on Market Research", trainer: "Sir Tony",
       sessions: [
         { date: "2026-11-10", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
@@ -5602,21 +5605,46 @@
       },
     },
     {
+      week: 2, code: "W2", starts: "2026-11-16", ends: "2026-11-22",
+      title: "Value Proposition", short: "Value Proposition", axis: "Value\nproposition",
+      topic: "Value Proposition: Problem-Solution Fit Canvas and Value Proposition Statement",
+      review: "Output Presentation on Value Proposition", trainer: "Sir Tony",
+      sessions: [
+        { date: "2026-11-17", kind: "holiday", mode: "No session",
+          title: "No Session — the value proposition was taught on Tuesday, November 10" },
+        { date: "2026-11-21", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+          title: "Output Presentation on Value Proposition" },
+      ],
+      output: true,
+      tagline: "Your best hypothesis of the customer, the problem and the promise.",
+      brief: "No learning session this week: the value proposition was taught on Tuesday, November 10. Teams fill up a Problem-Solution Fit Canvas for their beachhead customer and write a value proposition statement from it, then present both to the panel on Saturday. Both are your best hypothesis for now, to validate with research and strengthen later.",
+      able: [
+        "Fill up a Problem-Solution Fit Canvas for your beachhead customer",
+        "Write a value proposition statement based on your canvas",
+      ],
+      produce: "Your Problem-Solution Fit Canvas and value proposition statement — plus the five-minute video.",
+      game: {
+        title: "Build a value proposition",
+        prompt: "From a customer to one clear promise. Drag the cards into the order you would work.",
+        steps: [
+          { order: 1, label: "Pick the customer segment", why: "One group of customers, described plainly." },
+          { order: 2, label: "List the jobs they are trying to do", why: "What they need to get done, in their words." },
+          { order: 3, label: "Name their pains and gains", why: "What gets in the way, and what would make it better." },
+          { order: 4, label: "Match your solution to them", why: "Which pains it relieves and which gains it creates." },
+          { order: 5, label: "Write the value proposition statement", why: "One line the customer would recognise." },
+        ],
+      },
+    },
+    {
       week: 3, code: "W3", starts: "2026-11-23", ends: "2026-11-29",
       title: "Value Proposition Refinement", short: "Value Proposition Refinement", axis: "Value proposition\nrefinement",
       topic: "Understanding the Value and Measuring it; Value Proposition Refinement",
       review: "Presentation of Refined Value Proposition", trainer: "Sir Tony",
       sessions: [
-        { date: "2026-11-17", kind: "holiday", mode: "No session",
-          title: "No Session — no learning session this week" },
         { date: "2026-11-24", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Understanding the Value and Measuring it; Value Proposition Refinement" },
         { date: "2026-11-28", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Refined Value Proposition" },
-        /* an added feedback session in the week before Week 3, on the Value Proposition
-           assignment from Week 2's learning session; its output is due the Friday before */
-        { date: "2026-11-21", kind: "feedback", att: "VP", mode: "Online", time: FB_TIME, extra: true,
-          dueLabel: "Value Proposition", title: "Output Presentation on Value Proposition" },
       ],
       output: true,
       tagline: "Put a number on the value, then sharpen the promise.",
@@ -5977,7 +6005,7 @@
 
   const byWeek = n => weeks.find(w => w.week === Number(n)) || null;
   const byCode = c => weeks.find(w => w.code === String(c).toUpperCase()) || null;
-  const weekOfCode = c => { const m = String(c || "").match(/^W(-?\d+)/i); return m ? +m[1] : null; };
+  const weekOfCode = c => { const m = String(c || "").match(/^W(-?\d+(?:\.\d+)?)/i); return m ? +m[1] : null; };   // "W1.1" → 1.1
   const label = n => "Week " + n;
 
   const sessionOf = (n, kind) => { const w = byWeek(n); return w ? w.sessions.find(s => s.kind === kind) || null : null; };
@@ -6343,12 +6371,17 @@ window.MOCK = (function () {
           { label: "Partners and Gaps", weight: 25, hint: "Assess whether the group identified the partners and gaps that matter most for reaching the market." },
           { label: "Video Walkthrough", weight: 20, hint: "Assess how clearly the five-minute video walked the panel through the map." },
         ],
-      W2: [
+      "W1.1": [
           { label: "Research Questions and Method", weight: 20, hint: "Assess whether the group stated what it needed to find out about its market and how it went about it (interviews, surveys, desk research)." },
           { label: "Customer Evidence", weight: 30, hint: "Assess whether the group gathered evidence from real potential customers and users, recorded in their own words." },
           { label: "Demand and Alternatives", weight: 25, hint: "Assess whether the group showed how much demand there is and what customers use today instead." },
           { label: "First Value Proposition", weight: 15, hint: "Assess whether the group drew a first value proposition for its target customers from the research." },
           { label: "Video Walkthrough", weight: 10, hint: "Assess how clearly the five-minute video walked the panel through the research and what it found." },
+        ],
+      W2: [
+          { label: "Problem-Solution Fit Canvas", weight: 50, hint: "Assess whether the canvas for the beachhead customer is complete and coherent: segment, problems, triggers, behaviour, alternatives and solution fit together." },
+          { label: "Value Proposition Statement", weight: 40, hint: "Assess whether the statement follows from the canvas: for whom, dissatisfied with what, due to which unmet needs, the offer, its key benefits and the reasons to believe." },
+          { label: "Video Walkthrough", weight: 10, hint: "Assess how clearly the five-minute video walked the panel through the canvas and the statement." },
         ],
       W3: [
           { label: "Use Case Understanding", weight: 20, hint: "Assess whether the group described how the customer uses the product across its full life cycle." },
@@ -6443,7 +6476,7 @@ window.MOCK = (function () {
       { id: "tr6", name: "Mr. Steve Chaves", short: "Sir Steve", initials: "SC", org: "Ateneo de Manila University",
         focus: "FASTRAC proposal workshop", modules: ["W11"] },
       { id: "tr7", name: "Mr. Bienvenido Garcia", short: "Sir Bien", initials: "BG", org: "Ateneo de Manila University",
-        focus: "Topics to be announced", modules: [], criteria: ["W2"] },
+        focus: "Topics to be announced", modules: [], criteria: ["W1.1"] },
       { id: "tr8", name: "Mr. Dominic Fargas Jr.", short: "Sir Dom", initials: "DF", org: "University of the Philippines",
         focus: "Pitching skills", modules: ["W9"] },
     ],
@@ -6499,11 +6532,15 @@ window.MOCK = (function () {
       ] },
       /* Week 2's team work is the Market Research assignment (a continuation of Week 1),
          so the mentors' plan follows its first four parts */
-      { code: "W2", week: 2, topic: "Market Research (Week 1 continuation)", source: "assignment", tasks: [
+      { code: "W1.1", week: 1.1, topic: "Market Research", source: "assignment", tasks: [
         { text: "Help the team pinpoint its beachhead market from the panel's and your feedback, and name its users, buyers, influencers, decision-makers, payers and beneficiaries." },
         { text: "Review the team's 5 to 8 open-ended interview questions (actual experiences, current practices, problems and purchasing decisions, with no pitching) and help them line up at least 3 in-depth interviews with new respondents." },
         { text: "Go through the interview findings with the team: recurring problems, customer needs, unexpected insights and the assumptions that were challenged." },
         { text: "Check the team's comparison of at least 3 competitors, alternatives or workarounds, and its TAM, SAM and SOM estimates with their assumptions and sources." },
+      ] },
+      { code: "W2", week: 2, topic: SCHED.byWeek(2).title, source: "assignment", tasks: [
+        { text: "Help the group fill up a clear and coherent Problem-Solution Fit Canvas for their beachhead customer." },
+        { text: "Assist the group in writing a compelling Value Proposition Statement based on their Problem-Solution Fit Canvas." },
       ] },
       { code: "W3", week: 3, topic: SCHED.byWeek(3).title,
         topicLines: ["1. Understanding your Product's Full Life Cycle Use Case", "2. Developing your High-Level Product Specification", "3. Quantifying Your Value Proposition"],
@@ -8050,8 +8087,7 @@ window.MOCK = (function () {
       });
       if (w.output && S.dueOf) {
         const due = S.dueOf(w.week);
-        /* Week 2's output is the Market Research assignment, continued from Week 1 */
-        const what = w.week === 2 ? "Market Research Continuation" : w.short;
+        const what = w.short;
         if (due) out.push({ key: due.slice(0, 10) + ":deadline", d: due.slice(0, 10), k: "deadline", w: w.code, weekTitle: what,
                             title: "Output due: " + what, time: "12:00 NN", where: "My Team's Work" });
         /* an added feedback session's own output */
@@ -9774,7 +9810,7 @@ document.getElementById("rail").innerHTML = W.days.map(d => {
     }).join("");
   }
   /* the assignment card's heading: Week 2's team output is the Market Research assignment, which continues Week 1 */
-  const AHEAD_OVERRIDE = { 2: { k: "Week 1 Continuation", t: "Market Research" } };
+  const AHEAD_OVERRIDE = {};
   function paint(a) {
     /* only what the tech team posts on the console appears here */
     const AHEAD = AHEAD_OVERRIDE[wk] || { k: "Week " + wk, t: T.short || T.title || "" };
@@ -15907,7 +15943,7 @@ function initials(n) {
     P = F.panels.find(p => p.letter === selP.value) || F.panels[0];
     fillPanelists(keepSeat);
     /* Week 2's Saturday panel hears the Market Research output, which continues Week 1 */
-    const HEAD = !S.tag && S.week === 2 ? { code: "Week 1 Continuation", title: "Market Research" } : null;
+    const HEAD = null;
     document.getElementById("sc-code").textContent = HEAD ? HEAD.code : (S.tag ? S.tag + " · " : "") + "Week " + S.week;
     const titleEl = document.getElementById("sc-title");
     titleEl.textContent = HEAD ? HEAD.title : S.title;

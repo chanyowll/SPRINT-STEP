@@ -69,8 +69,7 @@
       });
       if (w.output && S.dueOf) {
         const due = S.dueOf(w.week);
-        /* Week 2's output is the Market Research assignment, continued from Week 1 */
-        const what = w.week === 2 ? "Market Research Continuation" : w.short;
+        const what = w.short;
         if (due) out.push({ key: due.slice(0, 10) + ":deadline", d: due.slice(0, 10), k: "deadline", w: w.code, weekTitle: what,
                             title: "Output due: " + what, time: "12:00 NN", where: "My Team's Work" });
         /* an added feedback session's own output */

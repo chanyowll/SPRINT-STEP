@@ -1034,7 +1034,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   }
   async function loadWeeksWith() {
     const { data } = await SBC().from("attendance").select("session_code");
-    attWeeksWith = new Set((data || []).map(r => +((String(r.session_code).match(/^W(-?\d+)/) || [])[1])).filter(n => !isNaN(n)));
+    attWeeksWith = new Set((data || []).map(r => +((String(r.session_code).match(/^W(-?\d+(?:\.\d+)?)/) || [])[1])).filter(n => !isNaN(n)));
   }
   function paintWeeks() {
     const marks = {};
@@ -2581,7 +2581,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   const dLive = () => !demo && !!(M.isLiveUser && M.isLiveUser()) && !!SBC();
   const fx = n => (n == null || isNaN(n)) ? "—" : Number(n).toFixed(2);
   const mean = a => a.length ? a.reduce((x, y) => x + y, 0) / a.length : null;
-  const wkOfCode = c => +((String(c).match(/^W(-?\d+)/) || [])[1] || 0);
+  const wkOfCode = c => +((String(c).match(/^W(-?\d+(?:\.\d+)?)/) || [])[1] || 0);
   const isFb = c => /FB/i.test(c);
   /* session kinds in the order they happen within a week */
   const SES_KIND = { OR: ["Orientation", 0], LS: ["Learning", 1], OS: ["On-site", 2], FB: ["Feedback", 3], DD: ["Demo Day", 4], GR: ["Graduation", 5] };

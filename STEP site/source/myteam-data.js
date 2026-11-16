@@ -149,7 +149,7 @@
        learning session, on-site days, the feedback session, Demo Day */
     const RANK = { OR: 0, LS: 1, OS: 2, FB: 3, DD: 4, GR: 5 };
     const sesOrder = x => {
-      const wk = +((String(x.code).match(/W(-?\d+)/i) || [])[1] || 0);
+      const wk = +((String(x.code).match(/W(-?\d+(?:\.\d+)?)/i) || [])[1] || 0);
       const k = (String(x.code).split('-')[1] || '').toUpperCase();
       return wk * 10 + (k in RANK ? RANK[k] : (/fb|feedback/i.test(x.code + ' ' + x.label) ? 3 : 1));
     };
