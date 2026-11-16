@@ -140,12 +140,16 @@
       topic: "Understanding the Value and Measuring it; Value Proposition Refinement",
       review: "Presentation of Refined Value Proposition", trainer: "Sir Tony",
       sessions: [
-        { date: "2026-11-16", end: "2026-11-22", kind: "holiday", mode: "No session",
-          title: "No Session — break week; Week 3 begins with the learning session on Tuesday, November 24" },
+        { date: "2026-11-17", kind: "holiday", mode: "No session",
+          title: "No Session — no learning session this week" },
         { date: "2026-11-24", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Understanding the Value and Measuring it; Value Proposition Refinement" },
         { date: "2026-11-28", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Refined Value Proposition" },
+        /* an added feedback session in the week before Week 3, on the Value Proposition
+           assignment from Week 2's learning session; its output is due the Friday before */
+        { date: "2026-11-21", kind: "feedback", att: "VP", mode: "Online", time: FB_TIME, extra: true,
+          dueLabel: "Value Proposition", title: "Output Presentation on Value Proposition" },
       ],
       output: true,
       tagline: "Put a number on the value, then sharpen the promise.",
@@ -521,6 +525,27 @@
     return (fb ? addDays(fb.date, -1) : addDays(w.starts, 4)) + "T12:00:00+08:00";
   }
 
+  /* added feedback sessions (extra: true) have their own output, due 12:00 NN the day before */
+  function extraDuesOf(n) {
+    const w = byWeek(n); if (!w) return [];
+    return w.sessions.filter(s => s.extra && s.kind === "feedback")
+      .map(s => ({ due: addDays(s.date, -1) + "T12:00:00+08:00", label: s.dueLabel || s.title, session: s }));
+  }
+  /* the next deadline of a week from today: an added session's, or the week's own */
+  function nextDue(n, now) {
+    const t = new Date(now || Date.now()), list = extraDuesOf(n).slice();
+    const own = dueOf(n); if (own) list.push({ due: own, label: (byWeek(n) || {}).short || "" });
+    list.sort((a, b) => a.due < b.due ? -1 : 1);
+    return list.find(x => new Date(x.due) > t) || list[list.length - 1] || null;
+  }
+  /* the next feedback session of a week from today */
+  function nextFeedback(n, now) {
+    const w = byWeek(n); if (!w) return null;
+    const t = manilaDay(now ? new Date(now) : undefined);
+    const fbs = w.sessions.filter(s => s.kind === "feedback").sort((a, b) => a.date < b.date ? -1 : 1);
+    return fbs.find(s => s.date >= t) || feedbackOf(n);
+  }
+
   /* where the program is today: the week, and whether it has started */
   function current(now) {
     if (simulation) return { week: simulation.week, status: "live", note: "", sim: true };
@@ -537,13 +562,17 @@
     }
     const next = weeks.find(x => x.starts > t) || last;
     /* a week with no sessions between two program weeks (Nov 16–22): show the coming week */
-    const firstDay = (next.sessions.find(x => x.kind !== "holiday") || {}).date || next.starts;
+    const firstDay = (next.sessions.find(x => x.kind !== "holiday" && x.date >= next.starts) || {}).date || next.starts;
+    const early = next.sessions.filter(x => x.kind !== "holiday" && x.date < next.starts && x.date >= t);
     return { week: next.week, status: "gap", gap: true,
-             note: "No sessions this week. Week " + next.week + " begins " + dayName(firstDay) + ", " + long(firstDay) + "." };
+             note: (early.length ? "No learning session this week; " + early.map(x => (x.kind === "feedback" ? "feedback session " : "") + dayName(x.date) + ", " + long(x.date)).join(", ") + ". "
+                                 : "No sessions this week. ")
+                   + "Week " + next.week + " begins " + dayName(firstDay) + ", " + long(firstDay) + "." };
   }
 
   /* the sessions attendance is taken for, in the order they happen */
   const ATT_LABEL = { OR: "Online orientation", OS: "On-site event", LS: "Learning session", FB: "Feedback session",
+                      VP: "Feedback session (Value Proposition)",
                       DD: "Demo Day", GR: "Graduation" };
   function attendanceSessions(n) {
     const w = byWeek(n); if (!w) return [];
@@ -574,6 +603,9 @@
     const firstDay = (w.sessions[0] || {}).date || w.starts;
     let base = w.starts;
     const span = daysBetween(w.starts, w.ends) + 1, t = manilaDay(now);
+    /* in the week before a week that has an added session in it, show that week */
+    if (t < w.starts && t >= addDays(w.starts, -7) && w.sessions.some(s => s.date < w.starts && s.kind !== "holiday")) base = addDays(w.starts, -7);
+    const extra = extraDuesOf(n).filter(x => x.due.slice(0, 10) >= base && x.due.slice(0, 10) <= addDays(base, 6));
     for (let off = 7; off < span && addDays(w.starts, off) <= t; off += 7) base = addDays(w.starts, off);
     const out = [];
     for (let i = 0; i < 7; i++) {
@@ -613,6 +645,11 @@
           }
         });
         if (d === dueDay) day.note = joinNote(day.note, "Team output due 12:00 NN.");
+      } else if (extra.some(x => x.due.slice(0, 10) === d)) {
+        const x = extra.find(y => y.due.slice(0, 10) === d);
+        Object.assign(day, { kind: "deadline", title: "Team output due · " + x.label, time: "12:00 NN",
+          note: "Upload the slide deck and the five-minute video on My Team's Work, for Saturday's feedback session.",
+          action: "submit" });
       } else if (d === dueDay) {
         Object.assign(day, { kind: "deadline", title: "Team output due · " + w.short, time: "12:00 NN",
           note: "Upload the slide deck and the five-minute video on My Team's Work.",
@@ -635,7 +672,7 @@
   function timeline() {
     const rows = [];
     weeks.forEach(w => w.sessions.forEach(s => rows.push(Object.assign({ week: w.week, code: w.code }, s))));
-    return rows;
+    return rows.sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);   // an added session sits in date order
   }
 
   const teachingWeeks = () => weeks.filter(w => w.output);
@@ -643,7 +680,7 @@
 
   window.STEP_SCHEDULE = {
     cohort, weeks, BREAK,
-    byWeek, byCode, weekOfCode, label, current, dueOf,
+    byWeek, byCode, weekOfCode, label, current, dueOf, extraDuesOf, nextDue, nextFeedback,
     learningOf, feedbackOf, attendanceSessions, periodOf, daysOf, timeline,
     teachingWeeks, learningCount,
     simulation, isSim, tag,

@@ -59,7 +59,7 @@
         days.forEach((d, i) => {
           let title;
           if (s.kind === "learning") title = "Learning: " + w.short;
-          else if (s.kind === "feedback") title = "Feedback: " + w.short;
+          else if (s.kind === "feedback") title = "Feedback: " + (s.dueLabel || w.short);
           else if (s.kind === "holiday") title = "No session: " + s.title.replace(/^No Session\s*[-—]\s*/i, "");
           else if (s.kind === "onsite") title = (s.rail || s.title.split(/:| — /)[0]) + (days.length > 1 && !s.spread ? " · Day " + (i + 1) : "");
           else title = s.title;
@@ -73,6 +73,9 @@
         const what = w.week === 2 ? "Market Research Continuation" : w.short;
         if (due) out.push({ key: due.slice(0, 10) + ":deadline", d: due.slice(0, 10), k: "deadline", w: w.code, weekTitle: what,
                             title: "Output due: " + what, time: "12:00 NN", where: "My Team's Work" });
+        /* an added feedback session's own output */
+        (S.extraDuesOf ? S.extraDuesOf(w.week) : []).forEach(x => out.push({ key: x.due.slice(0, 10) + ":deadline", d: x.due.slice(0, 10),
+          k: "deadline", w: w.code, weekTitle: x.label, title: "Output due: " + x.label, time: "12:00 NN", where: "My Team's Work" }));
       }
     });
     return out;
