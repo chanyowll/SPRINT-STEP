@@ -308,7 +308,7 @@ const daysAway = iso => {
   document.getElementById("wk-title").textContent =
     "Week " + W.week_no + " of " + W.weeks_total;
   /* before the cycle starts, or over the Christmas break, say so plainly */
-  if (W.note) {
+  if (W.note && W.status !== "gap") {                       // a no-session week is said with the deadline, below
     const el = document.getElementById("wk-due");
     el.textContent = W.note;
     el.hidden = false;
@@ -325,16 +325,20 @@ const daysAway = iso => {
 
 /* ---------- the one deadline that matters, carried in the week bar ---------- */
 (function () {
-  if (W.note) return;                                       // not started yet, or on the break
+  if (W.note && W.status !== "gap") return;                 // not started yet, or on the break
   const S = window.STEP_SCHEDULE;
   const due = S && S.dueOf(W.week_no);
-  if (!due) return;
+  const gapEl = document.getElementById("wk-due");
+  if (!due) { if (W.status === "gap") { gapEl.textContent = W.note; gapEl.hidden = false; } return; }
   const h = Math.round((new Date(due) - NOW) / 3600000);
   if (h < 0) return;                                        // already passed — the day rail shows it as done
   const left = h < 24 ? h + (h === 1 ? " hour" : " hours") + " left"
                       : Math.round(h / 24) + (Math.round(h / 24) === 1 ? " day" : " days") + " left";
   const el = document.getElementById("wk-due");
-  el.innerHTML = `Team output due ${esc(S.dayName(due.slice(0, 10)))}, 12:00 NN — <b>${left}</b>`;
+  /* in a week with no sessions, the deadline is next week's: say so */
+  el.innerHTML = W.status === "gap"
+    ? `No sessions this week · Assignment due next ${esc(S.dayName(due.slice(0, 10)))}, ${esc(S.fmtShort(due.slice(0, 10)))}, 12:00 NN — <b>${left}</b>`
+    : `Team output due ${esc(S.dayName(due.slice(0, 10)))}, 12:00 NN — <b>${left}</b>`;
   el.hidden = false;
 })();
 

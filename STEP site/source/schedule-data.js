@@ -14,10 +14,11 @@
           and the market mapping review (Sat Nov 7)
      W2–W5, W7–W11  one topic a week: Tuesday learning session, Saturday
           feedback session
-     W6   Mid-Program Checkpoint on site (Thu–Fri Dec 10–11): IP and finance
-     —    Christmas break after Week 7, Dec 21 – Jan 3 (not counted as a week);
-          Week 8 resumes Tuesday Jan 5
-     W12  Demo Day (Thu Feb 11) and Graduation (Fri Feb 12), on site
+     —    No sessions Nov 16–22: from Week 3 on, the schedule moved one week later
+     W6   Mid-Program Checkpoint on site (Thu–Fri Dec 17–18): IP and finance
+     —    Christmas break after Week 6, Dec 21 – Jan 3 (not counted as a week);
+          Week 7 resumes Tuesday Jan 5
+     W12  Demo Day (Thu Feb 18) and Graduation (Fri Feb 19), on site
 
    Every page reads the weeks, dates and topics from here, so a change
    to the schedule is made once, in this file.
@@ -133,14 +134,16 @@
       },
     },
     {
-      week: 3, code: "W3", starts: "2026-11-16", ends: "2026-11-22",
+      week: 3, code: "W3", starts: "2026-11-23", ends: "2026-11-29",
       title: "Value Proposition Refinement", short: "Value Proposition Refinement", axis: "Value proposition\nrefinement",
       topic: "Understanding the Value and Measuring it; Value Proposition Refinement",
       review: "Presentation of Refined Value Proposition", trainer: "Sir Tony",
       sessions: [
-        { date: "2026-11-17", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2026-11-16", end: "2026-11-22", kind: "holiday", mode: "No session",
+          title: "No Session — break week; Week 3 begins with the learning session on Tuesday, November 24" },
+        { date: "2026-11-24", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Understanding the Value and Measuring it; Value Proposition Refinement" },
-        { date: "2026-11-21", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2026-11-28", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Refined Value Proposition" },
       ],
       output: true,
@@ -165,14 +168,14 @@
       },
     },
     {
-      week: 4, code: "W4", starts: "2026-11-23", ends: "2026-11-29",
+      week: 4, code: "W4", starts: "2026-11-30", ends: "2026-12-06",
       title: "Competitive Advantage", short: "Competitive Advantage", axis: "Competitive\nadvantage",
       topic: "Competitive Advantage, VRIO Framework, Competitor Profile Matrix",
       review: "Competitive Positioning Review", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-11-24", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2026-12-01", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Competitive Advantage, VRIO Framework, Competitor Profile Matrix" },
-        { date: "2026-11-28", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2026-12-05", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Competitive Positioning Review" },
       ],
       output: true,
@@ -197,14 +200,14 @@
       },
     },
     {
-      week: 5, code: "W5", starts: "2026-11-30", ends: "2026-12-06",
+      week: 5, code: "W5", starts: "2026-12-07", ends: "2026-12-13",
       title: "Business Model Validation", short: "Business Model Validation", axis: "Business model\nvalidation",
       topic: "Business Model Validation, Market Validation, Industry Validation",
       review: "Business Model Validation Review", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-12-01", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2026-12-08", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Business Model Validation, Market Validation, Industry Validation" },
-        { date: "2026-12-05", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2026-12-12", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Business Model Validation Review" },
       ],
       output: true,
@@ -229,14 +232,12 @@
       },
     },
     {
-      week: 6, code: "W6", starts: "2026-12-07", ends: "2026-12-13",
+      week: 6, code: "W6", starts: "2026-12-14", ends: "2026-12-20",
       title: "Mid-Program Checkpoint: IP & Finance", short: "Mid-Program Checkpoint: IP & Finance", axis: "Checkpoint:\nIP & finance",
       topic: "Mid-Program Checkpoint: Overview of IP and Basics of Patent, Prior Art Search, IP Strategy and Freedom to Operate, IP Clinic, Basics of Finance, Cost Estimates, Cost-Benefit and Break-Even Analysis, Discounted Cash Flow and ROI, Sensitivity Analysis, Five-Year Projection, Presentation of Outputs, Mixers with Investors and Industry Partners",
       milestone: "Mid-Program Checkpoint", trainer: "Doc Jon (IP) · finance trainer to be announced",
       sessions: [
-        { date: "2026-12-08", kind: "holiday", mode: "No session",
-          title: "No Session — Feast of the Immaculate Conception" },
-        { date: "2026-12-10", end: "2026-12-11", kind: "onsite", att: "OS", mode: "On site",
+        { date: "2026-12-17", end: "2026-12-18", kind: "onsite", att: "OS", mode: "On site",
           title: "Mid-Program Checkpoint: IP and Finance — Overview of IP and Basics of Patent, Prior Art Search, IP Strategy and Freedom to Operate, IP Clinic, Basics of Finance, Cost-Benefit and Break-Even Analysis, Discounted Cash Flow and ROI, Sensitivity Analysis, Five-Year Projection, Presentation of Outputs, Mixers with Investors and Industry Partners",
           rail: "Mid-Program Checkpoint: IP & Finance" },
       ],
@@ -262,14 +263,14 @@
       },
     },
     {
-      week: 7, code: "W7", starts: "2026-12-14", ends: "2026-12-20",
+      week: 7, code: "W7", starts: "2027-01-04", ends: "2027-01-10",
       title: "Go-to-Market & Lean Canvas", short: "Go-to-Market & Lean Canvas", axis: "Go-to-market\n& Lean Canvas",
       topic: "Go-To-Market Plan & Lean Canvas",
       review: "Presentation of Outputs: Go-to-Market Plan and Lean Canvas", trainer: "Sir GQ",
       sessions: [
-        { date: "2026-12-15", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-01-05", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Go-To-Market Plan & Lean Canvas" },
-        { date: "2026-12-19", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-01-09", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Go-to-Market Plan and Lean Canvas" },
       ],
       output: true,
@@ -294,19 +295,19 @@
       },
     },
     {
-      week: 8, code: "W8", starts: "2027-01-04", ends: "2027-01-10",
+      week: 8, code: "W8", starts: "2027-01-11", ends: "2027-01-17",
       title: "Selling Skills", short: "Selling Skills", axis: "Selling\nskills",
       topic: "Selling Skill",
       review: "Presentation of Outputs: Selling", trainer: "Sir GQ",
       sessions: [
-        { date: "2027-01-05", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-01-12", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Selling Skill" },
-        { date: "2027-01-09", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-01-16", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Selling" },
       ],
       output: true,
       tagline: "Turn the value proposition into a conversation a customer says yes to.",
-      brief: "The first week back from the break is about the sales conversation itself: how to open with the customer's problem, ask and listen before you present, show the value in the customer's own numbers, handle the objections you will certainly hear, and ask for a next step. Teams practise it on a real target customer.",
+      brief: "This week is about the sales conversation itself: how to open with the customer's problem, ask and listen before you present, show the value in the customer's own numbers, handle the objections you will certainly hear, and ask for a next step. Teams practise it on a real target customer.",
       able: [
         "Structure a sales conversation from the customer's problem to a next step",
         "Answer the three objections your target customer is most likely to raise",
@@ -326,14 +327,14 @@
       },
     },
     {
-      week: 9, code: "W9", starts: "2027-01-11", ends: "2027-01-17",
+      week: 9, code: "W9", starts: "2027-01-18", ends: "2027-01-24",
       title: "Pitching Skills", short: "Pitching Skills", axis: "Pitching\nskills",
       topic: "Pitching Skill",
       review: "Presentation of Outputs: Pitch", trainer: "Sir Dom",
       sessions: [
-        { date: "2027-01-12", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-01-19", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Pitching Skill" },
-        { date: "2027-01-16", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-01-23", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Pitch" },
       ],
       output: true,
@@ -358,14 +359,14 @@
       },
     },
     {
-      week: 10, code: "W10", starts: "2027-01-18", ends: "2027-01-24",
+      week: 10, code: "W10", starts: "2027-01-25", ends: "2027-01-31",
       title: "Technology Roadmapping", short: "Technology Roadmapping", axis: "Technology\nroadmapping",
       topic: "Technology Roadmapping",
       review: "Presentation of Outputs: Technology Roadmap", trainer: "Sir Benjie",
       sessions: [
-        { date: "2027-01-19", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-01-26", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "Technology Roadmapping" },
-        { date: "2027-01-23", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-01-30", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: Technology Roadmap" },
       ],
       output: true,
@@ -390,14 +391,14 @@
       },
     },
     {
-      week: 11, code: "W11", starts: "2027-01-25", ends: "2027-01-31",
+      week: 11, code: "W11", starts: "2027-02-01", ends: "2027-02-07",
       title: "FASTRAC Proposal", short: "FASTRAC Proposal", axis: "FASTRAC\nproposal",
       topic: "FASTRAC Proposal Workshop",
       review: "Presentation of Outputs: FASTRAC Proposal", trainer: "Sir Steve",
       sessions: [
-        { date: "2027-01-26", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
+        { date: "2027-02-02", kind: "learning", att: "LS", mode: "Online", time: LS_TIME,
           title: "FASTRAC Proposal Workshop" },
-        { date: "2027-01-30", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
+        { date: "2027-02-06", kind: "feedback", att: "FB", mode: "Online", time: FB_TIME,
           title: "Presentation of Outputs: FASTRAC Proposal" },
       ],
       output: true,
@@ -422,14 +423,14 @@
       },
     },
     {
-      week: 12, code: "W12", starts: "2027-02-08", ends: "2027-02-14",
+      week: 12, code: "W12", starts: "2027-02-15", ends: "2027-02-21",
       title: "Demo Day", short: "Demo Day", axis: "Demo\nDay",
       topic: "Demo Day and Graduation",
       milestone: "Demo Day / Graduation",
       sessions: [
-        { date: "2027-02-11", kind: "onsite", att: "DD", mode: "On site",
+        { date: "2027-02-18", kind: "onsite", att: "DD", mode: "On site",
           title: "Demo Day — Final Presentations" },
-        { date: "2027-02-12", kind: "onsite", att: "GR", mode: "On site",
+        { date: "2027-02-19", kind: "onsite", att: "GR", mode: "On site",
           title: "Graduation Ceremony and Ecosystem Networking, Mixers with Investors" },
       ],
       output: false,
@@ -471,8 +472,8 @@
   const BREAK = { starts: "2026-12-21", ends: "2027-01-03", resumes: "2027-01-05" };
   const cohort = {
     code: "STEP2.5", name: "STEP 2.5", timezone: "Asia/Manila",
-    starts_on: "2026-10-20", ends_on: "2027-02-12", weeks_total: 12,
-    source: "STEP 2.5 Master Timeline — Trainer's Timeline, Updated Schedule: October 20, 2026 – February 12, 2027",
+    starts_on: "2026-10-20", ends_on: "2027-02-19", weeks_total: 12,
+    source: "STEP 2.5 Master Timeline — Trainer's Timeline, Updated Schedule: October 20, 2026 – February 12, 2027, moved one week later from Week 3 (no sessions Nov 16–22)",
   };
 
   /* ---------- dates ---------- */
@@ -532,7 +533,10 @@
       return { week: back.week, status: "break", note: "Christmas break — sessions resume " + dayName(BREAK.resumes) + ", " + long(BREAK.resumes) + "." };
     }
     const next = weeks.find(x => x.starts > t) || last;
-    return { week: next.week, status: "live", note: "" };
+    /* a week with no sessions between two program weeks (Nov 16–22): show the coming week */
+    const firstDay = (next.sessions.find(x => x.kind !== "holiday") || {}).date || next.starts;
+    return { week: next.week, status: "gap", gap: true,
+             note: "No sessions this week. Week " + next.week + " begins " + dayName(firstDay) + ", " + long(firstDay) + "." };
   }
 
   /* the sessions attendance is taken for, in the order they happen */

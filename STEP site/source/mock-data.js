@@ -970,7 +970,7 @@ window.MOCK = (function () {
       technology_title: t.technology_title,
       week_no: 9,
       weeks_total: 12,
-      demo_day: "2027-02-11",
+      demo_day: "2027-02-18",
       form: synced(form),
       deck: synced(deck)
     };
@@ -989,7 +989,8 @@ window.MOCK = (function () {
   /* ---------------------------------------------------------------------
      This Week — the program week we are actually in, from the schedule.
      Before Oct 19 it is Week 0 (the orientation coming up); over the
-     Christmas break it is Week 8, the week sessions resume.
+     Christmas break it is Week 7, the week sessions resume; in a no-session
+     week (Nov 16–22) it is the coming week, status "gap".
      --------------------------------------------------------------------- */
   const WK = SCHED.byWeek(NOW_AT.week);
   const thisWeek = {
