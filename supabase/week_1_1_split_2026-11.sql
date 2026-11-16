@@ -19,6 +19,15 @@ begin
   create table if not exists backup.assignments_w2_2026_11_16      as select * from public.assignments      where week_no = 2;
   create table if not exists backup.session_trainers_w2_2026_11_16 as select * from public.session_trainers where session_code = 'W2';
 
+  -- the modules list (other tables point to it) gets a Week 1.1 entry, copied from Week 2
+  alter table public.modules alter column week_no type numeric;
+  insert into public.modules
+    select (jsonb_populate_record(null::public.modules,
+             to_jsonb(m) || '{"code": "W1.1", "week_no": 1.1, "title": "Market Research"}'::jsonb)).*
+      from public.modules m where m.code = 'W2'
+    on conflict (code) do nothing;
+  update public.modules set title = 'Value Proposition' where code = 'W2';
+
   -- week numbers can now be 1.1
   alter table public.assignments    alter column week_no type numeric;
   alter table public.submissions    alter column week_no type numeric;
