@@ -170,7 +170,7 @@
     },
     {
       week: 3, code: "W3", starts: "2026-11-23", ends: "2026-11-29",
-      title: "Value Proposition Refinement", short: "Value Proposition Refinement", axis: "Value proposition\nrefinement",
+      title: "From Understanding Use to Measured Value", short: "From Understanding Use to Measured Value", axis: "From use to\nmeasured value",
       topic: "Understanding the Value and Measuring it; Value Proposition Refinement",
       review: "Presentation of Refined Value Proposition", trainer: "Sir Tony",
       sessions: [

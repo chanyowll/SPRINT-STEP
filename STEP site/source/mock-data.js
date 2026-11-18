@@ -965,7 +965,7 @@ window.MOCK = (function () {
       { n: 2,  title: "The problem", sub: `Unmet market pain addressed by ${t.short}`, week: 2, source: "Value Proposition", kind: "statement", status: "in", score: p.scores[0] },
       { n: 3,  title: "Target market", sub: `Primary customers in ${t.region}`, week: 2, source: "Output Presentation on Market Research", kind: "bullets", status: "in", score: p.scores[0] },
       { n: 4,  title: "Market size", sub: "TAM, SAM, SOM for the Philippines", week: 2, source: "Output Presentation on Market Research", kind: "chart", status: "in", score: p.scores[1] },
-      { n: 5,  title: "Value proposition", sub: "Measurable customer ROI and performance", week: 3, source: "Value Proposition Refinement", kind: "statement", status: "in", score: p.scores[2] },
+      { n: 5,  title: "Value proposition", sub: "Measurable customer ROI and performance", week: 3, source: "From Understanding Use to Measured Value", kind: "statement", status: "in", score: p.scores[2] },
       { n: 6,  title: "Competitive advantage", sub: "VRIO and Competitive Profile Matrix", week: 4, source: "Competitive Advantage", kind: "table", status: "in", score: p.scores[3] },
       { n: 7,  title: "Go-to-market", sub: "Distribution and customer acquisition plan", week: 7, source: "Go-to-Market & Lean Canvas", kind: "grid", status: "in", score: p.scores[4] },
       { n: 8,  title: "Validation evidence", sub: `Field trials and pilot testing in ${t.city}`, week: 5, source: "Business Model Validation", kind: "chart", status: "due" },
