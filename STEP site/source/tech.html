@@ -542,7 +542,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .pn-tabs { margin-bottom: 14px; }
 .ps-body { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
 .ps-panel > header { flex-wrap: wrap; }
-.ps-t th.num, .ps-t td.num { min-width: 96px; }
+.ps-t { table-layout: fixed; width: 100%; min-width: 760px; }   /* same columns in every panel, so Status lines up */
+.ps-t .ps-c1 { width: 210px; } .ps-t .ps-c2 { width: 180px; } .ps-t .ps-c9 { width: 150px; }
 .ps-t td.sccell { cursor: pointer; }
 .ps-t td.sccell:hover { background: #f1f6fb; }
 .ps-t td.sccell.ps-on { background: var(--blue-2); }
@@ -3590,7 +3591,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         rows.forEach(r => { panelistsAll++; sheetsAll += r.cells.length; sub += r.done; drafts += r.cells.filter(c => c.st === "draft").length; if (r.status === "done") panelistsDone++; });
         const PILL = { done: ["ok", "Submitted"], part: ["warn", "In progress"], none: ["idle", "Not started"], idle: ["idle", "No teams"] };
         const avg = teams.map((t, ti) => { const v = rows.map(r => r.cells[ti]).filter(c => c.s && scoredSheet(c.s)).map(c => +c.s.total); return { n: v.length, m: mean(v) }; });
-        const head = `<tr><th>Panelist</th><th>Status</th>${teams.map(t => `<th class="num">${esc(teamName(t))}</th>`).join("")}<th>Last update</th></tr>`;
+        const head = `<tr><th class="ps-c1">Panelist</th><th class="ps-c2">Status</th>${teams.map(t => `<th class="num">${esc(teamName(t))}</th>`).join("")}<th class="ps-c9">Last update</th></tr>`;
         const trs = rows.map(r => {
           const opened = r.cells.filter(c => S.open.has(r.seat + ":" + c.t) && c.s);
           const main = `<tr><td><b>${esc(r.name)}</b></td><td><span class="pill ${PILL[r.status][0]}">${PILL[r.status][1]}</span><div class="note">${r.done} of ${teams.length} team${teams.length === 1 ? "" : "s"} submitted</div></td>
