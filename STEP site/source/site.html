@@ -6746,6 +6746,8 @@ window.MOCK = (function () {
       const roles = auth.rolesOf(u);
       if (roles.includes("admin")) return true;
       const NEEDS = { trainers: "trainer", mentors: "mentor", panel: "panel" };
+      /* facilitators open the Panel page for their own role; they are not panelists */
+      if (view === "panel" && roles.includes("facilitator")) return true;
       return !!NEEDS[view] && roles.includes(NEEDS[view]);
     },
 
