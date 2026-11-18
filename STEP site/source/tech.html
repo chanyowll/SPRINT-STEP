@@ -524,7 +524,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .dir-count { font-size: 13px; color: var(--ink-2); }
 .dir-count b { color: var(--ink); }
 .dir-msg { margin: 0; padding: 10px 16px; font-size: 13px; color: var(--warn); background: var(--warn-2); }
-.dir-scroll { max-height: 68vh; overflow: auto; }
+.dir-scroll { max-height: 60vh; overflow: auto; }   /* the script below resizes this to the room left on screen */
 .dir-t { min-width: 940px; }
 .dir-t td { vertical-align: middle; }
 .dir-t .nm { font-weight: 650; }
@@ -3343,8 +3343,17 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           + "<td>" + teams + "</td><td>" + esc(roles) + "</td><td>" + (esc(x.inst) || '<span class="none">None on file</span>') + "</td>"
           + "<td>" + (x.email ? '<button type="button" class="em" data-copy="' + esc(x.email) + '" title="Copy this email">' + esc(x.email) + "</button>" : '<span class="none">No email yet</span>') + "</td>"
           + '<td><input class="ph" data-f="phone" value="' + esc(x.phone) + '" placeholder="Add number" inputmode="tel" aria-label="Contact number for ' + esc(x.disp) + '"></td></tr>';
-      }).join("") : '<tr><td colspan="7" class="none" style="padding:22px 14px">Nobody matches. Clear the search or pick fewer teams.</td></tr>';
+      }).join("") : '<tr><td colspan="7" class="none" style="padding:22px 14px">Nobody matches. Clear the search or pick fewer teams.</td></tr>';      fit();
     }
+
+    /* the table grows to fill the screen under it; the scrollbar only appears once the rows would run past the bottom */
+    function fit() {
+      const sc = document.querySelector(".dir-scroll"); if (!sc || !sc.offsetParent) return;
+      sc.style.maxHeight = "none";
+      const r = sc.getBoundingClientRect(), z = sc.offsetWidth ? r.width / sc.offsetWidth : 1;   // the console is shown zoomed out
+      sc.style.maxHeight = Math.max(240, (window.innerHeight - r.top - 16) / (z || 1) - 64) + "px";
+    }
+    window.addEventListener("resize", fit);
 
     async function copy(text, done) {
       let ok = false;
@@ -3411,7 +3420,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     $("#dir-body").addEventListener("change", e => { if (e.target.matches("input[data-f]")) saveField(e.target); });
     $("#dir-body").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches("input[data-f]")) e.target.blur(); });
 
-    function ensure() { if (!state.loaded && !state.loading) load(); }
+    function ensure() { fit(); if (!state.loaded && !state.loading) load(); }
     $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-s]"); if (b && b.dataset.s === "directory") ensure(); });
     window.addEventListener("hashchange", () => { if (location.hash.slice(1) === "directory") ensure(); });
     window.addEventListener("stephub_auth_changed", () => { if (location.hash.slice(1) === "directory") ensure(); });
