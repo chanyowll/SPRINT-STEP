@@ -3293,7 +3293,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
      copy exactly the rows on screen, so the filters are the selection. */
   (function () {
     const ROLE_NAME = { participant: "Participant", mentor: "Mentor", panel: "Panelist", trainer: "Trainer", facilitator: "Facilitator", admin: "STEP Team" };
-    const ROLE_ORDER = ["participant", "mentor", "panel", "trainer", "facilitator", "admin"];
+    const ROLE_ORDER = ["participant", "mentor", "facilitator", "panel", "trainer", "admin"];
+    const roleRank = x => Math.min.apply(null, x.roles.map(r => { const i = ROLE_ORDER.indexOf(r); return i < 0 ? 99 : i; }).concat(99));
     const TITLE_RE = /^(Dr|Doc|Engr|Mr|Ms|Mrs|Prof|Atty|Sir|Ma'am)\.?\s+/i;
     const state = { rows: [], extra: {}, teams: new Set(), role: "", q: "", loaded: false, loading: false };
     const teamName = id => (G.find(g => g.id === id) || {}).name || id;
@@ -3320,8 +3321,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         if (state.role && x.roles.indexOf(state.role) < 0) return false;
         if (!words.length) return true;
         const h = haystack(x); return words.every(w => h.indexOf(w) >= 0);
-      }).sort((a, b) => (teamIdx(a.teams[0]) - teamIdx(b.teams[0]))
-        || (ROLE_ORDER.indexOf(a.roles[0]) - ROLE_ORDER.indexOf(b.roles[0])) || a.disp.localeCompare(b.disp));
+      }).sort((a, b) => (roleRank(a) - roleRank(b))      // participants, then mentors, then facilitators, then the rest
+        || (teamIdx(a.teams[0]) - teamIdx(b.teams[0])) || a.disp.localeCompare(b.disp));
     }
 
     function drawTeams() {
