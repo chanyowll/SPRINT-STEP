@@ -539,7 +539,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .dir-t input.tt { width: 64px; }
 .dir-t input.ph { width: 140px; }
 .dir-t input.saving { opacity: .55; }
-.dir-t input.ph.locked, .dir-t input.ph.locked:hover { border-color: transparent; background: transparent; cursor: default; }
+.dir-t input.ph.locked, .dir-t input.ph.locked:hover { border-color: transparent; background: transparent; pointer-events: none; }   /* a saved number reads as text: click copies it */
+.dir-t td:has(input.ph.locked) { cursor: copy; }
 .dir-menu { position: absolute; z-index: 30; min-width: 150px; padding: 4px; background: #fff; border: 1px solid var(--rule); border-radius: 6px; box-shadow: 0 6px 20px rgba(12, 26, 43, .16); }
 .dir-menu button { all: unset; display: block; box-sizing: border-box; width: 100%; padding: 7px 10px; border-radius: 4px; font-size: 13px; cursor: pointer; }
 .dir-menu button:hover, .dir-menu button:focus-visible { background: var(--blue-2); }
@@ -3359,7 +3360,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           + "<td>" + teams + "</td><td>" + esc(roles) + "</td><td>" + (esc(x.inst) || '<span class="none">None on file</span>') + "</td>"
           + "<td>" + (x.email ? '<button type="button" class="em" data-copy="' + esc(x.email) + '" title="Copy this email">' + esc(x.email) + "</button>" : '<span class="none">No email yet</span>') + "</td>"
           + '<td><input class="ph' + (x.phone ? ' locked' : '') + '" data-f="phone" value="' + esc(x.phone) + '" placeholder="Add number" inputmode="tel" aria-label="Contact number for ' + esc(x.disp) + '"'
-          + (x.phone ? ' readonly tabindex="-1" title="Right-click to edit this number"' : '') + '></td></tr>';
+          + (x.phone ? ' readonly tabindex="-1" title="Click to copy. Right-click to edit."' : '') + '></td></tr>';
       }).join("") : '<tr><td colspan="7" class="none" style="padding:22px 14px">Nobody matches. Clear the search or pick fewer teams.</td></tr>';      fit();
     }
 
@@ -3439,11 +3440,15 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     });
     $("#dir-copy").addEventListener("click", () => { const l = emails(); copy(l.join(", "), l.length + " email" + (l.length === 1 ? "" : "s") + " copied, ready to paste into To or Bcc"); });
     $("#dir-copy-nl").addEventListener("click", () => { const l = emails(); copy(l.join("\n"), l.length + " email" + (l.length === 1 ? "" : "s") + " copied, one per line"); });
-    $("#dir-body").addEventListener("click", e => { const b = e.target.closest("[data-copy]"); if (b) copy(b.dataset.copy, "Copied " + b.dataset.copy); });
+    $("#dir-body").addEventListener("click", e => {
+      const b = e.target.closest("[data-copy]"); if (b) { copy(b.dataset.copy, "Copied " + b.dataset.copy); return; }
+      const td = e.target.closest("td"), n = td && td.querySelector("input.ph.locked");   // a saved number: click copies it
+      if (n) copy(n.value, "Copied " + n.value);
+    });
     $("#dir-body").addEventListener("change", e => { if (e.target.matches("input[data-f]")) saveField(e.target); });
 
     /* a saved number is locked; right-click it and choose Edit number to change it */
-    const lock = input => { if (input.value.trim()) { input.readOnly = true; input.tabIndex = -1; input.classList.add("locked"); input.title = "Right-click to edit this number"; } };
+    const lock = input => { if (input.value.trim()) { input.readOnly = true; input.tabIndex = -1; input.classList.add("locked"); input.title = "Click to copy. Right-click to edit."; } };
     const card = document.querySelector(".dir-card"); card.style.position = "relative";
     const menu = document.createElement("div"); menu.className = "dir-menu"; menu.hidden = true; menu.setAttribute("role", "menu");
     menu.innerHTML = '<button type="button" role="menuitem">Edit number</button>'; card.appendChild(menu);
