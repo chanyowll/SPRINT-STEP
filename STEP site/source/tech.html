@@ -508,6 +508,38 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .wp-hid { display: flex; align-items: center; gap: 10px; color: var(--ink-3); font-size: 13px; padding: 4px 2px 0; }
 .wp-empty { background: var(--panel); border: 1px dashed var(--rule); border-radius: 8px; padding: 28px; text-align: center; color: var(--ink-2); }
 .wp-empty b { display: block; color: var(--ink); font-size: 15px; margin-bottom: 4px; }
+/* ---------- Directory ---------- */
+.dir-bar { display: flex; flex-wrap: wrap; gap: 10px; padding: 14px 16px 8px; }
+.dir-search { position: relative; flex: 1 1 280px; display: block; }
+.dir-search svg { position: absolute; left: 10px; top: 50%; width: 16px; height: 16px; margin-top: -8px; color: var(--ink-3); pointer-events: none; }
+.dir-search .in { padding-left: 33px; }
+#dir-role { flex: 0 0 180px; width: 180px; }
+.dir-teams { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 16px 12px; }
+.dir-teams button { all: unset; cursor: pointer; padding: 4px 11px; border: 1px solid var(--rule); border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); background: #fff; }
+.dir-teams button:hover { border-color: #b5c3d3; background: #f7f9fb; }
+.dir-teams button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
+.dir-teams button:focus-visible, .dir-t input:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.dir-act { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 10px 16px; border-top: 1px solid var(--rule-2); border-bottom: 1px solid var(--rule-2); background: #f7f9fb; }
+.dir-act .sp { flex: 1; }
+.dir-count { font-size: 13px; color: var(--ink-2); }
+.dir-count b { color: var(--ink); }
+.dir-msg { margin: 0; padding: 10px 16px; font-size: 13px; color: var(--warn); background: var(--warn-2); }
+.dir-scroll { max-height: 68vh; overflow: auto; }
+.dir-t { min-width: 940px; }
+.dir-t td { vertical-align: middle; }
+.dir-t .nm { font-weight: 650; }
+.dir-t .sub { display: block; color: var(--ink-3); font-size: 12px; font-weight: 500; }
+.dir-t .em { all: unset; cursor: copy; color: var(--blue); font-size: 13px; overflow-wrap: anywhere; }
+.dir-t .em:hover { text-decoration: underline; }
+.dir-t .em:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
+.dir-t .none { color: var(--ink-3); font-size: 12.5px; }
+.dir-t input { border: 1px solid transparent; background: transparent; border-radius: 4px; padding: 4px 6px; font: inherit; font-size: 13px; width: 100%; min-width: 0; }
+.dir-t input:hover { border-color: var(--rule); background: #fff; }
+.dir-t input:focus { border-color: var(--blue); background: #fff; }
+.dir-t input.tt { width: 64px; }
+.dir-t input.ph { width: 140px; }
+.dir-t input.saving { opacity: .55; }
+@media (max-width: 760px) { #dir-role { flex: 1 1 100%; width: 100%; } }
 </style>
 </head>
 <body>
@@ -534,6 +566,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <button data-s="games"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="11" rx="4"/><path d="M7 11v3M5.5 12.5h3"/><circle cx="16" cy="11.5" r=".8" fill="currentColor"/><circle cx="18" cy="13.5" r=".8" fill="currentColor"/></svg>Games<span class="ct" id="ct-game"></span></button>
       <button data-s="assignments"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6a1 1 0 0 1 1 1v1H8V5a1 1 0 0 1 1-1z"/><path d="M8 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><path d="M8 12h8M8 16h5"/></svg>Assignments</button>
       <button data-s="articles"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h12a2 2 0 0 1 2 2v14H6a2 2 0 0 1-2-2z"/><path d="M18 8h2v10a2 2 0 0 1-2 2"/><path d="M8 8h6M8 12h6M8 16h4"/></svg>Articles<span class="ct" id="ct-art"></span></button>
+      <div class="grp">People</div>
+      <button data-s="directory"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><path d="M16 5.2a3 3 0 0 1 0 5.6M18 14.3c1.8.8 3 2.6 3 5.7"/></svg>Directory</button>
       <div class="grp">Reports</div>
       <button data-s="objectives"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></svg>Objectives and Tasks</button>
       <button data-s="reports"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 14l2 2 4-4"/></svg>Accomplishment reports</button>
@@ -674,6 +708,33 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       </section>
 
       <!-- ===================== 5. Games ===================== -->
+      <!-- ===================== Directory ===================== -->
+      <section class="sec" data-sec="directory" hidden>
+        <div class="sec-head">
+          <div><h1>Directory</h1><p>Everyone on STEP Hub in one place. Search a name, pick one or more teams, then copy their emails. Titles and contact numbers can be typed in right here and are saved for everyone on the tech team.</p></div>
+        </div>
+        <div class="card dir-card">
+          <div class="dir-bar">
+            <label class="dir-search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input class="in" id="dir-q" type="search" placeholder="Search name, email, institution or number" autocomplete="off" aria-label="Search the directory"></label>
+            <select class="in" id="dir-role" aria-label="Show people with this role">
+              <option value="">Everyone</option><option value="participant">Participants</option><option value="mentor">Mentors</option><option value="panel">Panelists</option><option value="trainer">Trainers</option><option value="facilitator">Facilitators</option><option value="admin">STEP Team</option>
+            </select>
+          </div>
+          <div class="dir-teams" id="dir-teams" role="group" aria-label="Filter by team"></div>
+          <div class="dir-act">
+            <span class="dir-count" id="dir-count" aria-live="polite"></span>
+            <span class="sp"></span>
+            <button class="btn pri" id="dir-copy" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg><span>Copy emails</span></button>
+            <button class="btn" id="dir-copy-nl" type="button" title="Paste into a sheet or one name per line">One per line</button>
+          </div>
+          <p class="dir-msg" id="dir-msg" hidden></p>
+          <div class="scroll dir-scroll"><table class="t dir-t">
+            <thead><tr><th>Title</th><th>Name</th><th>Team</th><th>Role</th><th>Institution</th><th>Email</th><th>Contact number</th></tr></thead>
+            <tbody id="dir-body"></tbody>
+          </table></div>
+        </div>
+      </section>
+
       <section class="sec" data-sec="games" hidden>
         <div class="sec-head">
           <div><h1>Games</h1><p>Set the game teams play on the This Week tab. One game per week; it replaces last week's automatically.</p></div>
@@ -914,7 +975,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
   decide();
 
   /* ---------------- shell ---------------- */
-  const TITLES = { attendance: "Attendance", recordings: "Session recordings", panels: "Panels", announcements: "Announcements", games: "Games", articles: "Articles", data: "Team data", reports: "Accomplishment reports" };
+  const TITLES = { attendance: "Attendance", recordings: "Session recordings", panels: "Panels", announcements: "Announcements", games: "Games", articles: "Articles", directory: "Directory", data: "Team data", reports: "Accomplishment reports" };
   function show(s) {
     if (!TITLES[s]) s = "attendance";
     $$(".sec").forEach(el => el.hidden = el.dataset.sec !== s);
@@ -3225,6 +3286,138 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     renderWP();
   })();
 
+
+  /* ---------------- Directory ----------------
+     Everyone on the site in one list (database function directory_list), with
+     titles and contact numbers kept in directory_extra. The email copy buttons
+     copy exactly the rows on screen, so the filters are the selection. */
+  (function () {
+    const ROLE_NAME = { participant: "Participant", mentor: "Mentor", panel: "Panelist", trainer: "Trainer", facilitator: "Facilitator", admin: "STEP Team" };
+    const ROLE_ORDER = ["participant", "mentor", "panel", "trainer", "facilitator", "admin"];
+    const TITLE_RE = /^(Dr|Doc|Engr|Mr|Ms|Mrs|Prof|Atty|Sir|Ma'am)\.?\s+/i;
+    const state = { rows: [], extra: {}, teams: new Set(), role: "", q: "", loaded: false, loading: false };
+    const teamName = id => (G.find(g => g.id === id) || {}).name || id;
+    const teamIdx = id => { const i = G.findIndex(g => g.id === id); return i < 0 ? 99 : i; };
+    const fold = s => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+
+    function build(r) {
+      const m = String(r.name || "").trim().match(TITLE_RE);
+      const ex = state.extra[r.ref] || {};
+      const roles = (r.roles && r.roles.length ? r.roles : [r.role]).filter(Boolean);
+      const teams = (r.team_ids || []).filter(Boolean);
+      return { ref: r.ref, disp: m ? r.name.trim().slice(m[0].length) : String(r.name || "").trim(), nameTitle: m ? m[1].replace(/\.$/, "") + (/^(sir|doc|ma'am)$/i.test(m[1]) ? "" : ".") : "",
+        title: ex.title || "", phone: ex.phone || "", email: String(r.email || "").trim().toLowerCase(), roles, teams,
+        inst: r.institution || "", account: !!r.has_account };
+    }
+    const titleOf = x => x.title || x.nameTitle;
+    function haystack(x) {
+      return fold([titleOf(x), x.disp, x.email, x.inst, x.phone, x.teams.map(teamName).join(" "), x.roles.map(r => ROLE_NAME[r] || r).join(" ")].join(" "));
+    }
+    function visible() {
+      const words = fold(state.q).split(/\s+/).filter(Boolean);
+      return state.rows.filter(x => {
+        if (state.teams.size && !x.teams.some(t => state.teams.has(t))) return false;
+        if (state.role && x.roles.indexOf(state.role) < 0) return false;
+        if (!words.length) return true;
+        const h = haystack(x); return words.every(w => h.indexOf(w) >= 0);
+      }).sort((a, b) => (teamIdx(a.teams[0]) - teamIdx(b.teams[0]))
+        || (ROLE_ORDER.indexOf(a.roles[0]) - ROLE_ORDER.indexOf(b.roles[0])) || a.disp.localeCompare(b.disp));
+    }
+
+    function drawTeams() {
+      const none = !state.teams.size;
+      $("#dir-teams").innerHTML = '<button type="button" data-t="" aria-pressed="' + none + '">All teams</button>'
+        + G.map(g => '<button type="button" data-t="' + esc(g.id) + '" aria-pressed="' + state.teams.has(g.id) + '">' + esc(g.name) + "</button>").join("");
+    }
+    function draw() {
+      const list = visible(), withMail = list.filter(x => x.email), noMail = list.length - withMail.length;
+      const uniq = Array.from(new Set(withMail.map(x => x.email)));
+      $("#dir-count").innerHTML = "<b>" + list.length + "</b> of " + state.rows.length + " people" + (noMail ? " · " + noMail + " with no email yet" : "");
+      $("#dir-copy span").textContent = uniq.length ? "Copy " + uniq.length + " email" + (uniq.length === 1 ? "" : "s") : "No emails to copy";
+      $("#dir-copy").disabled = $("#dir-copy-nl").disabled = !uniq.length;
+      $("#dir-body").innerHTML = list.length ? list.map(x => {
+        const teams = x.teams.length ? x.teams.map(teamName).join(", ") : '<span class="none">Not on a team</span>';
+        const roles = x.roles.map(r => ROLE_NAME[r] || r).join(" · ");
+        return '<tr data-ref="' + esc(x.ref) + '"><td><input class="tt" data-f="title" value="' + esc(titleOf(x)) + '" placeholder="Title" aria-label="Title for ' + esc(x.disp) + '"></td>'
+          + '<td class="nm">' + esc(x.disp) + (x.account ? "" : '<span class="sub">Hasn\'t signed in yet</span>') + "</td>"
+          + "<td>" + teams + "</td><td>" + esc(roles) + "</td><td>" + (esc(x.inst) || '<span class="none">None on file</span>') + "</td>"
+          + "<td>" + (x.email ? '<button type="button" class="em" data-copy="' + esc(x.email) + '" title="Copy this email">' + esc(x.email) + "</button>" : '<span class="none">No email yet</span>') + "</td>"
+          + '<td><input class="ph" data-f="phone" value="' + esc(x.phone) + '" placeholder="Add number" inputmode="tel" aria-label="Contact number for ' + esc(x.disp) + '"></td></tr>';
+      }).join("") : '<tr><td colspan="7" class="none" style="padding:22px 14px">Nobody matches. Clear the search or pick fewer teams.</td></tr>';
+    }
+
+    async function copy(text, done) {
+      let ok = false;
+      try { await navigator.clipboard.writeText(text); ok = true; }
+      catch (e) {
+        const t = document.createElement("textarea"); t.value = text; t.style.cssText = "position:fixed;opacity:0"; document.body.appendChild(t); t.select();
+        try { ok = document.execCommand("copy"); } catch (e2) {} t.remove();
+      }
+      toast(ok ? done : "Couldn't copy. Select the emails and copy them by hand.");
+    }
+    const emails = () => Array.from(new Set(visible().filter(x => x.email).map(x => x.email)));
+
+    async function load() {
+      if (state.loading) return; state.loading = true;
+      const msg = $("#dir-msg"); msg.hidden = true;
+      try {
+        let rows;
+        if (demo || !SBC()) {
+          rows = [];
+          G.forEach((g, i) => ["Alex", "Jamie", "Rina"].forEach((n, k) => rows.push({ ref: "demo" + g.id + k, name: (k === 0 ? "Dr. " : k === 1 ? "Engr. " : "") + n + " " + g.name, email: (n + "." + g.name).toLowerCase().replace(/[^a-z.]/g, "") + "@example.edu.ph", role: "participant", team_ids: [g.id], institution: g.inst, has_account: k !== 2 })));
+          ((M.faculty && M.faculty.mentors) || []).forEach(m => rows.push({ ref: "demo" + m.id, name: m.name, email: m.name.toLowerCase().replace(/[^a-z]/g, "") + "@ateneo.edu", role: "mentor", roles: ["mentor"], team_ids: [m.team_id].filter(Boolean), institution: "AIPO", has_account: true }));
+        } else {
+          const [a, b] = await Promise.all([SBC().rpc("directory_list"), SBC().from("directory_extra").select("ref, title, phone")]);
+          if (a.error) throw a.error; if (b.error) throw b.error;
+          rows = a.data || []; state.extra = {}; (b.data || []).forEach(e => { state.extra[e.ref] = e; });
+        }
+        state.rows = rows.map(build); state.loaded = true;
+      } catch (e) {
+        state.loaded = false;
+        msg.textContent = /directory_list|directory_extra|does not exist|schema cache/i.test(e.message || "")
+          ? "The directory isn't set up in the database yet. Run supabase/member_directory.sql in the Supabase SQL Editor, then reload this page."
+          : "Couldn't load the directory: " + (e.message || e);
+        msg.hidden = false;
+      }
+      state.loading = false; drawTeams(); draw();
+    }
+
+    async function saveField(input) {
+      const tr = input.closest("tr"), ref = tr.dataset.ref, x = state.rows.find(r => r.ref === ref); if (!x) return;
+      const f = input.dataset.f, val = input.value.trim();
+      if (f === "title" ? val === titleOf(x) : val === x.phone) return;
+      const prev = { title: x.title, phone: x.phone };
+      if (f === "title") x.title = val; else x.phone = val;
+      const row = { ref, title: x.title, phone: x.phone, updated_at: new Date().toISOString() };
+      state.extra[ref] = row;
+      if (demo || !SBC()) { toast("Saved (preview only)"); return; }
+      input.classList.add("saving");
+      const { error } = await SBC().from("directory_extra").upsert(row);
+      input.classList.remove("saving");
+      if (error) { x.title = prev.title; x.phone = prev.phone; input.value = f === "title" ? titleOf(x) : x.phone; toast("Couldn't save: " + error.message); return; }
+      toast("Saved");
+    }
+
+    $("#dir-q").addEventListener("input", e => { state.q = e.target.value; draw(); });
+    $("#dir-role").addEventListener("change", e => { state.role = e.target.value; draw(); });
+    $("#dir-teams").addEventListener("click", e => {
+      const b = e.target.closest("button[data-t]"); if (!b) return;
+      if (!b.dataset.t) state.teams.clear(); else if (state.teams.has(b.dataset.t)) state.teams.delete(b.dataset.t); else state.teams.add(b.dataset.t);
+      drawTeams(); draw();
+    });
+    $("#dir-copy").addEventListener("click", () => { const l = emails(); copy(l.join(", "), l.length + " email" + (l.length === 1 ? "" : "s") + " copied, ready to paste into To or Bcc"); });
+    $("#dir-copy-nl").addEventListener("click", () => { const l = emails(); copy(l.join("\n"), l.length + " email" + (l.length === 1 ? "" : "s") + " copied, one per line"); });
+    $("#dir-body").addEventListener("click", e => { const b = e.target.closest("[data-copy]"); if (b) copy(b.dataset.copy, "Copied " + b.dataset.copy); });
+    $("#dir-body").addEventListener("change", e => { if (e.target.matches("input[data-f]")) saveField(e.target); });
+    $("#dir-body").addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches("input[data-f]")) e.target.blur(); });
+
+    function ensure() { if (!state.loaded && !state.loading) load(); }
+    $("#nav").addEventListener("click", e => { const b = e.target.closest("button[data-s]"); if (b && b.dataset.s === "directory") ensure(); });
+    window.addEventListener("hashchange", () => { if (location.hash.slice(1) === "directory") ensure(); });
+    window.addEventListener("stephub_auth_changed", () => { if (location.hash.slice(1) === "directory") ensure(); });
+    drawTeams();
+    if (location.hash.slice(1) === "directory") setTimeout(ensure, 0);
+  })();
 
   show(location.hash.slice(1) || "attendance");
 })();
