@@ -3313,14 +3313,16 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       const teams = (r.team_ids || []).filter(Boolean);
       return { ref: r.ref, disp: m ? r.name.trim().slice(m[0].length) : String(r.name || "").trim(), nameTitle: m ? m[1].replace(/\.$/, "") + (/^(sir|doc|ma'am)$/i.test(m[1]) ? "" : ".") : "",
         title: ex.title || "", phone: ex.phone || "", email: String(r.email || "").trim().toLowerCase(), roles, teams,
-        inst: r.institution || "", account: !!r.has_account, lead: /project leader/i.test(r.member_role || ""),
+        inst: r.institution || "", account: !!r.has_account, lead: /project leader/i.test(r.member_role || ""), teamRole: String(r.member_role || "").trim(),
         /* DOST-PCIEERD staff look after every team, so they get their own tab instead of showing under each team */
         dost: roles.indexOf("dost") >= 0 || /@pcieerd\.dost\.gov\.ph$/i.test(r.email || "") || /pcieerd/i.test(r.institution || "") };
     }
     const titleOf = x => x.title || x.nameTitle;
     const roles_has = (x, r) => x.roles.indexOf(r) >= 0;
+    /* a participant shows the role they hold on their team (Project Leader, Entrepreneurial Lead, Member ...) */
+    const roleText = x => x.roles.map(r => r === "participant" && x.teamRole ? x.teamRole : (ROLE_NAME[r] || r)).join(" · ");
     function haystack(x) {
-      return fold([titleOf(x), x.disp, x.email, x.inst, x.phone, x.teams.map(teamName).join(" "), x.roles.map(r => ROLE_NAME[r] || r).join(" ")].join(" "));
+      return fold([titleOf(x), x.disp, x.email, x.inst, x.phone, x.teams.map(teamName).join(" "), roleText(x), x.roles.map(r => ROLE_NAME[r] || r).join(" ")].join(" "));
     }
     function visible() {
       const words = fold(state.q).split(/\s+/).filter(Boolean);
@@ -3346,7 +3348,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       $("#dir-copy").disabled = $("#dir-copy-nl").disabled = !uniq.length;
       $("#dir-body").innerHTML = list.length ? list.map(x => {
         const teams = x.dost ? "DOST-PCIEERD" : x.teams.length ? x.teams.map(teamName).join(", ") : '<span class="none">Not on a team</span>';
-        const roles = x.roles.map(r => ROLE_NAME[r] || r).join(" · ");
+        const roles = roleText(x);
         const tint = roles_has(x, "mentor") ? ' class="dir-mentor"' : x.lead ? ' class="dir-lead"' : "";
         return '<tr' + tint + ' data-ref="' + esc(x.ref) + '"><td><input class="tt" data-f="title" value="' + esc(titleOf(x)) + '" placeholder="Title" aria-label="Title for ' + esc(x.disp) + '"></td>'
           + '<td class="nm">' + esc(x.disp) + (x.account ? "" : '<span class="sub">Hasn\'t signed in yet</span>') + "</td>"
