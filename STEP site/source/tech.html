@@ -3313,7 +3313,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       const teams = (r.team_ids || []).filter(Boolean);
       return { ref: r.ref, disp: m ? r.name.trim().slice(m[0].length) : String(r.name || "").trim(), nameTitle: m ? m[1].replace(/\.$/, "") + (/^(sir|doc|ma'am)$/i.test(m[1]) ? "" : ".") : "",
         title: ex.title || "", phone: ex.phone || "", email: String(r.email || "").trim().toLowerCase(), roles, teams,
-        inst: r.institution || "", account: !!r.has_account, lead: /project leader/i.test(r.member_role || "") };
+        inst: r.institution || "", account: !!r.has_account, lead: /project leader/i.test(r.member_role || ""),
+        /* DOST-PCIEERD staff look after every team, so they get their own tab instead of showing under each team */
+        dost: roles.indexOf("dost") >= 0 || /@pcieerd\.dost\.gov\.ph$/i.test(r.email || "") || /pcieerd/i.test(r.institution || "") };
     }
     const titleOf = x => x.title || x.nameTitle;
     const roles_has = (x, r) => x.roles.indexOf(r) >= 0;
@@ -3323,7 +3325,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     function visible() {
       const words = fold(state.q).split(/\s+/).filter(Boolean);
       return state.rows.filter(x => {
-        if (state.teams.size && !x.teams.some(t => state.teams.has(t))) return false;
+        if (state.teams.size && !(x.dost ? state.teams.has("dost") : x.teams.some(t => state.teams.has(t)))) return false;
         if (state.role && x.roles.indexOf(state.role) < 0) return false;
         if (!words.length) return true;
         const h = haystack(x); return words.every(w => h.indexOf(w) >= 0);
@@ -3332,9 +3334,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     }
 
     function drawTeams() {
-      const none = !state.teams.size;
+      const none = !state.teams.size;   // the last button, DOST-PCIEERD, is a tab like the teams
       $("#dir-teams").innerHTML = '<button type="button" data-t="" aria-pressed="' + none + '">All teams</button>'
-        + G.map(g => '<button type="button" data-t="' + esc(g.id) + '" aria-pressed="' + state.teams.has(g.id) + '" title="Click to show ' + esc(g.name) + ' only. Shift+click to add more teams.">' + esc(g.name) + "</button>").join("");
+        + G.concat([{ id: "dost", name: "DOST-PCIEERD" }]).map(g => '<button type="button" data-t="' + esc(g.id) + '" aria-pressed="' + state.teams.has(g.id) + '" title="Click to show ' + esc(g.name) + ' only. Shift+click to add more teams.">' + esc(g.name) + "</button>").join("");
     }
     function draw() {
       const list = visible(), withMail = list.filter(x => x.email), noMail = list.length - withMail.length;
@@ -3343,7 +3345,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       $("#dir-copy span").textContent = uniq.length ? "Copy " + uniq.length + " email" + (uniq.length === 1 ? "" : "s") : "No emails to copy";
       $("#dir-copy").disabled = $("#dir-copy-nl").disabled = !uniq.length;
       $("#dir-body").innerHTML = list.length ? list.map(x => {
-        const teams = x.teams.length ? x.teams.map(teamName).join(", ") : '<span class="none">Not on a team</span>';
+        const teams = x.dost ? "DOST-PCIEERD" : x.teams.length ? x.teams.map(teamName).join(", ") : '<span class="none">Not on a team</span>';
         const roles = x.roles.map(r => ROLE_NAME[r] || r).join(" · ");
         const tint = roles_has(x, "mentor") ? ' class="dir-mentor"' : x.lead ? ' class="dir-lead"' : "";
         return '<tr' + tint + ' data-ref="' + esc(x.ref) + '"><td><input class="tt" data-f="title" value="' + esc(titleOf(x)) + '" placeholder="Title" aria-label="Title for ' + esc(x.disp) + '"></td>'
@@ -3382,6 +3384,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
         if (demo || !SBC()) {
           rows = [];
           G.forEach((g, i) => ["Alex", "Jamie", "Rina"].forEach((n, k) => rows.push({ ref: "demo" + g.id + k, name: (k === 0 ? "Dr. " : k === 1 ? "Engr. " : "") + n + " " + g.name, email: (n + "." + g.name).toLowerCase().replace(/[^a-z.]/g, "") + "@example.edu.ph", role: "participant", team_ids: [g.id], institution: g.inst, has_account: k !== 2, member_role: k === 0 ? "Project Leader" : "Member" })));
+          rows.push({ ref: "demodost", name: "John Coroza", email: "john.coroza@pcieerd.dost.gov.ph", role: "facilitator", roles: ["facilitator"], team_ids: G.map(g => g.id), institution: "DOST-PCIEERD", has_account: true });
           ((M.faculty && M.faculty.mentors) || []).forEach(m => rows.push({ ref: "demo" + m.id, name: m.name, email: m.name.toLowerCase().replace(/[^a-z]/g, "") + "@ateneo.edu", role: "mentor", roles: ["mentor"], team_ids: [m.team_id].filter(Boolean), institution: "AIPO", has_account: true }));
         } else {
           const [a, b] = await Promise.all([SBC().rpc("directory_list"), SBC().from("directory_extra").select("ref, title, phone")]);
