@@ -515,7 +515,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .dir-search .in { padding-left: 33px; }
 #dir-role { flex: 0 0 180px; width: 180px; }
 .dir-teams { display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 16px 12px; }
-.dir-teams button { all: unset; cursor: pointer; padding: 4px 11px; border: 1px solid var(--rule); border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); background: #fff; }
+.dir-teams button { all: unset; cursor: pointer; user-select: none; padding: 4px 11px; border: 1px solid var(--rule); border-radius: 999px; font-size: 12.5px; font-weight: 600; color: var(--ink-2); background: #fff; }
 .dir-teams button:hover { border-color: #b5c3d3; background: #f7f9fb; }
 .dir-teams button[aria-pressed="true"] { background: var(--blue); border-color: var(--blue); color: #fff; }
 .dir-teams button:focus-visible, .dir-t input:focus-visible { outline: 2px solid var(--blue); outline-offset: 1px; }
@@ -711,7 +711,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       <!-- ===================== Directory ===================== -->
       <section class="sec" data-sec="directory" hidden>
         <div class="sec-head">
-          <div><h1>Directory</h1><p>Everyone on STEP Hub in one place. Search a name, pick one or more teams, then copy their emails. Titles and contact numbers can be typed in right here and are saved for everyone on the tech team.</p></div>
+          <div><h1>Directory</h1><p>Everyone on STEP Hub in one place. Search a name, pick a team (Shift+click to add more teams), then copy their emails. Titles and contact numbers can be typed in right here and are saved for everyone on the tech team.</p></div>
         </div>
         <div class="card dir-card">
           <div class="dir-bar">
@@ -720,7 +720,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
               <option value="">Everyone</option><option value="participant">Participants</option><option value="mentor">Mentors</option><option value="panel">Panelists</option><option value="trainer">Trainers</option><option value="facilitator">Facilitators</option><option value="admin">STEP Team</option>
             </select>
           </div>
-          <div class="dir-teams" id="dir-teams" role="group" aria-label="Filter by team"></div>
+          <div class="dir-teams" id="dir-teams" role="group" aria-label="Filter by team. Shift+click to add more teams"></div>
           <div class="dir-act">
             <span class="dir-count" id="dir-count" aria-live="polite"></span>
             <span class="sp"></span>
@@ -3328,7 +3328,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
     function drawTeams() {
       const none = !state.teams.size;
       $("#dir-teams").innerHTML = '<button type="button" data-t="" aria-pressed="' + none + '">All teams</button>'
-        + G.map(g => '<button type="button" data-t="' + esc(g.id) + '" aria-pressed="' + state.teams.has(g.id) + '">' + esc(g.name) + "</button>").join("");
+        + G.map(g => '<button type="button" data-t="' + esc(g.id) + '" aria-pressed="' + state.teams.has(g.id) + '" title="Click to show ' + esc(g.name) + ' only. Shift+click to add more teams.">' + esc(g.name) + "</button>").join("");
     }
     function draw() {
       const list = visible(), withMail = list.filter(x => x.email), noMail = list.length - withMail.length;
@@ -3410,9 +3410,14 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 
     $("#dir-q").addEventListener("input", e => { state.q = e.target.value; draw(); });
     $("#dir-role").addEventListener("change", e => { state.role = e.target.value; draw(); });
+    /* team buttons work like tabs: a click shows that team only; Shift+click adds or removes teams from the selection */
     $("#dir-teams").addEventListener("click", e => {
       const b = e.target.closest("button[data-t]"); if (!b) return;
-      if (!b.dataset.t) state.teams.clear(); else if (state.teams.has(b.dataset.t)) state.teams.delete(b.dataset.t); else state.teams.add(b.dataset.t);
+      const id = b.dataset.t;
+      if (!id) state.teams.clear();
+      else if (e.shiftKey) { if (state.teams.has(id)) state.teams.delete(id); else state.teams.add(id); }
+      else { state.teams.clear(); state.teams.add(id); }
+      window.getSelection && window.getSelection().removeAllRanges();
       drawTeams(); draw();
     });
     $("#dir-copy").addEventListener("click", () => { const l = emails(); copy(l.join(", "), l.length + " email" + (l.length === 1 ? "" : "s") + " copied, ready to paste into To or Bcc"); });
