@@ -3342,7 +3342,9 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       const ex = state.extra[r.ref] || {};
       const roles = (r.roles && r.roles.length ? r.roles : [r.role]).filter(Boolean);
       const teams = (r.team_ids || []).filter(Boolean);
-      return { ref: r.ref, disp: m ? r.name.trim().slice(m[0].length) : String(r.name || "").trim(), nameTitle: m ? m[1].replace(/\.$/, "") + (/^(sir|doc|ma'am)$/i.test(m[1]) ? "" : ".") : "",
+      /* a full name typed for the Directory wins; chat and panel scoring keep the name on the account */
+      return { ref: r.ref, disp: ex.full_name || (m ? r.name.trim().slice(m[0].length) : String(r.name || "").trim()),
+        nameTitle: m ? m[1].replace(/\.$/, "") + (/^(sir|doc|ma'am)$/i.test(m[1]) ? "" : ".") : "",
         title: ex.title || "", phone: ex.phone || "", email: String(r.email || "").trim().toLowerCase(), roles, teams,
         inst: r.institution || "", account: !!r.has_account, lead: /project leader/i.test(r.member_role || ""), teamRole: String(r.member_role || "").trim(),
         /* DOST-PCIEERD staff look after every team, so they get their own tab instead of showing under each team */
@@ -3421,7 +3423,8 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           rows.push({ ref: "demodost", name: "John Coroza", email: "john.coroza@pcieerd.dost.gov.ph", role: "facilitator", roles: ["facilitator"], team_ids: G.map(g => g.id), institution: "DOST-PCIEERD", has_account: true });
           ((M.faculty && M.faculty.mentors) || []).forEach(m => rows.push({ ref: "demo" + m.id, name: m.name, email: m.name.toLowerCase().replace(/[^a-z]/g, "") + "@ateneo.edu", role: "mentor", roles: ["mentor"], team_ids: [m.team_id].filter(Boolean), institution: "AIPO", has_account: true }));
         } else {
-          const [a, b] = await Promise.all([SBC().rpc("directory_list"), SBC().from("directory_extra").select("ref, title, phone")]);
+          let [a, b] = await Promise.all([SBC().rpc("directory_list"), SBC().from("directory_extra").select("ref, title, phone, full_name")]);
+          if (b.error && /full_name/i.test(b.error.message || "")) b = await SBC().from("directory_extra").select("ref, title, phone");   // before directory_full_names.sql has run
           if (a.error) throw a.error; if (b.error) throw b.error;
           rows = a.data || []; state.extra = {}; (b.data || []).forEach(e => { state.extra[e.ref] = e; });
         }
@@ -3443,7 +3446,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
       const prev = { title: x.title, phone: x.phone };
       if (f === "title") x.title = val; else x.phone = val;
       const row = { ref, title: x.title, phone: x.phone, updated_at: new Date().toISOString() };
-      state.extra[ref] = row;
+      state.extra[ref] = Object.assign({}, state.extra[ref], row);
       if (demo || !SBC()) { toast("Saved (preview only)"); return; }
       input.classList.add("saving");
       const { error } = await SBC().from("directory_extra").upsert(row);
