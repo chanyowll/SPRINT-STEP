@@ -4397,6 +4397,8 @@
       letter: p.letter,
       seats: (p.panelists || []).map(x => x.seat),
       panelists: (p.panelists || []).map(x => nameOfSeat(x.seat, x.name)),
+      /* a panelist saved with a "teams" list scores only those teams on this panel */
+      only: (p.panelists || []).reduce((o, x) => { if (Array.isArray(x.teams) && x.teams.length) o[x.seat] = x.teams; return o; }, {}),
       /* a saved time for the slot wins; otherwise the start time plus 40 minutes a team */
       teams: (p.teams || []).map((id, i) => ({ team: shortOf(id), team_id: id, at: (p.times && p.times[i]) || slotAt(p.at, i) })),
     }));
@@ -15925,6 +15927,13 @@ function initials(n) {
       msg.className = "msg no"; setSave("");
       return;
     }
+    /* a panelist limited to some teams on this panel sees only those */
+    { const base = F.panels.find(p => p.letter === selP.value) || P;
+      const only = base.only && base.only[+selN.value];
+      P = only ? Object.assign({}, base, { teams: base.teams.filter(t => only.includes(t.team_id)) }) : base;
+      document.getElementById("sc-meta").textContent =
+        S.tag ? S.tag + " panel · " + P.teams.length + " team" + (P.teams.length === 1 ? "" : "s")
+              : "Saturday panel · " + P.teams.length + " team" + (P.teams.length === 1 ? "" : "s") + " · 40 min each"; }
     key = { session: S.code, panel: P.letter, seat: +selN.value, panelist: nameOfSeat(selN.value) };
     drawTabs(); drawBody();
     msg.textContent = "Opening " + key.panelist + "’s sheet…"; msg.className = "msg";
