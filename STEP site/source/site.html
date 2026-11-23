@@ -4571,9 +4571,10 @@
     let plan = null;
     if (PP) { try { plan = await PP.forWeek(viewWeek != null ? viewWeek : PP.currentWeek()); } catch (e) { plan = null; } }
     if (plan) {
-      const letterOf = {};
-      (plan.panels || []).forEach(p => (p.panelists || []).forEach(x => { letterOf[x.seat] = p.letter; }));
-      data.forEach(r => { r.panel_letter = letterOf[r.seat] || null; });
+      const lettersOf = {};
+      (plan.panels || []).forEach(p => (p.panelists || []).forEach(x => { (lettersOf[x.seat] = lettersOf[x.seat] || []).push(p.letter); }));
+      /* a seat can sit on more than one panel in a week: panel_letter is its first, panel_letters all of them */
+      data.forEach(r => { r.panel_letters = lettersOf[r.seat] || []; r.panel_letter = r.panel_letters[0] || null; });
     }
     if (mine !== seq) return data;                // a newer load has taken over
     roster = data;
@@ -15826,8 +15827,20 @@ function initials(n) {
     if (!roster || roles.includes("admin")) return { mode: "open", seat: null };
     const mine = PS().mySeat();
     /* a seat left off every panel this week has no sheet to fill */
-    return mine && mine.panel_letter && F.panels.some(p => p.letter === mine.panel_letter)
-      ? { mode: "own", seat: mine.seat, panel: mine.panel_letter } : { mode: "none", seat: null };
+    const mineLetters = ((mine && (mine.panel_letters || (mine.panel_letter ? [mine.panel_letter] : []))) || [])
+      .filter(l => F.panels.some(p => p.letter === l));
+    return mineLetters.length
+      ? { mode: "own", seat: mine.seat, panel: mineLetters[0], panels: mineLetters } : { mode: "none", seat: null };
+  }
+  /* the Panel dropdown: every panel for an admin, only the panels a panelist sits on otherwise */
+  function panelChoices() {
+    return lock.mode === "own" && lock.panels ? F.panels.filter(p => lock.panels.includes(p.letter)) : F.panels;
+  }
+  function fillPanelChoices() {
+    const keep = selP.value;
+    const list = panelChoices();
+    selP.innerHTML = list.map(p => `<option value="${esc(p.letter)}">Panel ${esc(p.letter)}</option>`).join("");
+    selP.value = list.some(p => p.letter === keep) ? keep : (list[0] || {}).letter;
   }
   function fillPanelists(keepSeat) {
     const seats = seatsOf(P);
@@ -15835,14 +15848,15 @@ function initials(n) {
     if (lock.mode === "own") selN.value = String(lock.seat);
     else if (keepSeat != null && seats.includes(+keepSeat)) selN.value = String(keepSeat);
     const locked = lock.mode !== "open";
-    document.getElementById("sc-panel-fld").hidden = locked;
+    const twoPanels = lock.mode === "own" && lock.panels && lock.panels.length > 1;
+    document.getElementById("sc-panel-fld").hidden = locked && !twoPanels;
     document.getElementById("sc-panelist-fld").hidden = locked;
     document.getElementById("sc-me").hidden = !locked;
     if (locked) {
       document.getElementById("sc-me-name").textContent =
         lock.mode === "own" ? nameOfSeat(lock.seat) : "No seat assigned";
       document.getElementById("sc-me-panel").textContent =
-        lock.mode === "own" ? "Panel " + lock.panel : "Ask the STEP team";
+        lock.mode === "own" ? "Panel " + (twoPanels ? P.letter : lock.panel) : "Ask the STEP team";
     }
   }
 
@@ -15942,7 +15956,8 @@ function initials(n) {
 
   function load(keepSeat) {
     lock = computeLock();
-    if (lock.mode === "own") selP.value = lock.panel;
+    fillPanelChoices();
+    if (lock.mode === "own" && !lock.panels.includes(selP.value)) selP.value = lock.panel;
     S = scored.find(s => s.code === selS.value);
     /* the panels for this sheet's week (the grouping saved on the tech console) */
     if (window.__panelWeek) window.__panelWeek(S.week);
@@ -16041,14 +16056,10 @@ function initials(n) {
     const shape = JSON.stringify(F.panels.map(p => [p.letter, p.seats, p.teams.map(t => t.team_id)]));
     const reshaped = shape !== rosterShape;
     rosterShape = shape;
-    if (reshaped) {
-      const keepP = selP.value;
-      selP.innerHTML = F.panels.map(p => `<option value="${esc(p.letter)}">Panel ${esc(p.letter)}</option>`).join("");
-      selP.value = F.panels.some(p => p.letter === keepP) ? keepP : (F.panels[0] || {}).letter;
-    }
+    if (reshaped) { lock = next; fillPanelChoices(); }
     if (sig === rosterSig && !reshaped) return;
     rosterSig = sig;
-    const same = !reshaped && next.mode === lock.mode && next.seat === lock.seat;
+    const same = !reshaped && next.mode === lock.mode && next.seat === lock.seat && JSON.stringify(next.panels || null) === JSON.stringify(lock.panels || null);
     if (same) {                                   // names only: relabel, keep the sheet open
       const keep = selN.value; lock = next; fillPanelists(keep);
       if (key) key.panelist = nameOfSeat(selN.value);
