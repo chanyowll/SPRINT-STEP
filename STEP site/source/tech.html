@@ -472,6 +472,18 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
 .wp-ocard > header { align-items: flex-start; }
 .wp-ocard > header .wp-otxt { color: var(--ink-2); font-size: 12.5px; margin-top: 3px; max-width: 110ch; }
 .wp-ocard > header .r { white-space: nowrap; }
+.wp-ocard.wp-o0 { background: #fdf3f3; }
+.wp-ocard.wp-o1 { background: #f2f9f5; }
+.wp-ocard.wp-o2 { background: #fdf8ef; }
+.wp-ocard.wp-o3 { background: #f8f4fb; }
+.wp-ocard.wp-o4 { background: #f3f8fd; }
+.wp-ocard.wp-o5 { background: #f1f8f8; }
+.wp-ocard.wp-o0 > header { background: #f9e6e6; }
+.wp-ocard.wp-o1 > header { background: #e6f3ec; }
+.wp-ocard.wp-o2 > header { background: #faf0dd; }
+.wp-ocard.wp-o3 > header { background: #f0e9f6; }
+.wp-ocard.wp-o4 > header { background: #e9f1fa; }
+.wp-ocard.wp-o5 > header { background: #e4f2f2; }
 .wp-acc { padding: 14px 16px; border-bottom: 1px solid var(--rule-2); }
 .wp-acc:last-child { border-bottom: 0; }
 .wp-ahead { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; margin-bottom: 10px; }
@@ -3241,7 +3253,7 @@ tr:hover .rm-m, .rm-m:focus-visible { opacity: 1; }
           <div class="wp-tasks">${ts.map(t => wpRow(t)).join("")}</div></div>`;
       }).join("");
       if (!blocks) return "";
-      return `<div class="card wp-ocard"><header><div><h2>Objective ${oi + 1} · ${esc(o.short)}</h2><div class="wp-otxt">${esc(o.text)}</div></div><div class="r"><span class="wp-chip ${o.acc.every(a => wpAccProg(a) >= 1) ? "ok" : "w"}">${o.w}%</span></div></header>${blocks}</div>`;
+      return `<div class="card wp-ocard wp-o${oi % 6}"><header><div><h2>Objective ${oi + 1} · ${esc(o.short)}</h2><div class="wp-otxt">${esc(o.text)}</div></div><div class="r"><span class="wp-chip ${o.acc.every(a => wpAccProg(a) >= 1) ? "ok" : "w"}">${o.w}%</span></div></header>${blocks}</div>`;
     }).join("");
     $("#wp-list").innerHTML = html || `<div class="wp-empty"><b>${wpShow === "done" ? "Nothing ticked yet" : "Nothing left to do here"}</b>${wpShow === "done" ? "Finished tasks show up here." : "Every task in this view is done. Pick All to see them."}</div>`;
     const hid = $("#wp-hid");
