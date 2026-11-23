@@ -67,6 +67,8 @@
       letter: p.letter,
       seats: (p.panelists || []).map(x => x.seat),
       panelists: (p.panelists || []).map(x => nameOfSeat(x.seat, x.name)),
+      /* a panelist saved with a "teams" list scores only those teams on this panel */
+      only: (p.panelists || []).reduce((o, x) => { if (Array.isArray(x.teams) && x.teams.length) o[x.seat] = x.teams; return o; }, {}),
       /* a saved time for the slot wins; otherwise the start time plus 40 minutes a team */
       teams: (p.teams || []).map((id, i) => ({ team: shortOf(id), team_id: id, at: (p.times && p.times[i]) || slotAt(p.at, i) })),
     }));
