@@ -148,9 +148,10 @@
     let plan = null;
     if (PP) { try { plan = await PP.forWeek(viewWeek != null ? viewWeek : PP.currentWeek()); } catch (e) { plan = null; } }
     if (plan) {
-      const letterOf = {};
-      (plan.panels || []).forEach(p => (p.panelists || []).forEach(x => { letterOf[x.seat] = p.letter; }));
-      data.forEach(r => { r.panel_letter = letterOf[r.seat] || null; });
+      const lettersOf = {};
+      (plan.panels || []).forEach(p => (p.panelists || []).forEach(x => { (lettersOf[x.seat] = lettersOf[x.seat] || []).push(p.letter); }));
+      /* a seat can sit on more than one panel in a week: panel_letter is its first, panel_letters all of them */
+      data.forEach(r => { r.panel_letters = lettersOf[r.seat] || []; r.panel_letter = r.panel_letters[0] || null; });
     }
     if (mine !== seq) return data;                // a newer load has taken over
     roster = data;
